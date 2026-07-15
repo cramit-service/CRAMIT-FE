@@ -1,0 +1,61 @@
+@import 'tailwindcss';
+
+@theme {
+  /* ===== Font ===== */
+  --font-sans: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+
+  /* ===== Primary (형광 연두 - 아이덴티티/성공/주목) ===== */
+  --color-primary-100: #fcfaf7; /* background */
+  --color-primary-200: #f1ff89;
+  --color-primary-300: #e9fc47;
+  --color-primary-400: #e3ff00; /* ★ 메인 */
+  --color-primary-500: #bedd0c;
+  --color-primary-600: #99bb17;
+  --color-primary-700: #739823;
+  --color-primary-800: #4e762f;
+  --color-primary-900: #29543b;
+
+  /* ===== Secondary (하늘색 - 행동/AI/버튼) ===== */
+  --color-secondary-100: #e7f7fa;
+  --color-secondary-200: #bae6ed;
+  --color-secondary-300: #7fdef7;
+  --color-secondary-400: #4dd8ff; /* ★ 메인 버튼 */
+  --color-secondary-500: #35b9eb;
+  --color-secondary-600: #1395d2;
+  --color-secondary-700: #0475b9;
+  --color-secondary-800: #024e75;
+  --color-secondary-900: #083645;
+
+  /* ===== Gray Scale ===== */
+  --color-gray-100: #ffffff;
+  --color-gray-200: #f0f1f1;
+  --color-gray-300: #e7e7e8; /* text 연함 */
+  --color-gray-400: #cecfd1; /* icon */
+  --color-gray-500: #aeb1b6;
+  --color-gray-600: #868a91;
+  --color-gray-700: #55585e;
+  --color-gray-800: #2b2e36;
+  --color-gray-900: #1b1e27;
+  --color-gray-950: #0b0f19;
+
+  /* ===== Status ===== */
+  --color-warning: #ffb914;
+  --color-error: #ff5d6b;
+
+  /* ===== etc (입문/중급/전공 단계) ===== */
+  --color-level-01: #f0abff;
+  --color-level-02: #ffde65;
+  --color-level-03: #e3ff00;
+
+  /* ===== Radius ===== */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-full: 999px;
+}
+
+/* 기본 배경/텍스트 */
+body {
+  background-color: var(--color-primary-100);
+  color: var(--color-gray-900);
+}
