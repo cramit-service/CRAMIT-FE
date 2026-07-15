@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=https://storage.googleapis.com/coderabbit_public_assets/schema.v2.json
+
+# 리뷰 코멘트를 한국어로 받습니다.
+language: "ko-KR"
+
+tone_instructions: "신입 개발자가 이해할 수 있게 설명해주세요. 무엇이 문제인지뿐 아니라 왜 문제인지와 어떻게 고치면 되는지를 함께 알려주세요."
+
+reviews:
+  # chill: 중요한 것 위주로 지적. assertive는 사소한 것까지 짚어서 처음엔 부담이 큽니다.
+  profile: "chill"
+
+  # 리뷰가 끝나야 병합할 수 있게 강제하지는 않습니다.
+  request_changes_workflow: false
+
+  high_level_summary: true
+  review_status: true
+  collapse_walkthrough: false
+  poem: false
+
+  auto_review:
+    enabled: true
+    # 작업 중인 draft PR은 리뷰하지 않습니다.
+    drafts: false
+    # 기본 브랜치(develop) 외에 main으로 향하는 PR도 리뷰합니다.
+    base_branches:
+      - "main"
+
+  path_filters:
+    - "!**/package-lock.json"
+    - "!**/.next/**"
+    - "!**/node_modules/**"
+    - "!**/*.min.js"
+    - "!**/public/**"
+
+  path_instructions:
+    - path: "**/*.{ts,tsx}"
+      instructions: |
+        - any 타입 사용을 지적하고 구체적인 타입을 제안해주세요.
+        - 타입 단언(as)보다 타입 가드를 권해주세요.
+        - 사용하지 않는 import와 변수를 짚어주세요.
+
+    - path: "app/**/*.tsx"
+      instructions: |
+        - Next.js App Router 기준으로 리뷰해주세요.
+        - "use client"가 꼭 필요한 곳에만 있는지 확인해주세요. 서버 컴포넌트로 둘 수 있으면 그렇게 권해주세요.
+        - 서버 컴포넌트에서 useState, useEffect 등 클라이언트 전용 훅을 쓰지 않는지 확인해주세요.
+        - API 키나 토큰 같은 민감 정보가 클라이언트 컴포넌트로 넘어가지 않는지 확인해주세요.
+        - fetch 사용 시 에러 처리와 로딩 상태가 있는지 확인해주세요.
+
+    - path: "**/*.tsx"
+      instructions: |
+        - Tailwind 클래스가 지나치게 길어지면 컴포넌트 분리나 공통화를 제안해주세요.
+        - 버튼, 입력창 등에 접근성 속성(aria-label, alt 등)이 빠졌으면 알려주세요.
+        - 조건부 렌더링에서 && 사용 시 0이 렌더링되는 실수가 없는지 확인해주세요.
+
+  tools:
+    # ESLint 설정이 올라오면 자동으로 동작합니다.
+    eslint:
+      enabled: true
+
+chat:
+  auto_reply: true
