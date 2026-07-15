@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=https://storage.googleapis.com/coderabbit_public_assets/schema.v2.json
+
+# 리뷰 코멘트를 한국어로 받습니다.
+language: "ko-KR"
+
+# 250자 제한이 있어 짧게 유지합니다.
+tone_instructions: "백엔드 경험자로 구성된, 프론트엔드는 처음인 팀입니다. 일반적인 설계 원칙 설명은 생략하고 React/Next.js 고유의 함정을 짚어주세요. AI 생성 코드가 많아 정상 경로는 동작하지만 예외 처리가 비어 있는 경우가 많습니다. 에러, 로딩, 빈 상태, 경계값을 특히 집중해서 봐주세요."
+
+reviews:
+  # 새 스택을 익히는 중이라 지적이 많은 쪽이 학습에 유리합니다.
+  # 코멘트가 부담되면 "chill"로 낮추세요.
+  profile: "assertive"
+
+  # 리뷰가 끝나야 병합할 수 있게 강제하지는 않습니다.
+  request_changes_workflow: false
+
+  high_level_summary: true
+  review_status: true
+  collapse_walkthrough: false
+  poem: false
+
+  auto_review:
+    enabled: true
+    # 작업 중인 draft PR은 리뷰하지 않습니다.
+    drafts: false
+    # 기본 브랜치(develop) 외에 main으로 향하는 PR도 리뷰합니다.
+    base_branches:
+      - "main"
+
+  path_filters:
+    - "!**/package-lock.json"
+    - "!**/.next/**"
+    - "!**/node_modules/**"
+    - "!**/*.min.js"
+    - "!**/public/**"
+
+  path_instructions:
+    # 이 팀의 코드는 정상 경로 위주로 작성되는 경향이 있습니다.
+    # 아래 항목은 "빠진 것"을 찾는 지시라 특히 중요합니다.
+    - path: "**/*.{ts,tsx}"
+      instructions: |
+        정상 동작하는 코드인지보다, 실패할 때 어떻게 되는지를 우선해서 봐주세요.
+        구현된 코드의 문제뿐 아니라 "빠져 있는 처리"를 적극적으로 지적해주세요.
+
+        - fetch는 404, 500 같은 HTTP 에러 상태에 reject하지 않습니다. 네트워크 실패에만 throw합니다.
+          response.ok 확인 없이 곧바로 .json()을 호출하는 코드를 반드시 짚어주세요.
+        - 비동기 데이터를 다루는 화면에 로딩 상태, 에러 상태, 데이터가 비었을 때의 상태가
+          모두 있는지 확인해주세요. 셋 중 하나라도 없으면 지적해주세요.
+        - API 응답이 null이나 undefined일 때, 배열이 빈 배열일 때 화면이 깨지지 않는지 확인해주세요.
+        - 응답 형태를 검증 없이 신뢰하는 코드를 짚어주세요. 서버가 계약과 다른 값을 줄 수 있습니다.
+        - 사용자가 요청 중에 다시 클릭하거나 입력을 바꾸는 경우를 확인해주세요.
+          중복 제출 방지(제출 중 버튼 비활성화)와 이전 요청 취소(AbortController)가 필요한 곳을 알려주세요.
+        - 응답이 도착하기 전에 컴포넌트가 언마운트되거나 다른 요청이 먼저 끝나 결과가
+          뒤바뀌는 경우를 확인해주세요.
+        - 인증 토큰 만료나 401 응답에 대한 처리가 있는지 확인해주세요.
+        - try/catch로 감쌌지만 catch 블록이 비어 있거나 console.error만 하고
+          사용자에게 아무것도 알리지 않는 코드를 짚어주세요.
+
+    - path: "app/**/*.tsx"
+      instructions: |
+        - Next.js App Router 기준으로 리뷰해주세요.
+        - "use client"가 꼭 필요한 곳에만 있는지 확인해주세요. 경계를 트리 아래쪽으로 내릴 수 있으면 제안해주세요.
+        - 서버 컴포넌트에서 useState, useEffect 등 클라이언트 전용 훅을 쓰지 않는지 확인해주세요.
+        - 서버에서만 써야 할 값(API 키, 시크릿)이 클라이언트 컴포넌트의 props로 넘어가 번들에 포함되지 않는지 확인해주세요.
+        - fetch의 캐시 동작(force-cache, no-store, revalidate)이 의도한 대로인지 확인해주세요. 명시하지 않아 기본값에 의존하는 곳도 짚어주세요.
+        - 서버 컴포넌트에서 처리할 수 있는 데이터 조회를 useEffect로 가져오고 있으면 지적해주세요.
+        - 데이터를 가져오는 라우트에 error.tsx와 loading.tsx가 있는지 확인해주세요.
+          App Router는 이 파일들로 에러 바운더리와 로딩 UI를 처리하는데, 없으면
+          에러 시 흰 화면이 뜨거나 페이지 전체가 멈춘 것처럼 보입니다.
+        - 존재하지 않는 리소스를 조회하는 동적 라우트에 notFound() 처리가 있는지 확인해주세요.
+
+    - path: "**/*.tsx"
+      instructions: |
+        - 훅 규칙 위반(조건문/반복문 안에서 호출, 의존성 배열 누락)을 짚어주세요.
+        - useEffect가 불필요한 경우를 지적해주세요. 렌더링 중 계산할 수 있거나 이벤트 핸들러에서 처리할 수 있는 로직이면 알려주세요.
+        - 리스트 렌더링의 key로 배열 인덱스를 쓰면 지적해주세요.
+        - 조건부 렌더링에서 && 좌변이 숫자면 0이 그대로 렌더링됩니다. 이 실수를 짚어주세요.
+        - 상태를 불변으로 다루는지 확인해주세요. 기존 객체나 배열을 직접 변경하면 리렌더링이 일어나지 않습니다.
+        - 버튼, 입력창, 이미지에 접근성 속성(aria-label, alt, label 연결)이 빠졌으면 알려주세요.
+        - Tailwind 클래스를 문자열로 조립하면 빌드 시 purge되어 스타일이 사라집니다. 동적 클래스 생성을 짚어주세요.
+
+  tools:
+    # ESLint 설정이 올라오면 자동으로 동작합니다.
+    eslint:
+      enabled: true
+
+chat:
+  auto_reply: true
