@@ -67,9 +67,12 @@ export async function registerOnboardingProfile(
 // 로그인 성공 후 토큰 저장 자리.
 // apiClient가 localStorage의 accessToken을 읽어 Authorization 헤더에 싣는다.
 // TODO: 백엔드 응답 형태 확정 후 실제 저장으로 교체 (저장 위치도 함께 재검토)
+// tokens는 실연동 시 저장에 쓰인다. 지금은 mock 경로만 실행돼 미사용이라 규칙을 잠시 끈다.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function saveAuthTokens(tokens: LoginResponse): void {
   if (USE_MOCK) {
-    console.log('[mock] 토큰 저장 예정', tokens);
+    // 토큰 값은 로그로 남기지 않는다 (실연동 시 민감정보 노출 방지)
+    console.log('[mock] 토큰 저장 호출됨');
     return;
   }
   // localStorage.setItem('accessToken', tokens.accessToken);
