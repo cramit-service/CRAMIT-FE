@@ -1,6 +1,6 @@
 'use client';
 // src/features/auth/components/LoginScreen.tsx
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Logo } from '@/shared/ui/Logo';
 import { SocialButton } from './SocialButton';
 import { startSocialLogin, saveAuthTokens, type SocialProvider } from '../api';
@@ -8,10 +8,17 @@ import { startSocialLogin, saveAuthTokens, type SocialProvider } from '../api';
 export function LoginScreen() {
   // 진행 중인 제공자. 응답을 기다리는 동안 두 버튼을 함께 잠근다.
   const [pending, setPending] = useState<SocialProvider | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // state는 동기로 갱신되지 않아 같은 tick에 연타하면 pending이 계속 null로 보인다.
+  // 리렌더 전에도 막으려면 ref로 검사해야 한다.
+  const isRunning = useRef(false);
 
   const handleLogin = async (provider: SocialProvider) => {
-    if (pending) return;
+    if (isRunning.current) return;
+    isRunning.current = true;
     setPending(provider);
+    setErrorMessage(null);
 
     try {
       const tokens = await startSocialLogin(provider);
@@ -24,9 +31,11 @@ export function LoginScreen() {
       // 그 값으로 여기서 갈라야 한다. 온보딩 화면 작업 전까지는 스펙이 확정돼야 한다.
       console.log(`[mock] ${provider} 로그인 성공 — 다음 화면으로 이동할 자리`);
     } catch (error) {
-      // TODO: 공통 에러 토스트가 생기면 교체
+      // TODO: 공통 에러 토스트가 생기면 그쪽으로 옮긴다
       console.error('소셜 로그인 실패', error);
+      setErrorMessage('로그인에 실패했습니다. 잠시 후 다시 시도해주세요.');
     } finally {
+      isRunning.current = false;
       setPending(null);
     }
   };
@@ -47,6 +56,12 @@ export function LoginScreen() {
           onClick={() => handleLogin('GOOGLE')}
         />
       </div>
+
+      {errorMessage && (
+        <p role="alert" className="text-error mt-6 text-sm">
+          {errorMessage}
+        </p>
+      )}
     </div>
   );
 }
