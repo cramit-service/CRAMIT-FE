@@ -42,6 +42,21 @@ export interface LoginResponse {
   refreshToken: string;
 }
 
+/* ===== 온보딩 (약관 → 닉네임 → 요금제) ===== */
+
+export type PlanId = 'FREE' | 'STANDARD' | 'PRO';
+
+export interface NicknameCheckResponse {
+  available: boolean;
+}
+
+// TODO: 백엔드 온보딩 등록 스펙 확정 시 필드명 재확인 필요
+export interface OnboardingProfileRequest {
+  nickname: string;
+  agreedTermIds: string[];
+  plan: PlanId;
+}
+
 /* ===== Project (기획서 7.3, 8.2) ===== */
 
 export interface Project {
