@@ -21,7 +21,6 @@ function SymbolMark({ className }: { className?: string }) {
       alt="CRAMIT"
       width={34}
       height={48}
-      priority
       className={cn('h-11 w-auto select-none', className)}
     />
   );
