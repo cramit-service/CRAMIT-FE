@@ -1,5 +1,17 @@
 // src/mocks/data.ts
-import type { Project, Exam, Todo, User } from '@/shared/types/api';
+import type {
+  Project,
+  Exam,
+  Todo,
+  User,
+  LoginResponse,
+} from '@/shared/types/api';
+
+// 소셜 로그인 mock 응답 (백엔드 연동 전까지 사용)
+export const mockLoginResponse: LoginResponse = {
+  accessToken: 'mock-access-token',
+  refreshToken: 'mock-refresh-token',
+};
 
 export const mockUser: User = {
   userId: '1',
