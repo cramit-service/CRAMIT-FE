@@ -67,6 +67,35 @@
 
 <br>
 
+## 📁 프로젝트 구조
+
+기능형(feature) 폴더 구조를 따릅니다. 각 기능은 자신의 `components` / `hooks` / `api`를 독립적으로 가지며, 여러 기능이 함께 쓰는 것은 `shared`에 둡니다.
+
+```
+src/
+├── app/                          # 라우팅 전용. page.tsx는 얇게 유지(features 조립만)
+│   ├── (auth)/                   # 로그인 전 레이아웃 그룹
+│   └── (main)/                   # 로그인 후 레이아웃 그룹
+│       └── projects/[projectId]/ # 프로젝트 하위: study, chat, todo, share
+├── features/                     # 기능별 폴더 = 담당 경계
+│   └── <기능>/
+│       ├── components/           # 이 기능 전용 UI
+│       ├── hooks/                # 이 기능 전용 훅
+│       └── api.ts                # 이 기능 전용 API 호출
+├── shared/                       # 공용 (여러 기능이 함께 사용)
+│   ├── ui/                       # 공통 컴포넌트 (Button, Input, Card, Modal)
+│   ├── lib/                      # apiClient, cn 등
+│   ├── hooks/                    # 공통 훅 (폴링 등)
+│   └── types/                    # 전역 API 타입 (api.ts)
+└── mocks/                        # 백엔드 대기용 가짜 데이터
+```
+
+- 기능 전용 코드는 `features/<기능>/`에, 공유 코드는 `shared/`에 둡니다.
+- `app/`의 `page.tsx`는 `features`에서 만든 걸 import해 조립만 합니다.
+- import 경로는 `@/` alias를 사용합니다 (`@/shared/ui/Button`).
+
+<br>
+
 ## ⚙️ 실행 환경
 
 - **Node 버전**: `20 이상`
