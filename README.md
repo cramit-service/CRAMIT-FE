@@ -71,7 +71,7 @@
 
 기능형(feature) 폴더 구조를 따릅니다. 각 기능은 자신의 `components` / `hooks` / `api`를 독립적으로 가지며, 여러 기능이 함께 쓰는 것은 `shared`에 둡니다.
 
-```
+```text
 src/
 ├── app/                          # 라우팅 전용. page.tsx는 얇게 유지(features 조립만)
 │   ├── (auth)/                   # 로그인 전 레이아웃 그룹
