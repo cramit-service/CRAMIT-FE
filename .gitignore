@@ -144,3 +144,6 @@ vite.config.ts.timestamp-*
 
 # IntelliJ
 .idea
+
+# CLAUDE
+CLAUDE.local.md
