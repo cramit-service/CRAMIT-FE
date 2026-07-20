@@ -14,12 +14,28 @@ const PAGE_SIZE = 3;
 // 챕터 상세(단계별 학습) 화면. page.tsx는 이 컴포넌트를 조립만 한다.
 export function ChapterDetailScreen({ projectId }: { projectId: string }) {
   const [page, setPage] = useState(1);
-  const { data: project, isLoading: projectLoading } =
-    useProjectDetail(projectId);
-  const { data: chapters, isLoading: chaptersLoading } = useChapters(projectId);
+  const {
+    data: project,
+    isLoading: projectLoading,
+    isError: projectError,
+  } = useProjectDetail(projectId);
+  const {
+    data: chapters,
+    isLoading: chaptersLoading,
+    isError: chaptersError,
+  } = useChapters(projectId);
 
-  if (projectLoading || chaptersLoading || !project || !chapters) {
+  if (projectLoading || chaptersLoading) {
     return <div className="p-10 text-gray-500">불러오는 중…</div>;
+  }
+
+  // 조회에 실패하면 로딩 문구가 계속 남지 않게 에러 상태를 따로 보여준다.
+  if (projectError || chaptersError || !project || !chapters) {
+    return (
+      <div className="p-10 text-gray-500">
+        강의 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
+      </div>
+    );
   }
 
   // 학습 진행률 = 완료 챕터 / 전체 챕터
@@ -56,9 +72,17 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
 
         {/* 카드 간 간격 */}
         <div className="flex flex-col gap-2">
-          {visible.map((chapter) => (
-            <ChapterCard key={chapter.chapterId} chapter={chapter} />
-          ))}
+          {visible.length === 0 ? (
+            // 아직 주차를 올리지 않은 프로젝트는 빈 영역 대신 안내를 보여준다.
+            <p className="rounded-md bg-white px-6 py-12 text-center text-[14px] leading-[22px] text-gray-500">
+              아직 업로드된 강의가 없어요. 새 주차를 업로드해 학습을
+              시작해보세요.
+            </p>
+          ) : (
+            visible.map((chapter) => (
+              <ChapterCard key={chapter.chapterId} chapter={chapter} />
+            ))
+          )}
         </div>
 
         <div className="mt-5">

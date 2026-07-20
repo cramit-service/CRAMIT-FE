@@ -7,6 +7,7 @@ import { getProjectDetail } from '../api';
 export function useProjectDetail(projectId: string) {
   return useQuery({
     queryKey: ['project-detail', projectId],
-    queryFn: () => getProjectDetail(projectId),
+    // TanStack Query가 주는 signal을 fetcher까지 전달해 취소된 요청을 끊는다.
+    queryFn: ({ signal }) => getProjectDetail(projectId, signal),
   });
 }

@@ -33,9 +33,12 @@ export function ChatDock() {
         </span>
       </button>
 
-      {/* 채팅 패널 (오버레이). 열림/닫힘을 transform으로 전환한다. */}
+      {/* 채팅 패널 (오버레이). 열림/닫힘을 transform으로 전환한다.
+          닫혀 있어도 화면 밖에 남아 있어 aria-hidden만으로는 내부 버튼에 탭 포커스가 들어간다.
+          inert로 포커스·클릭 대상에서 함께 제외한다. */}
       <aside
         aria-hidden={!open}
+        inert={!open}
         className={cn(
           'fixed top-0 right-0 z-30 flex h-screen w-[320px] flex-col border-l border-gray-300 bg-white shadow-xl transition-transform duration-300',
           open ? 'translate-x-0' : 'translate-x-full',

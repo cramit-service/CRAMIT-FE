@@ -9,8 +9,16 @@ export function LearningProgress({ percent }: { percent: number }) {
       <div className="mb-1.5 text-[14px] leading-[22px] tracking-[-0.28px] text-gray-500">
         학습 진행률 {clamped}%
       </div>
-      {/* 트랙 #f0f1f1(gray-200) / 채움 #aeb1b6(gray-500) */}
-      <div className="h-1 w-full overflow-hidden rounded-full bg-gray-200">
+      {/* 트랙 #f0f1f1(gray-200) / 채움 #aeb1b6(gray-500).
+          진행률은 시각적으로만 드러나므로 보조기기용 값을 함께 노출한다. */}
+      <div
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={clamped}
+        aria-label="학습 진행률"
+        className="h-1 w-full overflow-hidden rounded-full bg-gray-200"
+      >
         <div
           className="h-full rounded-full bg-gray-500 transition-[width] duration-300"
           style={{ width: `${clamped}%` }}

@@ -22,18 +22,25 @@ export interface Dday {
   tone: 'urgent' | 'warning' | 'normal' | 'past';
 }
 
+// examDate는 "YYYY-MM-DD"로 내려오는 값이다.
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
 // 오늘~시험일 사이 남은 일수로 D-DAY 태그 텍스트/색을 계산한다.
-// examDate가 없으면 null(태그 미표시).
+// examDate가 없거나 형식이 깨졌으면 null(태그 미표시).
 export function getDday(
   examName: string | null,
   examDate: string | null,
 ): Dday | null {
   if (!examName || !examDate) return null;
+  // 형식이 어긋나거나 존재하지 않는 날짜(2026-02-31 등)면 "D-NaN" 태그가 뜨므로 숨긴다.
+  if (!ISO_DATE.test(examDate)) return null;
 
   // 자정 기준으로 날짜만 비교 (시분초 영향 제거)
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const target = new Date(`${examDate}T00:00:00`);
+  if (Number.isNaN(target.getTime())) return null;
+
   const diffDays = Math.round(
     (target.getTime() - today.getTime()) / 86_400_000,
   );
