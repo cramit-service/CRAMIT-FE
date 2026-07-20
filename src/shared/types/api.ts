@@ -65,6 +65,32 @@ export interface Project {
   createdAt: string; // ISO 날짜 문자열
 }
 
+/* ===== Chapter / 단계별 학습 (이슈 A) ===== */
+
+// 챕터 학습 상태: 학습 전 / 학습 중 / 완료
+export type ChapterStatus = 'BEFORE' | 'IN_PROGRESS' | 'DONE';
+
+export interface Chapter {
+  chapterId: string;
+  projectId: string;
+  chapterNumber: number;
+  title: string; // 카드 본문 한 줄 (예: "알고리즘 기초 알아보기")
+  createdAt: string; // ISO 날짜 문자열
+  status: ChapterStatus;
+  // 백엔드 확정 후 조정. 필드명 카멜/ID 타입은 기존 방침 따름
+}
+
+// 프로젝트 상세 헤더에 필요한 메타 (과목명 + 태그 + 시험 D-DAY + 공유 여부)
+// TODO: 백엔드 프로젝트 상세 응답 스펙 확정 시 필드명 재확인 필요
+export interface ProjectDetail extends Project {
+  professor: string; // 교수명 (태그: "OOO 교수님")
+  chapterCount: number; // 강의(챕터) 개수 (태그: "강의 N개")
+  examName: string | null; // 시험명 (예: "중간고사")
+  examDate: string | null; // 시험일 (YYYY-MM-DD) — D-DAY 계산용
+  isShared: boolean; // 공유 강의 여부 (공유 게시판 노출 여부)
+  sharedBy: string | null; // 공유자 이름 (태그: "OOO 님의 공유"). 내 강의면 null
+}
+
 /* ===== Exam / 시험 일정 (기획서 7.3, 8.9) ===== */
 
 export interface Exam {
