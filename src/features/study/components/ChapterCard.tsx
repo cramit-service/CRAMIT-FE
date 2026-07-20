@@ -40,8 +40,7 @@ export function ChapterCard({ chapter }: { chapter: Chapter }) {
   const router = useRouter();
 
   const goStudy = () => {
-    // TODO(라우팅): 학습 뷰어(PDF/요약/원문) 라우트는 이슈 B에서 생성 예정.
-    // chapters/[chapterId] 페이지가 아직 없으므로 이동만 시도한다.
+    // 학습 뷰어(PDF 강의 자료 / AI 요약 / 원문 스크립트 / TODO)로 이동한다.
     router.push(`/projects/${chapter.projectId}/chapters/${chapter.chapterId}`);
   };
 

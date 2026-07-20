@@ -3,9 +3,15 @@
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'] as const;
 
+// 값이 깨졌을 때 화면에 보여줄 대체 문자열.
+// 백엔드 값이 null이거나 형식이 어긋나면 "NaN. NaN. NaN. (undefined)"가 그대로
+// 렌더되므로, 표시 단계에서 안전한 값으로 정규화한다.
+const FALLBACK = '-';
+
 // 챕터 생성일 표시: "2026. 07. 14. (화) 16:03"
 export function formatChapterDate(iso: string): string {
   const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return FALLBACK;
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
@@ -13,6 +19,26 @@ export function formatChapterDate(iso: string): string {
   const hh = String(d.getHours()).padStart(2, '0');
   const min = String(d.getMinutes()).padStart(2, '0');
   return `${yyyy}. ${mm}. ${dd}. (${w}) ${hh}:${min}`;
+}
+
+// 챕터 생성일 표시(시각 없이): "2026. 07. 14. (화)"
+export function formatChapterDay(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return FALLBACK;
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}. ${mm}. ${dd}. (${WEEKDAYS[d.getDay()]})`;
+}
+
+// 오디오 재생 시간 표시: 725 → "12:05", 3662 → "61:02"
+// 60분을 넘겨도 시(hour)로 나누지 않고 분으로 계속 센다 (Figma 표기 그대로).
+export function formatPlayTime(seconds: number): string {
+  if (!Number.isFinite(seconds)) return FALLBACK;
+  const safe = Math.max(0, Math.floor(seconds));
+  const mm = Math.floor(safe / 60);
+  const ss = String(safe % 60).padStart(2, '0');
+  return `${mm}:${ss}`;
 }
 
 // D-DAY 계산 결과 (태그 텍스트 + 긴급도)

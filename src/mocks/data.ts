@@ -4,6 +4,7 @@ import type {
   ProjectDetail,
   Chapter,
   Exam,
+  LectureMaterial,
   Todo,
   User,
   LoginResponse,
@@ -99,6 +100,13 @@ export const mockProjectDetail: ProjectDetail = {
   examDate: '2026-07-20',
   isShared: false,
   sharedBy: null,
+};
+
+// 학습 뷰어(PDF 강의 자료 탭) mock — Figma 시안값 그대로 12페이지 / 61:02.
+export const mockLectureMaterial: LectureMaterial = {
+  chapterId: 'c4',
+  pdfPageCount: 12,
+  audioDuration: 3662, // 61분 2초
 };
 
 export const mockExams: Exam[] = [
