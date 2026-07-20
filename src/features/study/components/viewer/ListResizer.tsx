@@ -28,14 +28,20 @@ export function ListResizer({ width, min, max, onResize }: ListResizerProps) {
     const handleMove = (move: PointerEvent) => {
       onResize(clamp(startWidth + (move.clientX - startX)));
     };
-    const handleUp = () => {
+    // 터치 취소나 capture 해제로 끝날 수도 있다. pointerup만 정리하면
+    // 남은 pointermove 핸들러가 다음 드래그에서 onResize를 중복 호출한다.
+    const handleEnd = () => {
       handle.removeEventListener('pointermove', handleMove);
-      handle.removeEventListener('pointerup', handleUp);
+      handle.removeEventListener('pointerup', handleEnd);
+      handle.removeEventListener('pointercancel', handleEnd);
+      handle.removeEventListener('lostpointercapture', handleEnd);
     };
 
     handle.setPointerCapture(e.pointerId);
     handle.addEventListener('pointermove', handleMove);
-    handle.addEventListener('pointerup', handleUp);
+    handle.addEventListener('pointerup', handleEnd);
+    handle.addEventListener('pointercancel', handleEnd);
+    handle.addEventListener('lostpointercapture', handleEnd);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {

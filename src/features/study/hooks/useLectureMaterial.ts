@@ -1,7 +1,7 @@
 'use client';
 // src/features/study/hooks/useLectureMaterial.ts
 import { useQuery } from '@tanstack/react-query';
-import { getChapter, getLectureMaterial } from '../api';
+import { getChapter, getLectureMaterial } from '@/features/study/api';
 
 // 학습 뷰어 헤더용 챕터 단건 조회 훅
 export function useChapter(projectId: string, chapterId: string) {

@@ -1,7 +1,7 @@
 'use client';
 // src/features/study/components/viewer/PdfMaterialTab.tsx
 import { useState } from 'react';
-import { useMockAudio } from '../../hooks/useMockAudio';
+import { useMockAudio } from '@/features/study/hooks/useMockAudio';
 import { AudioPlayer } from './AudioPlayer';
 import {
   LIST_DEFAULT_WIDTH,
@@ -22,6 +22,16 @@ export function PdfMaterialTab({ material }: { material: LectureMaterial }) {
   const { isPlaying, currentTime, toggle, seek } = useMockAudio(
     material.audioDuration,
   );
+
+  // 페이지가 없는 자료는 헤더에 "1/0"이 뜨고 목록도 비어버린다.
+  // 훅을 모두 호출한 뒤 빈 상태 안내로 갈음한다.
+  if (material.pdfPageCount < 1) {
+    return (
+      <section className="flex h-[590px] items-center justify-center rounded-md bg-gray-900">
+        <p className="text-gray-500">표시할 PDF 자료가 없습니다.</p>
+      </section>
+    );
+  }
 
   return (
     // Figma: 어두운 패널(gray-900) 하나에 플레이어와 자료 영역이 함께 들어간다

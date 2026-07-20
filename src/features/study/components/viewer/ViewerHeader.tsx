@@ -1,10 +1,10 @@
 'use client';
 // src/features/study/components/viewer/ViewerHeader.tsx
 import { useRouter } from 'next/navigation';
-import { Tag } from '../Tag';
-import { ChevronLeftIcon } from '../icons';
-import { ViewerTabs } from './ViewerTabs';
-import { formatChapterDay } from '../../lib/format';
+import { Tag } from '@/features/study/components/Tag';
+import { ChevronLeftIcon } from '@/features/study/components/icons';
+import { ViewerTabs } from '@/features/study/components/viewer/ViewerTabs';
+import { formatChapterDay } from '@/features/study/lib/format';
 import type { Chapter, ProjectDetail, ViewerTab } from '@/shared/types/api';
 
 interface ViewerHeaderProps {
@@ -30,7 +30,9 @@ export function ViewerHeader({
       <div className="flex items-center justify-between gap-4">
         <button
           type="button"
-          onClick={() => router.back()}
+          // router.back()은 새 탭·직접 URL 진입 시 프로젝트 밖으로 나가버린다.
+          // 항상 챕터 목록(프로젝트 상세)으로 되돌아가도록 경로를 고정한다.
+          onClick={() => router.push(`/projects/${chapter.projectId}`)}
           className="inline-flex shrink-0 items-center gap-1.5 text-gray-950 transition-colors hover:text-gray-700"
         >
           <ChevronLeftIcon className="size-5" />

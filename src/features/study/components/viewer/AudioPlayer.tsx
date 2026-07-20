@@ -1,6 +1,6 @@
 'use client';
 // src/features/study/components/viewer/AudioPlayer.tsx
-import { formatPlayTime } from '../../lib/format';
+import { formatPlayTime } from '@/features/study/lib/format';
 import { PauseIcon, PlayIcon } from './icons';
 
 interface AudioPlayerProps {

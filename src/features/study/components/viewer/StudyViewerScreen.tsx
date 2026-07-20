@@ -1,11 +1,15 @@
 'use client';
 // src/features/study/components/viewer/StudyViewerScreen.tsx
 import { useState } from 'react';
-import { useProjectDetail } from '../../hooks/useProjectDetail';
-import { useChapter, useLectureMaterial } from '../../hooks/useLectureMaterial';
-import { ViewerHeader } from './ViewerHeader';
-import { PdfMaterialTab } from './PdfMaterialTab';
-import { TabPlaceholder } from './TabPlaceholder';
+import { useProjectDetail } from '@/features/study/hooks/useProjectDetail';
+import {
+  useChapter,
+  useLectureMaterial,
+} from '@/features/study/hooks/useLectureMaterial';
+import { ViewerHeader } from '@/features/study/components/viewer/ViewerHeader';
+import { PdfMaterialTab } from '@/features/study/components/viewer/PdfMaterialTab';
+import { TabPlaceholder } from '@/features/study/components/viewer/TabPlaceholder';
+import { Button } from '@/shared/ui/Button';
 import type { ViewerTab } from '@/shared/types/api';
 
 interface StudyViewerScreenProps {
@@ -19,12 +23,44 @@ export function StudyViewerScreen({
   chapterId,
 }: StudyViewerScreenProps) {
   const [activeTab, setActiveTab] = useState<ViewerTab>('PDF');
-  const { data: project } = useProjectDetail(projectId);
-  const { data: chapter } = useChapter(projectId, chapterId);
-  const { data: material } = useLectureMaterial(chapterId);
+  const projectQuery = useProjectDetail(projectId);
+  const chapterQuery = useChapter(projectId, chapterId);
+  const materialQuery = useLectureMaterial(chapterId);
 
-  if (!project || !chapter || !material) {
+  const queries = [projectQuery, chapterQuery, materialQuery];
+
+  // 로딩 / 에러 / 빈 데이터를 구분한다.
+  // 셋을 뭉뚱그려 falsy로 판단하면 조회에 실패해도 "불러오는 중…"에서 멈춘다.
+  if (queries.some((q) => q.isPending)) {
     return <div className="p-10 text-gray-500">불러오는 중…</div>;
+  }
+
+  if (queries.some((q) => q.isError)) {
+    return (
+      <div className="flex flex-col items-start gap-4 p-10">
+        <p className="text-gray-700">
+          학습 자료를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => queries.forEach((q) => q.refetch())}
+        >
+          다시 시도
+        </Button>
+      </div>
+    );
+  }
+
+  const project = projectQuery.data;
+  const chapter = chapterQuery.data;
+  const material = materialQuery.data;
+
+  // 성공했는데 본문이 비어 있는 경우 (204 등)
+  if (!project || !chapter || !material) {
+    return (
+      <div className="p-10 text-gray-500">표시할 학습 자료가 없습니다.</div>
+    );
   }
 
   return (

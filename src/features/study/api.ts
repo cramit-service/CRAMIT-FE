@@ -4,7 +4,7 @@ import type {
   LectureMaterial,
   ProjectDetail,
 } from '@/shared/types/api';
-import { apiClient } from '@/shared/lib/apiClient';
+import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
 import {
   mockChapters,
   mockLectureMaterial,
@@ -69,9 +69,16 @@ export async function getChapter(
   if (USE_MOCK) {
     await delay(300, signal);
     const found = mockChapters.find((c) => c.chapterId === chapterId);
-    // mock에 없는 id로 들어오면 첫 챕터로 대체해 화면이 비지 않게 한다
-    const base = found ?? mockChapters[0];
-    return { ...base, projectId, chapterId };
+    // 없는 id를 첫 챕터로 대체하면 잘못된 URL이 정상 화면처럼 보인다.
+    // 실제 404와 같게 던져서 화면이 에러 상태를 타도록 한다.
+    if (!found) {
+      throw new ApiRequestError(
+        'CHAPTER_NOT_FOUND',
+        '챕터를 찾을 수 없습니다.',
+        404,
+      );
+    }
+    return { ...found, projectId, chapterId };
   }
   return apiClient.get<Chapter>(`/chapters/${chapterId}`, { signal });
 }
