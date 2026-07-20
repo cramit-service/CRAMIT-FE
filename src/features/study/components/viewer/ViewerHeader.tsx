@@ -1,0 +1,59 @@
+'use client';
+// src/features/study/components/viewer/ViewerHeader.tsx
+import { useRouter } from 'next/navigation';
+import { Tag } from '../Tag';
+import { ChevronLeftIcon } from '../icons';
+import { ViewerTabs } from './ViewerTabs';
+import { formatChapterDay } from '../../lib/format';
+import type { Chapter, ProjectDetail, ViewerTab } from '@/shared/types/api';
+
+interface ViewerHeaderProps {
+  chapter: Chapter;
+  project: ProjectDetail;
+  activeTab: ViewerTab;
+  onTabChange: (tab: ViewerTab) => void;
+}
+
+// 학습 뷰어 공통 헤더 (모든 탭 공통).
+// Figma 2단 구성: 위 = 뒤로가기 / Chapter 제목, 아래 = 탭 / 강의명·교수·날짜.
+export function ViewerHeader({
+  chapter,
+  project,
+  activeTab,
+  onTabChange,
+}: ViewerHeaderProps) {
+  const router = useRouter();
+
+  return (
+    <header>
+      {/* 1단: 이전으로(챕터 상세로) + 우측 Chapter 제목 */}
+      <div className="flex items-center justify-between gap-4">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="inline-flex shrink-0 items-center gap-1.5 text-gray-950 transition-colors hover:text-gray-700"
+        >
+          <ChevronLeftIcon className="size-5" />
+          <span className="text-[14px] leading-[22px] font-medium tracking-[-0.28px]">
+            이전으로
+          </span>
+        </button>
+        <h1 className="min-w-0 truncate text-right text-[24px] leading-[34px] font-semibold tracking-[-0.48px] text-gray-950">
+          Chapter {chapter.chapterNumber} - {chapter.title}
+        </h1>
+      </div>
+
+      {/* 2단: 좌측 탭 4개 + 우측 강의명·교수 태그·날짜 태그 */}
+      <div className="mt-7 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <ViewerTabs activeTab={activeTab} onChange={onTabChange} />
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-[14px] leading-[22px] tracking-[-0.28px] text-gray-950">
+            {project.title}
+          </p>
+          <Tag tone="dark">{project.professor} 교수님</Tag>
+          <Tag tone="outline">{formatChapterDay(chapter.createdAt)}</Tag>
+        </div>
+      </div>
+    </header>
+  );
+}

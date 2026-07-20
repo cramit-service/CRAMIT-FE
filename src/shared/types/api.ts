@@ -91,6 +91,21 @@ export interface ProjectDetail extends Project {
   sharedBy: string | null; // 공유자 이름 (태그: "OOO 님의 공유"). 내 강의면 null
 }
 
+/* ===== 학습 뷰어 / 강의자료 (이슈 B) ===== */
+
+// 학습 뷰어 탭 4종. 이번 이슈에서 내용을 채우는 건 PDF뿐이고 나머지는 자리만 잡는다.
+export type ViewerTab = 'PDF' | 'SUMMARY' | 'SCRIPT' | 'TODO';
+
+// 챕터 하나에 딸린 강의자료(PDF + 녹음) 메타.
+// TODO: 백엔드 스펙 확정 후 필드명/타입 재확인 필요.
+export interface LectureMaterial {
+  chapterId: string;
+  pdfPageCount: number; // PDF 총 페이지 수
+  audioDuration: number; // 녹음 길이(초). 예: 3662 = 61:02
+  // TODO: pdfUrl / audioUrl(실제 렌더·재생용), 페이지↔오디오 구간 매핑은
+  //       백엔드에서 내려주는 형태가 확정되면 여기에 추가한다.
+}
+
 /* ===== Exam / 시험 일정 (기획서 7.3, 8.9) ===== */
 
 export interface Exam {

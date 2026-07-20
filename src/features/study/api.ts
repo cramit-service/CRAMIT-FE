@@ -1,7 +1,15 @@
 // src/features/study/api.ts
-import type { Chapter, ProjectDetail } from '@/shared/types/api';
+import type {
+  Chapter,
+  LectureMaterial,
+  ProjectDetail,
+} from '@/shared/types/api';
 import { apiClient } from '@/shared/lib/apiClient';
-import { mockChapters, mockProjectDetail } from '@/mocks/data';
+import {
+  mockChapters,
+  mockLectureMaterial,
+  mockProjectDetail,
+} from '@/mocks/data';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로) — project/api.ts와 동일 패턴
 const USE_MOCK = true;
@@ -47,6 +55,38 @@ export async function getChapters(
     return mockChapters.map((c) => ({ ...c, projectId }));
   }
   return apiClient.get<Chapter[]>(`/projects/${projectId}/chapters`, {
+    signal,
+  });
+}
+
+// 챕터 단건 조회 (학습 뷰어 헤더용)
+// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요 (/chapters/{chapterId} 형태 가정)
+export async function getChapter(
+  projectId: string,
+  chapterId: string,
+  signal?: AbortSignal,
+): Promise<Chapter> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    const found = mockChapters.find((c) => c.chapterId === chapterId);
+    // mock에 없는 id로 들어오면 첫 챕터로 대체해 화면이 비지 않게 한다
+    const base = found ?? mockChapters[0];
+    return { ...base, projectId, chapterId };
+  }
+  return apiClient.get<Chapter>(`/chapters/${chapterId}`, { signal });
+}
+
+// 챕터의 강의자료(PDF 페이지 수·녹음 길이) 조회
+// TODO: 실제 pdfUrl/audioUrl은 백엔드 확정 후 응답에 추가한다
+export async function getLectureMaterial(
+  chapterId: string,
+  signal?: AbortSignal,
+): Promise<LectureMaterial> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    return { ...mockLectureMaterial, chapterId };
+  }
+  return apiClient.get<LectureMaterial>(`/chapters/${chapterId}/material`, {
     signal,
   });
 }

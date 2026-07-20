@@ -15,6 +15,24 @@ export function formatChapterDate(iso: string): string {
   return `${yyyy}. ${mm}. ${dd}. (${w}) ${hh}:${min}`;
 }
 
+// 챕터 생성일 표시(시각 없이): "2026. 07. 14. (화)"
+export function formatChapterDay(iso: string): string {
+  const d = new Date(iso);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}. ${mm}. ${dd}. (${WEEKDAYS[d.getDay()]})`;
+}
+
+// 오디오 재생 시간 표시: 725 → "12:05", 3662 → "61:02"
+// 60분을 넘겨도 시(hour)로 나누지 않고 분으로 계속 센다 (Figma 표기 그대로).
+export function formatPlayTime(seconds: number): string {
+  const safe = Math.max(0, Math.floor(seconds));
+  const mm = Math.floor(safe / 60);
+  const ss = String(safe % 60).padStart(2, '0');
+  return `${mm}:${ss}`;
+}
+
 // D-DAY 계산 결과 (태그 텍스트 + 긴급도)
 export interface Dday {
   label: string; // 예: "중간고사 D-3", "중간고사 D-DAY", "중간고사 종료"
