@@ -1,0 +1,48 @@
+// src/features/study/lib/format.ts
+// 챕터 상세 화면 전용 표시 포맷 유틸
+
+const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'] as const;
+
+// 챕터 생성일 표시: "2026. 07. 14. (화) 16:03"
+export function formatChapterDate(iso: string): string {
+  const d = new Date(iso);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const w = WEEKDAYS[d.getDay()];
+  const hh = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  return `${yyyy}. ${mm}. ${dd}. (${w}) ${hh}:${min}`;
+}
+
+// D-DAY 계산 결과 (태그 텍스트 + 긴급도)
+export interface Dday {
+  label: string; // 예: "중간고사 D-3", "중간고사 D-DAY", "중간고사 종료"
+  // 색 강도: 임박(빨강) / 주의(노랑) / 여유(하늘) / 지남(회색)
+  tone: 'urgent' | 'warning' | 'normal' | 'past';
+}
+
+// 오늘~시험일 사이 남은 일수로 D-DAY 태그 텍스트/색을 계산한다.
+// examDate가 없으면 null(태그 미표시).
+export function getDday(
+  examName: string | null,
+  examDate: string | null,
+): Dday | null {
+  if (!examName || !examDate) return null;
+
+  // 자정 기준으로 날짜만 비교 (시분초 영향 제거)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(`${examDate}T00:00:00`);
+  const diffDays = Math.round(
+    (target.getTime() - today.getTime()) / 86_400_000,
+  );
+
+  if (diffDays < 0) return { label: `${examName} 종료`, tone: 'past' };
+  if (diffDays === 0) return { label: `${examName} D-DAY`, tone: 'urgent' };
+
+  const label = `${examName} D-${diffDays}`;
+  if (diffDays <= 3) return { label, tone: 'urgent' };
+  if (diffDays <= 7) return { label, tone: 'warning' };
+  return { label, tone: 'normal' };
+}
