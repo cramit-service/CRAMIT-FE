@@ -30,7 +30,8 @@ export function LandingHeader() {
           className="absolute left-1/2 -translate-x-1/2"
           aria-label="크래밋 홈"
         >
-          <Logo className="text-lg" />
+          {/* Figma 헤더 워드마크는 110x22 */}
+          <Logo className="h-[22px]" />
         </Link>
 
         <nav className="flex items-center gap-5">

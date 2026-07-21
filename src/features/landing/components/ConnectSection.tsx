@@ -1,19 +1,25 @@
 // src/features/landing/components/ConnectSection.tsx
+import Image from 'next/image';
 
+// 아이콘은 Figma 시안 에셋(main_dashboard_2~4). 어두운 배경용 흰 와이어프레임 이미지라
+// 직접 그리지 않고 내보낸 원본을 그대로 쓴다.
 const FEATURES = [
   {
     title: 'AI 기반 강의 요약',
     description: '강의자료와 녹음을 분석해 핵심 내용을 자동으로 정리합니다.',
+    icon: '/landing/feature-summary.png',
   },
   {
     title: '자료 자동 연결',
     description:
       'PDF와 음성을 페이지 단위로 연결해 원하는 내용을 빠르게 찾아 복습합니다.',
+    icon: '/landing/feature-connect.png',
   },
   {
     title: '맞춤형 학습 관리',
     description:
       '메모와 TODO를 통해 시험 준비까지의 과정을 체계적으로 관리합니다.',
+    icon: '/landing/feature-manage.png',
   },
 ];
 
@@ -34,8 +40,13 @@ export function ConnectSection() {
         <ul className="mt-28 grid gap-12 md:grid-cols-3">
           {FEATURES.map((feature) => (
             <li key={feature.title}>
-              {/* TODO: 기능 아이콘 확정되면 교체 */}
-              <div className="h-12 w-12 rounded-full bg-gray-800" aria-hidden />
+              <Image
+                src={feature.icon}
+                alt=""
+                width={200}
+                height={200}
+                className="size-[72px] object-contain"
+              />
               <h3 className="text-secondary-400 mt-6 text-sm font-bold">
                 {feature.title}
               </h3>

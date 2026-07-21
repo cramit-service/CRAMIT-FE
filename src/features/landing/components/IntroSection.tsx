@@ -1,14 +1,18 @@
 // src/features/landing/components/IntroSection.tsx
+import Image from 'next/image';
 
 export function IntroSection() {
   return (
     // gray-100이 흰색 토큰이다
     <section className="bg-gray-100 px-6 py-32">
       <div className="mx-auto grid max-w-6xl items-center gap-14 md:grid-cols-[2fr_3fr]">
-        {/* TODO: 실제 이미지 확정되면 next/image로 교체 */}
-        <div
-          className="aspect-[4/3] w-full rounded-lg bg-gray-300"
-          aria-hidden
+        {/* Figma 시안 이미지(main_dashboard_1). 시안 비율이 3:2라 원본(4:3)을 잘라 맞춘다 */}
+        <Image
+          src="/landing/intro-desk.jpg"
+          alt=""
+          width={1200}
+          height={900}
+          className="aspect-3/2 w-full rounded-lg object-cover"
         />
 
         <div>
