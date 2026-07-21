@@ -64,8 +64,23 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
   };
 
   const handleSave = () => {
-    updateMutation.mutate(draft, { onSuccess: () => setMode('view') });
+    updateMutation.mutate(draft, {
+      onSuccess: () => setMode('view'),
+      // 실패를 알리지 않으면 저장된 줄 알고 화면을 떠나게 된다
+      onError: () => setNotice('저장에 실패했습니다. 다시 시도해 주세요'),
+    });
   };
+
+  // 요약 생성이 아직 진행 중인 경우 (빈 요약과 구분해서 안내한다)
+  if (summaryQuery.isProcessing) {
+    return (
+      <section className={cn(PANEL, 'items-center justify-center')}>
+        <p className="text-[14px] leading-[22px] text-gray-400">
+          AI가 요약을 생성하고 있습니다. 완료되면 자동으로 표시됩니다.
+        </p>
+      </section>
+    );
+  }
 
   if (summaryQuery.isPending) {
     return (
@@ -165,7 +180,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
             {markdown ? (
               <MarkdownContent markdown={markdown} />
             ) : (
-              // TODO(백엔드): 요약 생성이 비동기라 PROCESSING 상태 폴링이 붙으면 문구를 나눈다.
+              // 생성 중(PROCESSING)은 위에서 따로 걸러내므로 여기는 '생성됐지만 비어 있음'이다
               <p className="text-[14px] leading-[22px] text-gray-500">
                 아직 생성된 요약이 없습니다.
               </p>
@@ -176,9 +191,13 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
             ref={editRef}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
+            // 저장 요청 뒤 입력한 내용은 성공과 함께 view로 넘어가며 조용히 사라진다
+            readOnly={updateMutation.isPending}
+            aria-busy={updateMutation.isPending}
             spellCheck={false}
             aria-label="요약 Markdown 원문 편집"
-            className="h-full w-full resize-none rounded-md px-8 py-7 font-mono text-[13px] leading-[22px] text-gray-800 outline-none"
+            // 기본 outline은 지우되 키보드 포커스는 링으로 남긴다 (마우스 클릭 시엔 안 보인다)
+            className="focus-visible:ring-secondary-400 h-full w-full resize-none rounded-md px-8 py-7 font-mono text-[13px] leading-[22px] text-gray-800 outline-none focus-visible:ring-2 focus-visible:ring-inset"
           />
         )}
 
