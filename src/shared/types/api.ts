@@ -106,6 +106,17 @@ export interface LectureMaterial {
   //       백엔드에서 내려주는 형태가 확정되면 여기에 추가한다.
 }
 
+/* ===== AI 강의 요약 (이슈 C) ===== */
+
+// AI가 생성한 Markdown 요약본.
+// TODO: 백엔드 스펙 확정 후 필드명/타입 재확인 필요.
+export interface LectureSummary {
+  chapterId: string;
+  fileName: string; // 상단 바에 노출 (예: "알고리즘_Chapter 4 - ..._요약.md")
+  markdown: string; // Markdown 원문 (조회 시 렌더, 편집 시 textarea 내용)
+  updatedAt: string; // ISO 날짜 문자열
+}
+
 /* ===== Exam / 시험 일정 (기획서 7.3, 8.9) ===== */
 
 export interface Exam {

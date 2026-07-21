@@ -2,12 +2,14 @@
 import type {
   Chapter,
   LectureMaterial,
+  LectureSummary,
   ProjectDetail,
 } from '@/shared/types/api';
 import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
 import {
   mockChapters,
   mockLectureMaterial,
+  mockLectureSummary,
   mockProjectDetail,
 } from '@/mocks/data';
 
@@ -96,4 +98,38 @@ export async function getLectureMaterial(
   return apiClient.get<LectureMaterial>(`/chapters/${chapterId}/material`, {
     signal,
   });
+}
+
+// 챕터의 AI 강의 요약(Markdown 원문) 조회
+// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
+export async function getLectureSummary(
+  chapterId: string,
+  signal?: AbortSignal,
+): Promise<LectureSummary> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    return { ...mockLectureSummary, chapterId };
+  }
+  return apiClient.get<LectureSummary>(`/chapters/${chapterId}/summary`, {
+    signal,
+  });
+}
+
+// 요약 Markdown 수정 저장
+// TODO: 백엔드 저장 API가 아직 없다. USE_MOCK을 끄기 전까지는 서버에 반영되지 않고
+//       화면(쿼리 캐시)에만 남는다. 엔드포인트/메서드 확정 시 경로도 재확인 필요.
+export async function updateLectureSummary(
+  chapterId: string,
+  markdown: string,
+  signal?: AbortSignal,
+): Promise<LectureSummary> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    return { ...mockLectureSummary, chapterId, markdown };
+  }
+  return apiClient.patch<LectureSummary>(
+    `/chapters/${chapterId}/summary`,
+    { markdown },
+    { signal },
+  );
 }
