@@ -8,6 +8,7 @@ import {
 } from '@/features/study/hooks/useLectureMaterial';
 import { ViewerHeader } from '@/features/study/components/viewer/ViewerHeader';
 import { PdfMaterialTab } from '@/features/study/components/viewer/PdfMaterialTab';
+import { SummaryTab } from '@/features/study/components/viewer/SummaryTab';
 import { TabPlaceholder } from '@/features/study/components/viewer/TabPlaceholder';
 import { Button } from '@/shared/ui/Button';
 import type { ViewerTab } from '@/shared/types/api';
@@ -76,10 +77,8 @@ export function StudyViewerScreen({
 
       <div className="mt-5">
         {activeTab === 'PDF' && <PdfMaterialTab material={material} />}
-        {/* TODO(다음 이슈): AI 강의 요약 탭 — Markdown 요약본 렌더 */}
-        {activeTab === 'SUMMARY' && (
-          <TabPlaceholder label="AI 강의 요약은 다음 이슈에서 구현합니다." />
-        )}
+        {/* 요약은 이 탭에서만 필요하니 화면 진입 시가 아니라 탭 안에서 따로 조회한다 */}
+        {activeTab === 'SUMMARY' && <SummaryTab chapterId={chapterId} />}
         {/* TODO(다음 이슈): 원문 스크립트 탭 — STT 원문 렌더 */}
         {activeTab === 'SCRIPT' && (
           <TabPlaceholder label="원문 스크립트는 다음 이슈에서 구현합니다." />
