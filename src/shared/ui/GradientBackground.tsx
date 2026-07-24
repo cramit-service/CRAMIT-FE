@@ -6,6 +6,10 @@ interface GradientBackgroundProps {
   // true면 부모를 꽉 채우는 배경 레이어가 된다 (부모에 relative 필요).
   // false면 스스로 relative 컨테이너가 되어 children을 감싼다.
   layer?: boolean;
+  // 'default'는 세로로 큰 영역(랜딩·로그인)용.
+  // 'wide'는 넓고 낮은 영역(홈 학습 배너)용 — 같은 코너 배치에서 블롭 크기만 살짝 줄여
+  // 사이로 배경(흰색)이 보이게 한다.
+  variant?: 'default' | 'wide';
   className?: string;
   children?: React.ReactNode;
 }
@@ -14,6 +18,7 @@ interface GradientBackgroundProps {
 // 토큰 색 원을 흐리게 겹쳐 mesh 그라데이션처럼 보이게 한다.
 export function GradientBackground({
   layer = false,
+  variant = 'default',
   className,
   children,
 }: GradientBackgroundProps) {
@@ -28,10 +33,22 @@ export function GradientBackground({
       )}
     >
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="bg-secondary-200 absolute -top-1/4 -left-1/5 h-[75%] w-[55%] rounded-full opacity-70 blur-3xl" />
-        <div className="bg-primary-200 absolute -top-1/3 -right-1/5 h-[85%] w-[55%] rounded-full opacity-80 blur-3xl" />
-        <div className="bg-primary-200 absolute -bottom-1/4 left-1/5 h-[70%] w-[50%] rounded-full opacity-60 blur-3xl" />
-        <div className="bg-secondary-200 absolute -right-1/5 -bottom-1/3 h-[70%] w-[45%] rounded-full opacity-60 blur-3xl" />
+        {variant === 'wide' ? (
+          // 기본과 같은 코너 배치 + 크기(h·w)만 약 10% 줄인 배너용
+          <>
+            <div className="bg-secondary-200 absolute -top-1/4 -left-1/5 h-[61%] w-[43%] rounded-full opacity-70 blur-3xl" />
+            <div className="bg-primary-200 absolute -top-1/3 -right-1/5 h-[70%] w-[43%] rounded-full opacity-80 blur-3xl" />
+            <div className="bg-primary-200 absolute -bottom-1/4 left-1/5 h-[57%] w-[39%] rounded-full opacity-60 blur-3xl" />
+            <div className="bg-secondary-200 absolute -right-1/5 -bottom-1/3 h-[57%] w-[35%] rounded-full opacity-60 blur-3xl" />
+          </>
+        ) : (
+          <>
+            <div className="bg-secondary-200 absolute -top-1/4 -left-1/5 h-[75%] w-[55%] rounded-full opacity-70 blur-3xl" />
+            <div className="bg-primary-200 absolute -top-1/3 -right-1/5 h-[85%] w-[55%] rounded-full opacity-80 blur-3xl" />
+            <div className="bg-primary-200 absolute -bottom-1/4 left-1/5 h-[70%] w-[50%] rounded-full opacity-60 blur-3xl" />
+            <div className="bg-secondary-200 absolute -right-1/5 -bottom-1/3 h-[70%] w-[45%] rounded-full opacity-60 blur-3xl" />
+          </>
+        )}
       </div>
       {children}
     </div>

@@ -209,6 +209,7 @@ export const mockExams: Exam[] = [
     examDate: dateFromToday(0), // 오늘 → D-DAY (빨강)
     memo: '3~7장 범위',
     createdAt: '2026-07-01T09:00:00Z',
+    progress: 85,
   },
   {
     examId: '2',
@@ -218,6 +219,7 @@ export const mockExams: Exam[] = [
     examDate: dateFromToday(1), // 내일 → D-1 (노랑)
     memo: null,
     createdAt: '2026-07-02T09:00:00Z',
+    progress: 40,
   },
   {
     examId: '3',
@@ -227,6 +229,7 @@ export const mockExams: Exam[] = [
     examDate: dateFromToday(3), // D-3 (노랑)
     memo: '실습 과제 범위 포함',
     createdAt: '2026-07-03T09:00:00Z',
+    progress: 60,
   },
   {
     examId: '4',
@@ -236,6 +239,7 @@ export const mockExams: Exam[] = [
     examDate: dateFromToday(8), // D-8 (파랑)
     memo: null,
     createdAt: '2026-07-04T09:00:00Z',
+    progress: 20,
   },
   {
     examId: '5',
@@ -245,6 +249,7 @@ export const mockExams: Exam[] = [
     examDate: dateFromToday(-1), // 어제 → "다가오는" 필터에서 제외되어야 함(경계 확인)
     memo: null,
     createdAt: '2026-04-01T09:00:00Z',
+    progress: 100,
   },
 ];
 

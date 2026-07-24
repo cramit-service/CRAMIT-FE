@@ -127,6 +127,7 @@ export interface Exam {
   examDate: string; // YYYY-MM-DD
   memo: string | null;
   createdAt: string;
+  progress: number; // 학습 진행률 0~100 (홈 학습 배너 표시용, 시험 일정과 함께 내려옴)
 }
 
 /* ===== Todo (기획서 7.3, 8.8) ===== */
