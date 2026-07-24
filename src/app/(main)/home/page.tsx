@@ -1,16 +1,26 @@
 // src/app/(main)/home/page.tsx
-// ⚠️ 임시 placeholder — 홈 콘텐츠는 홈 담당자가 구현 예정.
-// (main) 레이아웃(사이드바)이 children을 감싸는 구조를 확인하기 위한 최소 페이지다.
-// 실제 홈 화면이 들어오면 이 파일 내용을 교체한다.
+import { StudyBanner } from '@/features/project/components/home/StudyBanner';
+import { ExamSchedule } from '@/features/project/components/home/ExamSchedule';
+import { Calendar } from '@/features/calendar/components/Calendar';
+import { TodoChecklist } from '@/features/todo/components/TodoChecklist';
+
+// 홈(대시보드) 페이지. page.tsx는 조립만 한다.
+// 2×2 배치: 좌열=학습 배너+캘린더, 우열=시험 일정+TODO. 양쪽 열이 위에서부터 정렬된다.
+// 열 폭 비율(839:655)은 디자인 시안 값. fr로 비율만 유지해 반응형으로 늘어난다.
+// 좁은 화면(lg 미만)에선 grid-cols-1로 한 줄로 쌓인다.
 export default function HomePage() {
   return (
-    <div className="p-10">
-      <h1 className="text-2xl font-bold text-gray-900">
-        홈 (임시 placeholder)
-      </h1>
-      <p className="mt-2 text-gray-600">
-        홈 콘텐츠는 담당자가 구현합니다. 사이드바 레이아웃 확인용 페이지입니다.
-      </p>
+    <div className="px-6 py-10 md:px-10 lg:px-16">
+      <div className="grid grid-cols-1 gap-4.5 lg:grid-cols-[minmax(0,839fr)_minmax(0,655fr)]">
+        <div className="flex flex-col gap-4.5">
+          <StudyBanner />
+          <Calendar />
+        </div>
+        <div className="flex flex-col gap-4.5">
+          <ExamSchedule />
+          <TodoChecklist />
+        </div>
+      </div>
     </div>
   );
 }
