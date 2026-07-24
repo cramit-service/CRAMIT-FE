@@ -2,7 +2,7 @@
 // src/shared/ui/Button.tsx
 import { cn } from '@/shared/lib/cn';
 
-type Variant = 'primary' | 'danger' | 'point' | 'outline';
+type Variant = 'primary' | 'danger' | 'point' | 'outline' | 'dark';
 type Size = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -16,6 +16,7 @@ const variantStyles: Record<Variant, string> = {
   danger: 'bg-error text-white hover:opacity-90',
   point: 'bg-primary-400 text-gray-900 hover:bg-primary-500',
   outline: 'bg-white text-gray-900 border border-gray-400 hover:bg-gray-200',
+  dark: 'bg-gray-800 text-white hover:bg-gray-900',
 };
 
 // size별 크기 스타일

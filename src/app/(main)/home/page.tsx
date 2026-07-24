@@ -11,12 +11,12 @@ import { TodoChecklist } from '@/features/todo/components/TodoChecklist';
 export default function HomePage() {
   return (
     <div className="px-6 py-10 md:px-10 lg:px-16">
-      <div className="grid grid-cols-1 gap-4.5 lg:grid-cols-[minmax(0,839fr)_minmax(0,655fr)]">
-        <div className="flex flex-col gap-4.5">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,839fr)_minmax(0,655fr)]">
+        <div className="flex flex-col gap-3">
           <StudyBanner />
           <Calendar />
         </div>
-        <div className="flex flex-col gap-4.5">
+        <div className="flex flex-col gap-3">
           <ExamSchedule />
           <TodoChecklist />
         </div>
