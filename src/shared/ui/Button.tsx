@@ -40,6 +40,9 @@ const sizeStyles: Record<Size, string> = {
 export function Button({
   variant = 'primary',
   size = 'md',
+  // 기본은 'button'. HTML 기본값 'submit'이면 form 안에서 의도치 않게 제출되므로,
+  // 제출 버튼만 호출처에서 type="submit"을 명시한다.
+  type = 'button',
   className,
   disabled,
   children,
@@ -47,6 +50,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
+      type={type}
       className={cn(
         'inline-flex items-center justify-center rounded-md tracking-[-0.02em] whitespace-nowrap transition-colors',
         sizeStyles[size],
