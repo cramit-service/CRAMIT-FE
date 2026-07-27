@@ -42,7 +42,6 @@ export function Checkbox({
         className,
       )}
     >
-      {/* 실제 input은 숨기고 키보드 포커스·스크린리더 지원만 남긴다 */}
       <input
         type="checkbox"
         checked={checked}

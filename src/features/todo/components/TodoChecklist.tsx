@@ -16,8 +16,7 @@ function dueLabel(todo: Todo): string {
   return `| 마감일시 ${date}${todo.dueTime ? ` ${todo.dueTime}` : ''}`;
 }
 
-// 상태 메시지(로딩/에러/빈). 카드 div 안에서 h-full로 꽉 채워 가운데 정렬한다.
-// (배경·라운드는 바깥 카드가 갖고, 여긴 메시지만)
+// 배경·라운드는 바깥 카드가 갖고, 여긴 메시지만.
 function StatusMessage({ children }: { children: React.ReactNode }) {
   return (
     <p className="flex h-full items-center justify-center text-center text-[13px] text-gray-500">
@@ -78,7 +77,6 @@ export function TodoChecklist() {
               const done = isDone(todo);
               return (
                 <li key={todo.todoId} className="flex flex-col gap-1 py-2">
-                  {/* 체크박스는 제목 한 줄에만 붙인다. 완료 시 제목을 흐리게(gray-600). */}
                   <Checkbox
                     checked={done}
                     onChange={() => toggle(todo)}
@@ -126,7 +124,6 @@ export function TodoChecklist() {
   );
 }
 
-// 추가(+) 아이콘. 단순 도형이라 프로젝트 관례대로 직접 그린다. (ExamSchedule과 동일)
 function PlusIcon({ className }: { className?: string }) {
   return (
     <svg

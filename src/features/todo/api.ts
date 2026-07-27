@@ -6,7 +6,6 @@ import { mockTodos } from '@/mocks/todo';
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로)
 const USE_MOCK = true;
 
-// 가짜 지연을 흉내내는 헬퍼 (실제 네트워크처럼 잠깐 기다림).
 // 쿼리가 취소되면 실제 fetch처럼 즉시 중단되도록 AbortSignal을 받는다. (study/api.ts와 동일 패턴)
 const delay = (ms: number, signal?: AbortSignal) =>
   new Promise<void>((resolve, reject) => {

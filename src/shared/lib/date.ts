@@ -1,8 +1,7 @@
 // src/shared/lib/date.ts
 // 날짜 유틸. 화면 표시·mock 생성·D-DAY 계산이 모두 같은 "로컬 오늘"을 쓰도록 한 곳에 모은다.
 
-// Date → 'YYYY-MM-DD' (로컬 기준).
-// toISOString()은 UTC라 자정 근처에서 하루 어긋날 수 있어 직접 조립한다.
+// toISOString()은 UTC라 자정 근처에서 하루 어긋난다. 그래서 직접 조립한다.
 export function toLocalDateString(d: Date): string {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -10,8 +9,7 @@ export function toLocalDateString(d: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-// 오늘로부터 offset일 뒤의 날짜를 'YYYY-MM-DD'로 반환한다. (offset 음수면 과거)
-// setDate는 월/연 경계를 알아서 넘겨준다. (예: 7/30 + 3일 = 8/2)
+// offset이 음수면 과거. 월/연 경계는 setDate가 알아서 넘겨준다.
 export function dateFromToday(offset: number): string {
   const d = new Date();
   d.setDate(d.getDate() + offset);

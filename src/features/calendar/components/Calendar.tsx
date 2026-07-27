@@ -10,7 +10,6 @@ import { buildMonthGrid } from '../lib/month';
 import { useCalendarMonth } from '../hooks/useCalendarMonth';
 import { CalendarCell, type ScheduleItem } from './CalendarCell';
 
-// 요일 헤더. 일요일 시작.
 const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT'];
 
 export function Calendar() {
@@ -18,10 +17,9 @@ export function Calendar() {
   const { data: exams } = useAllExams();
   const { data: todos } = useTodos();
 
-  // 표시 중인 달의 42칸. 달이 바뀔 때만 다시 만든다.
   const cells = useMemo(() => buildMonthGrid(year, month), [year, month]);
 
-  // 날짜별 일정 묶음. examDate/dueDate를 키로 Map을 만들어 각 칸에서 O(1)로 꺼낸다.
+  // 날짜를 키로 Map을 만들어 42개 칸이 각각 O(1)로 꺼내 쓴다.
   // 한 칸에서 시험이 투두보다 위에 오도록 시험을 먼저 넣는다.
   const scheduleByDate = useMemo(() => {
     const map = new Map<string, ScheduleItem[]>();
@@ -47,7 +45,7 @@ export function Calendar() {
     return map;
   }, [exams, todos]);
 
-  // 오늘 날짜 문자열. "오늘"은 보는 사람 기준이라 렌더 시 계산한다.
+  // "오늘"은 보는 사람 기준이라 렌더 시 계산한다.
   const todayStr = toLocalDateString(new Date());
 
   return (
@@ -93,7 +91,6 @@ export function Calendar() {
         </div>
       </div>
 
-      {/* 범례: 태그 색이 무엇을 뜻하는지 */}
       <div className="mt-2.5 flex items-center gap-2">
         <LegendTag className="bg-secondary-100 text-secondary-500">
           할 일 (TODO)
@@ -104,7 +101,6 @@ export function Calendar() {
   );
 }
 
-// 월 이동 화살표 버튼. 디자인의 어두운 rounded 정사각 버튼.
 function NavButton({
   label,
   onClick,

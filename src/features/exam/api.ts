@@ -7,7 +7,6 @@ import { mockExams } from '@/mocks/exam';
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로)
 const USE_MOCK = true;
 
-// 가짜 지연을 흉내내는 헬퍼 (실제 네트워크처럼 잠깐 기다림).
 // 쿼리가 취소되면 실제 fetch처럼 즉시 중단되도록 AbortSignal을 받는다. (study/api.ts와 동일 패턴)
 const delay = (ms: number, signal?: AbortSignal) =>
   new Promise<void>((resolve, reject) => {
@@ -32,8 +31,7 @@ const delay = (ms: number, signal?: AbortSignal) =>
 export async function getExams(signal?: AbortSignal): Promise<Exam[]> {
   if (USE_MOCK) {
     await delay(300, signal);
-    // 백엔드 계약을 흉내낸다: 다가오는 시험만(오늘 포함) 골라 시험일 오름차순으로 준다.
-    // 실제 서버가 할 일을 mock이 대신하는 것이라, USE_MOCK을 꺼도 화면 로직은 그대로다.
+    // 필터·정렬은 원래 서버가 할 일이다. mock이 대신해야 USE_MOCK을 꺼도 화면 로직이 그대로다.
     const today = toLocalDateString(new Date());
     return mockExams
       .filter((exam) => exam.examDate >= today)
@@ -47,7 +45,7 @@ export async function getExams(signal?: AbortSignal): Promise<Exam[]> {
 export async function getAllExams(signal?: AbortSignal): Promise<Exam[]> {
   if (USE_MOCK) {
     await delay(300, signal);
-    // filter가 없으니 원본 배열을 건드리지 않도록 복사 후 정렬한다.
+    // sort는 원본을 바꾸므로 복사 후 정렬한다. (getExams는 filter가 만든 새 배열이라 무관)
     return [...mockExams].sort((a, b) => a.examDate.localeCompare(b.examDate));
   }
   return apiClient.get<Exam[]>('/exams', { signal });

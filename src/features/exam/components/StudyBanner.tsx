@@ -55,7 +55,6 @@ export function StudyBanner() {
               학습 진행률 {featured.progress}%
             </span>
           </div>
-          {/* 클릭 시 해당 프로젝트로 이동. 텍스트 CTA(gray-500) + chevron */}
           <button
             type="button"
             onClick={() => router.push(`/projects/${featured.projectId}`)}

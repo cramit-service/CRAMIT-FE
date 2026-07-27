@@ -17,7 +17,6 @@ function ddayBadgeClass(days: number): string {
   return 'border-secondary-400 bg-secondary-400/10 text-secondary-600';
 }
 
-// 상태 메시지(로딩/에러/빈 상태). 카드 div 안에서 h-full로 꽉 채워 가운데 정렬한다.
 function StatusMessage({ children }: { children: React.ReactNode }) {
   return (
     <p className="flex h-full items-center justify-center text-center text-[13px] text-gray-500">
@@ -97,7 +96,6 @@ export function ExamSchedule() {
   );
 }
 
-// 추가(+) 아이콘. 단순 도형이라 프로젝트 관례대로 직접 그린다.
 function PlusIcon({ className }: { className?: string }) {
   return (
     <svg
