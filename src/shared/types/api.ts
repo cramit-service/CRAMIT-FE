@@ -136,6 +136,7 @@ export interface Todo {
   todoId: string;
   projectId: string;
   title: string;
+  lectureName: string | null; // 강의명 — 표시 시 제목 앞에 붙인다 (시험 일정과 동일 규칙)
   dueDate: string; // YYYY-MM-DD
   dueTime: string | null;
   lectureId: string | null;

@@ -35,7 +35,10 @@ export function Checkbox({
   return (
     <label
       className={cn(
-        'inline-flex cursor-pointer items-center gap-3 select-none',
+        // relative 필수 — sr-only input이 position:absolute라, 위치 기준이 없으면
+        // 컨테이닝 블록이 문서 최상위가 되어 조상의 overflow에 잘리지 않고
+        // 스크롤 컨테이너를 탈출해 문서 높이를 밀어낸다.
+        'relative inline-flex cursor-pointer items-center gap-3 select-none',
         className,
       )}
     >

@@ -5,6 +5,7 @@ import { toLocalDateString } from '@/shared/lib/date';
 import { useAllExams } from '@/features/exam/hooks/useAllExams';
 import { useTodos } from '@/features/todo/hooks/useTodos';
 import { examName } from '@/features/exam/lib/examName';
+import { todoName } from '@/features/todo/lib/todoName';
 import { buildMonthGrid } from '../lib/month';
 import { useCalendarMonth } from '../hooks/useCalendarMonth';
 import { CalendarCell, type ScheduleItem } from './CalendarCell';
@@ -40,7 +41,7 @@ export function Calendar() {
       push(todo.dueDate, {
         id: `todo-${todo.todoId}`,
         type: 'todo',
-        label: todo.title,
+        label: todoName(todo),
       }),
     );
     return map;
@@ -50,7 +51,7 @@ export function Calendar() {
   const todayStr = toLocalDateString(new Date());
 
   return (
-    <section>
+    <section className="flex min-h-0 flex-col">
       <div className="mb-1.5 flex items-center justify-between">
         <h2 className="text-[18px] leading-7 font-medium tracking-[-0.36px] text-gray-950">
           캘린더
@@ -64,7 +65,7 @@ export function Calendar() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-md border border-gray-300">
+      <div className="flex min-h-0 flex-col overflow-hidden rounded-md border border-gray-300 lg:flex-1">
         {/* 요일 행과 날짜 그리드를 같은 grid-cols-7로 두어 열을 정렬한다.
             gap-px + 배경 gray-300으로 칸 사이 격자선을 만든다. */}
         {/* 요일행: 날짜 그리드보다 낮게(Figma 28.55×0.72≈20px) + 아래 분리선(border-b)으로 날짜와 구분 */}
@@ -77,10 +78,10 @@ export function Calendar() {
             </div>
           ))}
         </div>
-        {/* 스크롤 없이 6주를 고정 높이(≈480px)에 꽉 채운다.
+        {/* 6주 그리드. 모바일은 고정 높이(h-115), lg 이상은 flex-1로 남는 높이를 채운다.
             grid-rows-6 = repeat(6, minmax(0,1fr))라 각 줄이 높이를 균등 분할하고,
             내용이 줄 높이를 넘으면 셀의 overflow-hidden으로 잘린다(→ 태그는 셀에서 +N으로 접음). */}
-        <div className="grid h-115 grid-cols-7 grid-rows-6 gap-px bg-gray-300">
+        <div className="grid h-115 grid-cols-7 grid-rows-6 gap-px bg-gray-300 lg:h-auto lg:min-h-0 lg:flex-1">
           {cells.map((cell) => (
             <CalendarCell
               key={cell.dateStr}
@@ -145,7 +146,12 @@ function LegendTag({
 
 function ChevronIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M9 6l6 6-6 6"
         stroke="currentColor"

@@ -1,5 +1,6 @@
 'use client';
 // src/features/exam/components/StudyBanner.tsx
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
 import { daysUntil, ddayLabel } from '../lib/dday';
@@ -19,6 +20,26 @@ export function StudyBanner() {
       variant="wide"
       className="flex min-h-35.5 flex-col justify-center rounded-md border border-gray-800 px-8 py-6"
     >
+      {/* 배너 장식 — 캐릭터(고양이)와 낙서. 오른쪽에 절대배치. 순수 장식이라 aria-hidden.
+          SVG라 next/image 최적화 경로(400)를 피하려 unoptimized로 그대로 서빙한다. */}
+      <Image
+        src="/images/Banner_extra.svg"
+        alt=""
+        aria-hidden
+        width={72}
+        height={83}
+        unoptimized
+        className="pointer-events-none absolute top-10 left-[67%] h-14 w-auto select-none"
+      />
+      <Image
+        src="/images/Crait_Cat.svg"
+        alt=""
+        aria-hidden
+        width={195}
+        height={154}
+        unoptimized
+        className="pointer-events-none absolute right-3 bottom-3 h-26 w-auto select-none"
+      />
       {featured && (
         // 제목이 배너 세로 중앙에 오도록 [제목+CTA] 묶음을 CTA 높이의 절반(약 14px)만큼 아래로 민다.
         // (묶음을 그냥 justify-center로 두면 제목이 중앙보다 위로 올라간다)
@@ -27,7 +48,7 @@ export function StudyBanner() {
             <h3 className="text-[24px] leading-[34px] font-semibold tracking-[-0.48px] text-gray-800">
               {examName(featured)}
             </h3>
-            <span className="inline-flex items-center rounded-md border-[0.5px] border-error bg-error/20 px-2 py-0.5 text-[12px] leading-4.5 font-medium text-error">
+            <span className="border-error bg-error/20 text-error inline-flex items-center rounded-md border-[0.5px] px-2 py-0.5 text-[12px] leading-4.5 font-medium">
               {ddayLabel(daysUntil(featured.examDate))}
             </span>
             <span className="inline-flex items-center rounded-md border-[0.5px] border-gray-800 bg-white px-2 py-0.5 text-[12px] leading-4.5 font-medium text-gray-800">
@@ -51,7 +72,12 @@ export function StudyBanner() {
 
 function ChevronRightIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M9 6l6 6-6 6"
         stroke="currentColor"

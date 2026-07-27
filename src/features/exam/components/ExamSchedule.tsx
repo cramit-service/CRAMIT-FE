@@ -17,10 +17,10 @@ function ddayBadgeClass(days: number): string {
   return 'border-secondary-400 bg-secondary-400/10 text-secondary-600';
 }
 
-// 상태 메시지(로딩/에러/빈 상태) 공통 껍데기
+// 상태 메시지(로딩/에러/빈 상태). 카드 div 안에서 h-full로 꽉 채워 가운데 정렬한다.
 function StatusMessage({ children }: { children: React.ReactNode }) {
   return (
-    <p className="rounded-md bg-white px-6 py-8 text-center text-[13px] text-gray-500">
+    <p className="flex h-full items-center justify-center text-center text-[13px] text-gray-500">
       {children}
     </p>
   );
@@ -48,18 +48,18 @@ export function ExamSchedule() {
         </Button>
       </div>
 
-      {isLoading ? (
-        <StatusMessage>불러오는 중…</StatusMessage>
-      ) : isError || !exams ? (
-        <StatusMessage>
-          시험 일정을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
-        </StatusMessage>
-      ) : exams.length === 0 ? (
-        <StatusMessage>다가오는 시험이 없어요.</StatusMessage>
-      ) : (
-        <div className="rounded-md bg-white px-6">
-          {/* 2행(약 109px)이 온전히 보이도록 max-h 설정. 스크롤 기능은 유지하되 스크롤바 UI만 숨긴다 */}
-          <ul className="max-h-29 divide-y divide-gray-200 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* 카드는 데이터 유무와 무관하게 항상 렌더 — 크기(h-29)는 여기(div)에 준다. 비어도 안 줄어든다. */}
+      <div className="h-29 [scrollbar-width:none] overflow-y-auto overscroll-none rounded-md bg-white px-6 [&::-webkit-scrollbar]:hidden">
+        {isLoading ? (
+          <StatusMessage>불러오는 중…</StatusMessage>
+        ) : isError || !exams ? (
+          <StatusMessage>
+            시험 일정을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
+          </StatusMessage>
+        ) : exams.length === 0 ? (
+          <StatusMessage>다가오는 시험이 없어요.</StatusMessage>
+        ) : (
+          <ul className="divide-y divide-gray-200">
             {exams.map((exam) => {
               const days = daysUntil(exam.examDate);
               return (
@@ -91,8 +91,8 @@ export function ExamSchedule() {
               );
             })}
           </ul>
-        </div>
-      )}
+        )}
+      </div>
     </section>
   );
 }
@@ -100,7 +100,12 @@ export function ExamSchedule() {
 // 추가(+) 아이콘. 단순 도형이라 프로젝트 관례대로 직접 그린다.
 function PlusIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M12 5v14M5 12h14"
         stroke="currentColor"
@@ -113,7 +118,12 @@ function PlusIcon({ className }: { className?: string }) {
 
 function ChevronRightIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M9 6l6 6-6 6"
         stroke="currentColor"
