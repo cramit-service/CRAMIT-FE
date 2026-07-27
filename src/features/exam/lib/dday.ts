@@ -1,4 +1,4 @@
-// src/features/project/lib/dday.ts
+// src/features/exam/lib/dday.ts
 // 시험일까지 남은 일수(D-DAY)를 계산한다.
 // "며칠 남았나"는 보는 사람의 오늘 기준이라 화면(클라이언트)에서 계산한다.
 

@@ -1,5 +1,5 @@
 'use client';
-// src/features/project/hooks/useExams.ts
+// src/features/exam/hooks/useExams.ts
 import { useQuery } from '@tanstack/react-query';
 import { getExams } from '../api';
 

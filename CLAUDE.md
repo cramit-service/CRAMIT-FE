@@ -94,6 +94,16 @@ src/
 - `Card`: `clickable`
 - `Modal`: `open` / `onClose`
 
+### 4-4. Figma → 코드 스케일 (0.72배)
+
+Figma 시안은 **1920 캔버스 기준**이라 픽셀을 1:1로 옮기면 실제 화면에서 커진다. 옮길 때:
+
+- **박스 지오메트리(높이·폭·패딩·gap·버튼 크기·radius 등 공간 값)는 Figma px × 0.72** 로 줄인다.
+- **타이포(font-size)는 Figma px 그대로** 둔다(축소하지 않는다). `tracking`은 Figma % → px로 환산해 붙인다 (예: 18px에 -2% → `tracking-[-0.36px]`).
+- 값에 정규 클래스가 있으면 정규 클래스(`leading-7`, `size-4.5`), 없으면 명시적 `[Npx]`를 쓴다. **린터 경고 0을 유지한다.**
+
+이미 study/auth/landing 화면 전체에 적용돼 있다. 새 화면도 같은 규칙을 따른다.
+
 ---
 
 ## 5. Next.js App Router 규칙

@@ -1,6 +1,6 @@
 // src/app/(main)/home/page.tsx
-import { StudyBanner } from '@/features/project/components/home/StudyBanner';
-import { ExamSchedule } from '@/features/project/components/home/ExamSchedule';
+import { StudyBanner } from '@/features/exam/components/StudyBanner';
+import { ExamSchedule } from '@/features/exam/components/ExamSchedule';
 import { Calendar } from '@/features/calendar/components/Calendar';
 import { TodoChecklist } from '@/features/todo/components/TodoChecklist';
 
@@ -12,8 +12,8 @@ import { TodoChecklist } from '@/features/todo/components/TodoChecklist';
 // 좁은 화면(lg 미만)에선 grid-cols-1로 한 줄로 쌓인다.
 export default function HomePage() {
   return (
-    <div className="px-6 py-10 md:px-10 lg:px-16">
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,839fr)_minmax(0,655fr)]">
+    <div className="px-4 pt-10 pb-5 md:px-8 lg:px-12">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,839fr)_minmax(0,655fr)]">
         <StudyBanner />
         <ExamSchedule />
         <Calendar />

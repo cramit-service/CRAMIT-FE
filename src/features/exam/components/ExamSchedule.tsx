@@ -1,10 +1,11 @@
 'use client';
-// src/features/project/components/home/ExamSchedule.tsx
+// src/features/exam/components/ExamSchedule.tsx
 import { Button } from '@/shared/ui/Button';
 import { cn } from '@/shared/lib/cn';
 import { formatKoreanDate } from '@/shared/lib/date';
-import { daysUntil, ddayLabel } from '../../lib/dday';
-import { useExams } from '../../hooks/useExams';
+import { daysUntil, ddayLabel } from '../lib/dday';
+import { examName } from '../lib/examName';
+import { useExams } from '../hooks/useExams';
 
 // 남은 일수 → 뱃지 색. 디자인 시안 기준(보더+연한 배경+진한 글씨).
 // D-DAY(빨강) / D-1~3(노랑) / D-4+(파랑).
@@ -30,17 +31,20 @@ export function ExamSchedule() {
 
   return (
     <section>
-      <div className="mb-2.5 flex items-center justify-between">
+      <div className="mb-1.5 flex items-center justify-between">
         <h2 className="text-[18px] leading-7 font-medium tracking-[-0.36px] text-gray-950">
           다가오는 시험 일정
         </h2>
         {/* TODO: 시험 추가 모달 연결 (이번 작업은 버튼 UI까지) */}
+        {/* size="sm"으로 기본 패딩을 px-3(12px)으로 낮춘다. (cn이 merge를 안 해서
+            className의 px-2로는 기본 px-4를 못 이기고, arbitrary는 린터 경고가 남기 때문) */}
         <Button
           variant="dark"
-          className="flex h-8 items-center gap-1 px-3 text-[14px] leading-5 font-medium tracking-[-0.28px]"
+          size="sm"
+          className="flex h-7 items-center gap-0.5 text-[12px] leading-none font-medium tracking-[-0.24px]"
         >
           추가하기
-          <PlusIcon className="size-3.5" />
+          <PlusIcon className="size-3" />
         </Button>
       </div>
 
@@ -76,7 +80,7 @@ export function ExamSchedule() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[14px] leading-5 font-medium tracking-[-0.28px] text-gray-950">
-                      {exam.lectureName ?? exam.title}
+                      {examName(exam)}
                     </p>
                     <p className="text-[12px] leading-4.5 tracking-[-0.24px] text-gray-600">
                       {formatKoreanDate(exam.examDate)}

@@ -1,40 +1,10 @@
-// src/mocks/data.ts
+// src/mocks/study.ts — 학습(챕터/프로젝트 상세/강의자료/요약) mock
 import type {
-  Project,
-  ProjectDetail,
   Chapter,
-  Exam,
+  ProjectDetail,
   LectureMaterial,
   LectureSummary,
-  Todo,
-  User,
-  LoginResponse,
 } from '@/shared/types/api';
-import { dateFromToday } from '@/shared/lib/date';
-
-// 소셜 로그인 mock 응답 (백엔드 연동 전까지 사용)
-export const mockLoginResponse: LoginResponse = {
-  accessToken: 'mock-access-token',
-  refreshToken: 'mock-refresh-token',
-};
-
-export const mockUser: User = {
-  userId: '1',
-  email: 'test@cramit.com',
-  nickname: '김진우',
-  provider: 'EMAIL',
-  profileImage: null,
-};
-
-export const mockProjects: Project[] = [
-  { projectId: '1', title: '운영체제', createdAt: '2026-03-02T09:00:00Z' },
-  { projectId: '2', title: '자료구조', createdAt: '2026-03-05T09:00:00Z' },
-  {
-    projectId: '3',
-    title: '컴퓨터네트워크',
-    createdAt: '2026-03-10T09:00:00Z',
-  },
-];
 
 // 챕터 상세(단계별 학습) mock — 상태 3종(학습 전/중/완료)을 모두 포함한다.
 // 완료 2 / 진행 2 / 학습전 2 → 학습 진행률 = 완료(2) / 전체(6) = 33%
@@ -196,82 +166,3 @@ def binary_search(arr, target):
 `,
   updatedAt: '2026-07-14T16:03:00',
 };
-
-// 다가오는 시험 일정 mock — D-DAY / D-1~3 / D-4+ 색이 언제 켜도 한 번에 보이도록,
-// 고정 날짜가 아니라 "오늘 기준" 상대 날짜로 생성한다. (시간이 지나도 mock을 안 고쳐도 됨)
-// 과거 1건(어제)은 getExams의 "다가오는" 필터에서 빠지는지 확인하려고 남겨둔다.
-export const mockExams: Exam[] = [
-  {
-    examId: '1',
-    projectId: '1',
-    title: '중간고사',
-    lectureName: '운영체제론',
-    examDate: dateFromToday(0), // 오늘 → D-DAY (빨강)
-    memo: '3~7장 범위',
-    createdAt: '2026-07-01T09:00:00Z',
-    progress: 85,
-  },
-  {
-    examId: '2',
-    projectId: '3',
-    title: '퀴즈 2회',
-    lectureName: '컴퓨터네트워크',
-    examDate: dateFromToday(1), // 내일 → D-1 (노랑)
-    memo: null,
-    createdAt: '2026-07-02T09:00:00Z',
-    progress: 40,
-  },
-  {
-    examId: '3',
-    projectId: '2',
-    title: '중간고사',
-    lectureName: '자료구조',
-    examDate: dateFromToday(3), // D-3 (노랑)
-    memo: '실습 과제 범위 포함',
-    createdAt: '2026-07-03T09:00:00Z',
-    progress: 60,
-  },
-  {
-    examId: '4',
-    projectId: '1',
-    title: '기말 대비 모의고사',
-    lectureName: '운영체제론',
-    examDate: dateFromToday(8), // D-8 (파랑)
-    memo: null,
-    createdAt: '2026-07-04T09:00:00Z',
-    progress: 20,
-  },
-  {
-    examId: '5',
-    projectId: '1',
-    title: '쪽지시험',
-    lectureName: '운영체제론',
-    examDate: dateFromToday(-1), // 어제 → "다가오는" 필터에서 제외되어야 함(경계 확인)
-    memo: null,
-    createdAt: '2026-04-01T09:00:00Z',
-    progress: 100,
-  },
-];
-
-export const mockTodos: Todo[] = [
-  {
-    todoId: '1',
-    projectId: '1',
-    title: 'OSI 7계층 개념 학습',
-    dueDate: '2026-04-15',
-    dueTime: null,
-    lectureId: null,
-    memo: null,
-    isCompleted: false,
-  },
-  {
-    todoId: '2',
-    projectId: '1',
-    title: 'TCP/IP 정리',
-    dueDate: '2026-04-16',
-    dueTime: null,
-    lectureId: null,
-    memo: null,
-    isCompleted: true,
-  },
-];

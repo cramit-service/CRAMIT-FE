@@ -6,7 +6,7 @@ import type {
   User,
 } from '@/shared/types/api';
 import { apiClient } from '@/shared/lib/apiClient';
-import { mockLoginResponse } from '@/mocks/data';
+import { mockLoginResponse } from '@/mocks/auth';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로)
 const USE_MOCK = true;

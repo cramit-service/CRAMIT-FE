@@ -12,7 +12,7 @@ import {
   mockLectureMaterial,
   mockLectureSummary,
   mockProjectDetail,
-} from '@/mocks/data';
+} from '@/mocks/study';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로) — project/api.ts와 동일 패턴
 const USE_MOCK = true;
