@@ -1,19 +1,27 @@
 'use client';
 // src/shared/ui/Logo.tsx
+// Figma "Logo" 시안 기준. 4가지 형태를 지원한다.
+// - wordmark : CRAMIT. 워드마크 (기본)
+// - symbol   : 알약 심볼 마크만
+// - lockup   : 심볼 + 워드마크 세로 조합 (타이포+심볼)
+// - appIcon  : 둥근 사각 앱 아이콘/파비콘 (dark = 검정 배경·흰 글자, lime = 연두 배경·검정 글자)
 import Image from 'next/image';
 import { cn } from '@/shared/lib/cn';
 
-type LogoVariant = 'wordmark' | 'symbol';
+type LogoVariant = 'wordmark' | 'symbol' | 'lockup' | 'appIcon';
+type AppIconTone = 'dark' | 'lime';
 
 interface LogoProps {
-  // 'wordmark'(기본): CRAMIT. 워드마크 / 'symbol': 어두운 배경용 심볼 마크
   variant?: LogoVariant;
-  // 크기: className으로 조절한다. 워드마크는 높이만 주면 비율이 유지된다(h-6 등).
+  // appIcon 전용: 다크 파비콘 / 연두 파비콘
+  tone?: AppIconTone;
+  // 크기는 className으로 조절한다. 워드마크는 높이만 주면 비율이 유지된다(h-6 등).
   className?: string;
 }
 
 // CRAMIT 심볼 마크. 실제 로고 에셋(public/logo-symbol.png)을 그대로 사용한다.
 // 연두·하늘 두 알약이 겹치는 반투명 표현이 원본 디자인이라 이미지로 넣는다.
+// 크기(높이)는 호출처가 정한다 — 기본 클래스에 두면 호출처 클래스와 충돌한다(cn은 tailwind-merge 아님).
 function SymbolMark({ className }: { className?: string }) {
   return (
     <Image
@@ -21,21 +29,33 @@ function SymbolMark({ className }: { className?: string }) {
       alt="CRAMIT"
       width={34}
       height={48}
-      className={cn('h-11 w-auto select-none', className)}
+      className={cn('w-auto select-none', className)}
     />
   );
 }
 
 // CRAMIT 워드마크. Figma에서 내보낸 벡터를 그대로 옮겼다(전용 서체라 폰트로 대체 불가).
-// 글자는 fill-current라 부모의 text-* 색을 따르고, 마침표만 시그니처 연두로 고정한다.
-function Wordmark({ className }: { className?: string }) {
+// 글자는 fill-current라 부모의 text-* 색을 따르고, 마침표(dot)는 dotClassName으로 색을 준다.
+// 기본 마침표 색은 시그니처 연두(primary-400)이고, 연두 배경 위에서는 어둡게 덮어쓴다.
+//
+// 크기·색은 호출처가 정한다(cn은 tailwind-merge가 아니라 단순 join이라 기본 클래스를 박으면
+// 호출처 클래스와 충돌한다). 기본 높이만 height 속성(24)으로 주고 — 클래스는 속성을 이기므로
+// 호출처가 h-* 하나만 주면 그 값이 확실히 이긴다. 색은 부모 text-*(currentColor)를 물려받는다.
+function Wordmark({
+  className,
+  dotClassName = 'fill-primary-400',
+}: {
+  className?: string;
+  dotClassName?: string;
+}) {
   return (
     <svg
       viewBox="0 0 336 68"
+      height={24}
       fill="none"
       role="img"
       aria-label="CRAMIT"
-      className={cn('h-6 w-auto text-gray-950 select-none', className)}
+      className={cn('select-none', className)}
     >
       {/* C */}
       <path
@@ -64,9 +84,9 @@ function Wordmark({ className }: { className?: string }) {
         className="fill-current"
         d="M314.688 16.2002H297.561V68H281.428V16.2002H264.299V0H314.688V16.2002Z"
       />
-      {/* 마침표 — 시그니처 연두 */}
+      {/* 마침표 — 기본은 시그니처 연두, 배경색에 따라 dotClassName으로 덮어쓴다 */}
       <rect
-        className="fill-primary-400"
+        className={dotClassName}
         x="314.689"
         y="51.8"
         width="16.1328"
@@ -77,10 +97,67 @@ function Wordmark({ className }: { className?: string }) {
   );
 }
 
-// CRAMIT 로고. 기본은 워드마크, symbol은 심볼 마크.
-export function Logo({ variant = 'wordmark', className }: LogoProps) {
-  if (variant === 'symbol') {
-    return <SymbolMark className={className} />;
+// 심볼 + 워드마크 세로 조합 (Figma "타이포+심볼")
+function Lockup({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        'inline-flex flex-col items-center gap-3 text-gray-950',
+        className,
+      )}
+      role="img"
+      aria-label="CRAMIT"
+    >
+      <SymbolMark className="h-16" />
+      <Wordmark className="h-5" />
+    </div>
+  );
+}
+
+// 둥근 사각 앱 아이콘 / 파비콘 (Figma "파비콘")
+// dark : gray-900 배경 · 흰 글자 · 연두 마침표 / lime : primary-400 배경 · 검정 글자·마침표
+function AppIcon({
+  tone = 'dark',
+  className,
+}: {
+  tone?: AppIconTone;
+  className?: string;
+}) {
+  const isLime = tone === 'lime';
+  return (
+    <div
+      className={cn(
+        'inline-flex items-center justify-center rounded-[22%]',
+        // Figma: 200px 박스에 코너 40px(≈20%). 글자색은 배경 대비로 결정한다.
+        isLime ? 'bg-primary-400 text-gray-950' : 'bg-gray-900 text-gray-100',
+        'size-12',
+        className,
+      )}
+      role="img"
+      aria-label="CRAMIT"
+    >
+      <Wordmark
+        // 높이는 컨테이너 폭(82%)에 맞춰 자동, 글자색은 컨테이너 text-*를 물려받는다
+        className="h-auto w-[82%]"
+        // 연두 배경에선 마침표도 어둡게, 다크 배경에선 시그니처 연두 유지
+        dotClassName={isLime ? 'fill-gray-950' : 'fill-primary-400'}
+      />
+    </div>
+  );
+}
+
+// CRAMIT 로고. 기본은 워드마크.
+export function Logo({ variant = 'wordmark', tone, className }: LogoProps) {
+  switch (variant) {
+    case 'symbol':
+      // 기본 높이는 여기서만 주고(호출처가 안 주면 h-11), 리프 SymbolMark엔 두지 않아 충돌을 막는다
+      return <SymbolMark className={cn('h-11', className)} />;
+    case 'lockup':
+      return <Lockup className={className} />;
+    case 'appIcon':
+      return <AppIcon tone={tone} className={className} />;
+    default:
+      // 워드마크 기본 글자색만 여기서 준다(호출처는 높이만 주므로 색 충돌 없음)
+      return <Wordmark className={cn('text-gray-950', className)} />;
   }
-  return <Wordmark className={className} />;
 }
