@@ -23,7 +23,7 @@ export function LandingSplash() {
 
         {/* 헤더 로고와 같은 높이(h-16 헤더의 세로 중앙)에 맞춰 자리를 겹친다 */}
         <div className="relative flex h-16 items-center justify-center">
-          <Logo className="h-[22px]" />
+          <Logo className="h-[22px] text-gray-950" />
         </div>
 
         {/* Figma: 150px / Medium / leading 184 / tracking -3px.

@@ -58,7 +58,8 @@ export function Sidebar() {
           expanded ? 'px-5' : 'justify-center px-0',
         )}
       >
-        <Logo variant="symbol" />
+        {/* 높이는 호출처가 정한다 — Logo는 기본 크기를 갖지 않는다 */}
+        <Logo variant="symbol" className="h-11" />
       </div>
 
       {/* 메인 메뉴 */}

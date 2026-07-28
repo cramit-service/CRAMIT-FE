@@ -70,7 +70,7 @@ export function OnboardingFlow() {
 
   return (
     <div className="flex min-h-screen flex-col px-6 py-8">
-      <Logo className="mx-auto shrink-0 text-lg" />
+      <Logo className="mx-auto h-6 shrink-0 text-gray-950" />
 
       <div className="flex flex-1 flex-col justify-center py-16">
         {step === 'terms' && (
