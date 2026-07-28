@@ -45,10 +45,11 @@ export function LoginScreen() {
   return (
     // (auth) 레이아웃은 중립 골격만 두므로 배경·정렬을 이 화면이 직접 잡는다
     <GradientBackground className="flex min-h-screen flex-col items-center justify-center px-6">
-      <div className="flex w-full max-w-md flex-col items-center">
-        <Logo className="text-5xl md:text-6xl" />
+      {/* Figma: 워드마크 → 200px 간격 → 소셜 버튼 2개(간격 20px) */}
+      <div className="flex w-full max-w-[500px] flex-col items-center">
+        <Logo className="h-12 text-gray-950 md:h-14" />
 
-        <div className="mt-24 flex w-full flex-col gap-4">
+        <div className="mt-32 flex w-full flex-col gap-4 md:mt-40">
           <SocialButton
             provider="KAKAO"
             disabled={pending !== null}

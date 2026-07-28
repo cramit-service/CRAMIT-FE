@@ -52,10 +52,79 @@
   --radius-md: 6px;
   --radius-lg: 10px;
   --radius-full: 999px;
+
+  /* ===== 배경 mesh 모션 (GradientBackground) =====
+     블롭 4개를 서로 나누어떨어지지 않는 주기로 흔들어 같은 배치로 다시 모이지 않게 한다.
+     transform만 움직인다 — left/width/filter를 건드리면 매 프레임 블러가 다시 그려져
+     프레임이 떨어진다. transform만 쓰면 블러는 한 번만 래스터화되고 GPU가 옮기기만 한다.
+     alternate라 되돌아오며 끝나서 루프 이음매가 보이지 않는다. */
+  --animate-drift-1: drift-1 31s ease-in-out infinite alternate;
+  --animate-drift-2: drift-2 23s ease-in-out infinite alternate;
+  --animate-drift-3: drift-3 37s ease-in-out infinite alternate;
+  --animate-drift-4: drift-4 29s ease-in-out infinite alternate;
+
+  /* 이동 폭은 블롭 자기 크기의 8~11%. 블롭이 화면의 절반쯤이라 화면 기준 5~8%가 된다 */
+  @keyframes drift-1 {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(-10%, 8%, 0) scale(1.06);
+    }
+  }
+  @keyframes drift-2 {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(9%, 10%, 0) scale(1.05);
+    }
+  }
+  @keyframes drift-3 {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(11%, -9%, 0) scale(1.07);
+    }
+  }
+  @keyframes drift-4 {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(-8%, -10%, 0) scale(1.05);
+    }
+  }
+
+  /* ===== 랜딩 스플래시 =====
+     4.2초 중 65%(약 2.7초)를 그대로 머문 뒤 1.5초에 걸쳐 걷힌다.
+     세션당 한 번만 보이므로 조금 길어도 반복해서 기다릴 일은 없다.
+     움직임이 아니라 불투명도만 다루므로 prefers-reduced-motion에서도 그대로 둔다
+     (끄면 스플래시가 영영 안 사라진다). */
+  --animate-splash-out: splash-out 4.2s ease-in-out forwards;
+
+  @keyframes splash-out {
+    0%,
+    65% {
+      opacity: 1;
+      visibility: visible;
+    }
+    100% {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
 }
 
 /* 기본 배경/텍스트 */
 body {
   background-color: var(--color-primary-100);
   color: var(--color-gray-900);
+}
+
+/* 세션 안에서 스플래시를 이미 봤으면 아예 그리지 않는다.
+   판정은 LandingSplash의 인라인 스크립트가 첫 페인트 전에 끝낸다 */
+html[data-splash='seen'] [data-splash-overlay] {
+  display: none;
 }

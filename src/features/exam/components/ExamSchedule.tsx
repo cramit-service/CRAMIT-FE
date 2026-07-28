@@ -35,13 +35,7 @@ export function ExamSchedule() {
           다가오는 시험 일정
         </h2>
         {/* TODO: 시험 추가 모달 연결 (이번 작업은 버튼 UI까지) */}
-        {/* size="sm"으로 기본 패딩을 px-3(12px)으로 낮춘다. (cn이 merge를 안 해서
-            className의 px-2로는 기본 px-4를 못 이기고, arbitrary는 린터 경고가 남기 때문) */}
-        <Button
-          variant="dark"
-          size="sm"
-          className="flex h-7 items-center gap-0.5 text-[12px] leading-none font-medium tracking-[-0.24px]"
-        >
+        <Button variant="dark" size="xs" className="gap-0.5">
           추가하기
           <PlusIcon className="size-3" />
         </Button>

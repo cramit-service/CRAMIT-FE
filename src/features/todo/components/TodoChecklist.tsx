@@ -51,11 +51,7 @@ export function TodoChecklist() {
           TODO 체크리스트
         </h2>
         {/* TODO: 추가 모달 연결 (이번 작업은 버튼 UI까지) — ExamSchedule 추가하기와 동일 버튼 */}
-        <Button
-          variant="dark"
-          size="sm"
-          className="flex h-7 items-center gap-0.5 text-[12px] leading-none font-medium tracking-[-0.24px]"
-        >
+        <Button variant="dark" size="xs" className="gap-0.5">
           추가하기
           <PlusIcon className="size-3" />
         </Button>
