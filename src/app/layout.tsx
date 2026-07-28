@@ -14,7 +14,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
+    // LandingSplash의 인라인 스크립트가 하이드레이션 전에 data-splash를 찍는다.
+    // 서버 HTML에는 없는 속성이라 경고가 나므로 html 요소에만 예외를 둔다(다크모드 스크립트와 같은 방식).
+    <html lang="ko" suppressHydrationWarning>
       <head>
         <link
           rel="stylesheet"

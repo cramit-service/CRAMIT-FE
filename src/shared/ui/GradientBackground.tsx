@@ -10,8 +10,17 @@ interface GradientBackgroundProps {
   children?: React.ReactNode;
 }
 
-// 랜딩 히어로·하단 CTA·로그인 화면이 공유하는 연두~하늘 파스텔 배경.
-// 토큰 색 원을 흐리게 겹쳐 mesh 그라데이션처럼 보이게 한다.
+// 랜딩 히어로·하단 CTA·시작 화면이 공유하는 파스텔 mesh 배경.
+//
+// Figma는 primary/secondary 그라데이션을 먹인 거대한 블롭 두 개(Ellipse 71·72)를
+// blur 200으로 흐린 뒤 50% 불투명도로 겹쳐 쓴다. 그 벡터 모양은 CSS로 옮길 수 없어
+// 시안 렌더를 5x5로 샘플링해 같은 색 분포가 나오도록 블롭 배치를 맞췄다.
+//   좌상단 하늘(#DEF3F6) · 우상단 연두(#ECF8BC, 가장 진함)
+//   좌하단 연두 wash · 우하단 하늘(#CFF1F0)
+// 색은 Ellipse가 쓰는 원본 토큰(primary-300/secondary-300)을 그대로 쓴다.
+//
+// 블롭은 각자 다른 주기로 천천히 떠다닌다(globals.css의 drift-1~4). 위 샘플링으로 맞춘
+// 배치가 진동의 '중심'이라 움직여도 시안과의 색 분포는 유지된다.
 export function GradientBackground({
   layer = false,
   className,
@@ -28,10 +37,14 @@ export function GradientBackground({
       )}
     >
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="bg-secondary-200 absolute -top-1/4 -left-1/5 h-[75%] w-[55%] rounded-full opacity-70 blur-3xl" />
-        <div className="bg-primary-200 absolute -top-1/3 -right-1/5 h-[85%] w-[55%] rounded-full opacity-80 blur-3xl" />
-        <div className="bg-primary-200 absolute -bottom-1/4 left-1/5 h-[70%] w-[50%] rounded-full opacity-60 blur-3xl" />
-        <div className="bg-secondary-200 absolute -right-1/5 -bottom-1/3 h-[70%] w-[45%] rounded-full opacity-60 blur-3xl" />
+        {/* 우상단 연두 — 시안에서 가장 진한 지점 */}
+        <div className="bg-primary-300 animate-drift-1 absolute -top-[25%] -right-[25%] h-[130%] w-[50%] rounded-full opacity-55 blur-[120px] will-change-transform motion-reduce:animate-none" />
+        {/* 좌상단 하늘 */}
+        <div className="bg-secondary-300 animate-drift-2 absolute -top-[30%] -left-[15%] h-[85%] w-[45%] rounded-full opacity-28 blur-[120px] will-change-transform motion-reduce:animate-none" />
+        {/* 중앙 연두 wash — 시안의 좌측 끝은 무채색이라 왼쪽 끝까지 닿지 않게 둔다 */}
+        <div className="bg-primary-300 animate-drift-3 absolute -bottom-[20%] left-[15%] h-[85%] w-[45%] rounded-full opacity-28 blur-[120px] will-change-transform motion-reduce:animate-none" />
+        {/* 우하단 하늘 */}
+        <div className="bg-secondary-300 animate-drift-4 absolute -right-[15%] -bottom-[25%] h-[75%] w-[50%] rounded-full opacity-45 blur-[120px] will-change-transform motion-reduce:animate-none" />
       </div>
       {children}
     </div>
