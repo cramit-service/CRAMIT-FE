@@ -127,6 +127,7 @@ export interface Exam {
   examDate: string; // YYYY-MM-DD
   memo: string | null;
   createdAt: string;
+  progress: number; // 학습 진행률 0~100 (홈 학습 배너 표시용, 시험 일정과 함께 내려옴)
 }
 
 /* ===== Todo (기획서 7.3, 8.8) ===== */
@@ -135,6 +136,7 @@ export interface Todo {
   todoId: string;
   projectId: string;
   title: string;
+  lectureName: string | null; // 강의명 — 표시 시 제목 앞에 붙인다 (시험 일정과 동일 규칙)
   dueDate: string; // YYYY-MM-DD
   dueTime: string | null;
   lectureId: string | null;

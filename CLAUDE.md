@@ -94,6 +94,23 @@ src/
 - `Card`: `clickable`
 - `Modal`: `open` / `onClose`
 
+### 4-4. Figma → 코드 스케일 (0.72배)
+
+Figma 시안은 **1920 캔버스 기준**이라 픽셀을 1:1로 옮기면 실제 화면에서 커진다. 옮길 때:
+
+- **박스 지오메트리(높이·폭·패딩·gap·버튼 크기·radius 등 공간 값)는 Figma px × 0.72** 로 줄인다.
+- **타이포(font-size)는 Figma px 그대로** 둔다(축소하지 않는다). `tracking`은 Figma % → px로 환산해 붙인다 (예: 18px에 -2% → `tracking-[-0.36px]`).
+- 값에 정규 클래스가 있으면 정규 클래스(`leading-7`, `size-4.5`), 없으면 명시적 `[Npx]`를 쓴다. **린터 경고 0을 유지한다.**
+
+이미 study/auth/landing 화면 전체에 적용돼 있다. 새 화면도 같은 규칙을 따른다.
+
+### 4-5. 절대 위치 요소는 `relative` 부모를 반드시 둔다
+
+`absolute`를 쓰는 요소(숨긴 input·툴팁·배지·장식 이미지 등)는 **가장 가까운 조상에 `relative`가 있어야 한다.** 없으면 위치 기준이 문서 최상위가 되고, `overflow`는 컨테이닝 블록 체인에 있는 조상만 자르므로 **스크롤 컨테이너를 탈출해 페이지 높이를 밀어낸다.**
+
+- Tailwind의 `sr-only`에는 `position: absolute`가 포함돼 있다. 체크박스·라디오처럼 input을 숨기는 패턴이 특히 걸린다.
+- 이 요소는 조상의 `scrollHeight`에 잡히지 않는다. 컨테이너 측정이 전부 정상인데 문서만 길다면 `absolute`를 의심한다.
+
 ---
 
 ## 5. Next.js App Router 규칙

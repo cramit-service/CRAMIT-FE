@@ -1,39 +1,10 @@
-// src/mocks/data.ts
+// src/mocks/study.ts — 학습(챕터/프로젝트 상세/강의자료/요약) mock
 import type {
-  Project,
-  ProjectDetail,
   Chapter,
-  Exam,
+  ProjectDetail,
   LectureMaterial,
   LectureSummary,
-  Todo,
-  User,
-  LoginResponse,
 } from '@/shared/types/api';
-
-// 소셜 로그인 mock 응답 (백엔드 연동 전까지 사용)
-export const mockLoginResponse: LoginResponse = {
-  accessToken: 'mock-access-token',
-  refreshToken: 'mock-refresh-token',
-};
-
-export const mockUser: User = {
-  userId: '1',
-  email: 'test@cramit.com',
-  nickname: '김진우',
-  provider: 'EMAIL',
-  profileImage: null,
-};
-
-export const mockProjects: Project[] = [
-  { projectId: '1', title: '운영체제', createdAt: '2026-03-02T09:00:00Z' },
-  { projectId: '2', title: '자료구조', createdAt: '2026-03-05T09:00:00Z' },
-  {
-    projectId: '3',
-    title: '컴퓨터네트워크',
-    createdAt: '2026-03-10T09:00:00Z',
-  },
-];
 
 // 챕터 상세(단계별 학습) mock — 상태 3종(학습 전/중/완료)을 모두 포함한다.
 // 완료 2 / 진행 2 / 학습전 2 → 학습 진행률 = 완료(2) / 전체(6) = 33%
@@ -195,38 +166,3 @@ def binary_search(arr, target):
 `,
   updatedAt: '2026-07-14T16:03:00',
 };
-
-export const mockExams: Exam[] = [
-  {
-    examId: '1',
-    projectId: '1',
-    title: '중간고사',
-    lectureName: '운영체제',
-    examDate: '2026-04-20',
-    memo: '3~7장 범위',
-    createdAt: '2026-03-15T09:00:00Z',
-  },
-];
-
-export const mockTodos: Todo[] = [
-  {
-    todoId: '1',
-    projectId: '1',
-    title: 'OSI 7계층 개념 학습',
-    dueDate: '2026-04-15',
-    dueTime: null,
-    lectureId: null,
-    memo: null,
-    isCompleted: false,
-  },
-  {
-    todoId: '2',
-    projectId: '1',
-    title: 'TCP/IP 정리',
-    dueDate: '2026-04-16',
-    dueTime: null,
-    lectureId: null,
-    memo: null,
-    isCompleted: true,
-  },
-];

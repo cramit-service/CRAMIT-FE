@@ -1,16 +1,22 @@
 // src/app/(main)/home/page.tsx
-// ⚠️ 임시 placeholder — 홈 콘텐츠는 홈 담당자가 구현 예정.
-// (main) 레이아웃(사이드바)이 children을 감싸는 구조를 확인하기 위한 최소 페이지다.
-// 실제 홈 화면이 들어오면 이 파일 내용을 교체한다.
+import { StudyBanner } from '@/features/exam/components/StudyBanner';
+import { ExamSchedule } from '@/features/exam/components/ExamSchedule';
+import { Calendar } from '@/features/calendar/components/Calendar';
+import { TodoChecklist } from '@/features/todo/components/TodoChecklist';
+
+// 2×2 그리드: [배너 | 시험 일정] / [캘린더 | TODO]. 열 폭 839:655는 디자인 시안값.
+// lg 이상에선 화면 높이에 고정한다(h-dvh + overflow-hidden). 1행은 auto, 2행은 minmax(0,1fr)로
+// 남는 높이를 채워 섹션 높이가 항목 수와 무관해진다. 이 클램프 체인이 끊기면 페이지 전체가 밀린다.
+// lg 미만에선 grid-cols-1로 쌓이고 페이지가 자연 스크롤된다.
 export default function HomePage() {
   return (
-    <div className="p-10">
-      <h1 className="text-2xl font-bold text-gray-900">
-        홈 (임시 placeholder)
-      </h1>
-      <p className="mt-2 text-gray-600">
-        홈 콘텐츠는 담당자가 구현합니다. 사이드바 레이아웃 확인용 페이지입니다.
-      </p>
+    <div className="px-4 pt-10 pb-5 md:px-8 lg:flex lg:h-dvh lg:flex-col lg:overflow-hidden lg:px-12">
+      <div className="grid grid-cols-1 gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,839fr)_minmax(0,655fr)] lg:grid-rows-[auto_minmax(0,1fr)]">
+        <StudyBanner />
+        <ExamSchedule />
+        <Calendar />
+        <TodoChecklist />
+      </div>
     </div>
   );
 }

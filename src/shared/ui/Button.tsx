@@ -6,7 +6,7 @@
 import { cn } from '@/shared/lib/cn';
 
 type Variant = 'primary' | 'danger' | 'point' | 'outline' | 'dark';
-type Size = 'sm' | 'md' | 'lg';
+type Size = 'xs' | 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
@@ -31,7 +31,11 @@ const variantStyles: Record<Variant, string> = {
 // - lg : Large1  20 SemiBold / lh 28
 // - md : Medium  18 Medium   / lh 30
 // - sm : Small   16 Medium   / lh 28
+// - xs : 목록 헤더의 작은 액션(홈 "추가하기") 12 Medium / h 28
+//        cn()은 tailwind-merge가 아니라 className으로 sm을 덮어쓰면 승자가 생성 순서에
+//        달린다. 그래서 덮어쓰지 않고 정식 size로 둔다.
 const sizeStyles: Record<Size, string> = {
+  xs: 'h-7 px-3 text-[12px] leading-none font-medium tracking-[-0.24px]',
   sm: 'px-4 py-2 text-[16px] leading-[28px] font-medium',
   md: 'px-5 py-2.5 text-[18px] leading-[30px] font-medium',
   lg: 'px-6 py-4 text-[20px] leading-[28px] font-semibold',

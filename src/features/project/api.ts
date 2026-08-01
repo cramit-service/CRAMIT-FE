@@ -1,13 +1,13 @@
 // src/features/project/api.ts
 import type { Project } from '@/shared/types/api';
 import { apiClient } from '@/shared/lib/apiClient';
-import { mockProjects } from '@/mocks/data';
+import { mockProjects } from '@/mocks/project';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로)
 const USE_MOCK = true;
 
-// 가짜 지연을 흉내내는 헬퍼 (실제 네트워크처럼 잠깐 기다림)
-const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// 가짜 지연을 흉내내는 헬퍼 (실제 네트워크처럼 잠깐 기다림).
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // 프로젝트 목록 조회
 export async function getProjects(): Promise<Project[]> {
