@@ -26,9 +26,10 @@ interface StudyViewerScreenProps {
 // 시안은 14px(×0.72 ≈ 10)이지만 패널 안쪽 핸들과 같은 잡는 폭을 유지하려고 12px로 둔다.
 // 여기 값이 핸들 실제 폭과 어긋나면 좌우 비율 계산이 그만큼 밀린다.
 const SPLIT_GAP = 12;
-// 좌측 패널이 가져갈 수 있는 비율(%) 범위. 어느 쪽도 쓸모없이 좁아지지 않게 막는다.
-const MIN_RATIO = 30;
-const MAX_RATIO = 70;
+// 패널이 이보다 좁아지면 어느 탭이든 내용을 읽을 수 없다.
+// 비율(%)로만 막으면 창이 작아질 때 하한도 같이 작아져 결국 그 구간에 들어간다.
+// 그래서 하한은 px로 두고, 비율 범위는 실제 폭에서 매번 역산한다.
+const MIN_PANEL_WIDTH = 400;
 
 // 학습 뷰어(챕터 "학습하기" 진입) 화면. page.tsx는 이 컴포넌트를 조립만 한다.
 export function StudyViewerScreen({
@@ -53,6 +54,16 @@ export function StudyViewerScreen({
   const audio = useMockAudio(toPlayDuration(materialQuery.data?.audioDuration));
 
   const isSplit = activeTabs.length === 2;
+
+  // 최소 폭(px)을 지금 분할 영역 폭 기준의 비율로 환산한다.
+  // 창이 좁아 양쪽 다 최소 폭을 못 가지면 50:50으로 묶는다(그게 가장 덜 나쁘다).
+  const splitInner = Math.max(0, splitWidth - SPLIT_GAP);
+  const minRatio =
+    splitInner > 0 ? Math.min(50, (MIN_PANEL_WIDTH / splitInner) * 100) : 50;
+  const maxRatio = 100 - minRatio;
+  // 창 크기가 바뀌면 저장된 비율이 범위 밖으로 나갈 수 있다.
+  // 상태를 되돌리지 않고 읽는 시점에 자른다(currentPage·재생 위치와 같은 방식).
+  const ratio = Math.min(maxRatio, Math.max(minRatio, leftRatio));
 
   // 창 크기가 바뀌어도 비율↔px 환산이 어긋나지 않게 분할 영역 폭을 추적한다.
   useEffect(() => {
@@ -157,7 +168,7 @@ export function StudyViewerScreen({
               className="min-w-0"
               // 핸들 폭을 뺀 나머지를 비율로 가른다. 우측은 flex-1로 남는 만큼 채운다.
               style={{
-                flexBasis: `calc((100% - ${SPLIT_GAP}px) * ${leftRatio / 100})`,
+                flexBasis: `calc((100% - ${SPLIT_GAP}px) * ${ratio / 100})`,
                 flexGrow: 0,
                 flexShrink: 0,
               }}
@@ -166,9 +177,9 @@ export function StudyViewerScreen({
             </div>
             <Resizer
               label="좌우 패널 너비 조절"
-              value={leftRatio}
-              min={MIN_RATIO}
-              max={MAX_RATIO}
+              value={ratio}
+              min={minRatio}
+              max={maxRatio}
               onResize={setLeftRatio}
               // 이동 1px이 몇 %인지. 폭을 재기 전(0)에는 드래그해도 움직이지 않는다.
               scale={splitWidth > 0 ? 100 / splitWidth : 0}
