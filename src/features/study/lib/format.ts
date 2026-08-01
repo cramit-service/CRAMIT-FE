@@ -31,12 +31,14 @@ export function formatChapterDay(iso: string): string {
   return `${yyyy}. ${mm}. ${dd}. (${WEEKDAYS[d.getDay()]})`;
 }
 
-// 오디오 재생 시간 표시: 725 → "12:05", 3662 → "61:02"
+// 오디오 재생 시간 표시: 725 → "12:05", 3662 → "61:02", 0 → "00:00"
 // 60분을 넘겨도 시(hour)로 나누지 않고 분으로 계속 센다 (Figma 표기 그대로).
+// 분도 두 자리로 채운다 — 시안의 스크립트 구간이 "00:00 – 08:12"로 자리를 맞춘다.
+// 자릿수가 들쭉날쭉하면 세로로 늘어선 타임스탬프의 시작선이 어긋난다.
 export function formatPlayTime(seconds: number): string {
   if (!Number.isFinite(seconds)) return FALLBACK;
   const safe = Math.max(0, Math.floor(seconds));
-  const mm = Math.floor(safe / 60);
+  const mm = String(Math.floor(safe / 60)).padStart(2, '0');
   const ss = String(safe % 60).padStart(2, '0');
   return `${mm}:${ss}`;
 }

@@ -2,6 +2,7 @@
 import type {
   Chapter,
   LectureMaterial,
+  LectureScript,
   LectureSummary,
   ProcessStatus,
   ProjectDetail,
@@ -10,6 +11,7 @@ import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
 import {
   mockChapters,
   mockLectureMaterial,
+  mockLectureScript,
   mockLectureSummary,
   mockProjectDetail,
 } from '@/mocks/study';
@@ -112,6 +114,21 @@ export async function getLectureSummary(
     return { ...mockLectureSummary, chapterId };
   }
   return apiClient.get<LectureSummary>(`/chapters/${chapterId}/summary`, {
+    signal,
+  });
+}
+
+// 챕터의 원문 스크립트(STT) 조회
+// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
+export async function getLectureScript(
+  chapterId: string,
+  signal?: AbortSignal,
+): Promise<LectureScript> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    return { ...mockLectureScript, chapterId };
+  }
+  return apiClient.get<LectureScript>(`/chapters/${chapterId}/script`, {
     signal,
   });
 }

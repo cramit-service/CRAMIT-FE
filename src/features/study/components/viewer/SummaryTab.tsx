@@ -12,11 +12,12 @@ import {
 } from '@/features/study/components/viewer/icons';
 import { MarkdownContent } from '@/features/study/components/viewer/MarkdownContent';
 import { SummaryToolbarButton } from '@/features/study/components/viewer/SummaryToolbarButton';
+import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
 
 // PDF 탭·placeholder와 같은 패널 높이. 탭을 바꿔도 화면이 출렁이지 않게 맞춘다.
-const PANEL = 'flex h-[590px] flex-col rounded-md bg-gray-900';
+const PANEL = cn(VIEWER_PANEL, 'flex flex-col');
 
 // AI 강의 요약 탭. 조회(Markdown 렌더) ↔ 편집(textarea) 두 모드를 오간다.
 // 편집 중 내용이 원본과 달라지면 "수정취소"가 "수정완료"로 바뀐다 (Figma 3상태).

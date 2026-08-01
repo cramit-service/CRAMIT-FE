@@ -6,9 +6,11 @@ import {
   useChapter,
   useLectureMaterial,
 } from '@/features/study/hooks/useLectureMaterial';
+import { useMockAudio } from '@/features/study/hooks/useMockAudio';
 import { ViewerHeader } from '@/features/study/components/viewer/ViewerHeader';
 import { PdfMaterialTab } from '@/features/study/components/viewer/PdfMaterialTab';
 import { SummaryTab } from '@/features/study/components/viewer/SummaryTab';
+import { ScriptTab } from '@/features/study/components/viewer/ScriptTab';
 import { TabPlaceholder } from '@/features/study/components/viewer/TabPlaceholder';
 import { Button } from '@/shared/ui/Button';
 import type { ViewerTab } from '@/shared/types/api';
@@ -27,6 +29,11 @@ export function StudyViewerScreen({
   const projectQuery = useProjectDetail(projectId);
   const chapterQuery = useChapter(projectId, chapterId);
   const materialQuery = useLectureMaterial(chapterId);
+
+  // 재생 상태는 탭이 아니라 화면이 쥔다. 탭 안에 두면 탭을 옮길 때마다 언마운트돼
+  // 재생 위치가 초기화되고, 원문 스크립트 탭이 그 값을 읽을 방법도 없다.
+  // 조회 전에는 duration이 0이지만 훅이 읽는 시점에만 잘라내므로 도착하면 복원된다.
+  const audio = useMockAudio(materialQuery.data?.audioDuration ?? 0);
 
   const queries = [projectQuery, chapterQuery, materialQuery];
 
@@ -76,12 +83,18 @@ export function StudyViewerScreen({
       />
 
       <div className="mt-5">
-        {activeTab === 'PDF' && <PdfMaterialTab material={material} />}
+        {activeTab === 'PDF' && (
+          <PdfMaterialTab material={material} audio={audio} />
+        )}
         {/* 요약은 이 탭에서만 필요하니 화면 진입 시가 아니라 탭 안에서 따로 조회한다 */}
         {activeTab === 'SUMMARY' && <SummaryTab chapterId={chapterId} />}
-        {/* TODO(다음 이슈): 원문 스크립트 탭 — STT 원문 렌더 */}
+        {/* 스크립트도 같은 이유로 탭 안에서 조회한다. 재생 위치는 읽기 전용으로 넘긴다 */}
         {activeTab === 'SCRIPT' && (
-          <TabPlaceholder label="원문 스크립트는 다음 이슈에서 구현합니다." />
+          <ScriptTab
+            chapterId={chapterId}
+            currentTime={audio.currentTime}
+            duration={material.audioDuration}
+          />
         )}
         {/* TODO(todo 담당): TODO 탭은 다른 담당 영역이라 자리만 잡아둔다 */}
         {activeTab === 'TODO' && (
