@@ -1,6 +1,6 @@
 'use client';
 // src/features/study/components/viewer/StudyViewerScreen.tsx
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useProjectDetail } from '@/features/study/hooks/useProjectDetail';
 import {
   useChapter,
@@ -40,9 +40,22 @@ export function StudyViewerScreen({
   const [activeTabs, setActiveTabs] = useState<ViewerTab[]>(['PDF']);
   // 좌측 패널이 차지하는 비율(%)
   const [leftRatio, setLeftRatio] = useState(50);
-  // 드래그 이동량(px)을 비율(%)로 바꾸려면 지금 분할 영역의 실제 폭이 필요하다.
-  const splitRef = useRef<HTMLDivElement>(null);
-  const [splitWidth, setSplitWidth] = useState(0);
+  // 드래그 이동량(px)을 비율(%)로 바꾸고, 분할이 가능한 폭인지 판단하는 데 쓴다.
+  // 분할 영역이 아니라 항상 그려지는 바깥 칸을 잰다 — 분할이 풀리면 안쪽 ref가
+  // 떨어지면서 폭이 0이 되고, 그 0 때문에 다시 분할이 켜지는 진동이 생긴다.
+  const [areaWidth, setAreaWidth] = useState(0);
+  const observerRef = useRef<ResizeObserver | null>(null);
+  // useEffect가 아니라 콜백 ref로 붙인다. 아래 로딩·에러 분기 때문에 첫 렌더에는
+  // 이 칸이 없어서, 빈 deps의 useEffect로는 나중에 생긴 노드를 영영 못 잡는다.
+  const areaRef = useCallback((node: HTMLDivElement | null) => {
+    observerRef.current?.disconnect();
+    if (!node) return;
+    const observer = new ResizeObserver(([entry]) =>
+      setAreaWidth(entry.contentRect.width),
+    );
+    observer.observe(node);
+    observerRef.current = observer;
+  }, []);
 
   const projectQuery = useProjectDetail(projectId);
   const chapterQuery = useChapter(projectId, chapterId);
@@ -53,28 +66,19 @@ export function StudyViewerScreen({
   // 조회 전에는 duration이 0이지만 훅이 읽는 시점에만 잘라내므로 도착하면 복원된다.
   const audio = useMockAudio(toPlayDuration(materialQuery.data?.audioDuration));
 
-  const isSplit = activeTabs.length === 2;
+  // 양쪽 다 최소 폭을 가질 수 있을 때만 나눈다. 억지로 나누면 두 패널 모두
+  // 읽을 수 없어져서, 좁은 창에선 탭 두 개를 켜도 마지막 것만 단일로 보여준다.
+  const canSplit = areaWidth >= MIN_PANEL_WIDTH * 2 + SPLIT_GAP;
+  const isSplit = activeTabs.length === 2 && canSplit;
 
   // 최소 폭(px)을 지금 분할 영역 폭 기준의 비율로 환산한다.
-  // 창이 좁아 양쪽 다 최소 폭을 못 가지면 50:50으로 묶는다(그게 가장 덜 나쁘다).
-  const splitInner = Math.max(0, splitWidth - SPLIT_GAP);
+  const splitInner = Math.max(0, areaWidth - SPLIT_GAP);
   const minRatio =
     splitInner > 0 ? Math.min(50, (MIN_PANEL_WIDTH / splitInner) * 100) : 50;
   const maxRatio = 100 - minRatio;
   // 창 크기가 바뀌면 저장된 비율이 범위 밖으로 나갈 수 있다.
   // 상태를 되돌리지 않고 읽는 시점에 자른다(currentPage·재생 위치와 같은 방식).
   const ratio = Math.min(maxRatio, Math.max(minRatio, leftRatio));
-
-  // 창 크기가 바뀌어도 비율↔px 환산이 어긋나지 않게 분할 영역 폭을 추적한다.
-  useEffect(() => {
-    const el = splitRef.current;
-    if (!el) return;
-    const observer = new ResizeObserver(([entry]) =>
-      setSplitWidth(entry.contentRect.width),
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [isSplit]);
 
   // 탭은 고르는 게 아니라 켜고 끄는 것이다(시안의 이분할 화면에서 둘이 동시에 켜져 있다).
   const toggleTab = (tab: ViewerTab) =>
@@ -159,11 +163,11 @@ export function StudyViewerScreen({
         onTabToggle={toggleTab}
       />
 
-      <div className="mt-5">
+      <div ref={areaRef} className="mt-5">
         {isSplit ? (
           // 이분할 — 좌우 패널 사이 핸들을 끌어 폭을 나눈다.
           // 핸들이 간격을 겸하므로 flex gap은 주지 않는다(주면 간격이 두 번 생긴다).
-          <div ref={splitRef} className="flex">
+          <div className="flex">
             <div
               className="min-w-0"
               // 핸들 폭을 뺀 나머지를 비율로 가른다. 우측은 flex-1로 남는 만큼 채운다.
@@ -182,13 +186,15 @@ export function StudyViewerScreen({
               max={maxRatio}
               onResize={setLeftRatio}
               // 이동 1px이 몇 %인지. 폭을 재기 전(0)에는 드래그해도 움직이지 않는다.
-              scale={splitWidth > 0 ? 100 / splitWidth : 0}
+              scale={areaWidth > 0 ? 100 / areaWidth : 0}
               step={2}
             />
             <div className="min-w-0 flex-1">{renderTab(activeTabs[1])}</div>
           </div>
         ) : (
-          renderTab(activeTabs[0])
+          // 나눌 수 없을 땐 가장 최근에 켠 탭을 보여준다. 좁은 창에서 탭을 누르면
+          // 예전처럼 "전환"으로 동작해, 눌렀는데 아무 반응이 없어 보이지 않는다.
+          renderTab(activeTabs[activeTabs.length - 1])
         )}
       </div>
     </div>
