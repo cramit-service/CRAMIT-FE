@@ -43,6 +43,15 @@ export function formatPlayTime(seconds: number): string {
   return `${mm}:${ss}`;
 }
 
+// 녹음 길이 정규화 — 백엔드가 값을 빼먹거나 숫자가 아니면 0으로 본다.
+// 재생 위치 계산(useMockAudio)과 표시(원문 스크립트 헤더)가 각자 다르게 방어하면
+// 같은 자료인데 화면마다 다른 값이 나온다. 두 경로가 이 함수를 함께 쓴다.
+export function toPlayDuration(value: number | undefined): number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0
+    ? value
+    : 0;
+}
+
 // D-DAY 계산 결과 (태그 텍스트 + 긴급도)
 export interface Dday {
   label: string; // 예: "중간고사 D-3", "중간고사 D-DAY", "중간고사 종료"

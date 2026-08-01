@@ -133,6 +133,23 @@ export async function getLectureScript(
   });
 }
 
+// STT 변환 상태 조회 (녹음 → 텍스트 변환도 비동기라 READY까지 폴링해야 한다)
+// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
+export async function getLectureScriptStatus(
+  chapterId: string,
+  signal?: AbortSignal,
+): Promise<ProcessStatus> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    // mock은 이미 변환이 끝난 챕터를 가정한다. 생성 중 화면을 확인하려면
+    // 잠시 'PROCESSING'을 반환하도록 바꿔서 보면 된다. (요약 상태와 같은 방식)
+    return 'READY';
+  }
+  return apiClient.get<ProcessStatus>(`/chapters/${chapterId}/script/status`, {
+    signal,
+  });
+}
+
 // 요약 생성 상태 조회 (AI 요약은 비동기라 READY까지 폴링해야 한다)
 // TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
 export async function getLectureSummaryStatus(

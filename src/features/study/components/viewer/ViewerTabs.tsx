@@ -27,12 +27,18 @@ export function ViewerTabs({ activeTabs, onToggle }: ViewerTabsProps) {
     <nav className="flex flex-wrap items-center gap-2">
       {TABS.map((tab) => {
         const active = activeTabs.includes(tab.id);
+        // 켜진 게 이것 하나뿐이면 꺼도 보여줄 화면이 없어 눌러도 그대로다.
+        // 이미 원하는 상태(켜짐)라 회색 처리하면 오히려 오해를 부르므로 시안의 활성
+        // 스타일은 그대로 두고, 눌러도 변화가 없다는 것만 aria-disabled로 알린다.
+        // disabled를 쓰면 포커스에서 빠져 탭 순회가 끊기므로 쓰지 않는다.
+        const locked = active && activeTabs.length === 1;
         return (
           <button
             key={tab.id}
             type="button"
             onClick={() => onToggle(tab.id)}
             aria-pressed={active}
+            aria-disabled={locked || undefined}
             className={cn(
               'flex h-8 items-center justify-center rounded-full px-4 text-[14px] leading-[20px] font-medium tracking-[-0.28px] whitespace-nowrap transition-colors',
               active

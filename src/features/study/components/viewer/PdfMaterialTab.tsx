@@ -2,16 +2,17 @@
 // src/features/study/components/viewer/PdfMaterialTab.tsx
 import { useState } from 'react';
 import type { MockAudio } from '@/features/study/hooks/useMockAudio';
-import { VIEWER_PANEL } from './panel';
-import { AudioPlayer } from './AudioPlayer';
+import { toPlayDuration } from '@/features/study/lib/format';
+import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
+import { AudioPlayer } from '@/features/study/components/viewer/AudioPlayer';
 import {
   LIST_DEFAULT_WIDTH,
   LIST_MAX_WIDTH,
   LIST_MIN_WIDTH,
   PageList,
-} from './PageList';
-import { Resizer } from './Resizer';
-import { PdfPagePreview } from './PdfPlaceholder';
+} from '@/features/study/components/viewer/PageList';
+import { Resizer } from '@/features/study/components/viewer/Resizer';
+import { PdfPagePreview } from '@/features/study/components/viewer/PdfPlaceholder';
 import { cn } from '@/shared/lib/cn';
 import type { LectureMaterial } from '@/shared/types/api';
 
@@ -24,10 +25,18 @@ interface PdfMaterialTabProps {
 
 // PDF 강의 자료 탭: 상단 오디오 플레이어 + 좌측 페이지 목록 + 우측 미리보기.
 export function PdfMaterialTab({ material, audio }: PdfMaterialTabProps) {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedPage, setSelectedPage] = useState(1);
   // 가운데 핸들을 좌우로 끌면 좌측 목록이 줄었다 늘었다 한다.
   // 좁아지면 썸네일 대신 페이지 번호만 보이는 형태로 바뀐다 (Figma 두 시안).
   const [listWidth, setListWidth] = useState(LIST_DEFAULT_WIDTH);
+
+  // 자료를 다시 조회해 페이지 수가 줄면 고른 페이지가 범위를 벗어나 "5/3"이 뜬다.
+  // useEffect로 상태를 되돌리면 잘못된 값이 한 번 그려진 뒤에 고쳐진다.
+  // 상태는 그대로 두고 읽는 시점에 자른다(useMockAudio가 재생 위치를 다루는 방식과 같다).
+  const currentPage = Math.min(
+    Math.max(1, selectedPage),
+    Math.max(1, material.pdfPageCount),
+  );
 
   // 페이지가 없는 자료는 헤더에 "1/0"이 뜨고 목록도 비어버린다.
   // 훅을 모두 호출한 뒤 빈 상태 안내로 갈음한다.
@@ -48,7 +57,7 @@ export function PdfMaterialTab({ material, audio }: PdfMaterialTabProps) {
         isPlaying={audio.isPlaying}
         onTogglePlay={audio.toggle}
         currentTime={audio.currentTime}
-        duration={material.audioDuration}
+        duration={toPlayDuration(material.audioDuration)}
         onSeek={audio.seek}
       />
 
@@ -56,7 +65,7 @@ export function PdfMaterialTab({ material, audio }: PdfMaterialTabProps) {
         <PageList
           pageCount={material.pdfPageCount}
           currentPage={currentPage}
-          onSelect={setCurrentPage}
+          onSelect={setSelectedPage}
           width={listWidth}
         />
         <Resizer

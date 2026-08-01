@@ -7,6 +7,7 @@ import {
   useLectureMaterial,
 } from '@/features/study/hooks/useLectureMaterial';
 import { useMockAudio } from '@/features/study/hooks/useMockAudio';
+import { toPlayDuration } from '@/features/study/lib/format';
 import { ViewerHeader } from '@/features/study/components/viewer/ViewerHeader';
 import { PdfMaterialTab } from '@/features/study/components/viewer/PdfMaterialTab';
 import { SummaryTab } from '@/features/study/components/viewer/SummaryTab';
@@ -49,7 +50,7 @@ export function StudyViewerScreen({
   // 재생 상태는 탭이 아니라 화면이 쥔다. 탭 안에 두면 탭을 옮길 때마다 언마운트돼
   // 재생 위치가 초기화되고, 원문 스크립트 탭이 그 값을 읽을 방법도 없다.
   // 조회 전에는 duration이 0이지만 훅이 읽는 시점에만 잘라내므로 도착하면 복원된다.
-  const audio = useMockAudio(materialQuery.data?.audioDuration ?? 0);
+  const audio = useMockAudio(toPlayDuration(materialQuery.data?.audioDuration));
 
   const isSplit = activeTabs.length === 2;
 
@@ -126,7 +127,8 @@ export function StudyViewerScreen({
           <ScriptTab
             chapterId={chapterId}
             currentTime={audio.currentTime}
-            duration={material.audioDuration}
+            // 재생 위치를 만든 값과 같은 방식으로 정규화한다(둘이 어긋나면 표기가 달라진다)
+            duration={toPlayDuration(material.audioDuration)}
           />
         );
       // TODO(todo 담당): TODO 탭은 다른 담당 영역이라 자리만 잡아둔다

@@ -33,6 +33,17 @@ export function ScriptTab({
       prev.includes(page) ? prev.filter((p) => p !== page) : [...prev, page],
     );
 
+  // STT 변환이 아직 안 끝난 경우 (조회 실패와 구분해서 안내한다)
+  if (scriptQuery.isProcessing) {
+    return (
+      <section className={cn(PANEL, 'items-center justify-center')}>
+        <p className="text-[14px] leading-[22px] text-gray-400">
+          녹음을 텍스트로 변환하고 있습니다. 완료되면 자동으로 표시됩니다.
+        </p>
+      </section>
+    );
+  }
+
   if (scriptQuery.isPending) {
     return (
       <section className={cn(PANEL, 'items-center justify-center')}>
@@ -49,12 +60,14 @@ export function ScriptTab({
         <p className="text-[14px] leading-[22px] text-gray-400">
           원문 스크립트를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
         </p>
+        {/* 재시도 중에 버튼이 그대로면 눌린 줄 모르고 계속 누르게 된다 */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => scriptQuery.refetch()}
+          disabled={scriptQuery.isFetching}
         >
-          다시 시도
+          {scriptQuery.isFetching ? '다시 시도 중…' : '다시 시도'}
         </Button>
       </section>
     );

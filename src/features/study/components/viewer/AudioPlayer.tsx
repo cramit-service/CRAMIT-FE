@@ -1,7 +1,7 @@
 'use client';
 // src/features/study/components/viewer/AudioPlayer.tsx
 import { formatPlayTime } from '@/features/study/lib/format';
-import { PauseIcon, PlayIcon } from './icons';
+import { PauseIcon, PlayIcon } from '@/features/study/components/viewer/icons';
 
 interface AudioPlayerProps {
   currentPage: number;
