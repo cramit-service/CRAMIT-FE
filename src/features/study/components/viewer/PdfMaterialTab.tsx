@@ -10,7 +10,7 @@ import {
   LIST_MIN_WIDTH,
   PageList,
 } from './PageList';
-import { ListResizer } from './ListResizer';
+import { Resizer } from './Resizer';
 import { PdfPagePreview } from './PdfPlaceholder';
 import { cn } from '@/shared/lib/cn';
 import type { LectureMaterial } from '@/shared/types/api';
@@ -33,9 +33,7 @@ export function PdfMaterialTab({ material, audio }: PdfMaterialTabProps) {
   // 훅을 모두 호출한 뒤 빈 상태 안내로 갈음한다.
   if (material.pdfPageCount < 1) {
     return (
-      <section
-        className={cn(VIEWER_PANEL, 'flex items-center justify-center')}
-      >
+      <section className={cn(VIEWER_PANEL, 'flex items-center justify-center')}>
         <p className="text-gray-500">표시할 PDF 자료가 없습니다.</p>
       </section>
     );
@@ -61,11 +59,13 @@ export function PdfMaterialTab({ material, audio }: PdfMaterialTabProps) {
           onSelect={setCurrentPage}
           width={listWidth}
         />
-        <ListResizer
-          width={listWidth}
+        <Resizer
+          label="페이지 목록 너비 조절"
+          value={listWidth}
           min={LIST_MIN_WIDTH}
           max={LIST_MAX_WIDTH}
           onResize={setListWidth}
+          divider
         />
         <PdfPagePreview page={currentPage} />
       </div>

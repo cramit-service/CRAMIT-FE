@@ -10,8 +10,8 @@ import type { Chapter, ProjectDetail, ViewerTab } from '@/shared/types/api';
 interface ViewerHeaderProps {
   chapter: Chapter;
   project: ProjectDetail;
-  activeTab: ViewerTab;
-  onTabChange: (tab: ViewerTab) => void;
+  activeTabs: ViewerTab[];
+  onTabToggle: (tab: ViewerTab) => void;
 }
 
 // 학습 뷰어 공통 헤더 (모든 탭 공통).
@@ -19,8 +19,8 @@ interface ViewerHeaderProps {
 export function ViewerHeader({
   chapter,
   project,
-  activeTab,
-  onTabChange,
+  activeTabs,
+  onTabToggle,
 }: ViewerHeaderProps) {
   const router = useRouter();
 
@@ -47,7 +47,7 @@ export function ViewerHeader({
 
       {/* 2단: 좌측 탭 4개 + 우측 강의명·교수 태그·날짜 태그 */}
       <div className="mt-7 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
-        <ViewerTabs activeTab={activeTab} onChange={onTabChange} />
+        <ViewerTabs activeTabs={activeTabs} onToggle={onTabToggle} />
         <div className="flex flex-wrap items-center gap-2">
           <p className="text-[14px] leading-[22px] tracking-[-0.28px] text-gray-950">
             {project.title}
