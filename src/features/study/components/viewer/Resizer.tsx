@@ -1,32 +1,48 @@
 'use client';
-// src/features/study/components/viewer/ListResizer.tsx
+// src/features/study/components/viewer/Resizer.tsx
 
-// 좌측 페이지 목록과 우측 미리보기 사이의 드래그 핸들.
-// Figma: 세로 구분선 + 가운데 회색 알약(gray-500). 좌우로 끌어 좌측 목록 폭을 바꾼다.
-// 폭이 좁아지면 목록이 썸네일 → 페이지 번호(P.01) 표시로 바뀐다.
+// 좌우 폭을 끌어서 바꾸는 세로 드래그 핸들.
+// 학습 뷰어에서 두 곳에 쓴다 — PDF 탭 안의 페이지 목록 폭, 이분할 화면의 좌우 패널 비율.
+// Figma에선 두 곳 모두 같은 부품(6×51 회색 알약)이다.
 
-interface ListResizerProps {
-  width: number; // 현재 좌측 목록 폭(px)
+interface ResizerProps {
+  value: number; // 현재 값 (px 또는 %)
   min: number;
   max: number;
-  onResize: (width: number) => void;
+  onResize: (value: number) => void;
+  // 스크린리더용 이름. 무엇의 폭을 조절하는지 쓰는 곳마다 다르다.
+  label: string;
+  // 포인터 이동 1px을 value 몇 만큼으로 볼지. px 단위로 쓰면 1(기본),
+  // %로 쓰면 100/컨테이너폭을 넘긴다.
+  scale?: number;
+  // 화살표 키 한 번에 움직일 값
+  step?: number;
+  // 어두운 패널 안에서 쓸 때만 세로 구분선을 그린다.
+  // 밝은 배경 위(이분할 화면)에선 선이 떠 보여서 알약만 남긴다.
+  divider?: boolean;
 }
 
-// 키보드로도 조절할 수 있게 화살표 한 번당 움직일 폭
-const STEP = 8;
+export function Resizer({
+  value,
+  min,
+  max,
+  onResize,
+  label,
+  scale = 1,
+  step = 8,
+  divider = false,
+}: ResizerProps) {
+  const clamp = (next: number) => Math.min(max, Math.max(min, next));
 
-export function ListResizer({ width, min, max, onResize }: ListResizerProps) {
-  const clamp = (value: number) => Math.min(max, Math.max(min, value));
-
-  // 포인터를 잡아두고(setPointerCapture) 이동량만큼 좌측 폭을 늘리고 줄인다
+  // 포인터를 잡아두고(setPointerCapture) 이동량만큼 값을 늘리고 줄인다
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault();
     const handle = e.currentTarget;
     const startX = e.clientX;
-    const startWidth = width;
+    const startValue = value;
 
     const handleMove = (move: PointerEvent) => {
-      onResize(clamp(startWidth + (move.clientX - startX)));
+      onResize(clamp(startValue + (move.clientX - startX) * scale));
     };
     // 터치 취소나 capture 해제로 끝날 수도 있다. pointerup만 정리하면
     // 남은 pointermove 핸들러가 다음 드래그에서 onResize를 중복 호출한다.
@@ -47,11 +63,11 @@ export function ListResizer({ width, min, max, onResize }: ListResizerProps) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'ArrowLeft') {
       e.preventDefault();
-      onResize(clamp(width - STEP));
+      onResize(clamp(value - step));
     }
     if (e.key === 'ArrowRight') {
       e.preventDefault();
-      onResize(clamp(width + STEP));
+      onResize(clamp(value + step));
     }
   };
 
@@ -59,8 +75,8 @@ export function ListResizer({ width, min, max, onResize }: ListResizerProps) {
     <div
       role="separator"
       aria-orientation="vertical"
-      aria-label="페이지 목록 너비 조절"
-      aria-valuenow={Math.round(width)}
+      aria-label={label}
+      aria-valuenow={Math.round(value)}
       aria-valuemin={min}
       aria-valuemax={max}
       tabIndex={0}
@@ -68,8 +84,7 @@ export function ListResizer({ width, min, max, onResize }: ListResizerProps) {
       onKeyDown={handleKeyDown}
       className="group relative flex w-3 shrink-0 cursor-col-resize touch-none items-center justify-center focus:outline-none"
     >
-      {/* 세로 구분선 */}
-      <span className="absolute inset-y-0 w-px bg-gray-800" />
+      {divider && <span className="absolute inset-y-0 w-px bg-gray-800" />}
       {/* 가운데 잡는 부분 (Figma: 6×51 회색 알약) */}
       <span className="group-focus:bg-secondary-400 relative h-9 w-1 rounded-full bg-gray-500 transition-colors group-hover:bg-gray-400" />
     </div>

@@ -9,7 +9,18 @@ import { useEffect, useState } from 'react';
 // Figma 시안 표기(12:05 / 61:02)와 맞추기 위한 mock 시작 위치(초)
 const MOCK_START_TIME = 725;
 
-export function useMockAudio(duration: number) {
+// 뷰어 화면이 쥐고 탭들에 내려주는 재생 상태.
+export interface MockAudio {
+  isPlaying: boolean;
+  currentTime: number; // 초
+  toggle: () => void;
+  seek: (seconds: number) => void;
+}
+
+// duration은 강의자료 조회가 끝나기 전엔 0으로 들어온다.
+// 그동안 rawTime은 그대로 두고 읽는 시점에만 잘라내므로, 자료가 도착하면
+// 시작 위치(12:05)가 저절로 복원된다.
+export function useMockAudio(duration: number): MockAudio {
   const [isPlaying, setIsPlaying] = useState(false);
   const [rawTime, setRawTime] = useState(MOCK_START_TIME);
 

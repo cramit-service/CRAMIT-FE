@@ -31,14 +31,25 @@ export function formatChapterDay(iso: string): string {
   return `${yyyy}. ${mm}. ${dd}. (${WEEKDAYS[d.getDay()]})`;
 }
 
-// 오디오 재생 시간 표시: 725 → "12:05", 3662 → "61:02"
+// 오디오 재생 시간 표시: 725 → "12:05", 3662 → "61:02", 0 → "00:00"
 // 60분을 넘겨도 시(hour)로 나누지 않고 분으로 계속 센다 (Figma 표기 그대로).
+// 분도 두 자리로 채운다 — 시안의 스크립트 구간이 "00:00 – 08:12"로 자리를 맞춘다.
+// 자릿수가 들쭉날쭉하면 세로로 늘어선 타임스탬프의 시작선이 어긋난다.
 export function formatPlayTime(seconds: number): string {
   if (!Number.isFinite(seconds)) return FALLBACK;
   const safe = Math.max(0, Math.floor(seconds));
-  const mm = Math.floor(safe / 60);
+  const mm = String(Math.floor(safe / 60)).padStart(2, '0');
   const ss = String(safe % 60).padStart(2, '0');
   return `${mm}:${ss}`;
+}
+
+// 녹음 길이 정규화 — 백엔드가 값을 빼먹거나 숫자가 아니면 0으로 본다.
+// 재생 위치 계산(useMockAudio)과 표시(원문 스크립트 헤더)가 각자 다르게 방어하면
+// 같은 자료인데 화면마다 다른 값이 나온다. 두 경로가 이 함수를 함께 쓴다.
+export function toPlayDuration(value: number | undefined): number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0
+    ? value
+    : 0;
 }
 
 // D-DAY 계산 결과 (태그 텍스트 + 긴급도)

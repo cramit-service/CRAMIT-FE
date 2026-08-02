@@ -2,6 +2,7 @@
 import type {
   Chapter,
   LectureMaterial,
+  LectureScript,
   LectureSummary,
   ProcessStatus,
   ProjectDetail,
@@ -10,6 +11,7 @@ import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
 import {
   mockChapters,
   mockLectureMaterial,
+  mockLectureScript,
   mockLectureSummary,
   mockProjectDetail,
 } from '@/mocks/study';
@@ -112,6 +114,38 @@ export async function getLectureSummary(
     return { ...mockLectureSummary, chapterId };
   }
   return apiClient.get<LectureSummary>(`/chapters/${chapterId}/summary`, {
+    signal,
+  });
+}
+
+// 챕터의 원문 스크립트(STT) 조회
+// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
+export async function getLectureScript(
+  chapterId: string,
+  signal?: AbortSignal,
+): Promise<LectureScript> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    return { ...mockLectureScript, chapterId };
+  }
+  return apiClient.get<LectureScript>(`/chapters/${chapterId}/script`, {
+    signal,
+  });
+}
+
+// STT 변환 상태 조회 (녹음 → 텍스트 변환도 비동기라 READY까지 폴링해야 한다)
+// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
+export async function getLectureScriptStatus(
+  chapterId: string,
+  signal?: AbortSignal,
+): Promise<ProcessStatus> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    // mock은 이미 변환이 끝난 챕터를 가정한다. 생성 중 화면을 확인하려면
+    // 잠시 'PROCESSING'을 반환하도록 바꿔서 보면 된다. (요약 상태와 같은 방식)
+    return 'READY';
+  }
+  return apiClient.get<ProcessStatus>(`/chapters/${chapterId}/script/status`, {
     signal,
   });
 }

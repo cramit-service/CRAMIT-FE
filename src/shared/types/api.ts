@@ -117,6 +117,31 @@ export interface LectureSummary {
   updatedAt: string; // ISO 날짜 문자열
 }
 
+/* ===== 원문 스크립트 / STT (이슈 D) ===== */
+
+// 스크립트 한 줄 — 발화가 시작된 시각(초)과 그 내용.
+export interface ScriptSegment {
+  atSec: number;
+  text: string;
+}
+
+// PDF 한 페이지에 대응하는 스크립트 구간.
+// 녹음을 PPT 페이지 단위로 끊어 묶은 것이라 페이지 번호가 곧 구간 식별자다.
+export interface ScriptSection {
+  page: number; // PDF 페이지 번호 (배지 "PDF P.01")
+  startSec: number; // 구간 시작(초)
+  endSec: number; // 구간 끝(초)
+  title: string; // 구간 소제목
+  segments: ScriptSegment[];
+}
+
+// 챕터 하나의 STT 원문 전체.
+// TODO: 백엔드 STT 응답 스펙 확정 시 필드명/타입 재확인 필요.
+export interface LectureScript {
+  chapterId: string;
+  sections: ScriptSection[];
+}
+
 /* ===== Exam / 시험 일정 (기획서 7.3, 8.9) ===== */
 
 export interface Exam {

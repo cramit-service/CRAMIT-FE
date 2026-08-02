@@ -1,7 +1,7 @@
 'use client';
 // src/features/study/components/viewer/PageList.tsx
 import { cn } from '@/shared/lib/cn';
-import { checkerStyle } from './PdfPlaceholder';
+import { checkerStyle } from '@/features/study/components/viewer/PdfPlaceholder';
 
 // 좌측 목록 폭 한계 (Figma: 썸네일 172px / 번호 레일 48px을 약 0.72배로 축소한 값)
 export const LIST_MIN_WIDTH = 36;

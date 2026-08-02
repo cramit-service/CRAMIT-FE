@@ -12,11 +12,12 @@ import {
 } from '@/features/study/components/viewer/icons';
 import { MarkdownContent } from '@/features/study/components/viewer/MarkdownContent';
 import { SummaryToolbarButton } from '@/features/study/components/viewer/SummaryToolbarButton';
+import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
 
 // PDF 탭·placeholder와 같은 패널 높이. 탭을 바꿔도 화면이 출렁이지 않게 맞춘다.
-const PANEL = 'flex h-[590px] flex-col rounded-md bg-gray-900';
+const PANEL = cn(VIEWER_PANEL, 'flex flex-col');
 
 // AI 강의 요약 탭. 조회(Markdown 렌더) ↔ 편집(textarea) 두 모드를 오간다.
 // 편집 중 내용이 원본과 달라지면 "수정취소"가 "수정완료"로 바뀐다 (Figma 3상태).
@@ -111,8 +112,10 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
 
   return (
     <section className={cn(PANEL, 'px-8 pt-5 pb-8')}>
-      {/* 상단 바: 좌측 MD 배지 + 파일명, 우측 상태별 버튼 */}
-      <div className="flex shrink-0 items-center justify-between gap-4">
+      {/* 상단 바: 좌측 MD 배지 + 파일명, 우측 상태별 버튼.
+          이분할 화면에선 패널이 절반 이하로 좁아진다. 버튼을 안 접으면 툴바가 패널을
+          넘치고 그대로 문서 폭까지 밀어내 페이지에 가로 스크롤이 생긴다. */}
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="flex min-w-0 items-center gap-2">
           <span className="flex h-[22px] shrink-0 items-center justify-center rounded-full border-[0.5px] border-white px-1.5 text-[12px] leading-[22px] font-medium text-white">
             MD
@@ -128,7 +131,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
           </p>
         </div>
 
-        <div className="flex shrink-0 items-center gap-4">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <SummaryToolbarButton tone="ghost" onClick={handleCopy}>
             Markdown 복사하기
           </SummaryToolbarButton>
