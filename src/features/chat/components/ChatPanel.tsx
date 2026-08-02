@@ -28,6 +28,9 @@ export function ChatPanel({
   const messages = chatQuery.data ?? [];
   // 답을 기다리는 동안 추천 질문을 계속 눌러 질문이 겹치지 않게 막는다.
   const sending = sendMutation.isPending;
+  // 추천 질문은 말문을 트라고 있는 것이다. 한 번이라도 질문했으면 할 일을 다 했고,
+  // 계속 남으면 대화 영역만 잡아먹는다. (낙관적 반영이라 보내는 즉시 참이 된다)
+  const hasAsked = messages.some((message) => message.role === 'USER');
 
   // 새 말풍선이 보이는 영역 밖에 생기면 보낸 줄도, 답이 온 줄도 모른다.
   // mutate 콜백에서 스크롤하면 아직 새 말풍선이 그려지기 전이라 예전 높이로 움직인다.
@@ -87,7 +90,25 @@ export function ChatPanel({
           </ul>
         )}
 
-        {/* 맨 위로 (시안: 우하단 원형 버튼) */}
+        {/* 추천 질문 (시안: 대화 영역 좌하단 흰 알약). 고정 바가 아니라 대화 흐름 안에 있어야
+            말풍선을 가리지 않는다. 첫 질문 전에만 둔다. */}
+        {!hasAsked && !chatQuery.isPending && !chatQuery.isError && (
+          <div className="mt-5 flex flex-col items-start gap-2">
+            {mockSuggestedQuestions.map((question) => (
+              <button
+                key={question}
+                type="button"
+                onClick={() => send(question)}
+                disabled={sending}
+                className="rounded-full border border-white bg-white px-4 py-1 text-[14px] leading-7 font-medium tracking-[-0.28px] text-gray-800 shadow-sm transition-colors hover:bg-gray-200 disabled:opacity-50"
+              >
+                {question}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* 맨 위로 (시안: 우하단 원형 버튼). mt-auto라 위 내용이 줄면 그만큼 내려온다 */}
         {messages.length > 0 && (
           <button
             type="button"
@@ -101,22 +122,6 @@ export function ChatPanel({
           </button>
         )}
       </div>
-
-      {/* 추천 질문 (시안: 입력창 바로 위 흰 알약). 답을 기다리는 중엔 감춘다 */}
-      {!sending && !chatQuery.isPending && (
-        <div className="flex flex-col items-start gap-2 px-7 pb-3">
-          {mockSuggestedQuestions.map((question) => (
-            <button
-              key={question}
-              type="button"
-              onClick={() => send(question)}
-              className="rounded-full border border-white bg-white px-4 py-1 text-[14px] leading-7 font-medium tracking-[-0.28px] text-gray-800 shadow-sm transition-colors hover:bg-gray-200"
-            >
-              {question}
-            </button>
-          ))}
-        </div>
-      )}
 
       {/* 입력창 */}
       <form
