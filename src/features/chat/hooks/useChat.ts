@@ -25,8 +25,11 @@ export function useSendChatMessage(projectId: string) {
 
   return useMutation({
     mutationFn: (content: string) => sendChatMessage(projectId, content),
-    onMutate: (content) => {
+    onMutate: async (content) => {
       const key = chatKey(projectId);
+      // 조회가 날아가 있는 중이면 그 응답이 뒤늦게 도착해 방금 넣은 내 말풍선을
+      // 덮어쓴다(보낸 메시지가 사라진다). 낙관적 반영 전에 먼저 끊는다.
+      await queryClient.cancelQueries({ queryKey: key });
       const previous = queryClient.getQueryData<ChatMessage[]>(key) ?? [];
       const mine: ChatMessage = {
         messageId: `m-user-${Date.now()}`,

@@ -24,6 +24,8 @@ export function ChatPanel({
   const sendMutation = useSendChatMessage(projectId);
   const [draft, setDraft] = useState('');
   const listRef = useRef<HTMLDivElement>(null);
+  // 올라갈 데가 없는데 "맨 위로"를 띄우면 눌러도 아무 일이 없다.
+  const [canScrollUp, setCanScrollUp] = useState(false);
 
   const messages = chatQuery.data ?? [];
   // 답을 기다리는 동안 추천 질문을 계속 눌러 질문이 겹치지 않게 막는다.
@@ -39,6 +41,8 @@ export function ChatPanel({
     const el = listRef.current;
     if (!el) return;
     el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    // 대화가 영역을 넘겼을 때만 "맨 위로"를 띄운다(같은 시점에 재면 된다).
+    setCanScrollUp(el.scrollHeight > el.clientHeight + 8);
   }, [messages.length, sending]);
 
   const send = (content: string) => {
@@ -75,6 +79,12 @@ export function ChatPanel({
               {chatQuery.isFetching ? '다시 시도 중…' : '다시 시도'}
             </Button>
           </div>
+        ) : messages.length === 0 ? (
+          // mock은 인사말을 항상 포함하지만, 백엔드가 빈 배열을 주면 아무 안내도 없이
+          // 빈 화면만 남는다. 로딩·에러와 마찬가지로 빈 상태도 말해 준다.
+          <p className="pt-10 text-center text-[13px] text-gray-500">
+            아직 주고받은 대화가 없어요. 궁금한 내용을 물어보세요.
+          </p>
         ) : (
           <ul className="flex flex-col gap-5">
             {messages.map((message) => (
@@ -109,7 +119,7 @@ export function ChatPanel({
         )}
 
         {/* 맨 위로 (시안: 우하단 원형 버튼). mt-auto라 위 내용이 줄면 그만큼 내려온다 */}
-        {messages.length > 0 && (
+        {canScrollUp && (
           <button
             type="button"
             onClick={() =>
