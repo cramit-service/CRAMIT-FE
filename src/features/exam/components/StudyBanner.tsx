@@ -31,6 +31,9 @@ export function StudyBanner() {
         unoptimized
         className="pointer-events-none absolute top-10 left-[67%] h-14 w-auto select-none"
       />
+      {/* 홈 첫 화면 상단이라 이 이미지가 LCP로 잡힌다. eager로 미리 받아
+          Next의 LCP 경고를 없애고 배너가 늦게 채워지는 것도 막는다.
+          Next 16부터 같은 일을 하던 priority는 deprecated라 preload를 쓴다. */}
       <Image
         src="/images/Crait_Cat.svg"
         alt=""
@@ -38,6 +41,7 @@ export function StudyBanner() {
         width={195}
         height={154}
         unoptimized
+        preload
         className="pointer-events-none absolute right-3 bottom-3 h-26 w-auto select-none"
       />
       {featured && (

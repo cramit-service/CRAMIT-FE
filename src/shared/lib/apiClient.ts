@@ -4,10 +4,9 @@ import type { ApiError } from '@/shared/types/api';
 // 백엔드 base URL. 환경변수로 관리하고, 없으면 로컬 기본값 사용
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 
-// 요청 옵션 (fetch 옵션 + 우리가 추가하는 것)
-interface RequestOptions extends RequestInit {
-  // 필요 시 확장
-}
+// 요청 옵션 (fetch 옵션 그대로). 우리 옵션을 더할 땐 교차 타입으로 확장한다.
+// (빈 interface extends는 supertype과 같아 lint에 걸린다)
+type RequestOptions = RequestInit;
 
 // 토큰을 가져오는 함수 (지금은 localStorage 기준, 나중에 교체 가능)
 function getAccessToken(): string | null {
