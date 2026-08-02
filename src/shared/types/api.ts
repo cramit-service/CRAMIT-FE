@@ -142,6 +142,21 @@ export interface LectureScript {
   sections: ScriptSection[];
 }
 
+/* ===== AI 챗봇 (기획서 8.7) ===== */
+
+// 말한 쪽. 화면에선 내 말이 오른쪽 연두, AI가 왼쪽 흰 말풍선이다.
+export type ChatRole = 'USER' | 'AI';
+
+// 대화 한 줄.
+// TODO: 백엔드 챗봇 응답 스펙 확정 시 필드명/타입 재확인 필요.
+export interface ChatMessage {
+  messageId: string;
+  projectId: string;
+  role: ChatRole;
+  content: string;
+  createdAt: string; // ISO 날짜 문자열
+}
+
 /* ===== Exam / 시험 일정 (기획서 7.3, 8.9) ===== */
 
 export interface Exam {
