@@ -11,9 +11,15 @@ import { useExams } from '../hooks/useExams';
 // 데이터는 시험 일정과 함께 내려온다(useExams 재사용). 배경은 랜딩과 동일한 GradientBackground.
 export function StudyBanner() {
   const router = useRouter();
-  const { data: exams } = useExams();
+  const { data: exams, isLoading, isError } = useExams();
   // getExams가 임박한 순으로 정렬해 주므로 첫 번째가 배너 대상.
   const featured = exams?.[0];
+
+  // 조회가 끝났고 정말로 일정이 없을 때만 빈 배너를 보여준다.
+  // 로딩 중이나 실패했을 때 띄우면 "일정이 없다"고 단정하는 셈이 된다.
+  if (!isLoading && !isError && !featured) {
+    return <EmptyExamBanner />;
+  }
 
   return (
     <GradientBackground
@@ -70,6 +76,44 @@ export function StudyBanner() {
         </div>
       )}
     </GradientBackground>
+  );
+}
+
+// 시험 일정이 하나도 없을 때의 배너(시안 별도 상태).
+// 높이는 진행 중 배너와 같게 맞춘다 — 다르면 둘 사이를 오갈 때 그리드 1행이 흔들린다.
+function EmptyExamBanner() {
+  return (
+    <div className="relative flex min-h-35.5 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-md bg-gray-800">
+      {/* 장식 — 낙서(좌)와 캐릭터(우). 순수 장식이라 aria-hidden.
+          낙서는 어두운 배경용 흰색 별도 에셋이다(진행 중 배너의 Banner_extra는 거의 검정이라 안 보인다).
+          SVG라 next/image 최적화 경로를 피하려 unoptimized로 그대로 서빙한다. */}
+      <Image
+        src="/images/Banner_extra_white.svg"
+        alt=""
+        aria-hidden
+        width={72}
+        height={83}
+        unoptimized
+        className="pointer-events-none absolute top-9 left-[10%] h-14 w-auto select-none"
+      />
+      {/* 진행 중 배너와 같은 이유로 LCP 대비 preload */}
+      <Image
+        src="/images/Crait_Cat.svg"
+        alt=""
+        aria-hidden
+        width={195}
+        height={154}
+        unoptimized
+        preload
+        className="pointer-events-none absolute right-3 bottom-3 h-26 w-auto select-none"
+      />
+      <p className="relative text-[24px] leading-8.5 font-semibold tracking-[-0.48px] text-white">
+        예정된 시험 일정이 없습니다.
+      </p>
+      <p className="relative text-[14px] leading-5 tracking-[-0.28px] text-gray-300">
+        새로운 시험이 등록되면 이곳에 표시됩니다.
+      </p>
+    </div>
   );
 }
 

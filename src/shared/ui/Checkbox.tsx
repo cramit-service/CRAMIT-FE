@@ -5,7 +5,11 @@ import { cn } from '@/shared/lib/cn';
 interface CheckboxProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
-  label: React.ReactNode;
+  // 라벨을 주면 글자를 눌러도 토글된다(약관 동의처럼 줄 전체가 체크 대상일 때).
+  // 상자만 토글해야 하는 화면은 라벨을 넘기지 말고 글자를 바깥에서 직접 그린 뒤
+  // aria-label로 이름만 준다. (예: 투두 체크리스트 — 글자를 누르면 상세보기가 열린다)
+  label?: React.ReactNode;
+  'aria-label'?: string;
   className?: string;
 }
 
@@ -30,6 +34,7 @@ export function Checkbox({
   checked,
   onChange,
   label,
+  'aria-label': ariaLabel,
   className,
 }: CheckboxProps) {
   return (
@@ -46,6 +51,7 @@ export function Checkbox({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
+        aria-label={ariaLabel}
         className="peer sr-only"
       />
       <span
@@ -60,7 +66,8 @@ export function Checkbox({
       >
         <CheckIcon className="h-3.5 w-3.5" />
       </span>
-      <span className="text-gray-900">{label}</span>
+      {/* 라벨이 없으면 span 자체를 그리지 않는다 — 빈 span이 남으면 gap만큼 클릭 영역이 넓어진다 */}
+      {label !== undefined && <span className="text-gray-900">{label}</span>}
     </label>
   );
 }

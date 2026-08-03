@@ -61,8 +61,8 @@ export function LectureSection({
         </p>
       ) : (
         // max-h는 시안대로 3행까지만 보이는 높이 — 카드 90px × 3 + 세로 gap 12 × 2 = 294.
-        // 스크롤바는 시안에 보이는 형태라 트랙/썸을 직접 칠한다 (색은 @theme 토큰 변수).
-        <div className="max-h-73.5 scrollbar-thin [scrollbar-color:var(--color-gray-500)_var(--color-gray-300)] overflow-y-auto pr-4.25 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-500 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-300">
+        // pr은 그리드와 스크롤바 사이 간격(시안 17px).
+        <div className="scrollbar-slim max-h-73.5 overflow-y-auto pr-4.25">
           <div className="grid grid-cols-1 gap-x-3.25 gap-y-3 md:grid-cols-2">
             {lectures.map((lecture) => (
               <LectureCard
