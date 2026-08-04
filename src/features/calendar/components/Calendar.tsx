@@ -115,10 +115,10 @@ function NavButton({
       type="button"
       aria-label={label}
       onClick={onClick}
-      className="flex size-3.75 items-center justify-center rounded-md bg-gray-800 text-white transition-colors hover:bg-gray-900"
+      className="flex size-6 items-center justify-center rounded-md bg-gray-800 text-white transition-colors hover:bg-gray-900"
     >
       <ChevronIcon
-        className={direction === 'left' ? 'size-2.5 rotate-180' : 'size-2.5'}
+        className={direction === 'left' ? 'size-3.5 rotate-180' : 'size-3.5'}
       />
     </button>
   );
