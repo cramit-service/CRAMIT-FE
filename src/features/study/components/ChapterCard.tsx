@@ -2,7 +2,7 @@
 // src/features/study/components/ChapterCard.tsx
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
-import { formatChapterDate } from '../lib/format';
+import { formatChapterDate } from '@/features/study/lib/format';
 import { CalendarIcon, ChevronRightIcon, RefreshIcon } from './icons';
 import type { Chapter, ChapterStatus } from '@/shared/types/api';
 

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
 import { Tag } from './Tag';
 import { ChevronRightIcon } from './icons';
-import { getDday } from '../lib/format';
+import { getDday } from '@/features/study/lib/format';
 import type { ProjectSummary } from '@/shared/types/api';
 
 // 섹션에 따라 카드 바탕색이 갈린다 (Figma: 내 강의 #e7f7fa / 공유 강의 #f0f1f1).

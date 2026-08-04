@@ -9,7 +9,7 @@ import { Modal } from '@/shared/ui/Modal';
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
 import { FileDropzone } from './FileDropzone';
 import { ChevronDownIcon, CloseIcon, CloudUploadIcon } from './icons';
-import { useCreateChapter } from '../hooks/useCreateChapter';
+import { useCreateChapter } from '@/features/project/hooks/useCreateChapter';
 
 interface NewChapterUploadModalProps {
   /** 지금 보고 있는 강의(프로젝트). "강의" 셀렉트의 기본값이 된다. */

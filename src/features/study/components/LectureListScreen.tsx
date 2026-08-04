@@ -2,8 +2,12 @@
 // src/features/study/components/LectureListScreen.tsx
 import { useState } from 'react';
 import { Icon } from '@/shared/ui/Icon';
-import { useProjectSummaries } from '../hooks/useProjectSummaries';
-import { filterLectures, sortLectures, type SortKey } from '../lib/lectureList';
+import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
+import {
+  filterLectures,
+  sortLectures,
+  type SortKey,
+} from '@/features/study/lib/lectureList';
 import { LectureSearchBar } from './LectureSearchBar';
 import { LectureSection } from './LectureSection';
 

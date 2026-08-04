@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { ChevronDownIcon } from './icons';
-import { SORT_LABEL, type SortKey } from '../lib/lectureList';
+import { SORT_LABEL, type SortKey } from '@/features/study/lib/lectureList';
 
 const OPTIONS: SortKey[] = ['REGISTERED', 'NAME'];
 

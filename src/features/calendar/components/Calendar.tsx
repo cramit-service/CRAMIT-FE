@@ -6,8 +6,8 @@ import { useAllExams } from '@/features/exam/hooks/useAllExams';
 import { useTodos } from '@/features/todo/hooks/useTodos';
 import { examName } from '@/features/exam/lib/examName';
 import { todoName } from '@/features/todo/lib/todoName';
-import { buildMonthGrid } from '../lib/month';
-import { useCalendarMonth } from '../hooks/useCalendarMonth';
+import { buildMonthGrid } from '@/features/calendar/lib/month';
+import { useCalendarMonth } from '@/features/calendar/hooks/useCalendarMonth';
 import { CalendarCell, type ScheduleItem } from './CalendarCell';
 
 const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT'];

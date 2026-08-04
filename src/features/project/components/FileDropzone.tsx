@@ -3,8 +3,12 @@
 import { useId, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { CloudUploadIcon } from './icons';
-import { UPLOAD_SPEC, formatFileSize, validateUpload } from '../lib/upload';
-import type { UploadKind } from '../lib/upload';
+import {
+  UPLOAD_SPEC,
+  formatFileSize,
+  validateUpload,
+} from '@/features/project/lib/upload';
+import type { UploadKind } from '@/features/project/lib/upload';
 
 interface FileDropzoneProps {
   kind: UploadKind;

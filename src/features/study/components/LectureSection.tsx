@@ -2,7 +2,7 @@
 // src/features/study/components/LectureSection.tsx
 import { SortSelect } from './SortSelect';
 import { LectureCard, type LectureTone } from './LectureCard';
-import type { SortKey } from '../lib/lectureList';
+import type { SortKey } from '@/features/study/lib/lectureList';
 import type { ProjectSummary } from '@/shared/types/api';
 
 interface LectureSectionProps {

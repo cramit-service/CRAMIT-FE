@@ -6,7 +6,7 @@ import { cn } from '@/shared/lib/cn';
 import { NewChapterUploadModal } from '@/features/project/components/NewChapterUploadModal';
 import { Tag } from './Tag';
 import { ChevronLeftIcon, PencilIcon, ShareIcon, PlusIcon } from './icons';
-import { getDday } from '../lib/format';
+import { getDday } from '@/features/study/lib/format';
 import type { ProjectDetail } from '@/shared/types/api';
 
 // 헤더 우측 액션 2종(공유하기·새 주차 업로드)의 공통 골격.

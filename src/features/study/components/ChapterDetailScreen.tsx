@@ -1,8 +1,8 @@
 'use client';
 // src/features/study/components/ChapterDetailScreen.tsx
 import { useState } from 'react';
-import { useProjectDetail } from '../hooks/useProjectDetail';
-import { useChapters } from '../hooks/useChapters';
+import { useProjectDetail } from '@/features/study/hooks/useProjectDetail';
+import { useChapters } from '@/features/study/hooks/useChapters';
 import { ProjectHeader } from './ProjectHeader';
 import { LearningProgress } from './LearningProgress';
 import { ChapterCard } from './ChapterCard';
