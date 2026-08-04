@@ -52,7 +52,8 @@ export function FileDropzone({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-[20px] leading-[30px] tracking-[-0.4px] text-gray-300">
+      {/* 모달 안 타이포는 박스와 같은 0.72배로 옮긴다 (라벨 20 → 14). */}
+      <p className="text-[14px] leading-[22px] tracking-[-0.28px] text-gray-300">
         {label}
       </p>
 
@@ -83,20 +84,20 @@ export function FileDropzone({
         />
 
         {file ? (
-          <div className="flex size-full flex-col items-center justify-center gap-2 px-4 text-center">
-            <CloudUploadIcon className="text-secondary-400 size-[19px]" />
-            <p className="max-w-full truncate text-[14px] leading-[22px] tracking-[-0.28px] text-gray-100">
+          <div className="flex size-full flex-col items-center justify-center gap-1.5 px-4 text-center">
+            <CloudUploadIcon className="text-secondary-400 size-4" />
+            <p className="max-w-full truncate text-[12px] leading-[18px] tracking-[-0.24px] text-gray-100">
               {file.name}
             </p>
-            <p className="text-[14px] leading-[22px] tracking-[-0.28px] text-gray-600">
+            <p className="text-[11px] leading-4 tracking-[-0.22px] text-gray-600">
               {formatFileSize(file.size)}
             </p>
-            <div className="mt-1 flex items-center gap-2">
+            <div className="mt-0.5 flex items-center gap-2">
               <button
                 type="button"
                 onClick={openPicker}
                 disabled={disabled}
-                className="rounded-sm px-2 py-1 text-[12px] leading-[18px] text-gray-300 underline underline-offset-2 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-600"
+                className="rounded-sm px-2 py-1 text-[11px] leading-4 text-gray-300 underline underline-offset-2 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-600"
               >
                 다시 선택
               </button>
@@ -107,7 +108,7 @@ export function FileDropzone({
                   onError(null);
                 }}
                 disabled={disabled}
-                className="text-error rounded-sm px-2 py-1 text-[12px] leading-[18px] underline underline-offset-2 transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:text-gray-600"
+                className="text-error rounded-sm px-2 py-1 text-[11px] leading-4 underline underline-offset-2 transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:text-gray-600"
               >
                 삭제
               </button>
@@ -118,13 +119,13 @@ export function FileDropzone({
             type="button"
             onClick={openPicker}
             disabled={disabled}
-            className="flex size-full cursor-pointer flex-col items-center justify-center gap-2 px-4 text-center disabled:cursor-not-allowed"
+            className="flex size-full cursor-pointer flex-col items-center justify-center gap-1.5 px-4 text-center disabled:cursor-not-allowed"
           >
-            <span className="flex items-center gap-1.5 text-[14px] leading-[22px] tracking-[-0.28px] text-gray-300">
-              <CloudUploadIcon className="size-[19px]" />
+            <span className="flex items-center gap-1.5 text-[12px] leading-[18px] tracking-[-0.24px] text-gray-300">
+              <CloudUploadIcon className="size-4" />
               파일 선택
             </span>
-            <span className="text-[14px] leading-[22px] tracking-[-0.28px] text-gray-600">
+            <span className="text-[11px] leading-4 tracking-[-0.22px] text-gray-600">
               {spec.hint}
               <br />
               {spec.formatHint}
@@ -134,7 +135,7 @@ export function FileDropzone({
       </div>
 
       {error && (
-        <p className="text-error text-[14px] leading-[22px] tracking-[-0.28px]">
+        <p className="text-error text-[12px] leading-[18px] tracking-[-0.24px] break-keep">
           {error}
         </p>
       )}

@@ -18,8 +18,10 @@ interface NewChapterUploadModalProps {
 }
 
 // 입력 칸 공통 스타일. Figma 시안(높이 56·좌우 패딩 20)을 화면과 같은 0.72배로 줄였다.
+// 타이포도 박스와 같은 0.72배를 적용한다(18 → 13). 가이드 4-4는 타이포를 줄이지 말라고 하지만,
+// 그 규칙은 전체 화면 기준이라 0.72배로 줄인 모달 안에서는 글자만 남아 박스를 꽉 채운다.
 const FIELD_BASE =
-  'h-10 rounded-md px-3.5 text-[18px] leading-[30px] font-medium tracking-[-0.36px] outline-none';
+  'h-10 rounded-md px-3.5 text-[13px] leading-5 font-medium tracking-[-0.26px] outline-none';
 // 제목·교수명처럼 채워진 입력. 값은 흰색, 안내 문구는 한 단계 흐리게 둬서 비어 있는 게 보이게 한다.
 const FIELD_FILLED = `${FIELD_BASE} bg-gray-800 text-gray-100 placeholder:text-gray-300 focus:ring-1 focus:ring-secondary-400`;
 // 셀렉트·날짜처럼 테두리만 있는 입력. 폭은 호출처가 정한다
@@ -28,7 +30,10 @@ const FIELD_OUTLINED = `${FIELD_BASE} border-[0.5px] border-gray-500 bg-transpar
 // 강의·날짜 칸 폭. 시안은 186px(=134px)이지만 "2026-07-21"과 한글 과목명이 잘려서 조금 넓혔다.
 const FIELD_WIDTH = 'w-[156px]';
 
-const LABEL = 'text-[20px] leading-[30px] tracking-[-0.4px] text-gray-300';
+// 라벨도 같은 0.72배 (20 → 14).
+const LABEL = 'text-[14px] leading-[22px] tracking-[-0.28px] text-gray-300';
+// 보조 문구(상태 안내·에러)는 한 단계 더 작게.
+const HINT = 'text-[12px] leading-[18px] tracking-[-0.24px] break-keep';
 const SECTION_DIVIDER = 'border-b-[0.5px] border-gray-700';
 
 // 새 주차 업로드 모달. 제목·강의·수강 날짜·교수명을 받고 강의자료(PDF)와 녹음을 올려
@@ -144,12 +149,12 @@ export function NewChapterUploadModal({
         onSubmit={handleSubmit}
         className="flex min-h-0 [scrollbar-width:thin] [scrollbar-color:var(--color-gray-700)_var(--color-gray-900)] flex-col overflow-y-auto px-15 pt-11 pb-7 [color-scheme:dark]"
       >
-        {/* 시안은 32px SemiBold(0.72배 환산 23px)지만 그 비율이면 모달 안에서 제목만 튄다.
-            모달의 본문 타이포는 축소하지 않고 옮겼기 때문에(가이드 4-4) 상대적으로 더 커 보인다.
-            한 단계 낮춰 라벨(20px Regular)과 같은 크기에 두께로만 구분한다. */}
+        {/* 시안 32px SemiBold. 모달 전체를 0.72배로 옮겼으므로 제목도 같이 줄이되,
+            0.72배(23px)로는 여전히 박스 대비 글자가 커서 절반인 16px까지 내렸다.
+            이 크기에서는 SemiBold가 무겁지 않고, 14px 라벨과 구분하는 역할만 한다. */}
         <h2
           id={titleId}
-          className="text-[20px] leading-[30px] font-medium tracking-[-0.4px] text-gray-100"
+          className="text-[16px] leading-6 font-semibold tracking-[-0.32px] text-gray-100"
         >
           새 주차 업로드
         </h2>
@@ -195,15 +200,15 @@ export function NewChapterUploadModal({
               <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-3.5 size-3 -translate-y-1/2 text-gray-500" />
             </div>
             {/* 목록이 오기 전·실패했을 때는 지금 강의 하나만 남는다.
-                안내가 없으면 "고를 수 있는 강의가 이것뿐"으로 오해한다. */}
-            {/* 칸이 좁아 두 줄로 접힌다. break-keep으로 단어 중간에서 끊기지 않게 한다. */}
+                안내가 없으면 "고를 수 있는 강의가 이것뿐"으로 오해한다.
+                칸이 좁아 두 줄로 접히므로 break-keep으로 단어 중간에서 끊기지 않게 한다. */}
             {isLecturesPending && (
-              <p className="text-[14px] leading-[22px] tracking-[-0.28px] break-keep text-gray-500">
+              <p className={`${HINT} text-gray-500`}>
                 강의 목록을 불러오는 중이에요.
               </p>
             )}
             {isLecturesError && (
-              <p className="text-error text-[14px] leading-[22px] tracking-[-0.28px] break-keep">
+              <p className={`${HINT} text-error`}>
                 강의 목록을 불러오지 못했어요. 지금 강의에만 올릴 수 있어요.
               </p>
             )}
@@ -265,20 +270,18 @@ export function NewChapterUploadModal({
         </div>
 
         {formError && (
-          <p className="text-error mt-6 text-right text-[14px] leading-[22px] tracking-[-0.28px]">
-            {formError}
-          </p>
+          <p className={`${HINT} text-error mt-6 text-right`}>{formError}</p>
         )}
 
         {/* 확정 액션이라 하늘색(secondary). Button 컴포넌트는 size별 타이포가 고정이라
-            시안 크기(346×60 → 249×44, 20px Medium)와 겹친다. cn엔 merge가 없어
+            시안 크기(346×60 → 249×44, 20px Medium → 14px)와 겹친다. cn엔 merge가 없어
             덮어쓰면 승자가 생성 순서에 달리므로 이 화면 전용 버튼으로 둔다. */}
         <button
           type="submit"
           disabled={!canSubmit || isPending}
-          className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 mt-6 ml-auto flex h-11 w-[249px] items-center justify-center gap-2 rounded-md text-[20px] leading-[30px] font-medium tracking-[-0.4px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-500"
+          className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 mt-6 ml-auto flex h-11 w-[249px] items-center justify-center gap-1.5 rounded-md text-[14px] leading-[22px] font-medium tracking-[-0.28px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-500"
         >
-          <CloudUploadIcon className="size-[19px]" />
+          <CloudUploadIcon className="size-4" />
           {isPending ? '업로드 중…' : '업로드하기'}
         </button>
       </form>
