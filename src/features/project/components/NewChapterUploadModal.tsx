@@ -275,13 +275,17 @@ export function NewChapterUploadModal({
 
         {/* 확정 액션이라 하늘색(secondary). Button 컴포넌트는 size별 타이포가 고정이라
             시안 크기(346×60 → 249×44, 20px Medium → 14px)와 겹친다. cn엔 merge가 없어
-            덮어쓰면 승자가 생성 순서에 달리므로 이 화면 전용 버튼으로 둔다. */}
+            덮어쓰면 승자가 생성 순서에 달리므로 이 화면 전용 버튼으로 둔다.
+            시안에서 아이콘은 글자 옆이 아니라 버튼 왼쪽에 따로 얹혀 있고, 글자는
+            아이콘과 무관하게 버튼 전체 기준으로 가운데 온다. absolute의 기준이 되도록
+            버튼에 relative를 둔다. */}
         <button
           type="submit"
           disabled={!canSubmit || isPending}
-          className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 mt-6 ml-auto flex h-11 w-[249px] items-center justify-center gap-1.5 rounded-md text-[14px] leading-[22px] font-medium tracking-[-0.28px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-500"
+          className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 relative mt-6 ml-auto flex h-11 w-[249px] items-center justify-center rounded-md text-[14px] leading-[22px] font-medium tracking-[-0.28px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-500"
         >
-          <CloudUploadIcon className="size-4" />
+          {/* 장식용이라 글자 색을 따르지 않는다 (시안 #cecfd1 = gray-400) */}
+          <CloudUploadIcon className="pointer-events-none absolute top-1/2 left-3 size-[19px] -translate-y-1/2 text-gray-400" />
           {isPending ? '업로드 중…' : '업로드하기'}
         </button>
       </form>
