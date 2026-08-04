@@ -144,11 +144,12 @@ export function NewChapterUploadModal({
         onSubmit={handleSubmit}
         className="flex min-h-0 [scrollbar-width:thin] [scrollbar-color:var(--color-gray-700)_var(--color-gray-900)] flex-col overflow-y-auto px-15 pt-11 pb-7 [color-scheme:dark]"
       >
-        {/* 시안은 32px이지만 모달 자체를 0.72배로 줄여 옮겨서 그대로 두면 혼자 커 보인다.
-            화면 제목(ProjectHeader h1)과 같은 24px로 맞춘다. */}
+        {/* 시안은 32px SemiBold(0.72배 환산 23px)지만 그 비율이면 모달 안에서 제목만 튄다.
+            모달의 본문 타이포는 축소하지 않고 옮겼기 때문에(가이드 4-4) 상대적으로 더 커 보인다.
+            한 단계 낮춰 라벨(20px Regular)과 같은 크기에 두께로만 구분한다. */}
         <h2
           id={titleId}
-          className="text-[24px] leading-[34px] font-semibold tracking-[-0.48px] text-gray-100"
+          className="text-[20px] leading-[30px] font-medium tracking-[-0.4px] text-gray-100"
         >
           새 주차 업로드
         </h2>
