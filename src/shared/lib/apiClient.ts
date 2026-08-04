@@ -23,8 +23,14 @@ async function request<T>(
 ): Promise<T> {
   const token = getAccessToken();
 
+  // 파일 업로드는 FormData로 보낸다. 이때 Content-Type을 우리가 지정하면
+  // multipart 경계(boundary)가 빠져 서버가 본문을 파싱하지 못한다.
+  // 브라우저가 직접 붙이도록 헤더를 비우고, 본문도 직렬화하지 않는다.
+  const isFormData =
+    typeof FormData !== 'undefined' && body instanceof FormData;
+
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options?.headers,
   };
@@ -32,7 +38,7 @@ async function request<T>(
   const res = await fetch(`${BASE_URL}${path}`, {
     method,
     headers,
-    ...(body ? { body: JSON.stringify(body) } : {}),
+    ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {}),
     ...options,
   });
 

@@ -1,7 +1,9 @@
 'use client';
 // src/features/study/components/ProjectHeader.tsx
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/shared/ui/Button';
+import { NewChapterUploadModal } from '@/features/project/components/NewChapterUploadModal';
 import { Tag } from './Tag';
 import { ChevronLeftIcon, PencilIcon, ShareIcon, PlusIcon } from './icons';
 import { getDday } from '../lib/format';
@@ -11,6 +13,7 @@ import type { ProjectDetail } from '@/shared/types/api';
 export function ProjectHeader({ project }: { project: ProjectDetail }) {
   const router = useRouter();
   const dday = getDday(project.examName, project.examDate);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   return (
     <header className="relative flex flex-wrap items-center gap-x-4 gap-y-3">
@@ -66,20 +69,26 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
           공유하기
           <ShareIcon className="size-3.5" />
         </Button>
-        {/* TODO(모달): 새 주차 업로드 모달은 project/upload 담당. 버튼만 둔다.
-            Button엔 dark variant가 없어 이 화면 전용 어두운 버튼을 사용한다.
+        {/* Button엔 dark variant가 없어 이 화면 전용 어두운 버튼을 사용한다.
             Figma: bg #2b2e36(gray-800), 16px Medium */}
         <button
           type="button"
-          onClick={() => {
-            // TODO: 새 주차 업로드 모달 열기 (project/upload 담당)
-          }}
+          onClick={() => setUploadOpen(true)}
           className="inline-flex items-center gap-1.5 rounded-md bg-gray-800 px-2.5 py-1.5 text-[14px] font-medium text-white transition-colors hover:bg-gray-700"
         >
           새 주차 업로드
           <PlusIcon className="size-4" />
         </button>
       </div>
+
+      {/* 닫을 때 통째로 언마운트해 입력값·고른 파일이 다음 열기까지 남지 않게 한다. */}
+      {uploadOpen && (
+        <NewChapterUploadModal
+          projectId={project.projectId}
+          projectTitle={project.title}
+          onClose={() => setUploadOpen(false)}
+        />
+      )}
     </header>
   );
 }

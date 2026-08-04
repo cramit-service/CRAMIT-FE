@@ -61,6 +61,18 @@ export const mockChapters: Chapter[] = [
   },
 ];
 
+// 다음 주차 번호 — 지금 목록의 가장 큰 번호 +1.
+export function nextMockChapterNumber(): number {
+  return mockChapters.reduce((max, c) => Math.max(max, c.chapterNumber), 0) + 1;
+}
+
+// mock 전용: 업로드한 주차를 목록에 바로 밀어 넣는다.
+// 백엔드가 붙기 전까지 "업로드 → 목록에 새 Chapter가 보인다"는 흐름을 확인하기 위한 것으로,
+// 새로고침하면 사라진다(모듈 메모리라 세션 단위).
+export function addMockChapter(chapter: Chapter): void {
+  mockChapters.push(chapter);
+}
+
 // 프로젝트 상세 헤더 mock (과목명·교수·시험 D-DAY 등)
 // isShared=false / sharedBy=null → 내 강의. 공유 강의 게시판은 share 담당이 채운다.
 export const mockProjectDetail: ProjectDetail = {

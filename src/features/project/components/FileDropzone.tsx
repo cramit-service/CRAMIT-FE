@@ -1,0 +1,143 @@
+'use client';
+// src/features/project/components/FileDropzone.tsx
+import { useRef, useState } from 'react';
+import { cn } from '@/shared/lib/cn';
+import { CloudUploadIcon } from './icons';
+import { UPLOAD_SPEC, formatFileSize, validateUpload } from '../lib/upload';
+import type { UploadKind } from '../lib/upload';
+
+interface FileDropzoneProps {
+  kind: UploadKind;
+  label: string;
+  file: File | null;
+  onChange: (file: File | null) => void;
+  /** 검증 실패 문구. 부모가 들고 있어야 제출 시 함께 초기화된다. */
+  error: string | null;
+  onError: (message: string | null) => void;
+  disabled?: boolean;
+}
+
+// 강의 자료(PDF) / 음성 파일을 끌어다 놓거나 클릭해서 고르는 영역.
+// Figma 시안(387×270)을 화면 전체와 같은 0.72배로 줄인 값을 쓴다.
+export function FileDropzone({
+  kind,
+  label,
+  file,
+  onChange,
+  error,
+  onError,
+  disabled,
+}: FileDropzoneProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
+  const spec = UPLOAD_SPEC[kind];
+
+  // 파일 하나를 받아 검증 후 부모에 올린다. 실패하면 선택을 비우고 문구만 남긴다.
+  const accept = (picked: File | undefined) => {
+    if (!picked) return;
+    const message = validateUpload(picked, kind);
+    onError(message);
+    onChange(message ? null : picked);
+  };
+
+  const openPicker = () => inputRef.current?.click();
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    if (disabled) return;
+    // 여러 개를 떨어뜨려도 한 칸에 하나만 받는다.
+    accept(e.dataTransfer.files[0]);
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-[20px] leading-[30px] tracking-[-0.4px] text-gray-300">
+        {label}
+      </p>
+
+      <div
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (!disabled) setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={handleDrop}
+        className={cn(
+          'h-[194px] rounded-md border border-dashed bg-gray-800 transition-colors',
+          // 파일을 끌고 오면 테두리로 "여기에 놓으면 된다"를 알린다.
+          dragging ? 'border-secondary-400 bg-gray-700' : 'border-gray-400',
+        )}
+      >
+        {/* 같은 파일을 지웠다가 다시 고르면 change가 안 뜬다. value를 비워 매번 뜨게 한다. */}
+        <input
+          ref={inputRef}
+          type="file"
+          accept={spec.accept}
+          className="hidden"
+          disabled={disabled}
+          onChange={(e) => {
+            accept(e.target.files?.[0]);
+            e.target.value = '';
+          }}
+        />
+
+        {file ? (
+          <div className="flex size-full flex-col items-center justify-center gap-2 px-4 text-center">
+            <CloudUploadIcon className="text-secondary-400 size-[19px]" />
+            <p className="max-w-full truncate text-[14px] leading-[22px] tracking-[-0.28px] text-gray-100">
+              {file.name}
+            </p>
+            <p className="text-[14px] leading-[22px] tracking-[-0.28px] text-gray-600">
+              {formatFileSize(file.size)}
+            </p>
+            <div className="mt-1 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={openPicker}
+                disabled={disabled}
+                className="rounded-sm px-2 py-1 text-[12px] leading-[18px] text-gray-300 underline underline-offset-2 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-600"
+              >
+                다시 선택
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onChange(null);
+                  onError(null);
+                }}
+                disabled={disabled}
+                className="text-error rounded-sm px-2 py-1 text-[12px] leading-[18px] underline underline-offset-2 transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:text-gray-600"
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={openPicker}
+            disabled={disabled}
+            className="flex size-full cursor-pointer flex-col items-center justify-center gap-2 px-4 text-center disabled:cursor-not-allowed"
+          >
+            <span className="flex items-center gap-1.5 text-[14px] leading-[22px] tracking-[-0.28px] text-gray-300">
+              <CloudUploadIcon className="size-[19px]" />
+              파일 선택
+            </span>
+            <span className="text-[14px] leading-[22px] tracking-[-0.28px] text-gray-600">
+              {spec.hint}
+              <br />
+              {spec.formatHint}
+            </span>
+          </button>
+        )}
+      </div>
+
+      {error && (
+        <p className="text-error text-[14px] leading-[22px] tracking-[-0.28px]">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
