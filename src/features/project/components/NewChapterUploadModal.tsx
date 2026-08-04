@@ -2,6 +2,7 @@
 // src/features/project/components/NewChapterUploadModal.tsx
 import { useId, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { cn } from '@/shared/lib/cn';
 import { Modal } from '@/shared/ui/Modal';
 // 강의 목록은 학습하기 화면(study)이 이미 조회한다. 같은 GET /projects를 두 번 정의하지 않고
 // 그 훅을 그대로 쓴다 — 쿼리 키도 공유돼 캐시가 한 벌로 유지된다.
@@ -160,7 +161,9 @@ export function NewChapterUploadModal({
         </h2>
 
         {/* 제목 */}
-        <div className={`mt-4.5 flex flex-col gap-2 pb-8.5 ${SECTION_DIVIDER}`}>
+        <div
+          className={cn('mt-4.5 flex flex-col gap-2 pb-8.5', SECTION_DIVIDER)}
+        >
           <label htmlFor="chapter-title" className={LABEL}>
             제목
           </label>
@@ -176,20 +179,23 @@ export function NewChapterUploadModal({
         </div>
 
         {/* 강의 + 주차 수강 날짜 */}
-        <div className={`grid grid-cols-2 py-8.5 ${SECTION_DIVIDER}`}>
+        <div className={cn('grid grid-cols-2 py-8.5', SECTION_DIVIDER)}>
           <div className="flex flex-col gap-2">
             <label htmlFor="chapter-project" className={LABEL}>
               강의
             </label>
             {/* 네이티브 셀렉트를 쓰되 기본 화살표를 지우고 시안 화살표를 얹는다.
                 color-scheme:dark라야 OS가 그리는 목록도 어두운 배경으로 나온다. */}
-            <div className={`relative ${FIELD_WIDTH}`}>
+            <div className={cn('relative', FIELD_WIDTH)}>
               <select
                 id="chapter-project"
                 value={targetProjectId}
                 onChange={(e) => setTargetProjectId(e.target.value)}
                 disabled={isPending}
-                className={`${FIELD_OUTLINED} w-full appearance-none pr-9 [color-scheme:dark]`}
+                className={cn(
+                  FIELD_OUTLINED,
+                  'w-full appearance-none pr-9 [color-scheme:dark]',
+                )}
               >
                 {options.map((option) => (
                   <option key={option.id} value={option.id}>
@@ -203,12 +209,12 @@ export function NewChapterUploadModal({
                 안내가 없으면 "고를 수 있는 강의가 이것뿐"으로 오해한다.
                 칸이 좁아 두 줄로 접히므로 break-keep으로 단어 중간에서 끊기지 않게 한다. */}
             {isLecturesPending && (
-              <p className={`${HINT} text-gray-500`}>
+              <p role="status" className={cn(HINT, 'text-gray-500')}>
                 강의 목록을 불러오는 중이에요.
               </p>
             )}
             {isLecturesError && (
-              <p className={`${HINT} text-error`}>
+              <p role="alert" className={cn(HINT, 'text-error')}>
                 강의 목록을 불러오지 못했어요. 지금 강의에만 올릴 수 있어요.
               </p>
             )}
@@ -227,13 +233,13 @@ export function NewChapterUploadModal({
               onChange={(e) => setLectureDate(e.target.value)}
               required
               disabled={isPending}
-              className={`${FIELD_OUTLINED} ${FIELD_WIDTH} [color-scheme:dark]`}
+              className={cn(FIELD_OUTLINED, FIELD_WIDTH, '[color-scheme:dark]')}
             />
           </div>
         </div>
 
         {/* 교수명 (선택) */}
-        <div className={`flex flex-col gap-2 py-8.5 ${SECTION_DIVIDER}`}>
+        <div className={cn('flex flex-col gap-2 py-8.5', SECTION_DIVIDER)}>
           <label htmlFor="chapter-professor" className={LABEL}>
             교수명 선택 (선택)
           </label>
@@ -269,8 +275,11 @@ export function NewChapterUploadModal({
           />
         </div>
 
+        {/* 제출 실패는 사용자가 방금 누른 결과라 보조기기가 바로 읽어야 한다. */}
         {formError && (
-          <p className={`${HINT} text-error mt-6 text-right`}>{formError}</p>
+          <p role="alert" className={cn(HINT, 'text-error mt-6 text-right')}>
+            {formError}
+          </p>
         )}
 
         {/* 확정 액션이라 하늘색(secondary). Button 컴포넌트는 size별 타이포가 고정이라

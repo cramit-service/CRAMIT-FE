@@ -58,15 +58,31 @@ export function Modal({
 
       const focusable =
         panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE);
-      if (focusable.length === 0) return;
+      // 조작할 수 있는 요소가 하나도 없으면 Tab이 배경으로 나가지 않게 아예 막는다.
+      if (focusable.length === 0) {
+        e.preventDefault();
+        return;
+      }
 
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      // 어쩌다 포커스가 밖에 있으면 먼저 안으로 데려온다.
+      if (!panelRef.current.contains(active)) {
+        e.preventDefault();
+        first.focus();
+        return;
+      }
+
+      // 열린 직후에는 패널 자신이 포커스를 갖는다. 이때의 Shift+Tab도 '처음'으로 봐야 한다.
+      // 이 조건을 빼면 모달을 열자마자 Shift+Tab 한 번에 포커스가 배경으로 빠져나간다.
+      const atStart = active === first || active === panelRef.current;
       // 끝에서 Tab, 처음에서 Shift+Tab이면 반대편으로 돌려보낸다.
-      if (e.shiftKey && document.activeElement === first) {
+      if (e.shiftKey && atStart) {
         e.preventDefault();
         last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
+      } else if (!e.shiftKey && active === last) {
         e.preventDefault();
         first.focus();
       }

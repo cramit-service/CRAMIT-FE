@@ -1,6 +1,6 @@
 'use client';
 // src/features/project/components/FileDropzone.tsx
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { CloudUploadIcon } from './icons';
 import { UPLOAD_SPEC, formatFileSize, validateUpload } from '../lib/upload';
@@ -29,8 +29,12 @@ export function FileDropzone({
   disabled,
 }: FileDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const errorId = useId();
   const [dragging, setDragging] = useState(false);
   const spec = UPLOAD_SPEC[kind];
+  // 드롭존이 2개 나란히 있어서 "파일 선택"·"삭제"만으로는 어느 쪽인지 알 수 없다.
+  // 스크린리더가 읽을 이름에 종류("강의 자료"/"음성 파일")를 붙인다.
+  const describedBy = error ? errorId : undefined;
 
   // 파일 하나를 받아 검증 후 부모에 올린다. 실패하면 선택을 비우고 문구만 남긴다.
   const accept = (picked: File | undefined) => {
@@ -97,6 +101,8 @@ export function FileDropzone({
                 type="button"
                 onClick={openPicker}
                 disabled={disabled}
+                aria-label={`${spec.label} 파일 다시 고르기`}
+                aria-describedby={describedBy}
                 className="rounded-sm px-2 py-1 text-[11px] leading-4 text-gray-300 underline underline-offset-2 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-600"
               >
                 다시 선택
@@ -108,6 +114,7 @@ export function FileDropzone({
                   onError(null);
                 }}
                 disabled={disabled}
+                aria-label={`${spec.label} 파일 삭제`}
                 className="text-error rounded-sm px-2 py-1 text-[11px] leading-4 underline underline-offset-2 transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:text-gray-600"
               >
                 삭제
@@ -119,6 +126,8 @@ export function FileDropzone({
             type="button"
             onClick={openPicker}
             disabled={disabled}
+            aria-label={`${spec.label} 파일 고르기`}
+            aria-describedby={describedBy}
             className="flex size-full cursor-pointer flex-col items-center justify-center gap-1.5 px-4 text-center disabled:cursor-not-allowed"
           >
             <span className="flex items-center gap-1.5 text-[12px] leading-[18px] tracking-[-0.24px] text-gray-300">
@@ -134,8 +143,13 @@ export function FileDropzone({
         )}
       </div>
 
+      {/* 파일을 고른 직후 나타나는 문구라 보조기기가 바로 읽도록 alert로 둔다. */}
       {error && (
-        <p className="text-error text-[12px] leading-[18px] tracking-[-0.24px] break-keep">
+        <p
+          id={errorId}
+          role="alert"
+          className="text-error text-[12px] leading-[18px] tracking-[-0.24px] break-keep"
+        >
           {error}
         </p>
       )}
