@@ -41,6 +41,14 @@ export function ChevronRightIcon({ className }: IconProps) {
   );
 }
 
+export function ChevronDownIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="m6 9 6 6 6-6" />
+    </Svg>
+  );
+}
+
 export function PencilIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
