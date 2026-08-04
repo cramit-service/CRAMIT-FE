@@ -91,6 +91,18 @@ export interface Chapter {
   // 백엔드 확정 후 조정. 필드명 카멜/ID 타입은 기존 방침 따름
 }
 
+// 새 주차(챕터) 업로드 요청.
+// 파일 2종은 선택이며, 실제 전송은 JSON이 아니라 multipart/form-data다.
+// TODO: 백엔드 업로드 스펙 확정 시 필드명/필수 여부 재확인 필요
+export interface CreateChapterRequest {
+  projectId: string; // 어느 강의(프로젝트)에 붙일 주차인지
+  title: string; // 주차 제목 (예: "알고리즘 기초 알아보기")
+  lectureDate: string; // 주차 수강 날짜 (YYYY-MM-DD)
+  professor: string | null; // 교수명 (선택)
+  materialFile: File | null; // 강의 자료 PDF (선택)
+  audioFile: File | null; // 강의 녹음 파일 (선택)
+}
+
 // 프로젝트 상세 헤더에 필요한 메타.
 // 목록 카드와 같은 태그를 쓰므로 ProjectSummary를 그대로 물려받고, 상세에서만 쓰는 필드를 더한다.
 // TODO: 백엔드 프로젝트 상세 응답 스펙 확정 시 필드명 재확인 필요

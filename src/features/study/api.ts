@@ -60,7 +60,13 @@ export async function getProjectDetail(
 ): Promise<ProjectDetail> {
   if (USE_MOCK) {
     await delay(300, signal); // 로딩 상태 확인용
-    return { ...mockProjectDetail, projectId };
+    // "강의 N개" 태그가 목록과 어긋나지 않게 챕터 수는 mock 목록에서 센다.
+    // (새 주차를 업로드하면 목록과 함께 이 숫자도 늘어야 한다)
+    return {
+      ...mockProjectDetail,
+      projectId,
+      chapterCount: mockChapters.length,
+    };
   }
   return apiClient.get<ProjectDetail>(`/projects/${projectId}`, { signal });
 }
