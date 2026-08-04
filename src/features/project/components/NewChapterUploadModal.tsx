@@ -137,13 +137,18 @@ export function NewChapterUploadModal({
         <CloseIcon className="size-5" />
       </button>
 
+      {/* 스크롤바를 어두운 패널에 맞춘다. 기본 스크롤바는 밝은 회색이라
+          모달 오른쪽에 흰 띠가 생겨 분위기가 끊긴다.
+          scrollbar-color를 모르는 브라우저는 color-scheme:dark가 받아준다. */}
       <form
         onSubmit={handleSubmit}
-        className="flex min-h-0 flex-col overflow-y-auto px-15 pt-11 pb-7"
+        className="flex min-h-0 [scrollbar-width:thin] [scrollbar-color:var(--color-gray-700)_var(--color-gray-900)] flex-col overflow-y-auto px-15 pt-11 pb-7 [color-scheme:dark]"
       >
+        {/* 시안은 32px이지만 모달 자체를 0.72배로 줄여 옮겨서 그대로 두면 혼자 커 보인다.
+            화면 제목(ProjectHeader h1)과 같은 24px로 맞춘다. */}
         <h2
           id={titleId}
-          className="text-[32px] leading-11 font-semibold tracking-[-0.64px] text-gray-100"
+          className="text-[24px] leading-[34px] font-semibold tracking-[-0.48px] text-gray-100"
         >
           새 주차 업로드
         </h2>
