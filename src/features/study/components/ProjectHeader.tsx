@@ -69,16 +69,20 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
           공유하기
           <ShareIcon className="size-3.5" />
         </Button>
-        {/* Button엔 dark variant가 없어 이 화면 전용 어두운 버튼을 사용한다.
+        {/* 공유받은 강의(sharedBy 있음)에는 주차를 올릴 수 없다. 버튼 자체를 감춘다.
+            모달의 강의 셀렉트도 같은 기준으로 내 강의만 보여준다.
+            Button엔 dark variant가 없어 이 화면 전용 어두운 버튼을 사용한다.
             Figma: bg #2b2e36(gray-800), 16px Medium */}
-        <button
-          type="button"
-          onClick={() => setUploadOpen(true)}
-          className="inline-flex items-center gap-1.5 rounded-md bg-gray-800 px-2.5 py-1.5 text-[14px] font-medium text-white transition-colors hover:bg-gray-700"
-        >
-          새 주차 업로드
-          <PlusIcon className="size-4" />
-        </button>
+        {!project.sharedBy && (
+          <button
+            type="button"
+            onClick={() => setUploadOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-md bg-gray-800 px-2.5 py-1.5 text-[14px] font-medium text-white transition-colors hover:bg-gray-700"
+          >
+            새 주차 업로드
+            <PlusIcon className="size-4" />
+          </button>
+        )}
       </div>
 
       {/* 닫을 때 통째로 언마운트해 입력값·고른 파일이 다음 열기까지 남지 않게 한다. */}

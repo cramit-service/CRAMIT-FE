@@ -35,16 +35,36 @@ async function request<T>(
     ...options?.headers,
   };
 
+  // options를 먼저 펼치고 method·headers·body를 뒤에 둔다.
+  // 반대로 두면 호출처가 options.headers를 넘겼을 때 위에서 합쳐둔 헤더
+  // (Authorization·Content-Type)가 통째로 교체된다. signal 같은 나머지 옵션은 그대로 살아난다.
   const res = await fetch(`${BASE_URL}${path}`, {
+    ...options,
     method,
     headers,
     ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {}),
-    ...options,
   });
 
-  // 응답 본문 파싱 (204 No Content 등 빈 응답 대비)
+  // 응답 본문 파싱 (204 No Content 등 빈 응답 대비).
+  // 업로드처럼 큰 본문은 프록시·게이트웨이가 413·502·504를 HTML로 돌려주기도 한다.
+  // 그대로 JSON.parse하면 SyntaxError가 그대로 화면까지 올라가므로("Unexpected token '<'")
+  // 파싱 실패는 삼키고 아래 상태 코드 분기가 판단하게 둔다.
   const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
+  let data: unknown = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      // 성공 응답인데 JSON이 아니면 호출처가 기대한 타입이 아니다. 여기서 끊는다.
+      if (res.ok) {
+        throw new ApiRequestError(
+          'INVALID_RESPONSE',
+          '서버 응답을 해석할 수 없습니다.',
+          res.status,
+        );
+      }
+    }
+  }
 
   // 에러 응답 처리 (기획서 10.1 포맷)
   if (!res.ok) {

@@ -40,7 +40,11 @@ export function NewChapterUploadModal({
 }: NewChapterUploadModalProps) {
   const router = useRouter();
   const titleId = useId();
-  const { data: lectures } = useProjectSummaries();
+  const {
+    data: lectures,
+    isPending: isLecturesPending,
+    isError: isLecturesError,
+  } = useProjectSummaries();
   const { mutate, isPending } = useCreateChapter();
 
   const [targetProjectId, setTargetProjectId] = useState(projectId);
@@ -184,6 +188,19 @@ export function NewChapterUploadModal({
               </select>
               <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-3.5 size-3 -translate-y-1/2 text-gray-500" />
             </div>
+            {/* 목록이 오기 전·실패했을 때는 지금 강의 하나만 남는다.
+                안내가 없으면 "고를 수 있는 강의가 이것뿐"으로 오해한다. */}
+            {/* 칸이 좁아 두 줄로 접힌다. break-keep으로 단어 중간에서 끊기지 않게 한다. */}
+            {isLecturesPending && (
+              <p className="text-[14px] leading-[22px] tracking-[-0.28px] break-keep text-gray-500">
+                강의 목록을 불러오는 중이에요.
+              </p>
+            )}
+            {isLecturesError && (
+              <p className="text-error text-[14px] leading-[22px] tracking-[-0.28px] break-keep">
+                강의 목록을 불러오지 못했어요. 지금 강의에만 올릴 수 있어요.
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">

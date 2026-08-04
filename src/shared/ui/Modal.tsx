@@ -1,8 +1,12 @@
 // src/shared/ui/Modal.tsx
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { cn } from '@/shared/lib/cn';
+
+// 포커스를 받을 수 있는 요소들. Tab을 패널 안에 가두려면 첫/마지막을 알아야 한다.
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 // 패널 기본 스타일. cn()에는 tailwind-merge가 없어 className으로 배경·여백을 덮어쓰면
 // 승자가 클래스 생성 순서에 달린다. 그래서 서로 겹치지 않는 '완성된' 세트를 prop으로 고른다.
@@ -33,19 +37,48 @@ export function Modal({
   surface = 'card',
   labelledBy,
 }: ModalProps) {
-  // ESC 키로 닫기 + 열려 있을 때 배경 스크롤 잠금
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // ESC 닫기 + 배경 스크롤 잠금 + 포커스 가두기.
+  // aria-modal="true"는 보조기술에 "배경은 비활성"이라고 알리는 선언이라,
+  // 실제로 Tab이 배경으로 새어 나가면 선언과 동작이 어긋난다. 여기서 맞춰준다.
   useEffect(() => {
     if (!open) return;
 
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+    // 열릴 때 포커스를 패널로 옮기고, 닫힐 때 열기 전 위치로 되돌린다.
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    panelRef.current?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab' || !panelRef.current) return;
+
+      const focusable =
+        panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE);
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      // 끝에서 Tab, 처음에서 Shift+Tab이면 반대편으로 돌려보낸다.
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
-    window.addEventListener('keydown', handleEsc);
+
+    window.addEventListener('keydown', handleKeyDown);
     document.body.style.overflow = 'hidden';
 
     return () => {
-      window.removeEventListener('keydown', handleEsc);
+      window.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
+      previouslyFocused?.focus();
     };
   }, [open, onClose]);
 
@@ -54,14 +87,20 @@ export function Modal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={onClose}
+      // click은 누른 곳과 뗀 곳의 공통 조상에서 발생한다. onClick으로 닫으면
+      // 패널 안 글자를 드래그하다 배경에서 손을 떼는 순간 모달이 닫혀 입력이 날아간다.
+      // 배경에서 눌러 배경에서 뗀 경우만 닫는다.
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
+        ref={panelRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby={labelledBy}
         className={cn(surfaceStyles[surface], className)}
-        onClick={(e) => e.stopPropagation()}
       >
         {children}
       </div>
