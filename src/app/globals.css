@@ -117,6 +117,27 @@
   }
 }
 
+/* 시안에 보이는 얇은 스크롤바(트랙 + 썸 모두 알약).
+   스크롤바는 요소의 padding 영역을 파고들어 항상 가장자리에 붙는다. 시안처럼 안쪽에
+   띄우려면 이 유틸리티를 쓰는 요소를 카드 안쪽에 한 겹 더 두고 여백은 카드가 갖는다.
+   Firefox는 scrollbar-color만 지원해 굵기/모양을 못 맞춘다 — thin까지가 한계다. */
+@utility scrollbar-slim {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gray-500) var(--color-gray-300);
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    border-radius: var(--radius-full);
+    background-color: var(--color-gray-300);
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: var(--radius-full);
+    background-color: var(--color-gray-500);
+  }
+}
+
 /* 기본 배경/텍스트 */
 body {
   background-color: var(--color-primary-100);

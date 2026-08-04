@@ -71,13 +71,13 @@ export function Sidebar() {
           active={isActive('/home')}
           expanded={expanded}
         />
-        {/* TODO(라우팅): 학습 하기 라우트 확정되면 href·active 부여.
-            확정 전까진 href 없이 두어 클릭 시 fragment(#) 점프가 생기지 않게 한다. */}
+        {/* isActive는 prefix 매칭이라 강의 상세(/projects/1)에서도 활성으로 남는다 */}
         <SidebarItem
-          icon={<BookNavIcon active={false} />}
+          icon={<BookNavIcon active={isActive('/projects')} />}
           label="학습 하기"
+          href="/projects"
+          active={isActive('/projects')}
           expanded={expanded}
-          onClick={() => {}}
         />
         <RecentList
           expanded={expanded}

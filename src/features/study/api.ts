@@ -6,6 +6,7 @@ import type {
   LectureSummary,
   ProcessStatus,
   ProjectDetail,
+  ProjectSummary,
 } from '@/shared/types/api';
 import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
 import {
@@ -15,6 +16,7 @@ import {
   mockLectureSummary,
   mockProjectDetail,
 } from '@/mocks/study';
+import { mockProjectSummaries } from '@/mocks/project';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로) — project/api.ts와 동일 패턴
 const USE_MOCK = true;
@@ -37,6 +39,19 @@ const delay = (ms: number, signal?: AbortSignal) =>
       { once: true },
     );
   });
+
+// 학습하기(강의 목록) 조회 — 내 강의와 공유 강의를 한 번에 받아 화면에서 나눈다.
+// TODO: 백엔드 목록 응답에 태그용 필드(professor/chapterCount/examName/examDate/sharedBy)가
+//       포함되는지, 내 강의/공유 강의를 따로 내려주는지 확정 시 재확인 필요.
+export async function getProjectSummaries(
+  signal?: AbortSignal,
+): Promise<ProjectSummary[]> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    return mockProjectSummaries;
+  }
+  return apiClient.get<ProjectSummary[]>('/projects', { signal });
+}
 
 // 프로젝트 상세(헤더 메타) 조회
 export async function getProjectDetail(

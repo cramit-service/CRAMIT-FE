@@ -65,6 +65,17 @@ export interface Project {
   createdAt: string; // ISO 날짜 문자열
 }
 
+// 학습하기(강의 목록) 카드 한 장에 필요한 메타.
+// Project만으로는 시안의 태그(교수명·강의 수·D-DAY·공유자)를 채울 수 없어 목록 응답을 따로 둔다.
+// TODO: 백엔드 목록 응답 스펙 확정 시 필드명 재확인 필요
+export interface ProjectSummary extends Project {
+  professor: string; // 교수명 (태그: "OOO 교수님")
+  chapterCount: number; // 강의(챕터) 개수 (태그: "강의 N개")
+  examName: string | null; // 시험명 (예: "중간고사")
+  examDate: string | null; // 시험일 (YYYY-MM-DD) — D-DAY 계산용
+  sharedBy: string | null; // 공유자 이름 (태그: "OOO 님의 공유"). 내 강의면 null
+}
+
 /* ===== Chapter / 단계별 학습 (이슈 A) ===== */
 
 // 챕터 학습 상태: 학습 전 / 학습 중 / 완료
@@ -92,15 +103,11 @@ export interface CreateChapterRequest {
   audioFile: File | null; // 강의 녹음 파일 (선택)
 }
 
-// 프로젝트 상세 헤더에 필요한 메타 (과목명 + 태그 + 시험 D-DAY + 공유 여부)
+// 프로젝트 상세 헤더에 필요한 메타.
+// 목록 카드와 같은 태그를 쓰므로 ProjectSummary를 그대로 물려받고, 상세에서만 쓰는 필드를 더한다.
 // TODO: 백엔드 프로젝트 상세 응답 스펙 확정 시 필드명 재확인 필요
-export interface ProjectDetail extends Project {
-  professor: string; // 교수명 (태그: "OOO 교수님")
-  chapterCount: number; // 강의(챕터) 개수 (태그: "강의 N개")
-  examName: string | null; // 시험명 (예: "중간고사")
-  examDate: string | null; // 시험일 (YYYY-MM-DD) — D-DAY 계산용
+export interface ProjectDetail extends ProjectSummary {
   isShared: boolean; // 공유 강의 여부 (공유 게시판 노출 여부)
-  sharedBy: string | null; // 공유자 이름 (태그: "OOO 님의 공유"). 내 강의면 null
 }
 
 /* ===== 학습 뷰어 / 강의자료 (이슈 B) ===== */

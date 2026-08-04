@@ -3,9 +3,11 @@
 import { useId, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Modal } from '@/shared/ui/Modal';
+// 강의 목록은 학습하기 화면(study)이 이미 조회한다. 같은 GET /projects를 두 번 정의하지 않고
+// 그 훅을 그대로 쓴다 — 쿼리 키도 공유돼 캐시가 한 벌로 유지된다.
+import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
 import { FileDropzone } from './FileDropzone';
 import { ChevronDownIcon, CloseIcon, CloudUploadIcon } from './icons';
-import { useProjects } from '../hooks/useProjects';
 import { useCreateChapter } from '../hooks/useCreateChapter';
 
 interface NewChapterUploadModalProps {
@@ -38,7 +40,7 @@ export function NewChapterUploadModal({
 }: NewChapterUploadModalProps) {
   const router = useRouter();
   const titleId = useId();
-  const { data: projects } = useProjects();
+  const { data: lectures } = useProjectSummaries();
   const { mutate, isPending } = useCreateChapter();
 
   const [targetProjectId, setTargetProjectId] = useState(projectId);
@@ -51,18 +53,21 @@ export function NewChapterUploadModal({
   const [audioError, setAudioError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
+  // 주차를 올릴 수 있는 건 내 강의뿐이라 공유받은 강의(sharedBy 있음)는 뺀다.
   // 목록이 아직 안 왔거나 응답에 지금 강의가 빠져 있어도,
   // 보고 있는 강의만큼은 항상 고를 수 있어야 한다.
   // 지금 강의의 제목은 목록보다 상세 응답이 최신이라 상세 쪽을 따른다.
   const options = useMemo(() => {
-    const list = (projects ?? []).map((p) => ({
-      id: p.projectId,
-      title: p.projectId === projectId ? projectTitle : p.title,
-    }));
+    const list = (lectures ?? [])
+      .filter((l) => l.sharedBy === null)
+      .map((l) => ({
+        id: l.projectId,
+        title: l.projectId === projectId ? projectTitle : l.title,
+      }));
     return list.some((o) => o.id === projectId)
       ? list
       : [{ id: projectId, title: projectTitle }, ...list];
-  }, [projects, projectId, projectTitle]);
+  }, [lectures, projectId, projectTitle]);
 
   const canSubmit =
     title.trim() !== '' &&

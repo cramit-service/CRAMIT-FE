@@ -57,26 +57,41 @@ export function TodoChecklist() {
         </Button>
       </div>
 
-      {/* 카드는 데이터 유무와 무관하게 항상 렌더 — 크기는 여기(div)에 준다. 비어도 안 줄어든다. */}
-      <div className="bg-secondary-100 h-124 [scrollbar-width:none] overflow-y-auto overscroll-none rounded-md px-5 py-3 lg:h-auto lg:min-h-0 lg:flex-1 [&::-webkit-scrollbar]:hidden">
-        {isLoading ? (
-          <StatusMessage>불러오는 중…</StatusMessage>
-        ) : isError || !todos ? (
-          <StatusMessage>
-            할 일을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
-          </StatusMessage>
-        ) : sorted.length === 0 ? (
-          <StatusMessage>등록된 할 일이 없어요.</StatusMessage>
-        ) : (
-          <ul>
-            {sorted.map((todo) => {
-              const done = isDone(todo);
-              return (
-                <li key={todo.todoId} className="flex flex-col gap-1 py-2">
-                  <Checkbox
-                    checked={done}
-                    onChange={() => toggle(todo)}
-                    label={
+      {/* 카드는 데이터 유무와 무관하게 항상 렌더 — 크기는 여기(div)에 준다. 비어도 안 줄어든다.
+          스크롤은 안쪽 div가 맡는다. 카드가 직접 스크롤하면 스크롤바가 카드 가장자리에 붙어
+          시안(우측 6px·상하 12px 안쪽)처럼 띄울 수 없다. 그 여백을 카드의 py/pr이 만든다. */}
+      <div className="bg-secondary-100 flex h-124 flex-col rounded-md py-3 pr-1.5 pl-5 lg:h-auto lg:min-h-0 lg:flex-1">
+        <div className="scrollbar-slim min-h-0 flex-1 overflow-y-auto overscroll-none pr-4">
+          {isLoading ? (
+            <StatusMessage>불러오는 중…</StatusMessage>
+          ) : isError || !todos ? (
+            <StatusMessage>
+              할 일을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
+            </StatusMessage>
+          ) : sorted.length === 0 ? (
+            <StatusMessage>등록된 할 일이 없어요.</StatusMessage>
+          ) : (
+            <ul>
+              {sorted.map((todo) => {
+                const done = isDone(todo);
+                return (
+                  // 체크박스는 완료 토글만, 나머지 영역은 상세보기를 연다.
+                  // 그래서 제목을 Checkbox의 label로 넘기지 않고 버튼 안에 직접 그린다.
+                  <li key={todo.todoId} className="flex items-start gap-3 py-2">
+                    <Checkbox
+                      checked={done}
+                      onChange={() => toggle(todo)}
+                      aria-label={`${todoName(todo)} 완료`}
+                    />
+                    {/* TODO(모달): 상세보기 모달 연결. 이번 작업은 클릭 영역 분리까지.
+                        버튼이 남는 폭을 다 차지해 제목 오른쪽 빈 자리를 눌러도 열린다. */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // TODO: 투두 상세보기 모달 열기
+                      }}
+                      className="flex min-w-0 flex-1 cursor-pointer flex-col gap-1 text-left"
+                    >
                       <span
                         className={cn(
                           'text-[14px] leading-5 font-medium tracking-[-0.28px]',
@@ -85,36 +100,35 @@ export function TodoChecklist() {
                       >
                         {todoName(todo)}
                       </span>
-                    }
-                  />
-                  {/* 마감일시·메모는 체크박스(20px)+gap(12px)=32px 만큼 들여써 제목 시작선에 맞춘다. */}
-                  <div className="flex flex-col gap-0.5 pl-8">
-                    <span className="text-[12px] leading-4.5 tracking-[-0.24px] text-gray-600">
-                      {dueLabel(todo)}
-                    </span>
-                    {todo.memo && (
-                      <span className="flex items-start gap-1">
-                        {/* 메모 아이콘. SVG라 next/image 최적화 경로를 피하려 unoptimized. */}
-                        <Image
-                          src="/icons/todo_memo.svg"
-                          alt=""
-                          aria-hidden
-                          width={11}
-                          height={11}
-                          unoptimized
-                          className="mt-0.5 size-3 shrink-0"
-                        />
-                        <span className="text-level-01 text-[12px] leading-4.5 tracking-[-0.24px]">
-                          {todo.memo}
+                      <span className="flex flex-col gap-0.5">
+                        <span className="text-[12px] leading-4.5 tracking-[-0.24px] text-gray-600">
+                          {dueLabel(todo)}
                         </span>
+                        {todo.memo && (
+                          <span className="flex items-start gap-1">
+                            {/* 메모 아이콘. SVG라 next/image 최적화 경로를 피하려 unoptimized. */}
+                            <Image
+                              src="/icons/todo_memo.svg"
+                              alt=""
+                              aria-hidden
+                              width={11}
+                              height={11}
+                              unoptimized
+                              className="mt-0.5 size-3 shrink-0"
+                            />
+                            <span className="text-level-01 text-[12px] leading-4.5 tracking-[-0.24px]">
+                              {todo.memo}
+                            </span>
+                          </span>
+                        )}
                       </span>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       </div>
     </section>
   );
