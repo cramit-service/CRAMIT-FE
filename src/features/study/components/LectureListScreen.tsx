@@ -14,13 +14,15 @@ export function LectureListScreen() {
   const [mySort, setMySort] = useState<SortKey>('REGISTERED');
   const [sharedSort, setSharedSort] = useState<SortKey>('REGISTERED');
 
-  const { data: lectures, isLoading, isError } = useProjectSummaries();
+  const { data: lectures, isLoading } = useProjectSummaries();
 
   if (isLoading) {
     return <div className="p-10 text-gray-500">불러오는 중…</div>;
   }
 
-  if (isError || !lectures) {
+  // isError 대신 데이터 유무로 가른다. 재조회가 실패해도 캐시에 목록이 남아 있으면
+  // 화면을 통째로 에러로 바꾸지 않는다. 첫 조회 실패는 data가 없어 여기서 잡힌다.
+  if (!lectures) {
     return (
       <div className="p-10 text-gray-500">
         강의 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
