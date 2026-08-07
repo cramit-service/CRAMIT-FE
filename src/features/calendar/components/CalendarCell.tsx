@@ -1,6 +1,6 @@
 // src/features/calendar/components/CalendarCell.tsx
 import { cn } from '@/shared/lib/cn';
-import type { CalendarCell as Cell } from '../lib/month';
+import type { CalendarCell as Cell } from '@/features/calendar/lib/month';
 
 export interface ScheduleItem {
   id: string;

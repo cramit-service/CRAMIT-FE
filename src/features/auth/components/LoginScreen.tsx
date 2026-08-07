@@ -5,7 +5,11 @@ import { useRouter } from 'next/navigation';
 import { Logo } from '@/shared/ui/Logo';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
 import { SocialButton } from './SocialButton';
-import { startSocialLogin, saveAuthTokens, type SocialProvider } from '../api';
+import {
+  startSocialLogin,
+  saveAuthTokens,
+  type SocialProvider,
+} from '@/features/auth/api';
 
 export function LoginScreen() {
   const router = useRouter();

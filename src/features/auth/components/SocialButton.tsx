@@ -2,7 +2,7 @@
 // src/features/auth/components/SocialButton.tsx
 import Image from 'next/image';
 import { cn } from '@/shared/lib/cn';
-import type { SocialProvider } from '../api';
+import type { SocialProvider } from '@/features/auth/api';
 
 interface SocialButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   provider: SocialProvider;

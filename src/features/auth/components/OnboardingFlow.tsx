@@ -7,7 +7,7 @@ import { Button } from '@/shared/ui/Button';
 import { TermsStep, REQUIRED_TERM_IDS } from './TermsStep';
 import { NicknameStep, type NicknameStatus } from './NicknameStep';
 import { PlanStep } from './PlanStep';
-import { registerOnboardingProfile } from '../api';
+import { registerOnboardingProfile } from '@/features/auth/api';
 import type { PlanId } from '@/shared/types/api';
 
 type Step = 'terms' | 'nickname' | 'plan';
