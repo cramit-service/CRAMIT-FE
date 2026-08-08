@@ -189,6 +189,22 @@ export interface Exam {
   progress: number; // 학습 진행률 0~100 (홈 학습 배너 표시용, 시험 일정과 함께 내려옴)
 }
 
+// 시험 일정 생성 요청 (홈 "다가오는 시험 일정" 추가하기 모달).
+// lectureName·progress는 보내지 않는다 — projectId만 있으면 서버가 아는 값이다.
+// TODO: 백엔드 엔드포인트·필드명 확정 시 재확인 필요
+export interface CreateExamRequest {
+  projectId: string; // 어느 강의(프로젝트)의 시험인지
+  title: string; // 시험 이름 (예: "중간고사")
+  examDate: string; // 시험일 (YYYY-MM-DD)
+  memo: string | null; // 메모 (선택)
+}
+
+// 시험 일정 수정 요청. 폼이 네 칸을 통째로 저장하므로 생성과 같은 필드를 모두 보낸다.
+// (일부만 보내는 부분 수정이 아니다)
+export interface UpdateExamRequest extends CreateExamRequest {
+  examId: string;
+}
+
 /* ===== Todo (기획서 7.3, 8.8) ===== */
 
 export interface Todo {

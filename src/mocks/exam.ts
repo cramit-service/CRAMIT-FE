@@ -57,3 +57,22 @@ export const mockExams: Exam[] = [
     progress: 100,
   },
 ];
+
+// mock 전용: 새로 만든 시험을 목록에 바로 밀어 넣는다.
+// "생성 → 목록·캘린더에 나타난다"는 흐름을 백엔드 없이 확인하기 위한 것으로,
+// 새로고침하면 사라진다(모듈 메모리라 세션 단위). mocks/study의 addMockChapter와 같은 역할.
+export function addMockExam(exam: Exam): void {
+  mockExams.push(exam);
+}
+
+// mock 전용: 수정한 내용을 목록에 반영한다.
+export function updateMockExam(exam: Exam): void {
+  const index = mockExams.findIndex((e) => e.examId === exam.examId);
+  if (index !== -1) mockExams[index] = exam;
+}
+
+// mock 전용: 목록에서 지운다.
+export function removeMockExam(examId: string): void {
+  const index = mockExams.findIndex((e) => e.examId === examId);
+  if (index !== -1) mockExams.splice(index, 1);
+}
