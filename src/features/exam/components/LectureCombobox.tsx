@@ -108,9 +108,11 @@ export function LectureCombobox({
     }
 
     if (e.key === 'Enter') {
-      if (!open || options.length === 0) return;
-      // 목록에서 고르는 Enter다. 막지 않으면 모달 form이 그대로 제출된다.
+      if (!open) return;
+      // 목록이 열려 있는 동안 Enter는 "고르기"다. 결과가 없을 때도 막아야 한다 —
+      // 안 그러면 일치하는 강의가 없을 때 Enter에 모달 form이 그대로 제출된다.
       e.preventDefault();
+      if (options.length === 0) return;
       select(options[active].projectId);
       return;
     }
@@ -146,6 +148,10 @@ export function LectureCombobox({
           if (value) onChange('');
         }}
         onFocus={() => setOpen(true)}
+        // 이미 포커스가 있는 입력창을 다시 눌러도 onFocus는 오지 않는다. 고르거나 Esc로
+        // 닫은 뒤 다시 열려면 이게 필요하다. click은 항목 선택 뒤에 와서 방금 닫은 목록을
+        // 도로 열어버리므로 mousedown으로 받는다.
+        onMouseDown={() => setOpen(true)}
         onKeyDown={handleKeyDown}
         placeholder="강의 명을 입력해 주세요."
         disabled={disabled}

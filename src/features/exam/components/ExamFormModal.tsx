@@ -3,6 +3,7 @@
 import { useId, useState } from 'react';
 import type { Exam } from '@/shared/types/api';
 import { cn } from '@/shared/lib/cn';
+import { toLocalDateString } from '@/shared/lib/date';
 import { Icon } from '@/shared/ui/Icon';
 import { Modal } from '@/shared/ui/Modal';
 import { LectureCombobox } from './LectureCombobox';
@@ -13,9 +14,9 @@ import {
   LABEL,
   SECTION_DIVIDER,
 } from './fieldStyles';
-import { useCreateExam } from '../hooks/useCreateExam';
-import { useDeleteExam } from '../hooks/useDeleteExam';
-import { useUpdateExam } from '../hooks/useUpdateExam';
+import { useCreateExam } from '@/features/exam/hooks/useCreateExam';
+import { useDeleteExam } from '@/features/exam/hooks/useDeleteExam';
+import { useUpdateExam } from '@/features/exam/hooks/useUpdateExam';
 
 interface ExamFormModalProps {
   /** 수정할 시험. 없으면 생성 모드. */
@@ -60,6 +61,11 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
     examDate !== '' &&
     !isPending;
 
+  // 지난 날짜로 만들면 "다가오는 시험" 목록에서 곧바로 사라져 실패한 것처럼 보인다.
+  // 이미 지난 시험을 수정 중이면 그 날짜까지는 열어둬야 다른 칸만 고칠 수 있다.
+  const today = toLocalDateString(new Date());
+  const minDate = exam && exam.examDate < today ? exam.examDate : today;
+
   // 이미 열려 있을 때 다시 부르면 브라우저가 예외를 던진다.
   // (네이티브 달력 아이콘 클릭은 브라우저가 먼저 열고 onClick도 뒤따라 온다)
   const openDatePicker = (input: HTMLInputElement) => {
@@ -70,11 +76,10 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
     }
   };
 
-  // 저장 중에 배경·ESC로 닫으면 진행 중인 요청이 그대로 버려진다. 끝날 때까지 막는다.
-  const handleClose = () => {
-    if (isPending) return;
-    onClose();
-  };
+  // 저장 중에도 닫을 수 있어야 한다. 무효화를 맡은 onSuccess는 훅 옵션이라 언마운트 뒤에도
+  // 실행되므로 만들어진 시험은 목록에 반영된다. 반대로 닫기를 막으면 응답이 오래 걸릴 때
+  // 모달을 빠져나갈 방법이 아예 없어진다.
+  const handleClose = () => onClose();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,8 +149,7 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
         type="button"
         onClick={handleClose}
         aria-label="닫기"
-        disabled={isPending}
-        className="absolute top-5.75 right-5.75 z-10 text-gray-400 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-700"
+        className="absolute top-5.75 right-5.75 z-10 text-gray-400 transition-colors hover:text-gray-100"
       >
         <Icon name="close" size={20} />
       </button>
@@ -220,10 +224,21 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
             onClick={(e) => openDatePicker(e.currentTarget)}
             onKeyDown={(e) => {
               if (e.key === 'Tab') return; // 포커스 이동은 살려둔다
+              const canOpenPicker =
+                typeof e.currentTarget.showPicker === 'function';
+              // Enter는 어디서든 막는다. 날짜를 고르려던 Enter에 폼이 제출되면 안 된다.
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                if (canOpenPicker) openDatePicker(e.currentTarget);
+                return;
+              }
+              // showPicker가 없는 브라우저에서까지 키를 막으면 날짜를 넣을 방법이 사라진다.
+              // 그런 환경에서는 세그먼트 직접 입력이 유일한 수단이라 그대로 둔다.
+              if (!canOpenPicker) return;
               e.preventDefault();
-              if (e.key === 'Enter' || e.key === ' ')
-                openDatePicker(e.currentTarget);
+              if (e.key === ' ') openDatePicker(e.currentTarget);
             }}
+            min={minDate}
             required
             disabled={isPending}
             className={cn(FIELD_OUTLINED, 'w-39 cursor-pointer scheme-dark')}

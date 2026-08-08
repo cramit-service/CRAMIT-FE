@@ -2,7 +2,7 @@
 // src/features/exam/hooks/useCreateExam.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { CreateExamRequest, Exam } from '@/shared/types/api';
-import { createExam } from '../api';
+import { createExam } from '@/features/exam/api';
 
 // 시험 일정 생성 훅.
 // ['exams'] 하나만 무효화하면 캘린더의 ['exams', 'all']까지 함께 무효화된다.
