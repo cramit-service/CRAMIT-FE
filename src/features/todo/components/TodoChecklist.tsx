@@ -7,8 +7,8 @@ import { Button } from '@/shared/ui/Button';
 import { Checkbox } from '@/shared/ui/Checkbox';
 import { cn } from '@/shared/lib/cn';
 import { formatKoreanDate } from '@/shared/lib/date';
-import { useTodos } from '../hooks/useTodos';
-import { todoName } from '../lib/todoName';
+import { useTodos } from '@/features/todo/hooks/useTodos';
+import { todoName } from '@/features/todo/lib/todoName';
 
 // 마감 표시 — "| 마감일시 2026. 07. 10. (금요일) 13:30". 시간은 있을 때만 붙인다.
 function dueLabel(todo: Todo): string {

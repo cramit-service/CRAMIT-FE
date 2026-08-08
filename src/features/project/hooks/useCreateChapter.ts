@@ -2,7 +2,7 @@
 // src/features/project/hooks/useCreateChapter.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Chapter, CreateChapterRequest } from '@/shared/types/api';
-import { createChapter } from '../api';
+import { createChapter } from '@/features/project/api';
 
 // 새 주차(챕터) 업로드 훅.
 // 성공하면 챕터 수가 달라지므로 그 숫자를 보여주는 곳을 모두 다시 불러온다.

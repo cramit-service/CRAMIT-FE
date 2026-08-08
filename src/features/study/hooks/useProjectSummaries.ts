@@ -1,7 +1,7 @@
 'use client';
 // src/features/study/hooks/useProjectSummaries.ts
 import { useQuery } from '@tanstack/react-query';
-import { getProjectSummaries } from '../api';
+import { getProjectSummaries } from '@/features/study/api';
 
 // 학습하기(강의 목록) 조회 훅
 export function useProjectSummaries() {

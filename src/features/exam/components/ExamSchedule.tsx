@@ -5,9 +5,9 @@ import type { Exam } from '@/shared/types/api';
 import { Button } from '@/shared/ui/Button';
 import { cn } from '@/shared/lib/cn';
 import { formatKoreanDate } from '@/shared/lib/date';
-import { daysUntil, ddayLabel } from '../lib/dday';
-import { examName } from '../lib/examName';
-import { useExams } from '../hooks/useExams';
+import { daysUntil, ddayLabel } from '@/features/exam/lib/dday';
+import { examName } from '@/features/exam/lib/examName';
+import { useExams } from '@/features/exam/hooks/useExams';
 import { ExamFormModal } from './ExamFormModal';
 
 // 남은 일수 → 뱃지 색. 디자인 시안 기준(보더+연한 배경+진한 글씨).

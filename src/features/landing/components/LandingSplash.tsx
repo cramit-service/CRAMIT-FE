@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
 import { Logo } from '@/shared/ui/Logo';
-import { SPLASH_SEEN_KEY } from '../lib/splashScript';
+import { SPLASH_SEEN_KEY } from '@/features/landing/lib/splashScript';
 
 // 랜딩 진입 스플래시 (Figma "메인화면").
 // 워드마크는 헤더와 같은 자리에 두어 사라질 때 제자리에 남은 것처럼 보이게 하고,

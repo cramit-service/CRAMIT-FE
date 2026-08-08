@@ -2,7 +2,7 @@
 // src/features/auth/components/NicknameStep.tsx
 import { useRef } from 'react';
 import { cn } from '@/shared/lib/cn';
-import { checkNickname } from '../api';
+import { checkNickname } from '@/features/auth/api';
 
 // 중복확인 결과 상태
 export type NicknameStatus = 'idle' | 'available' | 'taken';

@@ -3,9 +3,9 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
-import { daysUntil, ddayLabel } from '../lib/dday';
-import { examName } from '../lib/examName';
-import { useExams } from '../hooks/useExams';
+import { daysUntil, ddayLabel } from '@/features/exam/lib/dday';
+import { examName } from '@/features/exam/lib/examName';
+import { useExams } from '@/features/exam/hooks/useExams';
 
 // 학습 배너. 가장 임박한 시험(exams[0])의 강의를 "이어서 학습" 대상으로 보여준다.
 // 데이터는 시험 일정과 함께 내려온다(useExams 재사용). 배경은 랜딩과 동일한 GradientBackground.
