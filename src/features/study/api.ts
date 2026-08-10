@@ -16,7 +16,7 @@ import {
   mockLectureSummary,
   mockProjectDetail,
 } from '@/mocks/study';
-import { mockProjectSummaries } from '@/mocks/project';
+import { findMockProjectSummary, mockProjectSummaries } from '@/mocks/project';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로) — project/api.ts와 동일 패턴
 const USE_MOCK = true;
@@ -48,7 +48,9 @@ export async function getProjectSummaries(
 ): Promise<ProjectSummary[]> {
   if (USE_MOCK) {
     await delay(300, signal);
-    return mockProjectSummaries;
+    // 강의 생성이 이 배열을 직접 고치므로 복사본을 준다 — 원본을 그대로 주면 캐시에 담긴 것과
+    // 같은 객체라 참조가 안 바뀌고, TanStack Query가 갱신 없음으로 보고 목록을 다시 그리지 않는다.
+    return [...mockProjectSummaries];
   }
   return apiClient.get<ProjectSummary[]>('/projects', { signal });
 }
@@ -60,12 +62,20 @@ export async function getProjectDetail(
 ): Promise<ProjectDetail> {
   if (USE_MOCK) {
     await delay(300, signal); // 로딩 상태 확인용
+    // 목록에 있는 강의면 그 값을 따른다. 상세 mock 하나를 그대로 돌려주면 어떤 강의를 열어도
+    // 같은 과목명이 나오고, 강의를 수정해도 헤더가 그대로 남는다.
+    const summary = findMockProjectSummary(projectId);
     // "강의 N개" 태그가 목록과 어긋나지 않게 챕터 수는 mock 목록에서 센다.
     // (새 주차를 업로드하면 목록과 함께 이 숫자도 늘어야 한다)
     return {
       ...mockProjectDetail,
+      ...summary,
       projectId,
       chapterCount: mockChapters.length,
+      // 공유받은 강의면 공유 게시판이 붙는다.
+      isShared: summary
+        ? summary.sharedBy !== null
+        : mockProjectDetail.isShared,
     };
   }
   return apiClient.get<ProjectDetail>(`/projects/${projectId}`, { signal });

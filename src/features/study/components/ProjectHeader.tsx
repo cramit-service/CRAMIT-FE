@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
 import { NewChapterUploadModal } from '@/features/project/components/NewChapterUploadModal';
+import { LectureFormModal } from '@/features/project/components/LectureFormModal';
+import { ShareProjectModal } from '@/features/share/components/ShareProjectModal';
 import { Tag } from './Tag';
 import { ChevronLeftIcon, PencilIcon, ShareIcon, PlusIcon } from './icons';
 import { getDday } from '@/features/study/lib/format';
@@ -24,6 +26,8 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
   const router = useRouter();
   const dday = getDday(project.examName, project.examDate);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   return (
     <header className="relative flex flex-wrap items-center gap-x-4 gap-y-3">
@@ -53,27 +57,25 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
         <Tag tone="shared">{project.sharedBy} 님의 공유</Tag>
       )}
 
-      {/* TODO(모달): 프로젝트 수정 모달은 project(생성/수정) 담당. 버튼만 둔다. */}
-      <button
-        type="button"
-        onClick={() => {
-          // TODO: 프로젝트 수정 모달 열기 (project 담당)
-        }}
-        className="inline-flex items-center gap-1 text-[12px] text-gray-400 transition-colors hover:text-gray-600"
-      >
-        <PencilIcon className="size-3" />
-        수정하기
-      </button>
+      {/* 공유받은 강의는 내가 고칠 수 없다 — 버튼 자체를 감춘다 (새 주차 업로드와 같은 기준).
+          hidden 속성은 inline-flex 클래스에 덮이므로 렌더 자체를 막는다. */}
+      {!project.sharedBy && (
+        <button
+          type="button"
+          onClick={() => setEditOpen(true)}
+          className="inline-flex items-center gap-1 text-[12px] text-gray-400 transition-colors hover:text-gray-600"
+        >
+          <PencilIcon className="size-3" />
+          수정하기
+        </button>
+      )}
 
       {/* 우측: 공유 / 새 주차 업로드 (모달은 각 담당) */}
       <div className="ml-auto flex shrink-0 items-center gap-2">
-        {/* TODO(모달): 공유 모달은 share 담당. 버튼만 둔다.
-            Figma: 테두리 0.5px gray-500, 글자 gray-600 */}
+        {/* Figma: 테두리 0.5px gray-500, 글자 gray-600 */}
         <button
           type="button"
-          onClick={() => {
-            // TODO: 공유 모달 열기 (share 담당)
-          }}
+          onClick={() => setShareOpen(true)}
           className={cn(
             HEADER_ACTION,
             'border-[0.5px] border-gray-500 text-gray-600 hover:bg-gray-200',
@@ -106,6 +108,18 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
           projectId={project.projectId}
           projectTitle={project.title}
           onClose={() => setUploadOpen(false)}
+        />
+      )}
+      {shareOpen && (
+        <ShareProjectModal
+          projectId={project.projectId}
+          onClose={() => setShareOpen(false)}
+        />
+      )}
+      {editOpen && (
+        <LectureFormModal
+          project={project}
+          onClose={() => setEditOpen(false)}
         />
       )}
     </header>

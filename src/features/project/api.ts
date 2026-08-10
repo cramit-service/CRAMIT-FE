@@ -2,10 +2,18 @@
 import type {
   Chapter,
   CreateChapterRequest,
+  CreateProjectRequest,
   Project,
+  ProjectSummary,
+  UpdateProjectRequest,
 } from '@/shared/types/api';
 import { apiClient } from '@/shared/lib/apiClient';
-import { mockProjects } from '@/mocks/project';
+import {
+  addMockProjectSummary,
+  findMockProjectSummary,
+  mockProjects,
+  updateMockProjectSummary,
+} from '@/mocks/project';
 import { addMockChapter, nextMockChapterNumber } from '@/mocks/study';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로)
@@ -18,7 +26,8 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export async function getProjects(): Promise<Project[]> {
   if (USE_MOCK) {
     await delay(300); // 로딩 상태 확인용
-    return mockProjects;
+    // 강의 생성이 이 배열을 직접 고치므로 복사본을 준다 (getProjectSummaries와 같은 이유)
+    return [...mockProjects];
   }
   return apiClient.get<Project[]>('/projects');
 }
@@ -34,6 +43,57 @@ export async function createProject(title: string): Promise<Project> {
     };
   }
   return apiClient.post<Project>('/projects', { title });
+}
+
+// 내 강의 생성 (Figma 1:2614) — 학습하기 목록에 카드 한 장이 늘어난다.
+// 목록이 쓰는 건 Project가 아니라 ProjectSummary(태그용 메타 포함)라 그 형태로 돌려준다.
+// TODO: 백엔드 엔드포인트·응답 형태 확정 시 재확인 필요
+export async function createLecture(
+  req: CreateProjectRequest,
+): Promise<ProjectSummary> {
+  if (USE_MOCK) {
+    await delay(300);
+    const summary: ProjectSummary = {
+      projectId: String(Date.now()),
+      title: req.title,
+      createdAt: new Date().toISOString(),
+      // 시안에 교수명은 선택이라 비어 있을 수 있다. 태그는 "OOO 교수님"이라 빈 값이면 어색해서
+      // 목록 카드가 이미 쓰는 표기에 맞춰 "미정"으로 채운다.
+      professor: req.professor ?? '미정',
+      // 방금 만든 강의라 아직 주차가 없다.
+      chapterCount: 0,
+      // 모달은 시험 날짜만 받고 시험명은 받지 않는다. D-DAY 태그는 이름과 날짜가 둘 다
+      // 있어야 뜨므로(getDday), 날짜를 넣었으면 중립적인 이름을 붙여 태그가 보이게 한다.
+      examName: req.examDate ? '시험' : null,
+      examDate: req.examDate,
+      sharedBy: null,
+    };
+    addMockProjectSummary(summary);
+    return summary;
+  }
+  return apiClient.post<ProjectSummary>('/projects', req);
+}
+
+// 강의 수정 — 강의 상세 헤더의 "수정하기"(연필). 생성 모달의 수정 모드가 이걸 부른다.
+export async function updateLecture(
+  req: UpdateProjectRequest,
+): Promise<ProjectSummary> {
+  if (USE_MOCK) {
+    await delay(300);
+    const current = findMockProjectSummary(req.projectId);
+    if (!current) throw new Error('수정할 강의를 찾지 못했어요.');
+    // 챕터 수·공유자처럼 모달이 건드리지 않는 값은 그대로 둔다.
+    const summary: ProjectSummary = {
+      ...current,
+      title: req.title,
+      professor: req.professor ?? '미정',
+      examName: req.examDate ? (current.examName ?? '시험') : null,
+      examDate: req.examDate,
+    };
+    updateMockProjectSummary(summary);
+    return summary;
+  }
+  return apiClient.patch<ProjectSummary>(`/projects/${req.projectId}`, req);
 }
 
 // 새 주차(챕터) 업로드.
