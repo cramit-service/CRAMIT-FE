@@ -180,7 +180,7 @@ export function FormModal({
         // 페이지가 이동해 버린다. 기본값으로 그것만 막는다.
         onSubmit={onSubmit ?? ((e) => e.preventDefault())}
         className={cn(
-          'flex min-h-0 [scrollbar-width:thin] [scrollbar-color:var(--color-gray-700)_var(--color-gray-900)] flex-col overflow-y-auto px-15 pb-7 [color-scheme:dark]',
+          'scrollbar-dark flex min-h-0 flex-col overflow-y-auto px-15 pb-7 [color-scheme:dark]',
           // 제목이 보이는 모달은 제목이 위 여백을 일부 대신한다. 숨긴 모달은 첫 라벨까지의
           // 거리가 시안(≈65px)에 맞도록 여백을 더 준다.
           titleVisible ? 'pt-11' : 'pt-16',

@@ -59,7 +59,7 @@ export function ChatPanel({
         ref={listRef}
         // flex-col + 아래 버튼의 mt-auto 조합이라, 대화가 짧아도 "맨 위로"가
         // 시안처럼 대화 영역 우하단에 머문다(내용을 따라 위로 올라오지 않는다).
-        className="relative flex min-h-0 flex-1 [scrollbar-width:thin] flex-col overflow-y-auto overscroll-contain px-7 pt-8 pb-4"
+        className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-7 pt-8 pb-4"
       >
         {chatQuery.isPending ? (
           <p className="pt-10 text-center text-[13px] text-gray-500">

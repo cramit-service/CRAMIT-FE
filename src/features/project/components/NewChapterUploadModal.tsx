@@ -141,7 +141,7 @@ export function NewChapterUploadModal({
           scrollbar-color를 모르는 브라우저는 color-scheme:dark가 받아준다. */}
       <form
         onSubmit={handleSubmit}
-        className="flex min-h-0 [scrollbar-width:thin] [scrollbar-color:var(--color-gray-700)_var(--color-gray-900)] flex-col overflow-y-auto px-15 pt-11 pb-7 [color-scheme:dark]"
+        className="scrollbar-dark flex min-h-0 flex-col overflow-y-auto px-15 pt-11 pb-7 [color-scheme:dark]"
       >
         {/* 시안 32px SemiBold. 모달 전체를 0.72배로 옮겼으므로 제목도 같이 줄이되,
             0.72배(23px)로는 여전히 박스 대비 글자가 커서 절반인 16px까지 내렸다.
