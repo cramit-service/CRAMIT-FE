@@ -21,14 +21,17 @@ export function ChatDock({ projectId }: { projectId: string }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label={open ? '챗봇 닫기' : '챗봇 열기'}
+        aria-label={open ? '채팅 닫기' : '채팅 열기'}
         aria-expanded={open}
-        className="from-secondary-200/60 to-primary-300/30 fixed top-[180px] z-40 flex h-[80px] w-7 flex-col items-center justify-center gap-1 rounded-l-md border-y border-l border-gray-700 bg-white bg-linear-to-b text-xs text-gray-700 transition-[right]"
-        // 패널 폭이 상수라 Tailwind가 클래스를 미리 만들 수 없다. 위치는 인라인으로 준다.
-        style={{ right: open ? PANEL_WIDTH : 0 }}
+        // 패널과 나란히 움직여야 한다. right(레이아웃)로 밀면 패널의 transform과
+        // 다른 스레드에서 돌아 프레임이 어긋나므로, 탭도 같은 transform으로 옮기고
+        // duration도 패널(300ms)에 맞춘다. 기본값은 150ms라 탭만 먼저 도착한다.
+        className="from-secondary-200/60 to-primary-300/30 fixed top-[180px] right-0 z-40 flex h-[80px] w-7 flex-col items-center justify-center gap-1 rounded-l-md border-y border-l border-gray-700 bg-white bg-linear-to-b text-xs text-gray-700 transition-transform duration-300"
+        // 패널 폭이 상수라 Tailwind가 클래스를 미리 만들 수 없다. 이동량은 인라인으로 준다.
+        style={{ transform: `translateX(${open ? -PANEL_WIDTH : 0}px)` }}
       >
         <span className="tracking-tight [writing-mode:vertical-rl]">
-          {open ? '챗봇닫기' : '챗봇열기'}
+          {open ? '채팅닫기' : '채팅열기'}
         </span>
         <span aria-hidden className="text-xs leading-none">
           {open ? '›' : '‹'}
