@@ -23,7 +23,9 @@ function ScheduleTag({ item }: { item: ScheduleItem }) {
         // leading을 명시하지 않으면 상속된 줄높이가 pill을 24px로 부풀린다.
         // 시안에서 pill은 Hug contents라 글자 폭까지만 감싼다(w-full로 늘리면 안 된다).
         // 긴 이름은 칸을 넘지 않도록 max-w-full + truncate로 자른다.
-        'block w-fit max-w-full truncate rounded-full px-1 py-0.75 text-[12px] leading-[15px] font-medium',
+        // 시안의 셀 태그는 Regular(400)다 — 네 개 중 셋이 Regular이고 하나만 Medium이라
+        // 다수를 따랐다. Medium이면 작은 글자가 뭉쳐 보인다.
+        'block w-fit max-w-full truncate rounded-full px-1 py-0.75 text-[12px] leading-[15px] font-normal',
         item.type === 'exam'
           ? 'bg-level-02/30 text-warning'
           : 'bg-secondary-100 text-secondary-500',
