@@ -39,6 +39,15 @@ export function Modal({
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
 
+  // onClose를 ref에 담아 아래 effect의 의존성에서 뺀다.
+  // 호출처는 대개 렌더마다 새 함수를 넘기는데(인라인 화살표 등), 그걸 의존성으로 두면
+  // 글자를 한 번 칠 때마다 effect가 다시 돌면서 panelRef.focus()가 포커스를 뺏어가
+  // 입력이 한 글자에서 끊긴다. effect가 하는 일은 onClose와 무관하다.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
   // ESC 닫기 + 배경 스크롤 잠금 + 포커스 가두기.
   // aria-modal="true"는 보조기술에 "배경은 비활성"이라고 알리는 선언이라,
   // 실제로 Tab이 배경으로 새어 나가면 선언과 동작이 어긋난다. 여기서 맞춰준다.
@@ -51,7 +60,7 @@ export function Modal({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key !== 'Tab' || !panelRef.current) return;
@@ -96,7 +105,7 @@ export function Modal({
       document.body.style.overflow = '';
       previouslyFocused?.focus();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 

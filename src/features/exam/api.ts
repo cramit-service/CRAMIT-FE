@@ -1,8 +1,23 @@
 // src/features/exam/api.ts
-import type { Exam } from '@/shared/types/api';
+import type {
+  CreateExamRequest,
+  Exam,
+  UpdateExamRequest,
+} from '@/shared/types/api';
 import { apiClient } from '@/shared/lib/apiClient';
 import { toLocalDateString } from '@/shared/lib/date';
-import { mockExams } from '@/mocks/exam';
+import {
+  addMockExam,
+  mockExams,
+  removeMockExam,
+  updateMockExam,
+} from '@/mocks/exam';
+import { mockProjectSummaries } from '@/mocks/project';
+
+// 강의명은 원래 서버가 projectId로 채워 내려주는 값이다. mock이 그 역할을 대신해야
+// USE_MOCK을 꺼도 화면(examName)이 그대로 동작한다. (getExams의 필터·정렬과 같은 이유)
+const mockLectureName = (projectId: string): string | null =>
+  mockProjectSummaries.find((p) => p.projectId === projectId)?.title ?? null;
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로)
 const USE_MOCK = true;
@@ -49,4 +64,59 @@ export async function getAllExams(signal?: AbortSignal): Promise<Exam[]> {
     return [...mockExams].sort((a, b) => a.examDate.localeCompare(b.examDate));
   }
   return apiClient.get<Exam[]>('/exams', { signal });
+}
+
+// 시험 일정 생성 — 홈 "다가오는 시험 일정" 추가하기 모달.
+export async function createExam(req: CreateExamRequest): Promise<Exam> {
+  if (USE_MOCK) {
+    await delay(300);
+    const exam: Exam = {
+      examId: `e${Date.now()}`,
+      projectId: req.projectId,
+      title: req.title,
+      lectureName: mockLectureName(req.projectId),
+      examDate: req.examDate,
+      memo: req.memo,
+      createdAt: new Date().toISOString(),
+      progress: 0, // 방금 만든 시험이라 아직 학습 진행률이 없다
+    };
+    addMockExam(exam);
+    return exam;
+  }
+  return apiClient.post<Exam>('/exams', req);
+}
+
+// 시험 일정 수정 — 같은 모달의 수정 모드.
+export async function updateExam(req: UpdateExamRequest): Promise<Exam> {
+  if (USE_MOCK) {
+    await delay(300);
+    const current = mockExams.find((e) => e.examId === req.examId);
+    // 목록에 없는 걸 고치려는 상황(다른 기기에서 이미 지웠다든지)은 서버가 404로 답할 자리다.
+    if (!current) throw new Error('시험 일정을 찾을 수 없어요.');
+
+    // createdAt·progress는 폼에 없는 값이라 기존 것을 그대로 둔다.
+    const exam: Exam = {
+      ...current,
+      projectId: req.projectId,
+      title: req.title,
+      lectureName: mockLectureName(req.projectId),
+      examDate: req.examDate,
+      memo: req.memo,
+    };
+    updateMockExam(exam);
+    return exam;
+  }
+
+  const { examId, ...body } = req;
+  return apiClient.patch<Exam>(`/exams/${examId}`, body);
+}
+
+// 시험 일정 삭제. 시안에 확인 단계가 없어 누르는 즉시 지운다.
+export async function deleteExam(examId: string): Promise<void> {
+  if (USE_MOCK) {
+    await delay(300);
+    removeMockExam(examId);
+    return;
+  }
+  await apiClient.delete<void>(`/exams/${examId}`);
 }
