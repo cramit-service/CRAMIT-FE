@@ -13,7 +13,7 @@ interface SwitchProps {
 }
 
 // 알림 설정 같은 즉시 반영 토글. 체크박스와 달리 "저장"을 누르지 않아도 값이 바뀐다.
-// Figma 시안 그대로 트랙 56×32, 손잡이 26에 좌우 3px 여백 → 이동 거리 24px.
+// Figma 56×32 → 화면과 같은 0.72배로 40×23. 손잡이 19에 좌우 2px 여백 → 이동 거리 17px.
 export function Switch({
   checked,
   onChange,
@@ -32,7 +32,7 @@ export function Switch({
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={cn(
-        'relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors',
+        'relative inline-flex h-[23px] w-10 shrink-0 items-center rounded-full transition-colors',
         'focus-visible:ring-secondary-400 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-800 focus-visible:outline-none',
         checked ? 'bg-secondary-400' : 'bg-gray-500',
         disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
@@ -42,8 +42,8 @@ export function Switch({
       <span
         aria-hidden
         className={cn(
-          'absolute left-[3px] size-[26px] rounded-full bg-white transition-transform duration-150',
-          checked ? 'translate-x-6' : 'translate-x-0',
+          'absolute left-[2px] size-[19px] rounded-full bg-white transition-transform duration-150',
+          checked ? 'translate-x-[17px]' : 'translate-x-0',
         )}
       />
     </button>

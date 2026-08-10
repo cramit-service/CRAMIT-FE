@@ -80,10 +80,10 @@ export function ProfileScreen() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[747px] flex-col items-center px-6 pt-21 pb-16">
+    <div className="mx-auto flex w-full max-w-[538px] flex-col items-center px-6 pt-15 pb-12">
       {/* 아바타 + 닉네임 + 수정 버튼 */}
       {/* 시안 아바타(110)는 사각 프레임으로 내보내져 배경이 함께 온다. 원형으로 잘라 쓴다. */}
-      <div className="size-27.5 overflow-hidden rounded-full">
+      <div className="size-[79px] overflow-hidden rounded-full">
         {/* 이 화면 최상단이라 아바타가 LCP로 잡힌다. priority로 미리 받아 Next 경고를 없애고
             늦게 채워지는 것도 막는다. (홈 배너 #35와 같은 처리) */}
         <Image
@@ -96,19 +96,19 @@ export function ProfileScreen() {
           className="size-full object-cover"
         />
       </div>
-      <h1 className="mt-2 text-[32px] leading-11 font-semibold tracking-[-0.64px] text-gray-950">
+      <h1 className="mt-1.5 text-[24px] leading-8 font-semibold tracking-[-0.48px] text-gray-950">
         {profile.nickname}
       </h1>
       {/* 시안은 gray-400 바탕에 밝은 글자다(비활성 버튼과 같은 색). 눌리는 버튼이라는 게
           드러나도록 hover만 더했다. */}
       <Link
         href="/settings/profile/edit"
-        className="text-primary-100 mt-6 flex h-11 w-25 items-center justify-center rounded-md bg-gray-400 text-[14px] leading-[22px] font-medium tracking-[-0.28px] transition-colors hover:bg-gray-500"
+        className="text-primary-100 mt-4.5 flex h-8 w-18 items-center justify-center rounded-md bg-gray-400 text-[12px] leading-4.5 font-medium tracking-[-0.24px] transition-colors hover:bg-gray-500"
       >
         내 정보 수정
       </Link>
 
-      <div className="mt-9.5 flex w-full flex-col gap-8">
+      <div className="mt-7 flex w-full flex-col gap-6">
         <SettingSection title="알림 설정">
           <SettingRow labelId="notify-ai" label="AI 분석 완료 알림">
             <Switch
@@ -133,11 +133,11 @@ export function ProfileScreen() {
 
         <SettingSection title="요금제">
           <SettingRow label={PLAN_LABEL[profile.plan]}>
-            {/* 시안 97×46 */}
+            {/* 시안 97×46 → 0.72배 70×33 */}
             <button
               type="button"
               onClick={() => setPlanNotice(true)}
-              className="bg-secondary-400 hover:bg-secondary-500 flex h-11.5 w-24.25 items-center justify-center rounded-md text-[16px] leading-6 font-medium tracking-[-0.32px] text-gray-950 transition-colors"
+              className="bg-secondary-400 hover:bg-secondary-500 flex h-[33px] w-[70px] items-center justify-center rounded-md text-[13px] leading-5 font-medium tracking-[-0.26px] text-gray-950 transition-colors"
             >
               플랜 변경
             </button>

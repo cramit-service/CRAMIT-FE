@@ -9,7 +9,7 @@ const ROW =
   'flex h-19 w-full items-center justify-between gap-4 rounded-md bg-gray-800 px-5';
 // 색은 여기 넣지 않는다. cn()엔 tailwind-merge가 없어 text-gray-100 위에 text-error를
 // 덧붙이면 둘 다 남고 승자가 클래스 생성 순서에 달린다(회원탈퇴가 흰 글자로 나왔다).
-const ROW_TEXT = 'text-[20px] leading-8 font-medium tracking-[-0.4px]';
+const ROW_TEXT = 'text-[16px] leading-6 font-medium tracking-[-0.32px]';
 // 서로 겹치지 않는 '완성된' 색 세트를 통째로 고른다.
 const ROW_TEXT_COLOR = { normal: 'text-gray-100', danger: 'text-error' };
 
@@ -75,7 +75,7 @@ export function SettingLinkRow({
       {/* 시안 비율 9×18 그대로 — 정사각 박스에 넣으면 좌우가 비어 위치가 어긋난다 */}
       <ChevronRightIcon
         className={cn(
-          'h-4.5 w-[9px] shrink-0',
+          'h-[13px] w-[6.5px] shrink-0',
           danger ? 'text-error' : 'text-gray-400',
         )}
       />
@@ -101,7 +101,7 @@ function ChevronRightIcon({ className }: { className?: string }) {
   );
 }
 
-// 섹션 제목 (알림 설정 / 요금제 / 계정 설정). Figma 높이 24 → 글자 16px.
+// 섹션 제목 (알림 설정 / 요금제 / 계정 설정). Figma 24 → 0.72배.
 export function SettingSection({
   title,
   children,
@@ -110,8 +110,8 @@ export function SettingSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="flex flex-col gap-2">
-      <h2 className="text-[16px] leading-6 font-medium tracking-[-0.32px] text-gray-700">
+    <section className="flex flex-col gap-1.5">
+      <h2 className="text-[13px] leading-5 font-medium tracking-[-0.26px] text-gray-700">
         {title}
       </h2>
       {children}
