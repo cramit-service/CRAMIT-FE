@@ -3,10 +3,10 @@
 import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import type { Todo } from '@/shared/types/api';
+import { Button } from '@/shared/ui/Button';
 import { Checkbox } from '@/shared/ui/Checkbox';
 import { cn } from '@/shared/lib/cn';
 import { formatKoreanDate } from '@/shared/lib/date';
-import { AddButton } from '@/features/exam/components/ExamSchedule';
 import { useTodos } from '@/features/todo/hooks/useTodos';
 import { todoName } from '@/features/todo/lib/todoName';
 import { TodoFormModal } from './TodoFormModal';
@@ -56,8 +56,16 @@ export function TodoChecklist() {
         <h2 className="text-[18px] leading-7 font-medium tracking-[-0.36px] text-gray-950">
           TODO 체크리스트
         </h2>
-        {/* 시험 일정 헤더와 같은 버튼이라 정의를 공유한다 */}
-        <AddButton onClick={() => setEditing('create')} />
+        {/* ExamSchedule 추가하기와 동일 버튼 */}
+        <Button
+          variant="dark"
+          size="xs"
+          className="gap-0.5"
+          onClick={() => setEditing('create')}
+        >
+          추가하기
+          <PlusIcon className="size-3" />
+        </Button>
       </div>
 
       {/* 카드는 데이터 유무와 무관하게 항상 렌더 — 크기는 여기(div)에 준다. 비어도 안 줄어든다.
@@ -133,11 +141,6 @@ export function TodoChecklist() {
         </div>
       </div>
 
-      {/* 시안(1:981)의 카드 바깥 우하단 안내문. 항목을 눌러 수정한다는 걸 알리는 유일한 단서다. */}
-      <p className="mt-1.5 text-right text-[12px] leading-4.5 tracking-[-0.24px] text-gray-500">
-        *꾹 눌러서 TODO를 수정할 수 있어요!
-      </p>
-
       {editing !== null && (
         <TodoFormModal
           todo={editing === 'create' ? undefined : editing}
@@ -145,5 +148,23 @@ export function TodoChecklist() {
         />
       )}
     </section>
+  );
+}
+
+function PlusIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M12 5v14M5 12h14"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
