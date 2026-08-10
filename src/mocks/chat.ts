@@ -46,6 +46,17 @@ const SCRIPTED: { match: RegExp; reply: string }[] = [
 const FALLBACK =
   '질문 주신 내용을 강의자료와 요약본에서 찾아봤어요. 조금 더 구체적으로 어느 부분이 궁금한지 알려주시면 그 대목을 짚어서 설명해 드릴게요.';
 
-export function mockChatReply(question: string): string {
-  return SCRIPTED.find((s) => s.match.test(question))?.reply ?? FALLBACK;
+// 파일이 붙은 질문의 답변. mock은 파일 내용을 실제로 읽지 않으므로
+// 받았다는 사실만 파일명으로 확인시켜 주고, 질문이 함께 왔으면 그 답을 이어 붙인다.
+// TODO(백엔드): 실제 AI가 파일을 해석하면 이 분기는 사라진다.
+export function mockChatReply(question: string, fileName?: string): string {
+  const answer =
+    SCRIPTED.find((s) => s.match.test(question))?.reply ?? FALLBACK;
+  if (!fileName) return answer;
+
+  const received = `'${fileName}' 파일을 받았어요. 내용을 살펴볼게요.`;
+  // 파일만 보낸 경우엔 이어 붙일 답이 없다(문구가 겉돈다).
+  return question.trim()
+    ? `${received}\n\n${answer}`
+    : `${received}\n\n어떤 점이 궁금한지 알려주시면 그 부분을 짚어서 설명해 드릴게요.`;
 }

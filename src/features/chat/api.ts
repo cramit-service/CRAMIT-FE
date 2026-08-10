@@ -42,11 +42,12 @@ export async function getChatMessages(
   });
 }
 
-// 질문 전송 → AI 답변 한 줄을 돌려받는다.
+// 질문 전송 → AI 답변 한 줄을 돌려받는다. 파일 1개를 함께 보낼 수 있다.
 // TODO: 백엔드가 붙으면 스트리밍 여부에 따라 반환 형태를 다시 정한다.
 export async function sendChatMessage(
   projectId: string,
   content: string,
+  file?: File | null,
   signal?: AbortSignal,
 ): Promise<ChatMessage> {
   if (USE_MOCK) {
@@ -56,13 +57,21 @@ export async function sendChatMessage(
       messageId: `m-ai-${Date.now()}`,
       projectId,
       role: 'AI',
-      content: mockChatReply(content),
+      content: mockChatReply(content, file?.name),
       createdAt: new Date().toISOString(),
     };
   }
-  return apiClient.post<ChatMessage>(
-    `/projects/${projectId}/chat`,
-    { content },
-    { signal },
-  );
+
+  // 파일이 있으면 multipart로 보낸다. apiClient가 FormData를 알아보고
+  // Content-Type을 비워 브라우저가 boundary를 붙이게 둔다.
+  // TODO: 백엔드가 필드명을 확정하면(content/file) 여기를 맞춘다.
+  const body = file ? new FormData() : { content };
+  if (file && body instanceof FormData) {
+    body.append('content', content);
+    body.append('file', file);
+  }
+
+  return apiClient.post<ChatMessage>(`/projects/${projectId}/chat`, body, {
+    signal,
+  });
 }

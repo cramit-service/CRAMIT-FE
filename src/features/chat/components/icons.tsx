@@ -40,6 +40,25 @@ export function SendIcon({ className }: IconProps) {
   );
 }
 
+// 고른 첨부 파일을 무르는 X. 시안에 없는 요소라 단순 도형으로 그린다.
+export function CloseIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M6 6l12 12M18 6L6 18"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 // 첨부(종이클립). 원본이 16.86×18.94라 정사각 뷰박스로 가운데 맞춰 담는다.
 export function PaperclipIcon({ className }: IconProps) {
   return (
