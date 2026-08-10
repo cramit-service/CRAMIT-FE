@@ -38,6 +38,19 @@ function formatDisplay(value: string): string {
   return `${y}. ${m}. ${d}.`;
 }
 
+// 값을 Date로 읽는다. 'YYYY-MM-DD'가 정상이지만 백엔드가 ISO 타임스탬프를 주거나
+// 값이 깨져 있을 수 있다. 그대로 getFullYear()를 부르면 NaN이 buildGrid까지 흘러가
+// 달력이 통째로 빈 칸이 된다. 읽지 못하면 오늘로 돌린다.
+function parseValue(value: string): Date {
+  if (value) {
+    // 날짜만 온 값은 T00:00:00을 붙여 로컬 자정으로 읽는다(UTC 파싱이면 하루 밀린다).
+    const iso = /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00` : value;
+    const parsed = new Date(iso);
+    if (!Number.isNaN(parsed.getTime())) return parsed;
+  }
+  return new Date();
+}
+
 interface ModalDateFieldProps {
   id: string;
   /** 'YYYY-MM-DD'. 비어 있으면 미선택. */
@@ -63,13 +76,18 @@ export function ModalDateField({
   );
   // 보고 있는 달. 값이 있으면 그 달, 없으면 이번 달에서 시작한다.
   const [view, setView] = useState(() => {
-    const base = value ? new Date(`${value}T00:00:00`) : new Date();
+    const base = parseValue(value);
     return { year: base.getFullYear(), month: base.getMonth() + 1 };
   });
 
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  // 격자로 포커스를 옮겨야 하는 순간에만 켠다 — 달력을 막 열었을 때와,
+  // 화살표 키가 달 경계를 넘어 새 달을 그렸을 때.
+  // 이 플래그 없이 view가 바뀔 때마다 옮기면 "다음 달" 버튼을 누르는 순간
+  // 포커스가 날짜 칸으로 끌려가 버튼을 연달아 누를 수 없다.
+  const focusGridRef = useRef(false);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -89,9 +107,11 @@ export function ModalDateField({
     });
     // 값이 있으면 그 달을 다시 펴 준다 (닫는 사이 달을 넘겨 뒀을 수 있다).
     if (value) {
-      const d = new Date(`${value}T00:00:00`);
+      const d = parseValue(value);
       setView({ year: d.getFullYear(), month: d.getMonth() + 1 });
     }
+    // 막 열렸으니 격자로 포커스를 옮긴다.
+    focusGridRef.current = true;
     setOpen(true);
   };
 
@@ -113,23 +133,36 @@ export function ModalDateField({
     // 캡처 단계로 듣는다 — 스크롤은 버블링하지 않는다.
     const onScroll = () => setOpen(false);
 
+    // Escape는 팝오버 엘리먼트가 아니라 document에서 캡처 단계로 받는다.
+    // 달을 넘기면 포커스를 갖던 날짜 버튼이 사라져 포커스가 body로 떨어진다. 그때의
+    // Escape는 팝오버 DOM을 타지 않으므로, 팝오버에 붙인 핸들러로는 못 막고
+    // 모달이 window에서 받아 통째로 닫혀 버린다. 캡처 단계면 포커스 위치와 무관하게
+    // 우리가 먼저 받아 달력만 닫을 수 있다.
+    const onKeyDownCapture = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.preventDefault();
+      e.stopPropagation();
+      close();
+    };
+
     document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDownCapture, true);
     window.addEventListener('scroll', onScroll, true);
     window.addEventListener('resize', onScroll);
     return () => {
       document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDownCapture, true);
       window.removeEventListener('scroll', onScroll, true);
       window.removeEventListener('resize', onScroll);
     };
-  }, [open]);
+  }, [open, close]);
 
-  // 열리면 첫 포커스를 오늘(또는 고른 날)에 준다.
   useEffect(() => {
-    if (!open) return;
-    const target = gridRef.current?.querySelector<HTMLButtonElement>(
-      '[data-focus="true"]',
-    );
-    target?.focus();
+    if (!open || !focusGridRef.current) return;
+    focusGridRef.current = false;
+    gridRef.current
+      ?.querySelector<HTMLButtonElement>('[data-focus="true"]')
+      ?.focus();
   }, [open, view.year, view.month]);
 
   const shift = (delta: number) => {
@@ -172,6 +205,7 @@ export function ModalDateField({
       return;
     }
     // 격자 밖으로 나가면 달을 넘긴다. 새 달이 그려진 뒤 포커스는 위 useEffect가 잡는다.
+    focusGridRef.current = true;
     shift(next < 0 ? -1 : 1);
   };
 
@@ -212,14 +246,6 @@ export function ModalDateField({
           role="dialog"
           aria-label="날짜 선택"
           style={{ top: anchor.top, left: anchor.left }}
-          // Escape는 모달이 window에서 듣는다. 여기서 멈추지 않으면 달력만 닫으려다
-          // 모달까지 같이 닫힌다.
-          onKeyDown={(e) => {
-            if (e.key !== 'Escape') return;
-            e.preventDefault();
-            e.stopPropagation();
-            close();
-          }}
           className="fixed z-50 w-[252px] rounded-lg border-[0.5px] border-gray-600 bg-gray-800 p-3 shadow-xl"
         >
           {/* 달 이동 */}

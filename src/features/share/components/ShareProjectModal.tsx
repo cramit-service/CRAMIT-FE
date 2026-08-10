@@ -37,10 +37,13 @@ export function ShareProjectModal({
   const maxMembers = share?.maxMembers ?? 0;
   const isFull = share !== undefined && members.length >= maxMembers;
   const busy = inviteMutation.isPending || removeMutation.isPending;
+  // 목록을 못 받은 상태에서는 몇 명이 차 있는지 모른다. 그대로 초대를 열어 두면
+  // 상한(3명)을 넘겨 부르고 서버 에러로만 알게 된다. 조회가 끝나야 초대를 연다.
+  const canInvite = shareQuery.isSuccess && share !== undefined;
 
   const handleInvite = (e: React.FormEvent) => {
     e.preventDefault();
-    if (busy || isFull || identifier.trim() === '') return;
+    if (!canInvite || busy || isFull || identifier.trim() === '') return;
     setFormError(null);
 
     inviteMutation.mutate(identifier, {
@@ -82,13 +85,13 @@ export function ShareProjectModal({
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
           placeholder="이메일 또는 @닉네임을 작성해주세요."
-          disabled={busy || isFull}
+          disabled={!canInvite || busy || isFull}
           className={INVITE_FIELD}
         />
         {/* 입력칸과 같은 높이로 붙는 확정 액션이라 하늘색(secondary) */}
         <button
           type="submit"
-          disabled={busy || isFull || identifier.trim() === ''}
+          disabled={!canInvite || busy || isFull || identifier.trim() === ''}
           className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 h-10 w-[78px] shrink-0 rounded-md text-[13px] leading-5 font-medium tracking-[-0.26px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-500"
         >
           {inviteMutation.isPending ? '초대 중…' : '초대하기'}

@@ -6,12 +6,15 @@ import { dateFromToday } from '@/shared/lib/date';
 // 고정 날짜 대신 상대 날짜(dateFromToday)로 두어 언제 열어도 이번 달 칸에 뜨게 한다. (mockExams와 동일 이유)
 // 완료/미완료, 메모 유무, 마감시간 유무를 섞어 체크리스트 위젯의 모든 상태가 한 번에 보이게 한다.
 // title은 과목명을 뺀 순수 할 일이고, 강의명은 lectureName으로 분리한다(표시 시 합침 — 시험 일정과 동일).
+// projectId와 lectureName은 mockProjectSummaries와 반드시 맞춰 둔다 — 서버는 projectId로
+// 강의명을 채워 내려주고 mock도 같은 자리에서 채운다. 어긋나 있으면 TODO를 열어 아무것도
+// 바꾸지 않고 저장하는 것만으로 화면의 강의명이 다른 과목으로 바뀐다.
 export const mockTodos: Todo[] = [
   {
     todoId: '1',
-    projectId: '1',
+    projectId: '2',
     title: '2주차 복습하기',
-    lectureName: '운영체제론',
+    lectureName: '운영체제',
     dueDate: dateFromToday(1),
     dueTime: '13:30',
     lectureId: null,
@@ -20,7 +23,7 @@ export const mockTodos: Todo[] = [
   },
   {
     todoId: '2',
-    projectId: '3',
+    projectId: '4',
     title: 'TCP/IP 계층 정리',
     lectureName: '컴퓨터네트워크',
     dueDate: dateFromToday(2),
@@ -31,7 +34,7 @@ export const mockTodos: Todo[] = [
   },
   {
     todoId: '3',
-    projectId: '2',
+    projectId: '3',
     title: '과제 제출',
     lectureName: '자료구조',
     dueDate: dateFromToday(3),
@@ -42,9 +45,9 @@ export const mockTodos: Todo[] = [
   },
   {
     todoId: '4',
-    projectId: '1',
+    projectId: '2',
     title: '중간고사 오답노트 작성',
-    lectureName: '운영체제론',
+    lectureName: '운영체제',
     dueDate: dateFromToday(5),
     dueTime: '09:00',
     lectureId: null,
@@ -53,7 +56,7 @@ export const mockTodos: Todo[] = [
   },
   {
     todoId: '5',
-    projectId: '3',
+    projectId: '4',
     title: '실습 예습',
     lectureName: '컴퓨터네트워크',
     dueDate: dateFromToday(6),
@@ -64,9 +67,9 @@ export const mockTodos: Todo[] = [
   },
   {
     todoId: '6',
-    projectId: '1',
+    projectId: '2',
     title: '3주차 예습',
-    lectureName: '운영체제론',
+    lectureName: '운영체제',
     dueDate: dateFromToday(7),
     dueTime: null,
     lectureId: null,
@@ -75,7 +78,7 @@ export const mockTodos: Todo[] = [
   },
   {
     todoId: '7',
-    projectId: '2',
+    projectId: '3',
     title: '이진트리 정리',
     lectureName: '자료구조',
     dueDate: dateFromToday(8),
@@ -86,7 +89,7 @@ export const mockTodos: Todo[] = [
   },
   {
     todoId: '8',
-    projectId: '3',
+    projectId: '4',
     title: '라우팅 알고리즘 복습',
     lectureName: '컴퓨터네트워크',
     dueDate: dateFromToday(9),
@@ -97,9 +100,9 @@ export const mockTodos: Todo[] = [
   },
   {
     todoId: '9',
-    projectId: '1',
+    projectId: '2',
     title: '프로세스 스케줄링 정리',
-    lectureName: '운영체제론',
+    lectureName: '운영체제',
     dueDate: dateFromToday(4),
     dueTime: null,
     lectureId: null,
@@ -108,7 +111,7 @@ export const mockTodos: Todo[] = [
   },
   {
     todoId: '10',
-    projectId: '2',
+    projectId: '3',
     title: '해시테이블 실습',
     lectureName: '자료구조',
     dueDate: dateFromToday(10),

@@ -176,7 +176,9 @@ export function FormModal({
           모달 오른쪽에 흰 띠가 생겨 분위기가 끊긴다.
           scrollbar-color를 모르는 브라우저는 color-scheme:dark가 받아준다. */}
       <form
-        onSubmit={onSubmit}
+        // onSubmit을 안 넘긴 호출처에서 Enter를 치면 브라우저가 폼을 실제로 제출해
+        // 페이지가 이동해 버린다. 기본값으로 그것만 막는다.
+        onSubmit={onSubmit ?? ((e) => e.preventDefault())}
         className={cn(
           'flex min-h-0 [scrollbar-width:thin] [scrollbar-color:var(--color-gray-700)_var(--color-gray-900)] flex-col overflow-y-auto px-15 pb-7 [color-scheme:dark]',
           // 제목이 보이는 모달은 제목이 위 여백을 일부 대신한다. 숨긴 모달은 첫 라벨까지의

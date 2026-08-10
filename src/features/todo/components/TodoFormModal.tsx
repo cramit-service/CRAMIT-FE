@@ -32,7 +32,8 @@ interface TodoFormModalProps {
   onClose: () => void;
 }
 
-// 셀렉트에서 "선택 없음"을 고른 상태. 빈 문자열은 값 없음과 구분이 안 돼 별도 값을 쓴다.
+// "선택 없음" 상태. 빈 문자열을 그대로 쓴다 — useChapters의 enabled 조건이
+// 이 값을 보고 요청을 막고, 저장할 때는 null로 바꿔 보낸다.
 const NONE = '';
 
 // TODO 추가·수정 모달.

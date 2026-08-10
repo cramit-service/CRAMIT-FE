@@ -76,7 +76,13 @@ export async function inviteShareMember(
   if (!trimmed) {
     throw new Error('이메일 또는 @닉네임을 입력해 주세요.');
   }
-  if (!trimmed.startsWith('@') && !EMAIL.test(trimmed)) {
+  // '@'만 친 경우도 걸러야 한다 — startsWith만 보면 통과해서
+  // 닉네임이 빈 멤버가 목록에 들어간다.
+  if (trimmed.startsWith('@')) {
+    if (trimmed.length === 1) {
+      throw new Error('@ 뒤에 닉네임을 입력해 주세요.');
+    }
+  } else if (!EMAIL.test(trimmed)) {
     throw new Error('이메일 형식이 올바르지 않아요. 닉네임은 @로 시작해요.');
   }
 

@@ -187,6 +187,10 @@ export function ModalCombobox({
           }
         }}
         onFocus={openList}
+        // Tab으로 빠져나가면 목록이 떠 있는 채로 남는다. fixed로 띄운 팝오버라
+        // 모달과 무관한 자리에 둥둥 뜬다. 항목 선택은 mousedown에서 이미 끝나므로
+        // 여기서 닫아도 클릭이 씹히지 않는다.
+        onBlur={closeList}
         onKeyDown={handleKeyDown}
         className={cn(
           FIELD_OUTLINED,
