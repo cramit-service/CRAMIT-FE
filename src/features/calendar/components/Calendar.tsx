@@ -10,7 +10,8 @@ import { buildMonthGrid } from '../lib/month';
 import { useCalendarMonth } from '../hooks/useCalendarMonth';
 import { CalendarCell, type ScheduleItem } from './CalendarCell';
 
-const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT'];
+// 시안은 월요일 시작이다(MON…SUN). buildMonthGrid도 같은 기준으로 채운다.
+const WEEKDAYS = ['MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT', 'SUN'];
 
 export function Calendar() {
   const { year, month, goPrev, goNext } = useCalendarMonth();
@@ -50,12 +51,12 @@ export function Calendar() {
 
   return (
     <section className="flex min-h-0 flex-col">
-      <div className="mb-1.5 flex items-center justify-between">
-        <h2 className="text-[18px] leading-7 font-medium tracking-[-0.36px] text-gray-950">
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-[18px] leading-[30px] font-medium tracking-[-0.36px] text-gray-950">
           캘린더
         </h2>
         <div className="flex items-center gap-2">
-          <span className="text-[18px] font-medium tracking-[-0.36px] text-gray-950">
+          <span className="text-[18px] leading-[30px] font-medium tracking-[-0.36px] text-gray-950">
             {year}년 {month}월
           </span>
           <NavButton label="이전 달" onClick={goPrev} direction="left" />
@@ -66,11 +67,12 @@ export function Calendar() {
       <div className="flex min-h-0 flex-col overflow-hidden rounded-md border border-gray-300 lg:flex-1">
         {/* 요일 행과 날짜 그리드를 같은 grid-cols-7로 두어 열을 정렬한다.
             gap-px + 배경 gray-300으로 칸 사이 격자선을 만든다. */}
-        {/* 요일행: 날짜 그리드보다 낮게(Figma 28.55×0.72≈20px) + 아래 분리선(border-b)으로 날짜와 구분 */}
+        {/* 요일행: 날짜 그리드보다 낮게(시안 27.55px = 패딩 7.78 + 글자 12) + 아래 분리선으로 날짜와 구분.
+            leading을 명시하지 않으면 부모에서 상속된 24px 줄높이(strut)가 행을 32px로 부풀린다. */}
         <div className="grid grid-cols-7 gap-px border-b border-gray-300 bg-gray-300">
           {WEEKDAYS.map((label) => (
-            <div key={label} className="bg-white px-1.5 py-1">
-              <span className="text-[10px] font-medium text-gray-900">
+            <div key={label} className="bg-white px-2 py-2">
+              <span className="block text-[10px] leading-3 font-medium text-gray-900">
                 {label}
               </span>
             </div>
@@ -91,7 +93,7 @@ export function Calendar() {
         </div>
       </div>
 
-      <div className="mt-2.5 flex items-center gap-2">
+      <div className="mt-2 flex items-center gap-1.5">
         <LegendTag className="bg-secondary-100 text-secondary-500">
           할 일 (TODO)
         </LegendTag>
@@ -110,15 +112,17 @@ function NavButton({
   onClick: () => void;
   direction: 'left' | 'right';
 }) {
+  // 버튼 21px·radius 6px은 시안값 그대로다. 옆의 "YYYY년 M월"(18px)도 시안 크기를
+  // 그대로 쓰므로 버튼만 0.72로 줄이면 글자보다 작아져 시안과 어긋난다.
   return (
     <button
       type="button"
       aria-label={label}
       onClick={onClick}
-      className="flex size-6 items-center justify-center rounded-md bg-gray-800 text-white transition-colors hover:bg-gray-900"
+      className="flex size-5.25 items-center justify-center rounded-md bg-gray-800 text-white transition-colors hover:bg-gray-900"
     >
       <ChevronIcon
-        className={direction === 'left' ? 'size-3.5 rotate-180' : 'size-3.5'}
+        className={direction === 'left' ? 'size-5 rotate-180' : 'size-5'}
       />
     </button>
   );
@@ -132,8 +136,9 @@ function LegendTag({
   children: React.ReactNode;
 }) {
   return (
+    // 시안 범례 pill은 57×15로 셀 안 태그보다 작다. 글자 9px + px 4로 맞춘다.
     <span
-      className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${className}`}
+      className={`rounded-full px-1 py-0.5 text-[9px] leading-3 font-medium ${className}`}
     >
       {children}
     </span>
@@ -151,7 +156,7 @@ function ChevronIcon({ className }: { className?: string }) {
       <path
         d="M9 6l6 6-6 6"
         stroke="currentColor"
-        strokeWidth="2.5"
+        strokeWidth="1.75"
         strokeLinecap="round"
         strokeLinejoin="round"
       />

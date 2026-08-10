@@ -18,7 +18,10 @@ function ScheduleTag({ item }: { item: ScheduleItem }) {
   return (
     <span
       className={cn(
-        'block w-full truncate rounded-full px-1.5 py-0.5 text-[10px] font-medium',
+        // 시안 태그: 글자 12px · px 4 · py 3 → pill 높이 21px.
+        // 글자 크기는 시안 px 그대로 두고 좌우 여백만 시안값을 따른다.
+        // leading을 명시하지 않으면 상속된 줄높이가 pill을 24px로 부풀린다
+        'block w-full truncate rounded-full px-1 py-0.75 text-[12px] leading-[15px] font-medium',
         item.type === 'exam'
           ? 'bg-level-02/30 text-warning'
           : 'bg-secondary-100 text-secondary-500',
@@ -37,6 +40,7 @@ interface CalendarCellProps {
 
 // h-full로 grid 줄 높이를 그대로 채우고, 넘치는 건 overflow-hidden으로 자른다.
 // min-w-0을 줘야 안쪽 태그가 열 폭에 맞춰 잘린다.
+// justify-between은 시안대로 — 날짜 숫자는 위, 일정 태그는 칸 바닥에 붙는다.
 export function CalendarCell({ cell, items, isToday }: CalendarCellProps) {
   const visible =
     items.length > MAX_VISIBLE_TAGS
@@ -47,14 +51,15 @@ export function CalendarCell({ cell, items, isToday }: CalendarCellProps) {
   return (
     <div
       className={cn(
-        'flex h-full min-w-0 flex-col gap-1 overflow-hidden p-1.5',
+        'flex h-full min-w-0 flex-col justify-between gap-1 overflow-hidden p-2',
         cell.isCurrentMonth ? 'bg-white' : 'bg-gray-200',
       )}
     >
       <span
         className={cn(
-          // 오늘이든 아니든 같은 크기 원형 슬롯을 써서 숫자 위치가 흔들리지 않게 한다
-          'inline-flex size-4.5 shrink-0 items-center justify-center rounded-full text-[11px] font-medium',
+          // 오늘이든 아니든 같은 크기 원형 슬롯을 써서 숫자 위치가 흔들리지 않게 한다.
+          // 숫자는 시안값 13.6px. 두 자리가 들어가도록 슬롯은 20px로 잡는다.
+          'inline-flex size-5 shrink-0 items-center justify-center rounded-full text-[13.5px] font-medium',
           isToday && 'bg-gray-900 text-white',
           !isToday && cell.isCurrentMonth && 'text-gray-950',
           !cell.isCurrentMonth && 'text-gray-950/40',
@@ -63,12 +68,12 @@ export function CalendarCell({ cell, items, isToday }: CalendarCellProps) {
         {cell.day}
       </span>
       {items.length > 0 && (
-        <div className="flex min-w-0 flex-col gap-0.75">
+        <div className="flex min-w-0 flex-col gap-1.5">
           {visible.map((item) => (
             <ScheduleTag key={item.id} item={item} />
           ))}
           {hiddenCount > 0 && (
-            <span className="px-1.5 text-[10px] font-medium text-gray-500">
+            <span className="px-1 text-[12px] font-medium text-gray-500">
               +{hiddenCount}
             </span>
           )}
