@@ -2,7 +2,6 @@
 // src/features/exam/components/ExamSchedule.tsx
 import { useState } from 'react';
 import type { Exam } from '@/shared/types/api';
-import { Button } from '@/shared/ui/Button';
 import { cn } from '@/shared/lib/cn';
 import { formatKoreanDate } from '@/shared/lib/date';
 import { daysUntil, ddayLabel } from '@/features/exam/lib/dday';
@@ -36,26 +35,22 @@ export function ExamSchedule() {
   const [editing, setEditing] = useState<Exam | 'new' | null>(null);
 
   return (
-    <section>
-      <div className="mb-1.5 flex items-center justify-between">
+    // 시안(24:9523)에서 이 열은 배너와 위가 아니라 아래가 맞는다 — 제목 72, 카드 128..266.
+    // 그리드 칸은 기본이 stretch라 self-end로 아래에 붙인다.
+    <section className="lg:self-end">
+      {/* 제목 행 44는 시안값 — 안의 "추가하기" 버튼(128×44)이 행 높이를 정한다.
+          이 높이가 어긋나면 아래 카드가 통째로 밀린다. */}
+      <div className="mb-1.5 flex items-center justify-between lg:mb-3 lg:h-11">
         <h2 className="text-[18px] leading-7 font-medium tracking-[-0.36px] text-gray-950">
           다가오는 시험 일정
         </h2>
-        <Button
-          variant="dark"
-          size="xs"
-          className="gap-0.5"
-          onClick={() => setEditing('new')}
-        >
-          추가하기
-          <PlusIcon className="size-3" />
-        </Button>
+        <AddButton onClick={() => setEditing('new')} />
       </div>
 
       {/* 카드는 데이터 유무와 무관하게 항상 렌더 — 크기(h-29)는 여기(div)에 준다. 비어도 안 줄어든다.
           스크롤은 안쪽 div가 맡는다. 카드가 직접 스크롤하면 스크롤바가 카드 가장자리에 붙어
           시안(우측 6px·상하 9px 안쪽)처럼 띄울 수 없다. 그 여백을 카드의 py/pr이 만든다. */}
-      <div className="h-29 rounded-md bg-white py-2.5 pr-1.5 pl-6">
+      <div className="h-29 rounded-md bg-white py-2.5 pr-1.5 pl-6 lg:h-[138px]">
         <div className="scrollbar-slim h-full overflow-y-auto overscroll-none pr-4">
           {isLoading ? (
             <StatusMessage>불러오는 중…</StatusMessage>
@@ -114,6 +109,23 @@ export function ExamSchedule() {
         />
       )}
     </section>
+  );
+}
+
+// 시안 128×44. shared/ui/Button의 size 스케일엔 이 조합이 없고, className으로 덮으면
+// cn()에 tailwind-merge가 없어 h-7과 h-11이 둘 다 남아 승자가 클래스 생성 순서에 달린다.
+// ProjectHeader·LectureListScreen과 같은 방식으로 직접 만든다.
+// TODO 체크리스트의 "추가하기"와 같은 버튼이다 — 한쪽만 고치면 두 열의 제목 행 높이가 어긋난다.
+export function AddButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex h-8 items-center justify-center gap-0.5 rounded-md bg-gray-900 px-3 text-[12px] leading-none font-medium tracking-[-0.24px] text-gray-100 transition-colors hover:bg-gray-800 lg:h-11 lg:w-32 lg:gap-1 lg:px-0 lg:text-[14px] lg:tracking-[-0.28px]"
+    >
+      추가하기
+      <PlusIcon className="size-3 lg:size-3.5" />
+    </button>
   );
 }
 
