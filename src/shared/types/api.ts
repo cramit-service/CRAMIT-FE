@@ -189,16 +189,67 @@ export interface Exam {
   progress: number; // 학습 진행률 0~100 (홈 학습 배너 표시용, 시험 일정과 함께 내려옴)
 }
 
+// 시험 일정 추가·수정 요청 타입(CreateExamRequest / UpdateExamRequest)은 #51에서 정의한다.
+
 /* ===== Todo (기획서 7.3, 8.8) ===== */
 
 export interface Todo {
   todoId: string;
-  projectId: string;
+  // 시안의 TODO 모달에서 "강의 (선택)"이라 강의를 안 고른 할 일이 있을 수 있다.
+  projectId: string | null;
   title: string;
   lectureName: string | null; // 강의명 — 표시 시 제목 앞에 붙인다 (시험 일정과 동일 규칙)
   dueDate: string; // YYYY-MM-DD
   dueTime: string | null;
-  lectureId: string | null;
+  lectureId: string | null; // 연결된 주차(챕터) id
   memo: string | null;
   isCompleted: boolean;
+}
+
+// TODO 추가 모달의 입력. 강의와 연결된 주차는 둘 다 선택이라 비어 있을 수 있다.
+// TODO: 백엔드 TODO 등록 스펙 확정 시 필드명 재확인 필요
+export interface CreateTodoRequest {
+  projectId: string | null;
+  title: string;
+  dueDate: string; // YYYY-MM-DD
+  dueTime: string | null; // HH:mm
+  lectureId: string | null;
+  memo: string | null;
+}
+
+export interface UpdateTodoRequest extends CreateTodoRequest {
+  todoId: string;
+}
+
+/* ===== 강의(프로젝트) 생성 ===== */
+
+// 학습하기 화면의 "생성하기" 모달 입력 (Figma 1:2614).
+// 시안에는 "제목"과 "강의" 자유 입력이 나란히 있으나 강의 이름 필드는 title 하나뿐이라
+// "강의"를 title로 받는다. 시험 날짜는 목록 카드의 D-DAY 태그를 채운다.
+// TODO: 백엔드 프로젝트 생성 스펙 확정 시 필드명 재확인 필요
+export interface CreateProjectRequest {
+  title: string; // 강의명 (예: "운영체제")
+  examDate: string | null; // 시험 날짜 (YYYY-MM-DD)
+  professor: string | null; // 교수명 (선택)
+}
+
+// 강의 수정 (강의 상세 헤더의 연필 버튼). 시안에 전용 프레임이 없어 생성 모달의 수정 모드로 쓴다.
+export interface UpdateProjectRequest extends CreateProjectRequest {
+  projectId: string;
+}
+
+/* ===== 공유하기 (기획서 8.6) ===== */
+
+export interface ShareMember {
+  userId: string;
+  nickname: string;
+  email: string;
+}
+
+// 강의 하나의 공유 상태. 시안 헤더가 "공유 중인 사용자 현재 (2/3)"라 상한도 함께 받는다.
+// TODO: 백엔드 공유 조회 스펙 확정 시 필드명 재확인 필요
+export interface ProjectShare {
+  projectId: string;
+  members: ShareMember[];
+  maxMembers: number;
 }

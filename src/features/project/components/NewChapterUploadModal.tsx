@@ -4,6 +4,15 @@ import { useId, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
 import { Modal } from '@/shared/ui/Modal';
+import {
+  FIELD_FILLED,
+  FIELD_OUTLINED,
+  FIELD_WIDTH,
+  HINT,
+  LABEL,
+  SECTION_DIVIDER,
+} from '@/shared/ui/FormModal';
+import { ModalDateField } from '@/shared/ui/ModalDateField';
 // 강의 목록은 학습하기 화면(study)이 이미 조회한다. 같은 GET /projects를 두 번 정의하지 않고
 // 그 훅을 그대로 쓴다 — 쿼리 키도 공유돼 캐시가 한 벌로 유지된다.
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
@@ -18,24 +27,8 @@ interface NewChapterUploadModalProps {
   onClose: () => void;
 }
 
-// 입력 칸 공통 스타일. Figma 시안(높이 56·좌우 패딩 20)을 화면과 같은 0.72배로 줄였다.
-// 타이포도 박스와 같은 0.72배를 적용한다(18 → 13). 가이드 4-4는 타이포를 줄이지 말라고 하지만,
-// 그 규칙은 전체 화면 기준이라 0.72배로 줄인 모달 안에서는 글자만 남아 박스를 꽉 채운다.
-const FIELD_BASE =
-  'h-10 rounded-md px-3.5 text-[13px] leading-5 font-medium tracking-[-0.26px] outline-none';
-// 제목·교수명처럼 채워진 입력. 값은 흰색, 안내 문구는 한 단계 흐리게 둬서 비어 있는 게 보이게 한다.
-const FIELD_FILLED = `${FIELD_BASE} bg-gray-800 text-gray-100 placeholder:text-gray-300 focus:ring-1 focus:ring-secondary-400`;
-// 셀렉트·날짜처럼 테두리만 있는 입력. 폭은 호출처가 정한다
-// (여기에 w-full을 넣으면 호출처의 고정 폭과 겹쳐 승자가 클래스 생성 순서에 달린다).
-const FIELD_OUTLINED = `${FIELD_BASE} border-[0.5px] border-gray-500 bg-transparent text-gray-300 focus:border-secondary-400`;
-// 강의·날짜 칸 폭. 시안은 186px(=134px)이지만 "2026-07-21"과 한글 과목명이 잘려서 조금 넓혔다.
-const FIELD_WIDTH = 'w-[156px]';
-
-// 라벨도 같은 0.72배 (20 → 14).
-const LABEL = 'text-[14px] leading-[22px] tracking-[-0.28px] text-gray-300';
-// 보조 문구(상태 안내·에러)는 한 단계 더 작게.
-const HINT = 'text-[12px] leading-[18px] tracking-[-0.24px] break-keep';
-const SECTION_DIVIDER = 'border-b-[0.5px] border-gray-700';
+// 입력 칸·라벨·구분선 스타일은 같은 시안 계열의 다른 다크 모달들과 공유한다.
+// (시험 일정·TODO·강의 생성·공유하기 — 정의는 shared/ui/FormModal.tsx)
 
 // 새 주차 업로드 모달. 제목·강의·수강 날짜·교수명을 받고 강의자료(PDF)와 녹음을 올려
 // 새 챕터를 만든다. 시안: Figma `내 강의-상세보기-새 주차 업로드` (모달 1:3560).
@@ -224,16 +217,13 @@ export function NewChapterUploadModal({
             <label htmlFor="chapter-date" className={LABEL}>
               주차 수강 날짜
             </label>
-            {/* 시안은 커스텀 달력이지만 네이티브 date가 키보드 입력·로케일을 그대로 얻는다.
-                color-scheme:dark로 글자와 달력 아이콘이 어두운 배경에서 보이게 한다. */}
-            <input
+            {/* 날짜는 달력에서만 고른다. 다른 모달과 같은 컨트롤을 써서
+                일곱 개 모달의 날짜 입력 방식이 갈리지 않게 한다. */}
+            <ModalDateField
               id="chapter-date"
-              type="date"
               value={lectureDate}
-              onChange={(e) => setLectureDate(e.target.value)}
-              required
+              onChange={setLectureDate}
               disabled={isPending}
-              className={cn(FIELD_OUTLINED, FIELD_WIDTH, '[color-scheme:dark]')}
             />
           </div>
         </div>

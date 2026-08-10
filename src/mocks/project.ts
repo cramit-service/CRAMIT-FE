@@ -138,3 +138,37 @@ export const mockProjectSummaries: ProjectSummary[] = [
     sharedBy: '오지훈',
   },
 ];
+
+// mock 전용: 생성한 강의를 목록 맨 앞에 밀어 넣는다. 새로고침하면 사라진다.
+// 목록의 기본 정렬이 "등록순"이라 맨 앞에 넣어야 방금 만든 게 눈에 보인다.
+// mockProjects(간단 목록)에도 같이 넣어 두 응답이 어긋나지 않게 한다.
+export function addMockProjectSummary(summary: ProjectSummary): void {
+  mockProjectSummaries.unshift(summary);
+  mockProjects.unshift({
+    projectId: summary.projectId,
+    title: summary.title,
+    createdAt: summary.createdAt,
+  });
+}
+
+export function updateMockProjectSummary(summary: ProjectSummary): void {
+  const index = mockProjectSummaries.findIndex(
+    (p) => p.projectId === summary.projectId,
+  );
+  if (index === -1) throw new Error('수정할 강의를 찾지 못했어요.');
+  mockProjectSummaries[index] = summary;
+
+  // 간단 목록에도 제목이 남아 있어 같이 맞춰야 두 응답이 어긋나지 않는다.
+  const plain = mockProjects.findIndex(
+    (p) => p.projectId === summary.projectId,
+  );
+  if (plain !== -1) {
+    mockProjects[plain] = { ...mockProjects[plain], title: summary.title };
+  }
+}
+
+export function findMockProjectSummary(
+  projectId: string,
+): ProjectSummary | undefined {
+  return mockProjectSummaries.find((p) => p.projectId === projectId);
+}

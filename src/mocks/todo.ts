@@ -118,3 +118,21 @@ export const mockTodos: Todo[] = [
     isCompleted: false,
   },
 ];
+
+// mock 전용 쓰기 헬퍼. 새로고침하면 사라진다(모듈 메모리라 세션 단위). mockExams와 같은 방식이다.
+
+export function addMockTodo(todo: Todo): void {
+  mockTodos.push(todo);
+}
+
+export function updateMockTodo(todo: Todo): void {
+  const index = mockTodos.findIndex((t) => t.todoId === todo.todoId);
+  if (index === -1) throw new Error('수정할 할 일을 찾지 못했어요.');
+  mockTodos[index] = todo;
+}
+
+export function removeMockTodo(todoId: string): void {
+  const index = mockTodos.findIndex((t) => t.todoId === todoId);
+  if (index === -1) throw new Error('삭제할 할 일을 찾지 못했어요.');
+  mockTodos.splice(index, 1);
+}

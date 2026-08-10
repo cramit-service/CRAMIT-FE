@@ -1,0 +1,210 @@
+'use client';
+// src/shared/ui/FormModal.tsx
+import { useId } from 'react';
+import { cn } from '@/shared/lib/cn';
+import { Modal } from '@/shared/ui/Modal';
+
+// 시안의 다크 입력 모달(시험 일정·TODO·강의 생성·공유·새 주차 업로드)이 공유하는 골격과 치수.
+// 규격은 새 주차 업로드 모달(#49)에서 확정된 것을 그대로 따른다 — 여섯 개가 같은 시안 계열이라
+// 값이 한 곳에 있어야 한쪽만 손봤을 때 서로 어긋나지 않는다.
+
+// 입력 칸 공통. Figma 시안(높이 56·좌우 패딩 20)을 화면과 같은 0.72배로 줄였다.
+// 타이포도 박스와 같은 0.72배(18 → 13). 가이드 4-4는 타이포를 줄이지 말라고 하지만,
+// 그 규칙은 전체 화면 기준이라 0.72배로 줄인 모달 안에서는 글자만 남아 박스를 꽉 채운다.
+export const FIELD_BASE =
+  'h-10 rounded-md px-3.5 text-[13px] leading-5 font-medium tracking-[-0.26px] outline-none';
+// 제목·메모처럼 채워진 입력. 값은 흰색, 안내 문구는 한 단계 흐리게 둬서 비어 있는 게 보이게 한다.
+export const FIELD_FILLED = `${FIELD_BASE} bg-gray-800 text-gray-100 placeholder:text-gray-300 focus:ring-1 focus:ring-secondary-400`;
+// 셀렉트·날짜처럼 테두리만 있는 입력. 폭은 호출처가 정한다
+// (여기에 w-full을 넣으면 호출처의 고정 폭과 겹쳐 승자가 클래스 생성 순서에 달린다).
+export const FIELD_OUTLINED = `${FIELD_BASE} border-[0.5px] border-gray-500 bg-transparent text-gray-300 focus:border-secondary-400`;
+// 강의·날짜 칸 폭. 시안은 186px(=134px)이지만 "2026-07-21"과 한글 과목명이 잘려서 조금 넓혔다.
+export const FIELD_WIDTH = 'w-[156px]';
+
+// 라벨도 같은 0.72배 (20 → 14).
+export const LABEL =
+  'text-[14px] leading-[22px] tracking-[-0.28px] text-gray-300';
+// 보조 문구(상태 안내·에러)는 한 단계 더 작게.
+export const HINT = 'text-[12px] leading-[18px] tracking-[-0.24px] break-keep';
+export const SECTION_DIVIDER = 'border-b-[0.5px] border-gray-700';
+// 필드 묶음 한 칸의 세로 여백. 시안에서 구분선 사이가 일정하다.
+export const SECTION_GAP = 'py-8.5';
+
+// 하단 확정 버튼(생성하기·수정완료). 시안 346×60 → 0.72배 249×44.
+// Button 컴포넌트를 쓰지 않는 이유: size별 타이포가 고정이라 이 크기와 겹치는데
+// cn엔 tailwind-merge가 없어 덮어쓰면 승자가 클래스 생성 순서에 달린다.
+export const PRIMARY_ACTION =
+  'enabled:bg-secondary-400 enabled:hover:bg-secondary-500 flex h-11 w-[249px] items-center justify-center rounded-md text-[14px] leading-[22px] font-medium tracking-[-0.28px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-500';
+// 삭제 버튼. 시안 192×60 → 0.72배 138×44. 위험 액션이라 error 토큰.
+// 글자는 흰색 대신 gray-950 — error(#ff5d6b) 위에서 흰 글자는 대비가 2.7:1로 읽기 어렵다.
+export const DANGER_ACTION =
+  'enabled:bg-error mr-auto flex h-11 w-[138px] items-center justify-center rounded-md text-[14px] leading-[22px] font-medium tracking-[-0.28px] transition-colors enabled:text-gray-950 enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-500';
+
+interface IconProps {
+  className?: string;
+}
+
+// 모달 닫기(×)
+export function CloseIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      className={className ?? 'size-5'}
+      aria-hidden
+    >
+      <path d="m5 5 14 14M19 5 5 19" />
+    </svg>
+  );
+}
+
+// 셀렉트 오른쪽 화살표
+export function ChevronDownIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 14.5 8.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className ?? 'size-3'}
+      aria-hidden
+    >
+      <path d="M0.75 0.75L7.25 7.75L13.75 0.75" />
+    </svg>
+  );
+}
+
+interface ModalSelectProps {
+  id: string;
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  /** 기본은 좁은 칸(FIELD_WIDTH). 2열 그리드에서 칸을 꽉 채우려면 'w-full'을 넘긴다. */
+  width?: string;
+  children: React.ReactNode;
+}
+
+// 네이티브 셀렉트를 쓰되 기본 화살표를 지우고 시안 화살표를 얹는다.
+// color-scheme:dark라야 OS가 그리는 목록도 어두운 배경으로 나온다.
+export function ModalSelect({
+  id,
+  value,
+  onChange,
+  disabled,
+  width = FIELD_WIDTH,
+  children,
+}: ModalSelectProps) {
+  return (
+    <div className={cn('relative', width)}>
+      <select
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className={cn(
+          FIELD_OUTLINED,
+          'w-full appearance-none pr-9 [color-scheme:dark]',
+        )}
+      >
+        {children}
+      </select>
+      <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-3.5 size-3 -translate-y-1/2 text-gray-500" />
+    </div>
+  );
+}
+
+interface FormModalProps {
+  /** 모달 이름. 보조기술이 이 모달을 무엇이라 읽을지 결정한다. */
+  title: string;
+  /** 시안에 제목 글자가 실제로 그려진 모달만 true (공유하기·새 주차 업로드). */
+  titleVisible?: boolean;
+  onClose: () => void;
+  onSubmit?: (e: React.FormEvent) => void;
+  /** 제출 중. 닫기·배경 클릭을 막아 진행 중인 요청이 버려지지 않게 한다. */
+  busy?: boolean;
+  /** 하단 버튼 줄. 우측 정렬이 기본이고, 삭제 버튼은 DANGER_ACTION의 mr-auto가 왼쪽으로 민다. */
+  footer?: React.ReactNode;
+  children: React.ReactNode;
+}
+
+// 다크 입력 모달의 껍데기 — 패널·닫기 버튼·스크롤 영역·하단 버튼 줄까지.
+// 안쪽 필드 구성만 호출처가 채운다.
+export function FormModal({
+  title,
+  titleVisible = false,
+  onClose,
+  onSubmit,
+  busy = false,
+  footer,
+  children,
+}: FormModalProps) {
+  const titleId = useId();
+
+  const handleClose = () => {
+    if (busy) return;
+    onClose();
+  };
+
+  return (
+    <Modal
+      open
+      onClose={handleClose}
+      surface="bare"
+      labelledBy={titleId}
+      // Figma 960px 모달을 화면과 같은 0.72배(≈691px)로. 시안 높이가 노트북 화면을 넘기므로
+      // 패널은 고정하고 안쪽만 스크롤시킨다.
+      // relative는 닫기 버튼의 기준이자, 제목을 숨길 때 쓰는 sr-only(=position:absolute)의
+      // 기준이기도 하다. 없으면 숨긴 제목이 문서 최상위 기준으로 떠 페이지 높이를 밀어낸다.
+      className="relative flex max-h-[calc(100vh-64px)] w-[691px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-lg border-[0.5px] border-gray-600 bg-gray-900"
+    >
+      <button
+        type="button"
+        onClick={handleClose}
+        aria-label="닫기"
+        disabled={busy}
+        className="absolute top-[23px] right-[23px] z-10 text-gray-400 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-700"
+      >
+        <CloseIcon className="size-5" />
+      </button>
+
+      {/* 스크롤바를 어두운 패널에 맞춘다. 기본 스크롤바는 밝은 회색이라
+          모달 오른쪽에 흰 띠가 생겨 분위기가 끊긴다.
+          scrollbar-color를 모르는 브라우저는 color-scheme:dark가 받아준다. */}
+      <form
+        onSubmit={onSubmit}
+        className={cn(
+          'flex min-h-0 [scrollbar-width:thin] [scrollbar-color:var(--color-gray-700)_var(--color-gray-900)] flex-col overflow-y-auto px-15 pb-7 [color-scheme:dark]',
+          // 제목이 보이는 모달은 제목이 위 여백을 일부 대신한다. 숨긴 모달은 첫 라벨까지의
+          // 거리가 시안(≈65px)에 맞도록 여백을 더 준다.
+          titleVisible ? 'pt-11' : 'pt-16',
+        )}
+      >
+        {/* 시안 32px SemiBold. 모달 전체를 0.72배로 옮겼으므로 제목도 같이 줄이되,
+            0.72배(23px)로는 여전히 박스 대비 글자가 커서 절반인 16px까지 내렸다. */}
+        <h2
+          id={titleId}
+          className={
+            titleVisible
+              ? 'mb-4.5 text-[16px] leading-6 font-semibold tracking-[-0.32px] text-gray-100'
+              : 'sr-only'
+          }
+        >
+          {title}
+        </h2>
+
+        {children}
+
+        {footer && (
+          <div className="mt-6 flex items-center justify-end gap-3">
+            {footer}
+          </div>
+        )}
+      </form>
+    </Modal>
+  );
+}

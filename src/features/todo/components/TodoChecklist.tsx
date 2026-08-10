@@ -9,6 +9,7 @@ import { cn } from '@/shared/lib/cn';
 import { formatKoreanDate } from '@/shared/lib/date';
 import { useTodos } from '@/features/todo/hooks/useTodos';
 import { todoName } from '@/features/todo/lib/todoName';
+import { TodoFormModal } from './TodoFormModal';
 
 // 마감 표시 — "| 마감일시 2026. 07. 10. (금요일) 13:30". 시간은 있을 때만 붙인다.
 function dueLabel(todo: Todo): string {
@@ -30,6 +31,9 @@ export function TodoChecklist() {
 
   // 완료 토글은 로컬만 반영한다(mock이라 서버 저장 없음). todoId → 덮어쓴 완료값.
   const [overrides, setOverrides] = useState<Record<string, boolean>>({});
+  // null이면 닫힘. 'create'는 추가, Todo면 그 할 일의 상세보기(수정).
+  // 닫을 때 통째로 언마운트해 입력값이 다음 열기까지 남지 않게 한다.
+  const [editing, setEditing] = useState<Todo | 'create' | null>(null);
 
   // 마감일 오름차순 정렬. 완료 여부는 위치를 바꾸지 않고 색만 바뀐다(시안대로 완료 항목이 사이사이 남는다).
   const sorted = useMemo(
@@ -50,8 +54,13 @@ export function TodoChecklist() {
         <h2 className="text-[18px] leading-7 font-medium tracking-[-0.36px] text-gray-950">
           TODO 체크리스트
         </h2>
-        {/* TODO: 추가 모달 연결 (이번 작업은 버튼 UI까지) — ExamSchedule 추가하기와 동일 버튼 */}
-        <Button variant="dark" size="xs" className="gap-0.5">
+        {/* ExamSchedule 추가하기와 동일 버튼 */}
+        <Button
+          variant="dark"
+          size="xs"
+          className="gap-0.5"
+          onClick={() => setEditing('create')}
+        >
           추가하기
           <PlusIcon className="size-3" />
         </Button>
@@ -83,13 +92,10 @@ export function TodoChecklist() {
                       onChange={() => toggle(todo)}
                       aria-label={`${todoName(todo)} 완료`}
                     />
-                    {/* TODO(모달): 상세보기 모달 연결. 이번 작업은 클릭 영역 분리까지.
-                        버튼이 남는 폭을 다 차지해 제목 오른쪽 빈 자리를 눌러도 열린다. */}
+                    {/* 버튼이 남는 폭을 다 차지해 제목 오른쪽 빈 자리를 눌러도 상세가 열린다. */}
                     <button
                       type="button"
-                      onClick={() => {
-                        // TODO: 투두 상세보기 모달 열기
-                      }}
+                      onClick={() => setEditing(todo)}
                       className="flex min-w-0 flex-1 cursor-pointer flex-col gap-1 text-left"
                     >
                       <span
@@ -130,6 +136,18 @@ export function TodoChecklist() {
           )}
         </div>
       </div>
+
+      {/* 시안(1:981)의 카드 바깥 우하단 안내문. 항목을 눌러 수정한다는 걸 알리는 유일한 단서다. */}
+      <p className="mt-1.5 text-right text-[12px] leading-4.5 tracking-[-0.24px] text-gray-500">
+        *꾹 눌러서 TODO를 수정할 수 있어요!
+      </p>
+
+      {editing !== null && (
+        <TodoFormModal
+          todo={editing === 'create' ? undefined : editing}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </section>
   );
 }

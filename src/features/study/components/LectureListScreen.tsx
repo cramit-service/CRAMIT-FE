@@ -2,6 +2,7 @@
 // src/features/study/components/LectureListScreen.tsx
 import { useState } from 'react';
 import { Icon } from '@/shared/ui/Icon';
+import { LectureFormModal } from '@/features/project/components/LectureFormModal';
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
 import {
   filterLectures,
@@ -80,20 +81,23 @@ export function LectureListScreen() {
   );
 }
 
-// TODO(모달): 새 강의 생성 화면은 별도 이슈. 버튼만 둔다.
 // shared/ui/Button의 size 스케일엔 이 조합(높이 28 + 글자 14)이 없고, className으로 덮으면
 // cn()에 merge가 없어 패딩 싸움이 난다. ProjectHeader의 다크 버튼과 같은 방식으로 직접 만든다.
 function CreateLectureButton() {
+  // 닫을 때 통째로 언마운트해 입력값이 다음 열기까지 남지 않게 한다.
+  const [open, setOpen] = useState(false);
+
   return (
-    <button
-      type="button"
-      onClick={() => {
-        // TODO: 새 강의 생성 화면으로 이동 (project 담당)
-      }}
-      className="inline-flex h-7 items-center gap-1 rounded-md bg-gray-800 pr-2 pl-2.5 text-[14px] leading-5 font-medium tracking-[-0.28px] text-white transition-colors hover:bg-gray-700"
-    >
-      생성하기
-      <Icon name="add" size={14} />
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex h-7 items-center gap-1 rounded-md bg-gray-800 pr-2 pl-2.5 text-[14px] leading-5 font-medium tracking-[-0.28px] text-white transition-colors hover:bg-gray-700"
+      >
+        생성하기
+        <Icon name="add" size={14} />
+      </button>
+      {open && <LectureFormModal onClose={() => setOpen(false)} />}
+    </>
   );
 }
