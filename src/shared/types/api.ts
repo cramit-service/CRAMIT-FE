@@ -57,6 +57,23 @@ export interface OnboardingProfileRequest {
   plan: PlanId;
 }
 
+/* ===== 내 정보 / 설정 (대시보드-프로필) ===== */
+
+// 알림 설정 — 프로필 화면의 토글 두 개.
+// TODO: 백엔드 스펙 확정 시 필드명 재확인 필요
+export interface NotificationSettings {
+  aiAnalysisDone: boolean; // AI 분석 완료 알림
+  todoDueDate: boolean; // TODO 마감일 알림
+}
+
+// 프로필 화면 한 장에 필요한 것 — 계정 정보 + 요금제 + 알림 설정.
+// User만으로는 요금제와 알림을 채울 수 없어 화면용 응답을 따로 둔다
+// (ProjectSummary가 Project를 넓히는 것과 같은 방식).
+export interface MyProfile extends User {
+  plan: PlanId;
+  notifications: NotificationSettings;
+}
+
 /* ===== Project (기획서 7.3, 8.2) ===== */
 
 export interface Project {
