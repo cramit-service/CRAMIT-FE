@@ -10,8 +10,9 @@ import { buildMonthGrid } from '@/features/calendar/lib/month';
 import { useCalendarMonth } from '@/features/calendar/hooks/useCalendarMonth';
 import { CalendarCell, type ScheduleItem } from './CalendarCell';
 
-// 시안은 월요일 시작이다(MON…SUN). buildMonthGrid도 같은 기준으로 채운다.
-const WEEKDAYS = ['MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT', 'SUN'];
+// 일요일 시작. 시안 헤더는 MON…SUN이지만 팀 결정으로 일요일 시작을 쓴다.
+// buildMonthGrid의 leading 계산도 같은 기준이라 한쪽만 바꾸면 날짜가 요일과 어긋난다.
+const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT'];
 
 export function Calendar() {
   const { year, month, goPrev, goNext } = useCalendarMonth();
