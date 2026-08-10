@@ -20,8 +20,10 @@ function ScheduleTag({ item }: { item: ScheduleItem }) {
       className={cn(
         // 시안 태그: 글자 12px · px 4 · py 3 → pill 높이 21px.
         // 글자 크기는 시안 px 그대로 두고 좌우 여백만 시안값을 따른다.
-        // leading을 명시하지 않으면 상속된 줄높이가 pill을 24px로 부풀린다
-        'block w-full truncate rounded-full px-1 py-0.75 text-[12px] leading-[15px] font-medium',
+        // leading을 명시하지 않으면 상속된 줄높이가 pill을 24px로 부풀린다.
+        // 시안에서 pill은 Hug contents라 글자 폭까지만 감싼다(w-full로 늘리면 안 된다).
+        // 긴 이름은 칸을 넘지 않도록 max-w-full + truncate로 자른다.
+        'block w-fit max-w-full truncate rounded-full px-1 py-0.75 text-[12px] leading-[15px] font-medium',
         item.type === 'exam'
           ? 'bg-level-02/30 text-warning'
           : 'bg-secondary-100 text-secondary-500',
@@ -59,7 +61,9 @@ export function CalendarCell({ cell, items, isToday }: CalendarCellProps) {
         className={cn(
           // 오늘이든 아니든 같은 크기 원형 슬롯을 써서 숫자 위치가 흔들리지 않게 한다.
           // 숫자는 시안값 13.6px. 두 자리가 들어가도록 슬롯은 20px로 잡는다.
-          'inline-flex size-5 shrink-0 items-center justify-center rounded-full text-[13.5px] font-medium',
+          // leading을 명시하지 않으면 부모에서 상속된 줄높이가 그대로 들어와
+          // 글꼴이 바뀔 때 슬롯 안 위치가 흔들린다.
+          'inline-flex size-5 shrink-0 items-center justify-center rounded-full text-[13.5px] leading-5 font-medium',
           isToday && 'bg-gray-900 text-white',
           !isToday && cell.isCurrentMonth && 'text-gray-950',
           !cell.isCurrentMonth && 'text-gray-950/40',

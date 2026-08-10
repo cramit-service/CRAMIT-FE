@@ -64,24 +64,30 @@ export function Calendar() {
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-col overflow-hidden rounded-md border border-gray-300 lg:flex-1">
+      {/* 카드 높이를 고정한다. 예전에는 flex-1로 남는 높이를 채웠는데, 그러면 행 높이가
+          뷰포트에 따라 소수점(111.33px)이 되고 그 값이 디바이스 픽셀로 반올림되면서
+          격자선이 111/112px로 번갈아 찍혀 행이 들쭉날쭉해 보였다.
+          653 = 테두리 2 + 요일행 27 + 분리선 1 + 날짜 그리드 623.
+          시안 652보다 1px 큰데, 6행이 정수(103px)로 떨어지는 가장 가까운 값이라 이쪽을 택했다. */}
+      <div className="flex flex-col overflow-hidden rounded-md border border-gray-300 lg:h-[653px]">
         {/* 요일 행과 날짜 그리드를 같은 grid-cols-7로 두어 열을 정렬한다.
             gap-px + 배경 gray-300으로 칸 사이 격자선을 만든다. */}
-        {/* 요일행: 날짜 그리드보다 낮게(시안 27.55px = 패딩 7.78 + 글자 12) + 아래 분리선으로 날짜와 구분.
-            leading을 명시하지 않으면 부모에서 상속된 24px 줄높이(strut)가 행을 32px로 부풀린다. */}
-        <div className="grid grid-cols-7 gap-px border-b border-gray-300 bg-gray-300">
+        {/* 요일행 27px = 시안 28.55. leading을 명시하지 않으면 부모에서 상속된
+            24px 줄높이(strut)가 행을 32px로 부풀린다. */}
+        <div className="grid shrink-0 grid-cols-7 gap-px border-b border-gray-300 bg-gray-300">
           {WEEKDAYS.map((label) => (
-            <div key={label} className="bg-white px-2 py-2">
+            <div key={label} className="bg-white px-2 py-[7.5px]">
               <span className="block text-[10px] leading-3 font-medium text-gray-900">
                 {label}
               </span>
             </div>
           ))}
         </div>
-        {/* 6주 그리드. 모바일은 고정 높이(h-115), lg 이상은 flex-1로 남는 높이를 채운다.
-            grid-rows-6 = repeat(6, minmax(0,1fr))라 각 줄이 높이를 균등 분할하고,
+        {/* 6주 그리드. 높이를 623으로 고정해 repeat(6,1fr)이 정확히 103px씩 떨어지게 한다
+            (623 = 6 × 103 + 5 × gap-px). 소수점 행 높이가 사라져 격자선이 균등해진다.
+            모바일은 기존 고정 높이(h-115)를 그대로 쓴다.
             내용이 줄 높이를 넘으면 셀의 overflow-hidden으로 잘린다(→ 태그는 셀에서 +N으로 접음). */}
-        <div className="grid h-115 grid-cols-7 grid-rows-6 gap-px bg-gray-300 lg:h-auto lg:min-h-0 lg:flex-1">
+        <div className="grid h-115 grid-cols-7 grid-rows-6 gap-px bg-gray-300 lg:h-[623px]">
           {cells.map((cell) => (
             <CalendarCell
               key={cell.dateStr}

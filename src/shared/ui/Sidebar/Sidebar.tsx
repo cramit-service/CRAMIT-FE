@@ -34,7 +34,10 @@ export function Sidebar() {
     <aside
       className={cn(
         'sticky top-0 flex h-screen shrink-0 flex-col bg-gray-950 text-gray-300 transition-[width] duration-200 ease-in-out',
-        expanded ? 'w-64' : 'w-20',
+        // 접힘 90px은 시안값 그대로다 — 홈 시안(24:9523)이 접힌 레일 기준으로 그려져 있어,
+        // 이 폭이 어긋나면 콘텐츠 전체가 그만큼 밀린다.
+        // 펼침 256px은 메뉴 라벨이 들어가야 해서 시안에 대응하는 값이 없다.
+        expanded ? 'w-64' : 'w-[90px]',
       )}
     >
       {/* 접기/펴기 토글 — 우측 경계에 떠 있는 둥근 사각 버튼 */}
