@@ -36,12 +36,10 @@ export function ExamSchedule() {
   const [editing, setEditing] = useState<Exam | 'new' | null>(null);
 
   return (
-    // 시안(24:9523)에서 이 열은 배너와 위가 아니라 아래가 맞는다 — 제목 72, 카드 128..266.
-    // 그리드 칸은 기본이 stretch라 self-end로 아래에 붙인다.
+    // 시안에서 이 열은 배너와 위가 아니라 아래가 맞는다. 그리드 칸은 기본이 stretch라
+    // self-end로 아래에 붙인다. (배너보다 이 열이 높으면 아무 효과 없다)
     <section className="lg:self-end">
-      {/* 제목 행 44는 시안값. 버튼은 팀 결정으로 작은 크기를 쓰지만 행 높이는 유지한다 —
-          이 높이가 줄면 아래 카드가 통째로 위로 밀려 배너 하단과 안 맞는다. */}
-      <div className="mb-1.5 flex items-center justify-between lg:mb-3 lg:h-11">
+      <div className="mb-1.5 flex items-center justify-between">
         <h2 className="text-[18px] leading-7 font-medium tracking-[-0.36px] text-gray-950">
           다가오는 시험 일정
         </h2>
@@ -59,7 +57,7 @@ export function ExamSchedule() {
       {/* 카드는 데이터 유무와 무관하게 항상 렌더 — 크기(h-29)는 여기(div)에 준다. 비어도 안 줄어든다.
           스크롤은 안쪽 div가 맡는다. 카드가 직접 스크롤하면 스크롤바가 카드 가장자리에 붙어
           시안(우측 6px·상하 9px 안쪽)처럼 띄울 수 없다. 그 여백을 카드의 py/pr이 만든다. */}
-      <div className="h-29 rounded-md bg-white py-2.5 pr-1.5 pl-6 lg:h-[138px]">
+      <div className="h-29 rounded-md bg-white py-2.5 pr-1.5 pl-6">
         <div className="scrollbar-slim h-full overflow-y-auto overscroll-none pr-4">
           {isLoading ? (
             <StatusMessage>불러오는 중…</StatusMessage>

@@ -24,10 +24,9 @@ export function StudyBanner() {
   return (
     <GradientBackground
       variant="wide"
-      className="flex min-h-49.5 flex-col justify-center rounded-md border border-gray-800 px-12 py-6"
+      className="flex min-h-35.5 flex-col justify-center rounded-md border border-gray-800 px-8 py-6"
     >
       {/* 배너 장식 — 캐릭터(고양이)와 낙서. 오른쪽에 절대배치. 순수 장식이라 aria-hidden.
-          위치·크기는 시안(839×198) 1:1 — 낙서 left 508/839 = 60.5%, top 50, h 79.85.
           SVG라 next/image 최적화 경로(400)를 피하려 unoptimized로 그대로 서빙한다. */}
       <Image
         src="/images/Banner_extra.svg"
@@ -36,7 +35,7 @@ export function StudyBanner() {
         width={72}
         height={83}
         unoptimized
-        className="pointer-events-none absolute top-[50px] left-[60.5%] h-20 w-auto select-none"
+        className="pointer-events-none absolute top-10 left-[67%] h-14 w-auto select-none"
       />
       {/* 홈 첫 화면 상단이라 이 이미지가 LCP로 잡힌다. eager로 미리 받아
           Next의 LCP 경고를 없애고 배너가 늦게 채워지는 것도 막는다.
@@ -49,30 +48,30 @@ export function StudyBanner() {
         height={154}
         unoptimized
         preload
-        className="pointer-events-none absolute right-3.5 bottom-[17px] h-37 w-auto select-none"
+        className="pointer-events-none absolute right-3 bottom-3 h-26 w-auto select-none"
       />
       {featured && (
-        // 시안에서 [제목+CTA] 묶음(82px)은 배너 세로 중앙(58px)이 아니라 75px에서 시작한다.
-        // 그 17px 차이를 그대로 옮긴다. (묶음을 justify-center로만 두면 제목이 중앙보다 위로 올라간다)
-        <div className="flex translate-y-[17px] flex-col gap-2">
+        // 제목이 배너 세로 중앙에 오도록 [제목+CTA] 묶음을 CTA 높이의 절반(약 14px)만큼 아래로 민다.
+        // (묶음을 그냥 justify-center로 두면 제목이 중앙보다 위로 올라간다)
+        <div className="flex translate-y-3.5 flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2.5">
-            <h3 className="text-[32px] leading-11 font-semibold tracking-[-0.64px] text-gray-800">
+            <h3 className="text-[24px] leading-[34px] font-semibold tracking-[-0.48px] text-gray-800">
               {examName(featured)}
             </h3>
-            <span className="border-error bg-error/20 text-error inline-flex items-center rounded-md border-[0.5px] px-2.5 py-0.5 text-[14px] leading-[22px] font-medium tracking-[-0.28px]">
+            <span className="border-error bg-error/20 text-error inline-flex items-center rounded-md border-[0.5px] px-2 py-0.5 text-[12px] leading-4.5 font-medium">
               {ddayLabel(daysUntil(featured.examDate))}
             </span>
-            <span className="inline-flex items-center rounded-md border-[0.5px] border-gray-800 bg-white px-2.5 py-0.5 text-[14px] leading-[22px] font-medium tracking-[-0.28px] text-gray-800">
+            <span className="inline-flex items-center rounded-md border-[0.5px] border-gray-800 bg-white px-2 py-0.5 text-[12px] leading-4.5 font-medium text-gray-800">
               학습 진행률 {featured.progress}%
             </span>
           </div>
           <button
             type="button"
             onClick={() => router.push(`/projects/${featured.projectId}`)}
-            className="flex w-fit items-center gap-2 text-[20px] leading-[30px] font-medium tracking-[-0.4px] text-gray-500 transition-colors hover:text-gray-600"
+            className="flex w-fit items-center gap-1 text-[14px] leading-5 font-medium tracking-[-0.28px] text-gray-500 transition-colors hover:text-gray-600"
           >
             학습하러 가기
-            <ChevronRightIcon className="size-[22px]" />
+            <ChevronRightIcon className="size-4" />
           </button>
         </div>
       )}
@@ -84,7 +83,7 @@ export function StudyBanner() {
 // 높이는 진행 중 배너와 같게 맞춘다 — 다르면 둘 사이를 오갈 때 그리드 1행이 흔들린다.
 function EmptyExamBanner() {
   return (
-    <div className="relative flex min-h-49.5 flex-col items-center justify-center gap-1 overflow-hidden rounded-md bg-gray-800">
+    <div className="relative flex min-h-35.5 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-md bg-gray-800">
       {/* 장식 — 낙서(좌)와 캐릭터(우). 순수 장식이라 aria-hidden.
           낙서는 어두운 배경용 흰색 별도 에셋이다(진행 중 배너의 Banner_extra는 거의 검정이라 안 보인다).
           SVG라 next/image 최적화 경로를 피하려 unoptimized로 그대로 서빙한다. */}
@@ -95,7 +94,7 @@ function EmptyExamBanner() {
         width={72}
         height={83}
         unoptimized
-        className="pointer-events-none absolute top-[51px] left-[10%] h-20 w-auto select-none"
+        className="pointer-events-none absolute top-9 left-[10%] h-14 w-auto select-none"
       />
       {/* 진행 중 배너와 같은 이유로 LCP 대비 preload */}
       <Image
@@ -106,12 +105,12 @@ function EmptyExamBanner() {
         height={154}
         unoptimized
         preload
-        className="pointer-events-none absolute right-3.5 bottom-[17px] h-37 w-auto select-none"
+        className="pointer-events-none absolute right-3 bottom-3 h-26 w-auto select-none"
       />
-      <p className="relative text-[24px] leading-9 font-semibold tracking-[-0.48px] text-white">
+      <p className="relative text-[24px] leading-8.5 font-semibold tracking-[-0.48px] text-white">
         예정된 시험 일정이 없습니다.
       </p>
-      <p className="relative text-[18px] leading-[30px] tracking-[-0.36px] text-gray-300">
+      <p className="relative text-[14px] leading-5 tracking-[-0.28px] text-gray-300">
         새로운 시험이 등록되면 이곳에 표시됩니다.
       </p>
     </div>
