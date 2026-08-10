@@ -69,6 +69,20 @@ export function ChatPanel({
     sendMutation.mutate({ content: text, file });
   };
 
+  // 실패한 전송 입력. mutation이 마지막 mutate 인자를 그대로 들고 있어
+  // 따로 보관하지 않아도 된다(File 객체까지 살아 있어 다시 고를 필요가 없다).
+  const failed = sendMutation.isError ? sendMutation.variables : undefined;
+  const failedLabel = failed
+    ? [failed.file?.name, failed.content].filter(Boolean).join(' · ')
+    : '';
+
+  // draft·file은 건드리지 않는다. 실패한 사이에 새 질문을 쓰고 있을 수 있고,
+  // 그걸 덮어쓰면 이번엔 방금 쓴 게 날아간다.
+  const retry = () => {
+    if (!failed || sending) return;
+    sendMutation.mutate(failed);
+  };
+
   // 고른 파일을 검증해 받아들이거나, 문구만 남기고 선택을 비운다.
   const pickFile = (picked: File | undefined) => {
     if (!picked) return;
@@ -166,6 +180,41 @@ export function ChatPanel({
         }}
         className="flex shrink-0 flex-col gap-2 border-t-[0.3px] border-gray-500 bg-gray-800 px-7 py-[14px]"
       >
+        {/* 전송 실패 — 낙관적으로 넣었던 말풍선은 롤백돼 사라지므로, 여기서 말해주지 않으면
+            보낸 게 조용히 없어진 것처럼 보인다. 입력은 지워진 뒤라 재시도는 여기서만 가능하다. */}
+        {failed && (
+          <div
+            role="alert"
+            className="flex items-center gap-2 rounded-sm border border-gray-500 bg-gray-700 px-2 py-1.5"
+          >
+            <span className="min-w-0 flex-1">
+              <span className="text-error block text-[12px] leading-4.5 tracking-[-0.24px] break-keep">
+                질문을 보내지 못했습니다.
+              </span>
+              <span className="block truncate text-[11px] leading-4 tracking-[-0.22px] text-gray-400">
+                {failedLabel}
+              </span>
+            </span>
+            <Button
+              variant="dark"
+              size="xs"
+              onClick={retry}
+              disabled={sending}
+              className="shrink-0"
+            >
+              {sending ? '보내는 중…' : '다시 보내기'}
+            </Button>
+            <button
+              type="button"
+              onClick={() => sendMutation.reset()}
+              aria-label="전송 실패 알림 닫기"
+              className="shrink-0 text-gray-400 transition-colors hover:text-gray-100"
+            >
+              <CloseIcon className="size-3" />
+            </button>
+          </div>
+        )}
+
         {/* 고른 파일 (시안 없음 — 미리보기 없이 이름·크기만 보여준다) */}
         {file && (
           <div className="flex max-w-full items-center gap-2 self-start rounded-sm border border-gray-500 bg-gray-700 px-2 py-1">
