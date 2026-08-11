@@ -209,8 +209,12 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
         </div>
       </div>
 
-      {/* 강의 (선택) + 연결된 주차 (선택) */}
-      <div className={cn('grid grid-cols-2 py-8.5', SECTION_DIVIDER)}>
+      {/* 강의 (선택) + 연결된 주차 (선택).
+          두 콤보박스는 기본이 w-full이라 열을 꽉 채워 서로 맞닿는다. 폭을 잡고
+          열 사이 간격(시안 15)을 줘서 떨어뜨린다. */}
+      <div
+        className={cn('grid grid-cols-2 gap-x-[15px] py-8.5', SECTION_DIVIDER)}
+      >
         <div className="flex flex-col gap-2">
           <label htmlFor={`${fieldId}-project`} className={LABEL}>
             강의 (선택)
@@ -223,6 +227,7 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
             disabled={busy}
             placeholder="선택 없음"
             clearable
+            width="w-[240px]"
           />
           {isLecturesPending && (
             <p role="status" className={cn(HINT, 'text-gray-500')}>
@@ -249,6 +254,7 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
             disabled={busy || projectId === NONE}
             placeholder="선택 없음"
             clearable
+            width="w-[240px]"
           />
           {projectId === NONE && (
             <p className={cn(HINT, 'text-gray-500')}>
