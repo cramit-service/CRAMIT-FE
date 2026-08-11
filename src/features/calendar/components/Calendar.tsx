@@ -52,12 +52,14 @@ export function Calendar() {
 
   return (
     <section className="flex min-h-0 flex-col">
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-[18px] leading-[30px] font-medium tracking-[-0.36px] text-gray-950">
+      {/* 제목 행은 시험 일정·TODO 열과 같은 규칙 — leading-7(28) + mb-1.5(6).
+          셋 다 같은 text-[18px] 제목이라 줄높이와 간격이 어긋나면 나란히 놓였을 때 바로 보인다. */}
+      <div className="mb-1.5 flex items-center justify-between">
+        <h2 className="text-[18px] leading-7 font-medium tracking-[-0.36px] text-gray-950">
           캘린더
         </h2>
         <div className="flex items-center gap-2">
-          <span className="text-[18px] leading-[30px] font-medium tracking-[-0.36px] text-gray-950">
+          <span className="text-[18px] leading-7 font-medium tracking-[-0.36px] text-gray-950">
             {year}년 {month}월
           </span>
           <NavButton label="이전 달" onClick={goPrev} direction="left" />
