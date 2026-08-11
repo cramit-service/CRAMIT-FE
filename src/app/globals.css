@@ -138,6 +138,19 @@
   }
 }
 
+/* 누를 수 있는 요소는 손가락 커서.
+   Tailwind v4부터 button의 기본 커서가 pointer가 아니라 default라, 화면마다 클래스를
+   붙이지 않으면 클릭 가능한지 커서로 알 수 없다. 여기서 한 번에 되돌린다.
+   - :disabled는 제외한다 (못 누르는데 누를 수 있어 보이면 안 된다)
+   - a[href]는 브라우저 기본값이 이미 pointer라 넣지 않았다
+   - base 레이어라 개별 요소의 cursor-* 유틸리티가 항상 이긴다 (disabled:cursor-not-allowed 유지) */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 /* 기본 배경/텍스트 */
 body {
   background-color: var(--color-primary-100);

@@ -1,12 +1,21 @@
 'use client';
 // src/features/chat/components/ChatPanel.tsx
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import {
   useChatMessages,
   useSendChatMessage,
 } from '@/features/chat/hooks/useChat';
 import { ChatBubble } from '@/features/chat/components/ChatBubble';
-import { PaperclipIcon, SendIcon } from '@/features/chat/components/icons';
+import {
+  CloseIcon,
+  PaperclipIcon,
+  SendIcon,
+} from '@/features/chat/components/icons';
+import {
+  ATTACHMENT_ACCEPT,
+  formatFileSize,
+  validateAttachment,
+} from '@/features/chat/lib/attachment';
 import { mockSuggestedQuestions } from '@/mocks/chat';
 import { ArrowUpIcon } from '@/features/study/components/viewer/icons';
 import { Button } from '@/shared/ui/Button';
@@ -23,6 +32,11 @@ export function ChatPanel({
   const chatQuery = useChatMessages(projectId, open);
   const sendMutation = useSendChatMessage(projectId);
   const [draft, setDraft] = useState('');
+  // 질문에 붙일 파일 1개와 검증 실패 문구.
+  const [file, setFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileErrorId = useId();
   const listRef = useRef<HTMLDivElement>(null);
   // 올라갈 데가 없는데 "맨 위로"를 띄우면 눌러도 아무 일이 없다.
   const [canScrollUp, setCanScrollUp] = useState(false);
@@ -45,11 +59,36 @@ export function ChatPanel({
     setCanScrollUp(el.scrollHeight > el.clientHeight + 8);
   }, [messages.length, sending]);
 
+  // 파일만 올리고 "이거 봐줘" 하는 흐름이 자연스러워 본문 없이 보내는 것도 허용한다.
   const send = (content: string) => {
     const text = content.trim();
-    if (!text || sending) return;
+    if ((!text && !file) || sending) return;
     setDraft('');
-    sendMutation.mutate(text);
+    setFile(null);
+    setFileError(null);
+    sendMutation.mutate({ content: text, file });
+  };
+
+  // 실패한 전송 입력. mutation이 마지막 mutate 인자를 그대로 들고 있어
+  // 따로 보관하지 않아도 된다(File 객체까지 살아 있어 다시 고를 필요가 없다).
+  const failed = sendMutation.isError ? sendMutation.variables : undefined;
+  const failedLabel = failed
+    ? [failed.file?.name, failed.content].filter(Boolean).join(' · ')
+    : '';
+
+  // draft·file은 건드리지 않는다. 실패한 사이에 새 질문을 쓰고 있을 수 있고,
+  // 그걸 덮어쓰면 이번엔 방금 쓴 게 날아간다.
+  const retry = () => {
+    if (!failed || sending) return;
+    sendMutation.mutate(failed);
+  };
+
+  // 고른 파일을 검증해 받아들이거나, 문구만 남기고 선택을 비운다.
+  const pickFile = (picked: File | undefined) => {
+    if (!picked) return;
+    const message = validateAttachment(picked);
+    setFileError(message);
+    setFile(message ? null : picked);
   };
 
   return (
@@ -139,34 +178,120 @@ export function ChatPanel({
           e.preventDefault();
           send(draft);
         }}
-        className="flex shrink-0 items-center gap-4 border-t-[0.3px] border-gray-500 bg-gray-800 px-7 py-[14px]"
+        className="flex shrink-0 flex-col gap-2 border-t-[0.3px] border-gray-500 bg-gray-800 px-7 py-[14px]"
       >
-        {/* TODO(첨부): 업로드 플로우 시안이 없어 자리만 잡아둔다 */}
-        <button
-          type="button"
-          disabled
-          aria-label="파일 첨부 (준비 중)"
-          className="shrink-0 text-gray-400 disabled:opacity-50"
-        >
-          <PaperclipIcon className="size-[18px]" />
-        </button>
+        {/* 전송 실패 — 낙관적으로 넣었던 말풍선은 롤백돼 사라지므로, 여기서 말해주지 않으면
+            보낸 게 조용히 없어진 것처럼 보인다. 입력은 지워진 뒤라 재시도는 여기서만 가능하다. */}
+        {failed && (
+          <div
+            role="alert"
+            className="flex items-center gap-2 rounded-sm border border-gray-500 bg-gray-700 px-2 py-1.5"
+          >
+            <span className="min-w-0 flex-1">
+              <span className="text-error block text-[12px] leading-4.5 tracking-[-0.24px] break-keep">
+                질문을 보내지 못했습니다.
+              </span>
+              <span className="block truncate text-[11px] leading-4 tracking-[-0.22px] text-gray-400">
+                {failedLabel}
+              </span>
+            </span>
+            <Button
+              variant="dark"
+              size="xs"
+              onClick={retry}
+              disabled={sending}
+              className="shrink-0"
+            >
+              {sending ? '보내는 중…' : '다시 보내기'}
+            </Button>
+            <button
+              type="button"
+              onClick={() => sendMutation.reset()}
+              aria-label="전송 실패 알림 닫기"
+              className="shrink-0 text-gray-400 transition-colors hover:text-gray-100"
+            >
+              <CloseIcon className="size-3" />
+            </button>
+          </div>
+        )}
 
-        <input
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="질문 내용을 입력해 주세요."
-          aria-label="질문 내용"
-          className="min-w-0 flex-1 bg-transparent text-[14px] leading-6 font-medium tracking-[-0.28px] text-gray-300 outline-none placeholder:text-gray-300"
-        />
+        {/* 고른 파일 (시안 없음 — 미리보기 없이 이름·크기만 보여준다) */}
+        {file && (
+          <div className="flex max-w-full items-center gap-2 self-start rounded-sm border border-gray-500 bg-gray-700 px-2 py-1">
+            <PaperclipIcon className="size-3.5 shrink-0 text-gray-300" />
+            <span className="min-w-0 truncate text-[12px] leading-4.5 tracking-[-0.24px] text-gray-100">
+              {file.name}
+            </span>
+            <span className="shrink-0 text-[11px] leading-4 tracking-[-0.22px] text-gray-400">
+              {formatFileSize(file.size)}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setFile(null);
+                setFileError(null);
+              }}
+              aria-label="첨부 파일 빼기"
+              className="shrink-0 text-gray-400 transition-colors hover:text-gray-100"
+            >
+              <CloseIcon className="size-3" />
+            </button>
+          </div>
+        )}
 
-        <button
-          type="submit"
-          disabled={!draft.trim() || sending}
-          aria-label="보내기"
-          className="bg-secondary-400 flex size-[26px] shrink-0 items-center justify-center rounded-full text-white transition-opacity hover:opacity-90 disabled:opacity-40"
-        >
-          <SendIcon className="size-[11px]" />
-        </button>
+        {/* 파일을 고른 직후 나타나는 문구라 보조기기가 바로 읽도록 alert로 둔다. */}
+        {fileError && (
+          <p
+            id={fileErrorId}
+            role="alert"
+            className="text-error text-[12px] leading-4.5 tracking-[-0.24px] break-keep"
+          >
+            {fileError}
+          </p>
+        )}
+
+        <div className="flex items-center gap-4">
+          {/* 같은 파일을 뺐다가 다시 고르면 change가 안 뜬다. value를 비워 매번 뜨게 한다.
+              sr-only는 position:absolute라 스크롤 컨테이너를 탈출한다 — hidden으로 둔다. */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={ATTACHMENT_ACCEPT}
+            className="hidden"
+            onChange={(e) => {
+              pickFile(e.target.files?.[0]);
+              e.target.value = '';
+            }}
+          />
+
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={sending}
+            aria-label="파일 첨부"
+            aria-describedby={fileError ? fileErrorId : undefined}
+            className="shrink-0 text-gray-400 transition-colors hover:text-gray-100 disabled:opacity-50 disabled:hover:text-gray-400"
+          >
+            <PaperclipIcon className="size-[18px]" />
+          </button>
+
+          <input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder="질문 내용을 입력해 주세요."
+            aria-label="질문 내용"
+            className="min-w-0 flex-1 bg-transparent text-[14px] leading-6 font-medium tracking-[-0.28px] text-gray-300 outline-none placeholder:text-gray-300"
+          />
+
+          <button
+            type="submit"
+            disabled={(!draft.trim() && !file) || sending}
+            aria-label="보내기"
+            className="bg-secondary-400 flex size-[26px] shrink-0 items-center justify-center rounded-full text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+          >
+            <SendIcon className="size-[11px]" />
+          </button>
+        </div>
       </form>
     </div>
   );

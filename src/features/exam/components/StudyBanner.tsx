@@ -3,7 +3,8 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
-import { daysUntil, ddayLabel } from '@/features/exam/lib/dday';
+import { cn } from '@/shared/lib/cn';
+import { daysUntil, ddayLabel, ddayBadgeClass } from '@/features/exam/lib/dday';
 import { examName } from '@/features/exam/lib/examName';
 import { useExams } from '@/features/exam/hooks/useExams';
 
@@ -14,6 +15,8 @@ export function StudyBanner() {
   const { data: exams, isLoading, isError } = useExams();
   // getExams가 임박한 순으로 정렬해 주므로 첫 번째가 배너 대상.
   const featured = exams?.[0];
+  // 로딩·실패 중에는 featured가 없다. 아래 뱃지는 featured가 있을 때만 그린다.
+  const days = featured ? daysUntil(featured.examDate) : 0;
 
   // 조회가 끝났고 정말로 일정이 없을 때만 빈 배너를 보여준다.
   // 로딩 중이나 실패했을 때 띄우면 "일정이 없다"고 단정하는 셈이 된다.
@@ -59,8 +62,15 @@ export function StudyBanner() {
             <h3 className="text-[32px] leading-11 font-semibold tracking-[-0.64px] text-gray-800">
               {examName(featured)}
             </h3>
-            <span className="border-error bg-error/20 text-error inline-flex items-center rounded-md border-[0.5px] px-2.5 py-0.5 text-[14px] leading-[22px] font-medium tracking-[-0.28px]">
-              {ddayLabel(daysUntil(featured.examDate))}
+            {/* 시험 일정 카드와 같은 규칙으로 색을 나눈다(D-DAY 빨강 / D-1~3 노랑 / D-4+ 파랑).
+                크기·타이포는 배너 시안 1:1 값으로, 옆의 진행률 뱃지와 같다. */}
+            <span
+              className={cn(
+                'inline-flex items-center rounded-md border-[0.5px] px-2.5 py-0.5 text-[14px] leading-[22px] font-medium tracking-[-0.28px]',
+                ddayBadgeClass(days),
+              )}
+            >
+              {ddayLabel(days)}
             </span>
             <span className="inline-flex items-center rounded-md border-[0.5px] border-gray-800 bg-white px-2.5 py-0.5 text-[14px] leading-[22px] font-medium tracking-[-0.28px] text-gray-800">
               학습 진행률 {featured.progress}%

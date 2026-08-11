@@ -183,6 +183,14 @@ export interface LectureScript {
 // 말한 쪽. 화면에선 내 말이 오른쪽 연두, AI가 왼쪽 흰 말풍선이다.
 export type ChatRole = 'USER' | 'AI';
 
+// 질문에 딸려 올라간 파일. 서버에 저장된 뒤로는 File 객체가 없으므로
+// 화면에 다시 그리는 데 필요한 최소 정보만 메시지와 함께 내려받는다.
+export interface ChatAttachment {
+  name: string;
+  size: number; // bytes
+  contentType: string;
+}
+
 // 대화 한 줄.
 // TODO: 백엔드 챗봇 응답 스펙 확정 시 필드명/타입 재확인 필요.
 export interface ChatMessage {
@@ -191,6 +199,8 @@ export interface ChatMessage {
   role: ChatRole;
   content: string;
   createdAt: string; // ISO 날짜 문자열
+  // 파일만 보낸 질문도 있어 content가 비고 attachment만 있는 메시지가 존재한다.
+  attachment?: ChatAttachment;
 }
 
 /* ===== Exam / 시험 일정 (기획서 7.3, 8.9) ===== */
