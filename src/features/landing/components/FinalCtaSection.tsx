@@ -7,10 +7,13 @@ import { ArrowUpRightIcon } from './icons';
 // 남은 건 순수 표시용이라 서버 컴포넌트로 되돌린다.
 export function FinalCtaSection() {
   return (
-    <section className="relative overflow-hidden px-6 py-40">
+    // min-h-screen — 소개 화면 하나가 한 장면을 꽉 채운다 (IntroSection과 같은 규칙).
+    // GradientBackground는 absolute inset-0이라 늘어난 높이를 그대로 채운다
+    <section className="relative flex min-h-screen items-center overflow-hidden px-6 py-40">
       <GradientBackground layer />
 
-      <div className="relative mx-auto max-w-2xl text-center">
+      {/* 부모가 flex라 w-full이 없으면 내용 폭으로 줄어든다 */}
+      <div className="relative mx-auto w-full max-w-2xl text-center">
         <h2 className="text-2xl leading-snug font-bold text-gray-900 md:text-4xl">
           수업은 끝났지만,
           <br />
