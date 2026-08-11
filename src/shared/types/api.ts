@@ -57,6 +57,23 @@ export interface OnboardingProfileRequest {
   plan: PlanId;
 }
 
+/* ===== 내 정보 / 설정 (대시보드-프로필) ===== */
+
+// 알림 설정 — 프로필 화면의 토글 두 개.
+// TODO: 백엔드 스펙 확정 시 필드명 재확인 필요
+export interface NotificationSettings {
+  aiAnalysisDone: boolean; // AI 분석 완료 알림
+  todoDueDate: boolean; // TODO 마감일 알림
+}
+
+// 프로필 화면 한 장에 필요한 것 — 계정 정보 + 요금제 + 알림 설정.
+// User만으로는 요금제와 알림을 채울 수 없어 화면용 응답을 따로 둔다
+// (ProjectSummary가 Project를 넓히는 것과 같은 방식).
+export interface MyProfile extends User {
+  plan: PlanId;
+  notifications: NotificationSettings;
+}
+
 /* ===== Project (기획서 7.3, 8.2) ===== */
 
 export interface Project {
@@ -166,6 +183,14 @@ export interface LectureScript {
 // 말한 쪽. 화면에선 내 말이 오른쪽 연두, AI가 왼쪽 흰 말풍선이다.
 export type ChatRole = 'USER' | 'AI';
 
+// 질문에 딸려 올라간 파일. 서버에 저장된 뒤로는 File 객체가 없으므로
+// 화면에 다시 그리는 데 필요한 최소 정보만 메시지와 함께 내려받는다.
+export interface ChatAttachment {
+  name: string;
+  size: number; // bytes
+  contentType: string;
+}
+
 // 대화 한 줄.
 // TODO: 백엔드 챗봇 응답 스펙 확정 시 필드명/타입 재확인 필요.
 export interface ChatMessage {
@@ -174,6 +199,8 @@ export interface ChatMessage {
   role: ChatRole;
   content: string;
   createdAt: string; // ISO 날짜 문자열
+  // 파일만 보낸 질문도 있어 content가 비고 attachment만 있는 메시지가 존재한다.
+  attachment?: ChatAttachment;
 }
 
 /* ===== Exam / 시험 일정 (기획서 7.3, 8.9) ===== */

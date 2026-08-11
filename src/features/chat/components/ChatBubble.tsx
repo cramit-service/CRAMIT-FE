@@ -2,7 +2,8 @@
 // src/features/chat/components/ChatBubble.tsx
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
-import { SparkleIcon } from '@/features/chat/components/icons';
+import { PaperclipIcon, SparkleIcon } from '@/features/chat/components/icons';
+import { formatFileSize } from '@/features/chat/lib/attachment';
 import { cn } from '@/shared/lib/cn';
 import type { ChatMessage } from '@/shared/types/api';
 
@@ -37,36 +38,59 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
             : 'border-secondary-400 bg-white',
         )}
       >
-        {/* 페이드를 본문 바로 아래 끝에 붙이려고 한 겹 감싼다.
-            말풍선 기준으로 띄우면 "더 보기" 높이만큼 어긋나 글자 끝동이 남는다. */}
-        <div className="relative">
-          <p
-            ref={measure}
-            // 접힘 상태에서만 높이를 자른다. 펼치면 제한을 풀어 전문이 보인다.
-            style={
-              expanded || !overflows
-                ? undefined
-                : { maxHeight: COLLAPSED_HEIGHT }
-            }
+        {/* 첨부 파일 (질문에 파일을 붙인 경우). 시안이 없어 미리보기 없이 칩으로만 둔다. */}
+        {message.attachment && (
+          <div
             className={cn(
-              'text-[14px] leading-[22px] tracking-[-0.28px] whitespace-pre-line text-gray-800',
-              !expanded && overflows && 'overflow-hidden',
+              'mb-1.5 flex max-w-full items-center gap-1.5 rounded-sm border-[0.5px] px-2 py-1',
+              isMine
+                ? 'border-primary-200 bg-white/60'
+                : 'border-secondary-400 bg-white',
             )}
           >
-            {message.content}
-          </p>
+            <PaperclipIcon className="size-3.5 shrink-0 text-gray-600" />
+            <span className="min-w-0 truncate text-[12px] leading-4.5 tracking-[-0.24px] text-gray-800">
+              {message.attachment.name}
+            </span>
+            <span className="shrink-0 text-[11px] leading-4 tracking-[-0.22px] text-gray-600">
+              {formatFileSize(message.attachment.size)}
+            </span>
+          </div>
+        )}
 
-          {/* 잘린 지점을 말풍선 색으로 흐리게 덮는다(시안) */}
-          {overflows && !expanded && (
-            <span
-              aria-hidden
+        {/* 페이드를 본문 바로 아래 끝에 붙이려고 한 겹 감싼다.
+            말풍선 기준으로 띄우면 "더 보기" 높이만큼 어긋나 글자 끝동이 남는다.
+            파일만 보낸 질문은 본문이 없다 — 빈 문단이 여백만 만들지 않게 통째로 건너뛴다. */}
+        {message.content && (
+          <div className="relative">
+            <p
+              ref={measure}
+              // 접힘 상태에서만 높이를 자른다. 펼치면 제한을 풀어 전문이 보인다.
+              style={
+                expanded || !overflows
+                  ? undefined
+                  : { maxHeight: COLLAPSED_HEIGHT }
+              }
               className={cn(
-                'pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-linear-to-b to-55%',
-                isMine ? 'to-primary-400' : 'to-white',
+                'text-[14px] leading-[22px] tracking-[-0.28px] whitespace-pre-line text-gray-800',
+                !expanded && overflows && 'overflow-hidden',
               )}
-            />
-          )}
-        </div>
+            >
+              {message.content}
+            </p>
+
+            {/* 잘린 지점을 말풍선 색으로 흐리게 덮는다(시안) */}
+            {overflows && !expanded && (
+              <span
+                aria-hidden
+                className={cn(
+                  'pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-linear-to-b to-55%',
+                  isMine ? 'to-primary-400' : 'to-white',
+                )}
+              />
+            )}
+          </div>
+        )}
 
         {overflows && !expanded && (
           <button

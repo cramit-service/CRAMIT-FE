@@ -25,8 +25,6 @@ export function SidebarItem({
 }: SidebarItemProps) {
   const className = cn(
     'relative flex items-center py-3 transition-colors',
-    // 펼침: 좌측 정렬 + 라벨 간격 / 접힘: 아이콘만 가운데 (충돌 클래스 → 삼항 분기)
-    expanded ? 'gap-4 px-5' : 'justify-center px-0',
     // 활성: 연두 강조 / 비활성: 라벨은 밝게 (덮어쓰기 금지 → 삼항 분기)
     active ? 'text-primary-400' : 'text-gray-200 hover:text-white',
   );
@@ -37,10 +35,20 @@ export function SidebarItem({
       {active && (
         <span className="bg-primary-400 absolute top-1/2 left-0 h-6 w-1 -translate-y-1/2 rounded-r-full" />
       )}
-      {/* 비활성 아이콘은 라벨보다 살짝 어둡게 (활성이면 연두 상속) */}
-      <span className={cn('shrink-0', !active && 'text-gray-400')}>{icon}</span>
+      {/* 아이콘 칸 폭은 사이드바 접힘 폭(Sidebar의 w-22.5)과 같다. 그래서 아이콘 중심이
+          펼침·접힘 모두 같은 x에 있고, 폭이 줄어드는 동안에도 제자리에 머문다.
+          (justify-center로 분기하면 "가운데"가 애니메이션 중인 부모 폭을 따라 같이 움직인다)
+          비활성 아이콘은 라벨보다 살짝 어둡게 — 활성이면 연두를 상속한다. */}
+      <span
+        className={cn(
+          'flex w-22.5 shrink-0 justify-center',
+          !active && 'text-gray-400',
+        )}
+      >
+        {icon}
+      </span>
       {expanded && (
-        <span className="truncate text-[15px] font-normal">{label}</span>
+        <span className="truncate pr-5 text-[15px] font-normal">{label}</span>
       )}
     </>
   );
