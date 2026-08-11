@@ -169,7 +169,7 @@ export function LectureCombobox({
           id={listId}
           role="listbox"
           // 어두운 패널 위 목록. 스크롤바도 어둡게 맞춘다(모달 본문과 같은 이유).
-          className="absolute top-11 right-0 left-0 z-10 max-h-40 overflow-y-auto rounded-md border-[0.5px] border-gray-600 bg-gray-800 py-1 scheme-dark"
+          className="scrollbar-dark absolute top-11 right-0 left-0 z-10 max-h-40 overflow-y-auto rounded-md border-[0.5px] border-gray-600 bg-gray-800 py-1 scheme-dark"
         >
           {isPending ? (
             <li className={cn(HINT, 'px-3.5 py-2 text-gray-500')}>

@@ -158,7 +158,7 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
           모달 오른쪽에 흰 띠가 생겨 분위기가 끊긴다. */}
       <form
         onSubmit={handleSubmit}
-        className="flex min-h-0 scrollbar-thin [scrollbar-color:var(--color-gray-700)_var(--color-gray-900)] flex-col overflow-y-auto px-15 pt-15 pb-7 scheme-dark"
+        className="scrollbar-dark flex min-h-0 flex-col overflow-y-auto px-15 pt-15 pb-7 scheme-dark"
       >
         {/* 제목 — 시안대로 안내 문구를 라벨 줄 오른쪽 끝에 붙인다. */}
         <div className={cn('flex flex-col gap-2 pb-8.5', SECTION_DIVIDER)}>

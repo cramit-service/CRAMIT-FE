@@ -117,16 +117,56 @@
   }
 }
 
-/* 시안에 보이는 얇은 스크롤바(트랙 + 썸 모두 알약).
-   스크롤바는 요소의 padding 영역을 파고들어 항상 가장자리에 붙는다. 시안처럼 안쪽에
-   띄우려면 이 유틸리티를 쓰는 요소를 카드 안쪽에 한 겹 더 두고 여백은 카드가 갖는다.
-   Firefox는 scrollbar-color만 지원해 굵기/모양을 못 맞춘다 — thin까지가 한계다. */
-@utility scrollbar-slim {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-gray-500) var(--color-gray-300);
+/* ===== 스크롤바 =====
+   시안의 스크롤바는 폭 6px짜리 알약 하나뿐이다(위아래 화살표 버튼이 없다).
+   OS 기본 스크롤바는 Windows에서 스텝 버튼이 붙어 나오므로 문서와 모든 스크롤 영역에
+   한 번에 적용한다. Blink는 scrollbar-width/color가 지정돼 있으면 ::-webkit-scrollbar를
+   통째로 무시하므로, WebKit 경로와 Firefox 경로를 @supports로 갈라 둔다. */
+@layer base {
+  /* 표준 scrollbar-width/color는 여기 두면 안 된다. Blink는 그게 지정돼 있으면
+     ::-webkit-scrollbar 규칙을 통째로 무시하고 OS 얇은 스크롤바를 그리는데,
+     Windows에서는 그 모양에 위아래 스텝 버튼이 그대로 남는다.
+     Firefox용 대체는 아래 @supports 블록에서 따로 준다. */
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  /* 트랙을 비워 두면 바만 떠 있는 시안 모양이 된다 */
+  *::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    border-radius: var(--radius-full);
+    background-color: var(--color-gray-400);
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-gray-500);
+  }
+  /* 위아래 화살표 제거 — 이게 없으면 OS에 따라 스텝 버튼이 그대로 남는다 */
+  *::-webkit-scrollbar-button {
+    display: none;
+  }
+  *::-webkit-scrollbar-corner {
+    background-color: transparent;
+  }
 
+  /* ::-webkit-scrollbar를 모르는 브라우저(Firefox)만 표준 속성으로 근사한다.
+     굵기는 thin까지가 한계라 6px에 정확히 맞출 수는 없다. */
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-gray-400) transparent;
+    }
+  }
+}
+
+/* 카드 안쪽 목록처럼 트랙까지 보이는 자리(시안의 홈 카드).
+   스크롤바는 요소의 padding 영역을 파고들어 항상 가장자리에 붙는다. 시안처럼 안쪽에
+   띄우려면 이 유틸리티를 쓰는 요소를 카드 안쪽에 한 겹 더 두고 여백은 카드가 갖는다. */
+@utility scrollbar-slim {
+  /* scrollbar-width/color를 두면 Blink가 아래 규칙을 무시한다 (전역 블록 주석 참고) */
   &::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
   }
   &::-webkit-scrollbar-track {
     border-radius: var(--radius-full);
@@ -135,6 +175,30 @@
   &::-webkit-scrollbar-thumb {
     border-radius: var(--radius-full);
     background-color: var(--color-gray-500);
+  }
+  &::-webkit-scrollbar-button {
+    display: none;
+  }
+}
+
+/* 어두운 표면(모달 패널·다크 팝오버)용. 기본 회색 썸은 어두운 배경에서 너무 밝다. */
+@utility scrollbar-dark {
+  /* scrollbar-width/color를 두면 Blink가 아래 규칙을 무시한다 (전역 블록 주석 참고) */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: var(--radius-full);
+    background-color: var(--color-gray-600);
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-gray-500);
+  }
+  &::-webkit-scrollbar-button {
+    display: none;
   }
 }
 

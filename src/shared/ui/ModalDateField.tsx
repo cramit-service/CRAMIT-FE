@@ -13,19 +13,20 @@ import {
 // 세그먼트를 직접 타이핑할 수 있고 그 상태로 Enter를 치면 폼이 제출된다.
 // 여기서는 트리거를 button으로 두어 두 경로를 한 번에 막는다.
 
-const WEEKDAYS = ['월', '화', '수', '목', '금', '토', '일'] as const;
+const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'] as const;
 // 6주 × 7일. 달마다 높이가 들쭉날쭉하지 않게 항상 42칸으로 고정한다.
 const CELLS = 42;
 // 팝오버를 위로 뒤집을지 판단할 때 쓰는 대략 높이(헤더 + 요일 + 6주 + 여백).
 const POPOVER_HEIGHT = 296;
 
-// 달력 격자. 시안대로 월요일 시작이다.
+// 달력 격자. 홈 캘린더와 같은 일요일 시작이다 — 한 화면에서 두 달력의 요일 순서가
+// 다르면 날짜를 잘못 고른다.
 // features/calendar/lib/month.ts에 같은 계산이 있다 — 그쪽은 홈 캘린더 전용이고
-// 이 컴포넌트는 shared라 지금은 각자 둔다. 두 PR이 머지되면 한쪽으로 합치는 게 좋다.
+// 이 컴포넌트는 shared라 지금은 각자 둔다. 한쪽으로 합치는 정리가 남아 있다.
 function buildGrid(year: number, month: number): Date[] {
   const first = new Date(year, month - 1, 1);
-  // getDay()는 0=일 ~ 6=토다. 월요일 시작이라 일요일(0)을 주의 마지막(6)으로 옮긴다.
-  const leading = (first.getDay() + 6) % 7;
+  // getDay()는 0=일 ~ 6=토. 일요일 시작이라 이 값이 곧 앞쪽 채움 칸 수가 된다.
+  const leading = first.getDay();
   return Array.from({ length: CELLS }, (_, i) => {
     const d = new Date(year, month - 1, 1 - leading + i);
     return d;

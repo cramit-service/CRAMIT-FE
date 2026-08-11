@@ -237,7 +237,7 @@ export function ModalCombobox({
             width: anchor.width,
             maxHeight: LIST_MAX_HEIGHT,
           }}
-          className="fixed z-50 [scrollbar-width:thin] [scrollbar-color:var(--color-gray-600)_var(--color-gray-800)] overflow-y-auto rounded-md border-[0.5px] border-gray-600 bg-gray-800 py-1 shadow-xl"
+          className="scrollbar-dark fixed z-50 overflow-y-auto rounded-md border-[0.5px] border-gray-600 bg-gray-800 py-1 shadow-xl"
         >
           {filtered.length === 0 ? (
             <li className="px-3 py-2 text-[12px] leading-4 text-gray-500">

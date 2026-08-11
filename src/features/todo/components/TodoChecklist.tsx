@@ -50,6 +50,8 @@ export function TodoChecklist() {
 
   return (
     <section className="flex min-h-0 flex-col">
+      {/* 제목 행은 옆의 시험 일정 열과 같은 규칙 — 높이를 고정하지 않고 내용(버튼 28)이 정한다.
+          고정하면 28짜리 버튼이 가운데 놓이면서 위아래로 빈 자리가 생겨 간격이 그만큼 벌어진다. */}
       <div className="mb-1.5 flex items-center justify-between">
         <h2 className="text-[18px] leading-7 font-medium tracking-[-0.36px] text-gray-950">
           TODO 체크리스트
@@ -69,7 +71,10 @@ export function TodoChecklist() {
       {/* 카드는 데이터 유무와 무관하게 항상 렌더 — 크기는 여기(div)에 준다. 비어도 안 줄어든다.
           스크롤은 안쪽 div가 맡는다. 카드가 직접 스크롤하면 스크롤바가 카드 가장자리에 붙어
           시안(우측 6px·상하 12px 안쪽)처럼 띄울 수 없다. 그 여백을 카드의 py/pr이 만든다. */}
-      <div className="bg-secondary-100 flex h-124 flex-col rounded-md py-3 pr-1.5 pl-5 lg:h-auto lg:min-h-0 lg:flex-1">
+      {/* lg 높이는 옆의 캘린더 카드와 하단이 맞아야 한다. 제목 행 규칙이 두 열에서 같으므로
+          카드 높이도 캘린더와 같은 654다 — 한쪽을 바꾸면 다른 쪽도 같이 바꿔야 한다.
+          예전에는 flex-1로 남는 높이를 채워 뷰포트마다 높이가 달라졌다. */}
+      <div className="bg-secondary-100 flex h-124 flex-col rounded-md py-3 pr-1.5 pl-5 lg:h-[654px]">
         <div className="scrollbar-slim min-h-0 flex-1 overflow-y-auto overscroll-none pr-4">
           {isLoading ? (
             <StatusMessage>불러오는 중…</StatusMessage>
@@ -136,11 +141,6 @@ export function TodoChecklist() {
           )}
         </div>
       </div>
-
-      {/* 시안(1:981)의 카드 바깥 우하단 안내문. 항목을 눌러 수정한다는 걸 알리는 유일한 단서다. */}
-      <p className="mt-1.5 text-right text-[12px] leading-4.5 tracking-[-0.24px] text-gray-500">
-        *꾹 눌러서 TODO를 수정할 수 있어요!
-      </p>
 
       {editing !== null && (
         <TodoFormModal

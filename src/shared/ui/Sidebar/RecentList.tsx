@@ -47,7 +47,7 @@ export function RecentList({ expanded, onExpand }: RecentListProps) {
         className="flex w-full items-center py-3 transition-colors"
       >
         {/* 아이콘 칸 폭은 SidebarItem과 같은 80px — 펼침·접힘 사이에서 아이콘이 움직이지 않는다 */}
-        <span className="flex w-20 shrink-0 justify-center">
+        <span className="flex w-22.5 shrink-0 justify-center">
           <HistoryNavIcon />
         </span>
       </button>
@@ -58,7 +58,7 @@ export function RecentList({ expanded, onExpand }: RecentListProps) {
   return (
     <div>
       <div className="flex w-full items-center py-3 pr-5 text-gray-200">
-        <span className="flex w-20 shrink-0 justify-center">
+        <span className="flex w-22.5 shrink-0 justify-center">
           <HistoryNavIcon />
         </span>
         {/* truncate로 줄바꿈을 막는다. 펼치는 200ms 동안 사이드바가 아직 좁아서

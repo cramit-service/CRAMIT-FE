@@ -26,7 +26,9 @@ export function ExamSchedule() {
   const [editing, setEditing] = useState<Exam | 'new' | null>(null);
 
   return (
-    <section>
+    // 시안에서 이 열은 배너와 위가 아니라 아래가 맞는다. 그리드 칸은 기본이 stretch라
+    // self-end로 아래에 붙인다. (배너보다 이 열이 높으면 아무 효과 없다)
+    <section className="lg:self-end">
       <div className="mb-1.5 flex items-center justify-between">
         <h2 className="text-[18px] leading-7 font-medium tracking-[-0.36px] text-gray-950">
           다가오는 시험 일정

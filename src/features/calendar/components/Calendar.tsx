@@ -10,8 +10,9 @@ import { buildMonthGrid } from '@/features/calendar/lib/month';
 import { useCalendarMonth } from '@/features/calendar/hooks/useCalendarMonth';
 import { CalendarCell, type ScheduleItem } from './CalendarCell';
 
-// 시안은 월요일 시작이다(MON…SUN). buildMonthGrid도 같은 기준으로 채운다.
-const WEEKDAYS = ['MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT', 'SUN'];
+// 일요일 시작. 시안 헤더는 MON…SUN이지만 팀 결정으로 일요일 시작을 쓴다.
+// buildMonthGrid의 leading 계산도 같은 기준이라 한쪽만 바꾸면 날짜가 요일과 어긋난다.
+const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT'];
 
 export function Calendar() {
   const { year, month, goPrev, goNext } = useCalendarMonth();
@@ -51,12 +52,14 @@ export function Calendar() {
 
   return (
     <section className="flex min-h-0 flex-col">
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-[18px] leading-[30px] font-medium tracking-[-0.36px] text-gray-950">
+      {/* 제목 행은 시험 일정·TODO 열과 같은 규칙 — leading-7(28) + mb-1.5(6).
+          셋 다 같은 text-[18px] 제목이라 줄높이와 간격이 어긋나면 나란히 놓였을 때 바로 보인다. */}
+      <div className="mb-1.5 flex items-center justify-between">
+        <h2 className="text-[18px] leading-7 font-medium tracking-[-0.36px] text-gray-950">
           캘린더
         </h2>
         <div className="flex items-center gap-2">
-          <span className="text-[18px] leading-[30px] font-medium tracking-[-0.36px] text-gray-950">
+          <span className="text-[18px] leading-7 font-medium tracking-[-0.36px] text-gray-950">
             {year}년 {month}월
           </span>
           <NavButton label="이전 달" onClick={goPrev} direction="left" />
@@ -64,24 +67,33 @@ export function Calendar() {
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-col overflow-hidden rounded-md border border-gray-300 lg:flex-1">
+      {/* 카드 높이를 고정한다. 예전에는 flex-1로 남는 높이를 채웠는데, 그러면 행 높이가
+          뷰포트에 따라 소수점(111.33px)이 되고 그 값이 디바이스 픽셀로 반올림되면서
+          격자선이 111/112px로 번갈아 찍혀 행이 들쭉날쭉해 보였다.
+          654 = 테두리 2 + 요일행 27 + 분리선 2 + 날짜 그리드 623.
+          이 합이 어긋나면 넘친 만큼을 날짜 그리드가 줄여 먹어(유일하게 shrink 가능한 자식)
+          623이 깨지고 격자선이 다시 들쭉날쭉해진다. 셋 중 하나를 바꾸면 높이도 같이 바꾼다.
+          옆 TODO 카드도 하단을 맞추려면 같은 높이여야 한다. */}
+      <div className="flex flex-col overflow-hidden rounded-md border border-gray-300 lg:h-[654px]">
         {/* 요일 행과 날짜 그리드를 같은 grid-cols-7로 두어 열을 정렬한다.
             gap-px + 배경 gray-300으로 칸 사이 격자선을 만든다. */}
-        {/* 요일행: 날짜 그리드보다 낮게(시안 27.55px = 패딩 7.78 + 글자 12) + 아래 분리선으로 날짜와 구분.
-            leading을 명시하지 않으면 부모에서 상속된 24px 줄높이(strut)가 행을 32px로 부풀린다. */}
-        <div className="grid grid-cols-7 gap-px border-b border-gray-300 bg-gray-300">
+        {/* 요일행 27px = 시안 28.55. leading을 명시하지 않으면 부모에서 상속된
+            24px 줄높이(strut)가 행을 32px로 부풀린다. */}
+        {/* 아래 분리선만 2px — 요일 머리글과 날짜 격자를 구분한다(칸 사이 격자선은 1px 그대로). */}
+        <div className="grid shrink-0 grid-cols-7 gap-px border-b-2 border-gray-300 bg-gray-300">
           {WEEKDAYS.map((label) => (
-            <div key={label} className="bg-white px-2 py-2">
+            <div key={label} className="bg-white px-2 py-[7.5px]">
               <span className="block text-[10px] leading-3 font-medium text-gray-900">
                 {label}
               </span>
             </div>
           ))}
         </div>
-        {/* 6주 그리드. 모바일은 고정 높이(h-115), lg 이상은 flex-1로 남는 높이를 채운다.
-            grid-rows-6 = repeat(6, minmax(0,1fr))라 각 줄이 높이를 균등 분할하고,
+        {/* 6주 그리드. 높이를 623으로 고정해 repeat(6,1fr)이 정확히 103px씩 떨어지게 한다
+            (623 = 6 × 103 + 5 × gap-px). 소수점 행 높이가 사라져 격자선이 균등해진다.
+            모바일은 기존 고정 높이(h-115)를 그대로 쓴다.
             내용이 줄 높이를 넘으면 셀의 overflow-hidden으로 잘린다(→ 태그는 셀에서 +N으로 접음). */}
-        <div className="grid h-115 grid-cols-7 grid-rows-6 gap-px bg-gray-300 lg:h-auto lg:min-h-0 lg:flex-1">
+        <div className="grid h-115 grid-cols-7 grid-rows-6 gap-px bg-gray-300 lg:h-[623px]">
           {cells.map((cell) => (
             <CalendarCell
               key={cell.dateStr}
