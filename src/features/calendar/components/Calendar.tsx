@@ -70,14 +70,17 @@ export function Calendar() {
       {/* 카드 높이를 고정한다. 예전에는 flex-1로 남는 높이를 채웠는데, 그러면 행 높이가
           뷰포트에 따라 소수점(111.33px)이 되고 그 값이 디바이스 픽셀로 반올림되면서
           격자선이 111/112px로 번갈아 찍혀 행이 들쭉날쭉해 보였다.
-          653 = 테두리 2 + 요일행 27 + 분리선 1 + 날짜 그리드 623.
-          시안 652보다 1px 큰데, 6행이 정수(103px)로 떨어지는 가장 가까운 값이라 이쪽을 택했다. */}
-      <div className="flex flex-col overflow-hidden rounded-md border border-gray-300 lg:h-[653px]">
+          654 = 테두리 2 + 요일행 27 + 분리선 2 + 날짜 그리드 623.
+          이 합이 어긋나면 넘친 만큼을 날짜 그리드가 줄여 먹어(유일하게 shrink 가능한 자식)
+          623이 깨지고 격자선이 다시 들쭉날쭉해진다. 셋 중 하나를 바꾸면 높이도 같이 바꾼다.
+          옆 TODO 카드도 하단을 맞추려면 같은 높이여야 한다. */}
+      <div className="flex flex-col overflow-hidden rounded-md border border-gray-300 lg:h-[654px]">
         {/* 요일 행과 날짜 그리드를 같은 grid-cols-7로 두어 열을 정렬한다.
             gap-px + 배경 gray-300으로 칸 사이 격자선을 만든다. */}
         {/* 요일행 27px = 시안 28.55. leading을 명시하지 않으면 부모에서 상속된
             24px 줄높이(strut)가 행을 32px로 부풀린다. */}
-        <div className="grid shrink-0 grid-cols-7 gap-px border-b border-gray-300 bg-gray-300">
+        {/* 아래 분리선만 2px — 요일 머리글과 날짜 격자를 구분한다(칸 사이 격자선은 1px 그대로). */}
+        <div className="grid shrink-0 grid-cols-7 gap-px border-b-2 border-gray-300 bg-gray-300">
           {WEEKDAYS.map((label) => (
             <div key={label} className="bg-white px-2 py-[7.5px]">
               <span className="block text-[10px] leading-3 font-medium text-gray-900">
