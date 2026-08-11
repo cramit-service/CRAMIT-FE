@@ -1,14 +1,11 @@
-'use client';
 // src/features/landing/components/FinalCtaSection.tsx
 import Link from 'next/link';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
-import { ArrowUpIcon, ArrowUpRightIcon } from './icons';
+import { ArrowUpRightIcon } from './icons';
 
+// "맨 위로" 버튼은 이 섹션에 있었지만, 끝까지 내려와야만 보여서 ScrollTopButton으로 옮겼다.
+// 남은 건 순수 표시용이라 서버 컴포넌트로 되돌린다.
 export function FinalCtaSection() {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
     <section className="relative overflow-hidden px-6 py-40">
       <GradientBackground layer />
@@ -31,15 +28,6 @@ export function FinalCtaSection() {
           <ArrowUpRightIcon className="h-4 w-4" />
         </Link>
       </div>
-
-      <button
-        type="button"
-        onClick={scrollToTop}
-        aria-label="맨 위로"
-        className="absolute right-8 bottom-8 flex h-11 w-11 items-center justify-center rounded-full border border-gray-400 bg-gray-100 text-gray-800 transition-colors hover:bg-gray-200"
-      >
-        <ArrowUpIcon className="h-4 w-4" />
-      </button>
     </section>
   );
 }
