@@ -89,6 +89,9 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
     <FormModal
       title={isEdit ? '강의 정보 수정하기' : '새 강의 생성하기'}
       titleVisible
+      // 이 모달의 시안 제목은 32px SemiBold다(0.72배 = 23px). 기본값 16px은
+      // 공유하기 모달 기준이라 여기서만 덮어쓴다. 아래 여백은 시안 8px(=6px).
+      titleClassName="mb-1.5 text-[23px] leading-8 font-semibold tracking-[-0.46px] text-gray-100"
       onClose={onClose}
       onSubmit={handleSubmit}
       busy={busy}
@@ -104,8 +107,10 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
         </button>
       }
     >
-      {/* 강의명 */}
-      <div className={cn('flex flex-col gap-2 pb-8.5', SECTION_DIVIDER)}>
+      {/* 강의명.
+          시안(1:2686)은 칸이 적어 여백이 넉넉하다 — 섹션 위아래 48px(=34.5),
+          라벨과 입력칸 사이 24px(=17). 주차 모달(12px=8)과 값이 다르다. */}
+      <div className={cn('flex flex-col gap-[17px] py-8.5', SECTION_DIVIDER)}>
         <label htmlFor={`${fieldId}-title`} className={LABEL}>
           강의
         </label>
@@ -122,7 +127,7 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
 
       {/* 시험 날짜 (선택) — 수정 시안에만 있는 칸이다. 생성 시안에는 없다. */}
       {isEdit && (
-        <div className={cn('flex flex-col gap-2 py-8.5', SECTION_DIVIDER)}>
+        <div className={cn('flex flex-col gap-[17px] py-8.5', SECTION_DIVIDER)}>
           <label htmlFor={`${fieldId}-exam-date`} className={LABEL}>
             시험 날짜 (선택)
           </label>
@@ -137,7 +142,7 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
       )}
 
       {/* 교수명 (선택) */}
-      <div className="flex flex-col gap-2 pt-8.5">
+      <div className="flex flex-col gap-[17px] pt-8.5">
         <label htmlFor={`${fieldId}-professor`} className={LABEL}>
           교수명 선택 (선택)
         </label>

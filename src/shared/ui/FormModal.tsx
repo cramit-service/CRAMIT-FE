@@ -123,6 +123,9 @@ interface FormModalProps {
   title: string;
   /** 시안에 제목 글자가 실제로 그려진 모달만 true (공유하기·새 주차 업로드). */
   titleVisible?: boolean;
+  /** 제목 크기가 시안마다 달라 기본값과 다르게 그릴 때만 넘긴다.
+   *  (강의 모달은 시안 32px = 0.72배 23px, 공유하기는 기본값 16px) */
+  titleClassName?: string;
   onClose: () => void;
   onSubmit?: (e: React.FormEvent) => void;
   /** 제출 중. 닫기·배경 클릭을 막아 진행 중인 요청이 버려지지 않게 한다. */
@@ -137,6 +140,7 @@ interface FormModalProps {
 export function FormModal({
   title,
   titleVisible = false,
+  titleClassName,
   onClose,
   onSubmit,
   busy = false,
@@ -192,7 +196,8 @@ export function FormModal({
           id={titleId}
           className={
             titleVisible
-              ? 'mb-4.5 text-[16px] leading-6 font-semibold tracking-[-0.32px] text-gray-100'
+              ? (titleClassName ??
+                'mb-4.5 text-[16px] leading-6 font-semibold tracking-[-0.32px] text-gray-100')
               : 'sr-only'
           }
         >
