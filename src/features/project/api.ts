@@ -3,6 +3,7 @@ import type {
   Chapter,
   CreateChapterRequest,
   CreateProjectRequest,
+  UpdateChapterRequest,
   Project,
   ProjectSummary,
   UpdateProjectRequest,
@@ -14,7 +15,12 @@ import {
   mockProjects,
   updateMockProjectSummary,
 } from '@/mocks/project';
-import { addMockChapter, nextMockChapterNumber } from '@/mocks/study';
+import {
+  addMockChapter,
+  findMockChapter,
+  nextMockChapterNumber,
+  updateMockChapter,
+} from '@/mocks/study';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로)
 const USE_MOCK = true;
@@ -113,6 +119,8 @@ export async function createChapter(
       // STT·요약이 끝나기 전이라 아직 아무도 학습하지 않은 상태다.
       createdAt: new Date().toISOString(),
       status: 'BEFORE',
+      lectureDate: req.lectureDate,
+      professor: req.professor,
     };
     addMockChapter(chapter);
     return chapter;
@@ -126,4 +134,36 @@ export async function createChapter(
   if (req.audioFile) form.append('audioFile', req.audioFile);
 
   return apiClient.post<Chapter>(`/projects/${req.projectId}/chapters`, form);
+}
+
+// 주차(챕터) 수정 — 주차 카드를 꾹 눌러 여는 "주차 정보 수정하기" 모달.
+// 생성과 같은 multipart 폼이지만 파일은 새로 고른 것만 싣는다(안 고르면 기존 파일 유지).
+// TODO: 백엔드 엔드포인트·필드명 확정 시 경로와 form key 재확인 필요.
+export async function updateChapter(
+  req: UpdateChapterRequest,
+): Promise<Chapter> {
+  if (USE_MOCK) {
+    await delay(500);
+    const current = findMockChapter(req.chapterId);
+    if (!current) throw new Error('수정할 주차를 찾지 못했어요.');
+    // 주차 번호·생성 시각·학습 상태처럼 모달이 건드리지 않는 값은 그대로 둔다.
+    const chapter: Chapter = {
+      ...current,
+      projectId: req.projectId,
+      title: req.title,
+      lectureDate: req.lectureDate,
+      professor: req.professor,
+    };
+    updateMockChapter(chapter);
+    return chapter;
+  }
+
+  const form = new FormData();
+  form.append('title', req.title);
+  form.append('lectureDate', req.lectureDate);
+  if (req.professor) form.append('professor', req.professor);
+  if (req.materialFile) form.append('materialFile', req.materialFile);
+  if (req.audioFile) form.append('audioFile', req.audioFile);
+
+  return apiClient.patch<Chapter>(`/chapters/${req.chapterId}`, form);
 }

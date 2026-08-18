@@ -17,39 +17,53 @@ import { ModalDateField } from '@/shared/ui/ModalDateField';
 // 그 훅을 그대로 쓴다 — 쿼리 키도 공유돼 캐시가 한 벌로 유지된다.
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
 import { FileDropzone } from './FileDropzone';
-import { ChevronDownIcon, CloseIcon } from './icons';
+import { ChevronDownIcon, CloseIcon, CloudUploadIcon } from './icons';
 import { useCreateChapter } from '@/features/project/hooks/useCreateChapter';
+import { useUpdateChapter } from '@/features/project/hooks/useUpdateChapter';
+import type { Chapter } from '@/shared/types/api';
 
 interface NewChapterUploadModalProps {
   /** 지금 보고 있는 강의(프로젝트). "강의" 셀렉트의 기본값이 된다. */
   projectId: string;
   projectTitle: string;
+  /** 있으면 수정 모드(주차 카드를 꾹 눌러서 진입), 없으면 새 주차 업로드. */
+  chapter?: Chapter;
   onClose: () => void;
 }
 
 // 입력 칸·라벨·구분선 스타일은 같은 시안 계열의 다른 다크 모달들과 공유한다.
 // (시험 일정·TODO·강의 생성·공유하기 — 정의는 shared/ui/FormModal.tsx)
 
-// 새 주차 업로드 모달. 제목·강의·수강 날짜·교수명을 받고 강의자료(PDF)와 녹음을 올려
-// 새 챕터를 만든다. 시안: Figma `내 강의-상세보기-새 주차 업로드` (모달 1:3560).
+// 주차 업로드·수정 모달. 제목·강의·수강 날짜·교수명을 받고 강의자료(PDF)와 녹음을 올린다.
+// 시안: 생성 `새 주차 업로드`(1:3560) / 수정 `주차 정보 수정하기`(528:8664).
+// 두 시안은 제목 문구만 다르고 폼과 확정 버튼("업로드하기")이 같아 한 컴포넌트로 쓴다.
 export function NewChapterUploadModal({
   projectId,
   projectTitle,
+  chapter,
   onClose,
 }: NewChapterUploadModalProps) {
   const router = useRouter();
   const titleId = useId();
+  const isEdit = chapter !== undefined;
   const {
     data: lectures,
     isPending: isLecturesPending,
     isError: isLecturesError,
   } = useProjectSummaries();
-  const { mutate, isPending } = useCreateChapter();
+  const createChapterMutation = useCreateChapter();
+  const updateChapterMutation = useUpdateChapter(projectId);
+  const isPending =
+    createChapterMutation.isPending || updateChapterMutation.isPending;
 
-  const [targetProjectId, setTargetProjectId] = useState(projectId);
-  const [title, setTitle] = useState('');
-  const [lectureDate, setLectureDate] = useState('');
-  const [professor, setProfessor] = useState('');
+  // 수정 모드는 지금 값에서 시작한다. 닫을 때 통째로 언마운트되므로 초기값만 잡아 주면
+  // 다음에 열 때 최신 값으로 다시 채워진다.
+  const [targetProjectId, setTargetProjectId] = useState(
+    chapter?.projectId ?? projectId,
+  );
+  const [title, setTitle] = useState(chapter?.title ?? '');
+  const [lectureDate, setLectureDate] = useState(chapter?.lectureDate ?? '');
+  const [professor, setProfessor] = useState(chapter?.professor ?? '');
   const [materialFile, setMaterialFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [materialError, setMaterialError] = useState<string | null>(null);
@@ -90,30 +104,41 @@ export function NewChapterUploadModal({
     if (!canSubmit || isPending) return;
     setFormError(null);
 
-    mutate(
-      {
-        projectId: targetProjectId,
-        title: title.trim(),
-        lectureDate,
-        professor: professor.trim() || null,
-        materialFile,
-        audioFile,
+    const payload = {
+      projectId: targetProjectId,
+      title: title.trim(),
+      lectureDate,
+      professor: professor.trim() || null,
+      materialFile,
+      audioFile,
+    };
+
+    const handlers = {
+      onSuccess: () => {
+        onClose();
+        // 다른 강의에 올리거나 다른 강의로 옮겼다면 이 화면에는 아무 변화가 없어
+        // 실패처럼 보인다. 그 강의로 따라가 결과를 바로 보여준다.
+        if (targetProjectId !== projectId) {
+          router.push(`/projects/${targetProjectId}`);
+        }
       },
-      {
-        onSuccess: () => {
-          onClose();
-          // 다른 강의에 올렸다면 이 화면에는 아무 변화가 없어 실패처럼 보인다.
-          // 올린 강의로 옮겨 새 주차가 목록에 붙은 걸 바로 보여준다.
-          if (targetProjectId !== projectId) {
-            router.push(`/projects/${targetProjectId}`);
-          }
-        },
-        onError: (error) =>
-          setFormError(
-            error.message || '업로드에 실패했어요. 잠시 후 다시 시도해 주세요.',
-          ),
-      },
-    );
+      onError: (error: Error) =>
+        setFormError(
+          error.message ||
+            (isEdit
+              ? '수정에 실패했어요. 잠시 후 다시 시도해 주세요.'
+              : '업로드에 실패했어요. 잠시 후 다시 시도해 주세요.'),
+        ),
+    };
+
+    if (isEdit) {
+      updateChapterMutation.mutate(
+        { ...payload, chapterId: chapter.chapterId },
+        handlers,
+      );
+      return;
+    }
+    createChapterMutation.mutate(payload, handlers);
   };
 
   return (
@@ -148,7 +173,7 @@ export function NewChapterUploadModal({
             id={titleId}
             className="text-[16px] leading-6 font-semibold tracking-[-0.32px] text-gray-100"
           >
-            새 주차 업로드
+            {isEdit ? '주차 정보 수정하기' : '새 주차 업로드'}
           </h2>
 
           {/* 제목 */}
@@ -277,15 +302,20 @@ export function NewChapterUploadModal({
           {/* 확정 액션이라 하늘색(secondary). Button 컴포넌트는 size별 타이포가 고정이라
               시안 크기(346×60 → 249×44)와 겹치고, cn엔 merge가 없어 덮어쓰면 승자가
               생성 순서에 달리므로 이 화면 전용 버튼으로 둔다.
-              글자만 가운데 오는 아이콘 없는 버튼이 시안이다(디자인 시스템 Button 섹션).
-              비활성은 시안대로 gray-400 배경 + 흰 글자. */}
+              비활성은 시안대로 gray-400 배경 + 흰 글자.
+              디자인 시스템 버튼 섹션에는 아이콘이 없지만 이 화면 시안(주차 정보 수정하기)에는
+              구름 아이콘이 얹혀 있다 — 화면 시안을 따른다. */}
           <div className="flex justify-end">
             <button
               type="submit"
               disabled={!canSubmit || isPending}
-              className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 flex h-11 w-[249px] items-center justify-center rounded-md text-[14px] leading-[22px] font-medium tracking-[-0.28px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-gray-100"
+              className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 relative flex h-11 w-[249px] items-center justify-center rounded-md text-[14px] leading-[22px] font-medium tracking-[-0.28px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-gray-100"
             >
-              {isPending ? '업로드 중…' : '업로드하기'}
+              {/* 시안에서 아이콘은 글자 옆이 아니라 버튼 왼쪽에 따로 얹혀 있고, 글자는
+                  아이콘과 무관하게 버튼 전체 기준으로 가운데 온다. absolute의 기준이 되도록
+                  버튼에 relative를 둔다. 장식이라 글자 색을 따르지 않는다(시안 gray-400). */}
+              <CloudUploadIcon className="pointer-events-none absolute top-1/2 left-3.5 size-[19px] -translate-y-1/2 text-gray-400" />
+              {isPending ? (isEdit ? '저장 중…' : '업로드 중…') : '업로드하기'}
             </button>
           </div>
         </div>

@@ -18,6 +18,8 @@ export const mockChapters: Chapter[] = [
     title: '알고리즘과 복잡도 개요',
     createdAt: '2026-07-01T16:03:00',
     status: 'DONE',
+    lectureDate: '2026-07-01',
+    professor: '박지훈',
   },
   {
     chapterId: 'c2',
@@ -26,6 +28,8 @@ export const mockChapters: Chapter[] = [
     title: '정렬 알고리즘',
     createdAt: '2026-07-04T16:03:00',
     status: 'IN_PROGRESS',
+    lectureDate: '2026-07-04',
+    professor: '박지훈',
   },
   {
     chapterId: 'c3',
@@ -34,6 +38,8 @@ export const mockChapters: Chapter[] = [
     title: '분할 정복',
     createdAt: '2026-07-08T16:03:00',
     status: 'BEFORE',
+    lectureDate: '2026-07-08',
+    professor: '박지훈',
   },
   {
     chapterId: 'c4',
@@ -42,6 +48,8 @@ export const mockChapters: Chapter[] = [
     title: '알고리즘 기초 알아보기',
     createdAt: '2026-07-14T16:03:00',
     status: 'DONE',
+    lectureDate: '2026-07-14',
+    professor: '박지훈',
   },
   {
     chapterId: 'c5',
@@ -50,6 +58,8 @@ export const mockChapters: Chapter[] = [
     title: '그래프 탐색',
     createdAt: '2026-07-16T16:03:00',
     status: 'IN_PROGRESS',
+    lectureDate: '2026-07-16',
+    professor: '박지훈',
   },
   {
     chapterId: 'c6',
@@ -58,6 +68,8 @@ export const mockChapters: Chapter[] = [
     title: '최단 경로',
     createdAt: '2026-07-18T16:03:00',
     status: 'BEFORE',
+    lectureDate: '2026-07-18',
+    professor: '박지훈',
   },
 ];
 
@@ -71,6 +83,17 @@ export function nextMockChapterNumber(): number {
 // 새로고침하면 사라진다(모듈 메모리라 세션 단위).
 export function addMockChapter(chapter: Chapter): void {
   mockChapters.push(chapter);
+}
+
+// mock 전용: 주차 하나를 찾는다.
+export function findMockChapter(chapterId: string): Chapter | undefined {
+  return mockChapters.find((c) => c.chapterId === chapterId);
+}
+
+// mock 전용: 수정한 주차를 제자리에 덮어쓴다.
+export function updateMockChapter(chapter: Chapter): void {
+  const i = mockChapters.findIndex((c) => c.chapterId === chapter.chapterId);
+  if (i !== -1) mockChapters[i] = chapter;
 }
 
 // 프로젝트 상세 헤더 mock (과목명·교수·시험 D-DAY 등)
