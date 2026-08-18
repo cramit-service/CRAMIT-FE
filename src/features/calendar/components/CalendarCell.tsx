@@ -9,7 +9,9 @@ export interface ScheduleItem {
 }
 
 // 셀 높이가 고정(스크롤 없음)이라 태그를 무한정 못 담는다.
-// 이 수를 넘으면 마지막 한 칸을 "+N"으로 접어 항상 이 줄 수 안에 들어오게 한다.
+// 이 수를 넘으면 나머지를 "+N"으로 접어 항상 이 줄 수 안에 들어오게 한다.
+// "+N"은 줄을 따로 쓰지 않고 마지막 태그 오른쪽에 붙는다 — 일정이 몇 개든 태그가 2줄이라
+// 옆 칸들과 바닥선이 맞는다. 대신 마지막 태그는 "+N" 폭만큼 좁아져 이름이 더 잘린다.
 const MAX_VISIBLE_TAGS = 2;
 
 // 시험=노랑(warning), 투두=파랑(secondary) — 색 규칙은 팀 합의값.
@@ -25,7 +27,7 @@ function ScheduleTag({ item }: { item: ScheduleItem }) {
         // 긴 이름은 칸을 넘지 않도록 max-w-full + truncate로 자른다.
         // 시안의 셀 태그는 Regular(400)다 — 네 개 중 셋이 Regular이고 하나만 Medium이라
         // 다수를 따랐다. Medium이면 작은 글자가 뭉쳐 보인다.
-        'block w-fit max-w-full truncate rounded-full px-1 py-0.75 text-[12px] leading-[15px] font-normal',
+        'w-fit max-w-full truncate rounded-full px-1 py-0.75 text-[12px] leading-3.75 font-normal',
         item.type === 'exam'
           ? 'bg-level-02/30 text-warning'
           : 'bg-secondary-100 text-secondary-500',
@@ -46,16 +48,13 @@ interface CalendarCellProps {
 // min-w-0을 줘야 안쪽 태그가 열 폭에 맞춰 잘린다.
 // justify-between은 시안대로 — 날짜 숫자는 위, 일정 태그는 칸 바닥에 붙는다.
 export function CalendarCell({ cell, items, isToday }: CalendarCellProps) {
-  const visible =
-    items.length > MAX_VISIBLE_TAGS
-      ? items.slice(0, MAX_VISIBLE_TAGS - 1)
-      : items;
+  const visible = items.slice(0, MAX_VISIBLE_TAGS);
   const hiddenCount = items.length - visible.length;
 
   return (
     <div
       className={cn(
-        'flex h-full min-w-0 flex-col justify-between gap-1 overflow-hidden p-2',
+        'flex h-full min-w-0 flex-col justify-between gap-1 overflow-hidden p-1',
         cell.isCurrentMonth ? 'bg-white' : 'bg-gray-200',
       )}
     >
@@ -74,14 +73,18 @@ export function CalendarCell({ cell, items, isToday }: CalendarCellProps) {
         {cell.day}
       </span>
       {items.length > 0 && (
-        <div className="flex min-w-0 flex-col gap-1.5">
-          {visible.map((item) => (
-            <ScheduleTag key={item.id} item={item} />
-          ))}
-          {hiddenCount > 0 && (
-            <span className="px-1 text-[12px] font-medium text-gray-500">
-              +{hiddenCount}
-            </span>
+        <div className="flex flex-col gap-1.5">
+          {visible.map((item, index) =>
+            hiddenCount > 0 && index === visible.length - 1 ? (
+              <div key={item.id} className="flex items-center gap-1">
+                <ScheduleTag item={item} />
+                <span className="shrink-0 text-[12px] font-medium text-gray-500">
+                  +{hiddenCount}
+                </span>
+              </div>
+            ) : (
+              <ScheduleTag key={item.id} item={item} />
+            ),
           )}
         </div>
       )}
