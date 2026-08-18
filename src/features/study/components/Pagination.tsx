@@ -99,9 +99,11 @@ export function Pagination({
       className="flex items-center justify-end gap-2"
       aria-label="페이지네이션"
     >
+      {/* disabled가 === 비교라 범위 밖 값이 들어오면 화살표가 살아있다.
+          핸들러에서도 잘라 1..totalPages를 벗어나지 않게 한다. */}
       <ArrowButton
-        disabled={currentPage === 1}
-        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage <= 1}
+        onClick={() => onPageChange(Math.max(1, currentPage - 1))}
         ariaLabel="이전 페이지"
       >
         <ChevronLeftIcon className="size-3.5" />
@@ -124,8 +126,8 @@ export function Pagination({
       )}
 
       <ArrowButton
-        disabled={currentPage === totalPages}
-        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage >= totalPages}
+        onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
         ariaLabel="다음 페이지"
       >
         <ChevronRightIcon className="size-3.5" />
