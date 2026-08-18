@@ -266,11 +266,12 @@ export function NewChapterUploadModal({
             />
           </div>
 
-          {/* 파일 업로드 2종 (선택) */}
+          {/* 파일 업로드 2종. 실제로는 둘 다 선택이지만, 라벨의 "(선택)" 표기는
+              시안(528:8664)에 없어 뺀다 — 선택이라는 사실은 칸 안 안내 문구가 말해 준다. */}
           <div className="grid grid-cols-2 gap-[13px] pt-8.5">
             <FileDropzone
               kind="material"
-              label="강의 자료 업로드 (선택)"
+              label="강의 자료 업로드"
               file={materialFile}
               onChange={setMaterialFile}
               error={materialError}
@@ -279,7 +280,7 @@ export function NewChapterUploadModal({
             />
             <FileDropzone
               kind="audio"
-              label="음성 파일 업로드 (선택)"
+              label="음성 파일 업로드"
               file={audioFile}
               onChange={setAudioFile}
               error={audioError}
