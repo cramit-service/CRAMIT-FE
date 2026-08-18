@@ -17,7 +17,7 @@ import { ModalDateField } from '@/shared/ui/ModalDateField';
 // 그 훅을 그대로 쓴다 — 쿼리 키도 공유돼 캐시가 한 벌로 유지된다.
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
 import { FileDropzone } from './FileDropzone';
-import { ChevronDownIcon, CloseIcon, CloudUploadIcon } from './icons';
+import { ChevronDownIcon, CloseIcon } from './icons';
 import { useCreateChapter } from '@/features/project/hooks/useCreateChapter';
 
 interface NewChapterUploadModalProps {
@@ -139,154 +139,156 @@ export function NewChapterUploadModal({
       {/* 스크롤바를 어두운 패널에 맞춘다. 기본 스크롤바는 밝은 회색이라
           모달 오른쪽에 흰 띠가 생겨 분위기가 끊긴다.
           scrollbar-color를 모르는 브라우저는 color-scheme:dark가 받아준다. */}
-      <form
-        onSubmit={handleSubmit}
-        className="scrollbar-dark flex min-h-0 flex-col overflow-y-auto px-15 pt-11 pb-7 [color-scheme:dark]"
-      >
-        {/* 시안 32px SemiBold. 모달 전체를 0.72배로 옮겼으므로 제목도 같이 줄이되,
+      <form onSubmit={handleSubmit} className="flex min-h-0 flex-col">
+        <div className="scrollbar-dark flex min-h-0 flex-1 flex-col overflow-y-auto px-15 pt-11 pb-7 [color-scheme:dark]">
+          {/* 시안 32px SemiBold. 모달 전체를 0.72배로 옮겼으므로 제목도 같이 줄이되,
             0.72배(23px)로는 여전히 박스 대비 글자가 커서 절반인 16px까지 내렸다.
             이 크기에서는 SemiBold가 무겁지 않고, 14px 라벨과 구분하는 역할만 한다. */}
-        <h2
-          id={titleId}
-          className="text-[16px] leading-6 font-semibold tracking-[-0.32px] text-gray-100"
-        >
-          새 주차 업로드
-        </h2>
+          <h2
+            id={titleId}
+            className="text-[16px] leading-6 font-semibold tracking-[-0.32px] text-gray-100"
+          >
+            새 주차 업로드
+          </h2>
 
-        {/* 제목 */}
-        <div
-          className={cn('mt-4.5 flex flex-col gap-2 pb-8.5', SECTION_DIVIDER)}
-        >
-          <label htmlFor="chapter-title" className={LABEL}>
-            제목
-          </label>
-          <input
-            id="chapter-title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="제목을 입력해 주세요."
-            required
-            disabled={isPending}
-            className={FIELD_FILLED}
-          />
-        </div>
-
-        {/* 강의 + 주차 수강 날짜 */}
-        <div className={cn('grid grid-cols-2 py-8.5', SECTION_DIVIDER)}>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="chapter-project" className={LABEL}>
-              강의
+          {/* 제목 */}
+          <div
+            className={cn('mt-4.5 flex flex-col gap-2 pb-8.5', SECTION_DIVIDER)}
+          >
+            <label htmlFor="chapter-title" className={LABEL}>
+              제목
             </label>
-            {/* 네이티브 셀렉트를 쓰되 기본 화살표를 지우고 시안 화살표를 얹는다.
-                color-scheme:dark라야 OS가 그리는 목록도 어두운 배경으로 나온다. */}
-            <div className={cn('relative', FIELD_WIDTH)}>
-              <select
-                id="chapter-project"
-                value={targetProjectId}
-                onChange={(e) => setTargetProjectId(e.target.value)}
-                disabled={isPending}
-                className={cn(
-                  FIELD_OUTLINED,
-                  'w-full appearance-none pr-9 [color-scheme:dark]',
-                )}
-              >
-                {options.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.title}
-                  </option>
-                ))}
-              </select>
-              <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-3.5 size-3 -translate-y-1/2 text-gray-500" />
-            </div>
-            {/* 목록이 오기 전·실패했을 때는 지금 강의 하나만 남는다.
-                안내가 없으면 "고를 수 있는 강의가 이것뿐"으로 오해한다.
-                칸이 좁아 두 줄로 접히므로 break-keep으로 단어 중간에서 끊기지 않게 한다. */}
-            {isLecturesPending && (
-              <p role="status" className={cn(HINT, 'text-gray-500')}>
-                강의 목록을 불러오는 중이에요.
-              </p>
-            )}
-            {isLecturesError && (
-              <p role="alert" className={cn(HINT, 'text-error')}>
-                강의 목록을 불러오지 못했어요. 지금 강의에만 올릴 수 있어요.
-              </p>
-            )}
+            <input
+              id="chapter-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="제목을 입력해 주세요."
+              required
+              disabled={isPending}
+              className={FIELD_FILLED}
+            />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label htmlFor="chapter-date" className={LABEL}>
-              주차 수강 날짜
-            </label>
-            {/* 날짜는 달력에서만 고른다. 다른 모달과 같은 컨트롤을 써서
+          {/* 강의 + 주차 수강 날짜 */}
+          <div className={cn('grid grid-cols-2 py-8.5', SECTION_DIVIDER)}>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="chapter-project" className={LABEL}>
+                강의
+              </label>
+              {/* 네이티브 셀렉트를 쓰되 기본 화살표를 지우고 시안 화살표를 얹는다.
+                color-scheme:dark라야 OS가 그리는 목록도 어두운 배경으로 나온다. */}
+              <div className={cn('relative', FIELD_WIDTH)}>
+                <select
+                  id="chapter-project"
+                  value={targetProjectId}
+                  onChange={(e) => setTargetProjectId(e.target.value)}
+                  disabled={isPending}
+                  className={cn(
+                    FIELD_OUTLINED,
+                    'w-full appearance-none pr-9 [color-scheme:dark]',
+                  )}
+                >
+                  {options.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.title}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-3.5 size-3 -translate-y-1/2 text-gray-500" />
+              </div>
+              {/* 목록이 오기 전·실패했을 때는 지금 강의 하나만 남는다.
+                안내가 없으면 "고를 수 있는 강의가 이것뿐"으로 오해한다.
+                칸이 좁아 두 줄로 접히므로 break-keep으로 단어 중간에서 끊기지 않게 한다. */}
+              {isLecturesPending && (
+                <p role="status" className={cn(HINT, 'text-gray-500')}>
+                  강의 목록을 불러오는 중이에요.
+                </p>
+              )}
+              {isLecturesError && (
+                <p role="alert" className={cn(HINT, 'text-error')}>
+                  강의 목록을 불러오지 못했어요. 지금 강의에만 올릴 수 있어요.
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label htmlFor="chapter-date" className={LABEL}>
+                주차 수강 날짜
+              </label>
+              {/* 날짜는 달력에서만 고른다. 다른 모달과 같은 컨트롤을 써서
                 일곱 개 모달의 날짜 입력 방식이 갈리지 않게 한다. */}
-            <ModalDateField
-              id="chapter-date"
-              value={lectureDate}
-              onChange={setLectureDate}
+              <ModalDateField
+                id="chapter-date"
+                value={lectureDate}
+                onChange={setLectureDate}
+                disabled={isPending}
+              />
+            </div>
+          </div>
+
+          {/* 교수명 (선택) */}
+          <div className={cn('flex flex-col gap-2 py-8.5', SECTION_DIVIDER)}>
+            <label htmlFor="chapter-professor" className={LABEL}>
+              교수명 선택 (선택)
+            </label>
+            <input
+              id="chapter-professor"
+              value={professor}
+              onChange={(e) => setProfessor(e.target.value)}
+              placeholder="교수명을 입력해 주세요."
+              disabled={isPending}
+              className={FIELD_FILLED}
+            />
+          </div>
+
+          {/* 파일 업로드 2종 (선택) */}
+          <div className="grid grid-cols-2 gap-[13px] pt-8.5">
+            <FileDropzone
+              kind="material"
+              label="강의 자료 업로드 (선택)"
+              file={materialFile}
+              onChange={setMaterialFile}
+              error={materialError}
+              onError={setMaterialError}
+              disabled={isPending}
+            />
+            <FileDropzone
+              kind="audio"
+              label="음성 파일 업로드 (선택)"
+              file={audioFile}
+              onChange={setAudioFile}
+              error={audioError}
+              onError={setAudioError}
               disabled={isPending}
             />
           </div>
         </div>
 
-        {/* 교수명 (선택) */}
-        <div className={cn('flex flex-col gap-2 py-8.5', SECTION_DIVIDER)}>
-          <label htmlFor="chapter-professor" className={LABEL}>
-            교수명 선택 (선택)
-          </label>
-          <input
-            id="chapter-professor"
-            value={professor}
-            onChange={(e) => setProfessor(e.target.value)}
-            placeholder="교수명을 입력해 주세요."
-            disabled={isPending}
-            className={FIELD_FILLED}
-          />
+        {/* 시안 높이(876px)가 노트북 화면을 넘으면 위 영역이 스크롤되는데, 확정 버튼까지
+            같이 스크롤되면 버튼이 접힌 아래로 숨는다. 스크롤 밖에 둬 항상 보이게 한다. */}
+        <div className="shrink-0 border-t-[0.5px] border-gray-700 px-15 py-5">
+          {/* 제출 실패는 사용자가 방금 누른 결과라 보조기기가 바로 읽어야 한다. */}
+          {formError && (
+            <p role="alert" className={cn(HINT, 'text-error mb-2 text-right')}>
+              {formError}
+            </p>
+          )}
+
+          {/* 확정 액션이라 하늘색(secondary). Button 컴포넌트는 size별 타이포가 고정이라
+              시안 크기(346×60 → 249×44)와 겹치고, cn엔 merge가 없어 덮어쓰면 승자가
+              생성 순서에 달리므로 이 화면 전용 버튼으로 둔다.
+              글자만 가운데 오는 아이콘 없는 버튼이 시안이다(디자인 시스템 Button 섹션).
+              비활성은 시안대로 gray-400 배경 + 흰 글자. */}
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={!canSubmit || isPending}
+              className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 flex h-11 w-[249px] items-center justify-center rounded-md text-[14px] leading-[22px] font-medium tracking-[-0.28px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-gray-100"
+            >
+              {isPending ? '업로드 중…' : '업로드하기'}
+            </button>
+          </div>
         </div>
-
-        {/* 파일 업로드 2종 (선택) */}
-        <div className="grid grid-cols-2 gap-[13px] pt-8.5">
-          <FileDropzone
-            kind="material"
-            label="강의 자료 업로드 (선택)"
-            file={materialFile}
-            onChange={setMaterialFile}
-            error={materialError}
-            onError={setMaterialError}
-            disabled={isPending}
-          />
-          <FileDropzone
-            kind="audio"
-            label="음성 파일 업로드 (선택)"
-            file={audioFile}
-            onChange={setAudioFile}
-            error={audioError}
-            onError={setAudioError}
-            disabled={isPending}
-          />
-        </div>
-
-        {/* 제출 실패는 사용자가 방금 누른 결과라 보조기기가 바로 읽어야 한다. */}
-        {formError && (
-          <p role="alert" className={cn(HINT, 'text-error mt-6 text-right')}>
-            {formError}
-          </p>
-        )}
-
-        {/* 확정 액션이라 하늘색(secondary). Button 컴포넌트는 size별 타이포가 고정이라
-            시안 크기(346×60 → 249×44, 20px Medium → 14px)와 겹친다. cn엔 merge가 없어
-            덮어쓰면 승자가 생성 순서에 달리므로 이 화면 전용 버튼으로 둔다.
-            시안에서 아이콘은 글자 옆이 아니라 버튼 왼쪽에 따로 얹혀 있고, 글자는
-            아이콘과 무관하게 버튼 전체 기준으로 가운데 온다. absolute의 기준이 되도록
-            버튼에 relative를 둔다. */}
-        <button
-          type="submit"
-          disabled={!canSubmit || isPending}
-          className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 relative mt-6 ml-auto flex h-11 w-[249px] items-center justify-center rounded-md text-[14px] leading-[22px] font-medium tracking-[-0.28px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-500"
-        >
-          {/* 장식용이라 글자 색을 따르지 않는다 (시안 #cecfd1 = gray-400) */}
-          <CloudUploadIcon className="pointer-events-none absolute top-1/2 left-3 size-[19px] -translate-y-1/2 text-gray-400" />
-          {isPending ? '업로드 중…' : '업로드하기'}
-        </button>
       </form>
     </Modal>
   );
