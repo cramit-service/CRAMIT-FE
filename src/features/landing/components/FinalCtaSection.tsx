@@ -1,19 +1,19 @@
-'use client';
 // src/features/landing/components/FinalCtaSection.tsx
 import Link from 'next/link';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
-import { ArrowUpIcon, ArrowUpRightIcon } from './icons';
+import { ArrowUpRightIcon } from './icons';
 
+// "맨 위로" 버튼은 이 섹션에 있었지만, 끝까지 내려와야만 보여서 ScrollTopButton으로 옮겼다.
+// 남은 건 순수 표시용이라 서버 컴포넌트로 되돌린다.
 export function FinalCtaSection() {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
-    <section className="relative overflow-hidden px-6 py-40">
+    // min-h-screen — 소개 화면 하나가 한 장면을 꽉 채운다 (IntroSection과 같은 규칙).
+    // GradientBackground는 absolute inset-0이라 늘어난 높이를 그대로 채운다
+    <section className="relative flex min-h-screen items-center overflow-hidden px-6 py-40">
       <GradientBackground layer />
 
-      <div className="relative mx-auto max-w-2xl text-center">
+      {/* 부모가 flex라 w-full이 없으면 내용 폭으로 줄어든다 */}
+      <div className="relative mx-auto w-full max-w-2xl text-center">
         <h2 className="text-2xl leading-snug font-bold text-gray-900 md:text-4xl">
           수업은 끝났지만,
           <br />
@@ -31,15 +31,6 @@ export function FinalCtaSection() {
           <ArrowUpRightIcon className="h-4 w-4" />
         </Link>
       </div>
-
-      <button
-        type="button"
-        onClick={scrollToTop}
-        aria-label="맨 위로"
-        className="absolute right-8 bottom-8 flex h-11 w-11 items-center justify-center rounded-full border border-gray-400 bg-gray-100 text-gray-800 transition-colors hover:bg-gray-200"
-      >
-        <ArrowUpIcon className="h-4 w-4" />
-      </button>
     </section>
   );
 }
