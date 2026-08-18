@@ -23,10 +23,10 @@ interface LectureFormModalProps {
   onClose: () => void;
 }
 
-// 내 강의 생성·수정 모달. 시안: Figma `학습하기-내 강의 생성하기` (1:2614).
-// 시안에는 "제목"과 "강의" 자유 입력이 나란히 있으나 강의 이름을 담을 필드가 title 하나뿐이라
-// "강의"만 남기고 그 값을 title로 보낸다.
-// 수정 시안은 따로 없어 같은 폼을 수정 모드로 쓴다.
+// 내 강의 생성·수정 모달.
+// 시안: 생성 `새 강의 생성하기`(1:2614) / 수정 `강의 정보 수정하기`(528:7764, 528:8107).
+// 두 시안의 차이는 제목 문구와 시험 날짜 칸 하나뿐이라 한 폼을 모드로 나눠 쓴다.
+// 시험 날짜는 생성 시안에 없고 수정 시안에만 "(선택)"으로 있다.
 export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
   const fieldId = useId();
   const isEdit = project !== undefined;
@@ -45,8 +45,9 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
 
   const busy = createMutation.isPending || updateMutation.isPending;
 
-  // 교수명만 (선택)이고 강의명·시험 날짜는 시안에 선택 표기가 없어 필수로 둔다.
-  const filled = title.trim() !== '' && examDate !== '';
+  // 시안에서 필수는 강의명 하나뿐이다 — 교수명은 (선택)이고,
+  // 시험 날짜는 생성 시안에 아예 없고 수정 시안에서도 "(선택)"이다.
+  const filled = title.trim() !== '';
   // 수정 모드에서는 바꾼 게 있어야 저장을 연다.
   const changed =
     !isEdit ||
@@ -61,8 +62,10 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
     setFormError(null);
 
     const payload = {
+      // 생성에는 날짜 칸이 없고 수정에서도 비울 수 있다. 빈 문자열은 날짜가 아니라 미입력이므로
+      // examDate: string | null 계약에 맞춰 null로 보낸다.
       title: title.trim(),
-      examDate,
+      examDate: examDate || null,
       professor: professor.trim() || null,
     };
 
@@ -84,7 +87,8 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
 
   return (
     <FormModal
-      title={isEdit ? '내 강의 수정하기' : '내 강의 생성하기'}
+      title={isEdit ? '강의 정보 수정하기' : '새 강의 생성하기'}
+      titleVisible
       onClose={onClose}
       onSubmit={handleSubmit}
       busy={busy}
@@ -93,7 +97,7 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
           {isEdit
             ? busy
               ? '저장 중…'
-              : '수정완료'
+              : '수정 완료'
             : busy
               ? '생성 중…'
               : '생성하기'}
@@ -116,19 +120,21 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
         />
       </div>
 
-      {/* 시험 날짜 */}
-      <div className={cn('flex flex-col gap-2 py-8.5', SECTION_DIVIDER)}>
-        <label htmlFor={`${fieldId}-exam-date`} className={LABEL}>
-          시험 날짜
-        </label>
-        {/* 날짜는 달력에서만 고른다 (세그먼트 직접 입력·Enter 제출 차단) */}
-        <ModalDateField
-          id={`${fieldId}-exam-date`}
-          value={examDate}
-          onChange={setExamDate}
-          disabled={busy}
-        />
-      </div>
+      {/* 시험 날짜 (선택) — 수정 시안에만 있는 칸이다. 생성 시안에는 없다. */}
+      {isEdit && (
+        <div className={cn('flex flex-col gap-2 py-8.5', SECTION_DIVIDER)}>
+          <label htmlFor={`${fieldId}-exam-date`} className={LABEL}>
+            시험 날짜 (선택)
+          </label>
+          {/* 날짜는 달력에서만 고른다 (세그먼트 직접 입력·Enter 제출 차단) */}
+          <ModalDateField
+            id={`${fieldId}-exam-date`}
+            value={examDate}
+            onChange={setExamDate}
+            disabled={busy}
+          />
+        </div>
+      )}
 
       {/* 교수명 (선택) */}
       <div className="flex flex-col gap-2 pt-8.5">
