@@ -92,6 +92,9 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
       // 이 모달의 시안 제목은 32px SemiBold다(0.72배 = 23px). 기본값 16px은
       // 공유하기 모달 기준이라 여기서만 덮어쓴다. 아래 여백은 시안 8px(=6px).
       titleClassName="mb-1.5 text-[23px] leading-8 font-semibold tracking-[-0.46px] text-gray-100"
+      // 시안(1:2686)의 강의 모달은 960×960 정사각이다. 칸이 적어 아래가 비지만
+      // 그게 시안이고, 확정 버튼은 바닥에 붙는다.
+      fixedHeight="h-[691px]"
       onClose={onClose}
       onSubmit={handleSubmit}
       busy={busy}
