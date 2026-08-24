@@ -118,6 +118,7 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
   return (
     <FormModal
       title={isEdit ? '시험 일정 수정' : '시험 일정 추가'}
+      titleVisible
       onClose={onClose}
       onSubmit={handleSubmit}
       busy={isPending}

@@ -146,7 +146,7 @@ export function ModalSelect({
 interface FormModalProps {
   /** 모달 이름. 보조기술이 이 모달을 무엇이라 읽을지 결정한다. */
   title: string;
-  /** 시안에 제목 글자가 실제로 그려진 모달만 true (공유하기·새 주차 업로드). */
+  /** 시안에 제목 글자가 실제로 그려진 모달만 true. 기본은 sr-only로 숨긴다. */
   titleVisible?: boolean;
   onClose: () => void;
   onSubmit?: (e: React.FormEvent) => void;

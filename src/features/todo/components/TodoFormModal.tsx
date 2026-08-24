@@ -174,6 +174,7 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
   return (
     <FormModal
       title={isEdit ? 'TODO 수정' : 'TODO 추가'}
+      titleVisible
       onClose={onClose}
       onSubmit={handleSubmit}
       busy={busy}
