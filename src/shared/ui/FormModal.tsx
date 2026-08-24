@@ -123,6 +123,13 @@ interface FormModalProps {
   title: string;
   /** 시안에 제목 글자가 실제로 그려진 모달만 true (공유하기·새 주차 업로드). */
   titleVisible?: boolean;
+  /** 제목 크기가 시안마다 달라 기본값과 다르게 그릴 때만 넘긴다.
+   *  (강의 모달은 시안 32px = 0.72배 23px, 공유하기는 기본값 16px) */
+  titleClassName?: string;
+  /** 시안이 모달 높이를 고정한 화면만 넘긴다 (강의 모달 960 → 0.72배 691px).
+   *  넘기면 내용이 짧아도 높이를 유지하고 확정 버튼이 아래에 붙는다.
+   *  기본은 내용 높이만큼 — 다른 모달들은 시안 높이가 제각각이라 그대로 둔다. */
+  fixedHeight?: string;
   onClose: () => void;
   onSubmit?: (e: React.FormEvent) => void;
   /** 제출 중. 닫기·배경 클릭을 막아 진행 중인 요청이 버려지지 않게 한다. */
@@ -137,6 +144,8 @@ interface FormModalProps {
 export function FormModal({
   title,
   titleVisible = false,
+  titleClassName,
+  fixedHeight,
   onClose,
   onSubmit,
   busy = false,
@@ -160,7 +169,10 @@ export function FormModal({
       // 패널은 고정하고 안쪽만 스크롤시킨다.
       // relative는 닫기 버튼의 기준이자, 제목을 숨길 때 쓰는 sr-only(=position:absolute)의
       // 기준이기도 하다. 없으면 숨긴 제목이 문서 최상위 기준으로 떠 페이지 높이를 밀어낸다.
-      className="relative flex max-h-[calc(100vh-64px)] w-[691px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-lg border-[0.5px] border-gray-600 bg-gray-900"
+      className={cn(
+        'relative flex max-h-[calc(100vh-64px)] w-[691px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-lg border-[0.5px] border-gray-600 bg-gray-900',
+        fixedHeight,
+      )}
     >
       <button
         type="button"
@@ -181,6 +193,9 @@ export function FormModal({
         onSubmit={onSubmit ?? ((e) => e.preventDefault())}
         className={cn(
           'scrollbar-dark flex min-h-0 flex-col overflow-y-auto px-15 pb-7 [color-scheme:dark]',
+          // 높이를 고정한 모달에서만 폼이 남은 공간을 채워야 푸터가 바닥으로 간다.
+          // 기본(내용 높이) 모달에 flex-1을 주면 min-h-0과 겹쳐 높이가 0으로 접힌다.
+          fixedHeight && 'flex-1',
           // 제목이 보이는 모달은 제목이 위 여백을 일부 대신한다. 숨긴 모달은 첫 라벨까지의
           // 거리가 시안(≈65px)에 맞도록 여백을 더 준다.
           titleVisible ? 'pt-11' : 'pt-16',
@@ -192,7 +207,8 @@ export function FormModal({
           id={titleId}
           className={
             titleVisible
-              ? 'mb-4.5 text-[16px] leading-6 font-semibold tracking-[-0.32px] text-gray-100'
+              ? (titleClassName ??
+                'mb-4.5 text-[16px] leading-6 font-semibold tracking-[-0.32px] text-gray-100')
               : 'sr-only'
           }
         >
@@ -202,7 +218,13 @@ export function FormModal({
         {children}
 
         {footer && (
-          <div className="mt-6 flex items-center justify-end gap-3">
+          <div
+            className={cn(
+              'flex items-center justify-end gap-3',
+              // 바닥에 붙이면 위 여백은 margin이 아니라 padding으로 줘야 mt-auto와 안 겹친다.
+              fixedHeight ? 'mt-auto pt-6' : 'mt-6',
+            )}
+          >
             {footer}
           </div>
         )}

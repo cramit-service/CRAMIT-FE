@@ -24,20 +24,28 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
   }, []);
 
   return (
-    <li className={cn('flex', isMine ? 'justify-end' : 'justify-start')}>
-      {/* AI 말풍선은 좌상단 반짝임이 말풍선 밖으로 걸치므로 자리를 따로 잡는다 */}
-      {!isMine && (
-        <SparkleIcon className="text-secondary-400 mt-1 mr-[-9px] size-[26px] shrink-0" />
-      )}
-
+    // 위로 솟는 반짝임이 말풍선 사이 간격(ul의 gap-5)을 먹지 않게 AI 행만 위를 띄운다.
+    <li
+      className={cn('flex', isMine ? 'justify-end' : 'justify-start pt-[17px]')}
+    >
       <div
+        // 최대 폭이 좌우가 다르다 — 시안 대화 열 632 기준 AI 612(≈97%), 내 질문 262(≈41%).
+        // cn엔 merge가 없어 max-w를 공통 문자열에 두고 덮어쓸 수 없다. 분기마다 완성된 세트로 준다.
         className={cn(
-          'relative max-w-[85%] rounded-sm border-[0.5px] px-[14px] py-[9px]',
+          'relative rounded-sm border-[0.5px] px-[14px] py-[9px]',
           isMine
-            ? 'bg-primary-400 border-primary-200'
-            : 'border-secondary-400 bg-white',
+            ? 'bg-primary-400 border-primary-200 max-w-[41%]'
+            : 'border-secondary-400 max-w-[97%] bg-white',
         )}
       >
+        {/* 시안(36×36 @ x20,y102 / 말풍선 x20,y126): 반짝임의 왼쪽 변이 말풍선 왼쪽
+            변과 맞고 위로 24px(×0.72 = 17px) 솟아 모서리에 걸친다.
+            말풍선의 자식이라야 배경 위에 그려진다 — 형제로 두면 relative인
+            말풍선이 위에 깔려 겹친 부분이 가려진다. */}
+        {!isMine && (
+          <SparkleIcon className="text-secondary-400 absolute -top-[17px] left-0 size-[26px]" />
+        )}
+
         {/* 첨부 파일 (질문에 파일을 붙인 경우). 시안이 없어 미리보기 없이 칩으로만 둔다. */}
         {message.attachment && (
           <div

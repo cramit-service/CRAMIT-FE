@@ -36,7 +36,10 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
           제목·섹션·카드가 같은 정렬선을 갖게 한다. */}
       <button
         type="button"
-        onClick={() => router.back()}
+        // router.back()을 쓰면 방금 나온 학습 뷰어로 되돌아간다.
+        // 뷰어의 '이전으로'가 push라 /projects/{id}가 히스토리에 중복으로 쌓이기 때문이다.
+        // 뷰어(ViewerHeader)와 같은 규칙으로 상위 경로를 고정해 항상 강의 목록으로 나간다.
+        onClick={() => router.push('/projects')}
         className="absolute top-1/2 right-full mr-4 inline-flex -translate-y-1/2 items-center gap-1.5 whitespace-nowrap text-gray-950 transition-colors hover:text-gray-700"
       >
         <ChevronLeftIcon className="size-5" />
