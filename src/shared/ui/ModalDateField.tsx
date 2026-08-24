@@ -60,6 +60,8 @@ interface ModalDateFieldProps {
   disabled?: boolean;
   /** 라벨이 따로 없는 자리(마감 시간 옆 등)에서 이 칸이 무엇인지 알린다. */
   ariaLabel?: string;
+  /** 'YYYY-MM-DD'. 이 날 이전은 고를 수 없다. 지난 날짜 차단용. */
+  min?: string;
 }
 
 export function ModalDateField({
@@ -68,6 +70,7 @@ export function ModalDateField({
   onChange,
   disabled,
   ariaLabel,
+  min,
 }: ModalDateFieldProps) {
   const gridId = useId();
   const [open, setOpen] = useState(false);
@@ -227,11 +230,21 @@ export function ModalDateField({
 
   const cells = buildGrid(view.year, view.month);
   const today = toLocalDateString(new Date());
-  // 포커스를 처음 받을 칸 — 고른 날이 이 달에 있으면 그 날, 없으면 1일.
+  // 'YYYY-MM-DD'는 자릿수가 고정이라 문자열 비교가 곧 날짜 비교다.
+  const isBlocked = (iso: string) => min !== undefined && iso < min;
+
+  // 포커스를 처음 받을 칸 — 고른 날이 이 달에 있으면 그 날, 없으면 고를 수 있는 첫 날.
+  // disabled 버튼은 focus()를 받지 않는다. min 보정을 안 하면 지난 달이 섞인 달에서
+  // 달력을 열어도 포커스가 아무 데도 안 들어가 화살표 키가 통째로 먹지 않는다.
+  const monthCells = cells
+    .filter((d) => d.getMonth() + 1 === view.month)
+    .map(toLocalDateString);
   const focusTarget =
-    value && cells.some((d) => toLocalDateString(d) === value)
+    value &&
+    !isBlocked(value) &&
+    cells.some((d) => toLocalDateString(d) === value)
       ? value
-      : toLocalDateString(new Date(view.year, view.month - 1, 1));
+      : (monthCells.find((iso) => !isBlocked(iso)) ?? monthCells[0]);
 
   return (
     <div className={cn('relative', FIELD_WIDTH)}>
@@ -314,6 +327,7 @@ export function ModalDateField({
               const iso = toLocalDateString(date);
               const inMonth = date.getMonth() + 1 === view.month;
               const selected = iso === value;
+              const blocked = isBlocked(iso);
               return (
                 <button
                   key={iso}
@@ -323,15 +337,18 @@ export function ModalDateField({
                   // 격자 전체가 탭 정지 하나가 되도록 포커스 대상만 탭 순서에 남긴다.
                   tabIndex={iso === focusTarget ? 0 : -1}
                   onClick={() => select(date)}
+                  disabled={blocked}
                   aria-pressed={selected}
                   aria-current={iso === today ? 'date' : undefined}
                   className={cn(
                     'flex h-7 items-center justify-center rounded-md text-[12px] leading-4 font-medium transition-colors',
-                    selected
-                      ? 'bg-secondary-400 text-gray-950'
-                      : inMonth
-                        ? 'text-gray-200 hover:bg-gray-700'
-                        : 'text-gray-600 hover:bg-gray-700',
+                    blocked
+                      ? 'cursor-not-allowed text-gray-700'
+                      : selected
+                        ? 'bg-secondary-400 text-gray-950'
+                        : inMonth
+                          ? 'text-gray-200 hover:bg-gray-700'
+                          : 'text-gray-600 hover:bg-gray-700',
                     // 오늘은 고르지 않았을 때만 테두리로 표시한다(고르면 채움과 겹친다).
                     iso === today && !selected && 'ring-1 ring-gray-500',
                   )}
