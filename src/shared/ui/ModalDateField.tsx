@@ -275,7 +275,7 @@ export function ModalDateField({
           role="dialog"
           aria-label="날짜 선택"
           style={{ top: anchor.top, left: anchor.left }}
-          className="fixed z-50 w-[252px] rounded-lg border-[0.5px] border-gray-600 bg-gray-800 p-3 shadow-xl"
+          className="fixed z-50 w-63 rounded-lg border-[0.5px] border-gray-600 bg-gray-800 p-3 shadow-xl"
         >
           {/* 달 이동 */}
           <div className="mb-2 flex items-center justify-between">
@@ -345,7 +345,7 @@ export function ModalDateField({
                     blocked
                       ? 'cursor-not-allowed text-gray-700'
                       : selected
-                        ? 'bg-secondary-400 text-gray-950'
+                        ? 'bg-primary-400 text-gray-950'
                         : inMonth
                           ? 'text-gray-200 hover:bg-gray-700'
                           : 'text-gray-600 hover:bg-gray-700',

@@ -133,7 +133,7 @@ export function ModalSelect({
         disabled={disabled}
         className={cn(
           FIELD_OUTLINED,
-          'w-full appearance-none pr-9 [color-scheme:dark]',
+          'w-full appearance-none pr-9 scheme-dark',
         )}
       >
         {children}
@@ -185,14 +185,14 @@ export function FormModal({
       // 패널은 고정하고 안쪽만 스크롤시킨다.
       // relative는 닫기 버튼의 기준이자, 제목을 숨길 때 쓰는 sr-only(=position:absolute)의
       // 기준이기도 하다. 없으면 숨긴 제목이 문서 최상위 기준으로 떠 페이지 높이를 밀어낸다.
-      className="relative flex max-h-[calc(100vh-64px)] w-[691px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-lg border-[0.5px] border-gray-600 bg-gray-900"
+      className="relative flex max-h-[calc(100vh-64px)] w-172.75 max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-lg border-[0.5px] border-gray-600 bg-gray-900"
     >
       <button
         type="button"
         onClick={handleClose}
         aria-label="닫기"
         disabled={busy}
-        className="absolute top-[23px] right-[23px] z-10 text-gray-400 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-700"
+        className="absolute top-5.75 right-5.75 z-10 text-gray-400 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-700"
       >
         <CloseIcon className="size-5" />
       </button>
@@ -205,7 +205,7 @@ export function FormModal({
         // 페이지가 이동해 버린다. 기본값으로 그것만 막는다.
         onSubmit={onSubmit ?? ((e) => e.preventDefault())}
         className={cn(
-          'scrollbar-dark flex min-h-0 flex-col overflow-y-auto px-15 pb-7 [color-scheme:dark]',
+          'scrollbar-dark flex min-h-0 flex-col overflow-y-auto px-15 pb-7 scheme-dark',
           // 제목이 보이는 모달은 제목이 위 여백을 일부 대신한다. 숨긴 모달은 첫 라벨까지의
           // 거리가 시안(≈65px)에 맞도록 여백을 더 준다.
           titleVisible ? 'pt-11' : 'pt-16',
