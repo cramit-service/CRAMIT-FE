@@ -6,7 +6,12 @@ import { Icon } from '@/shared/ui/Icon';
 // 강의 목록은 학습하기 화면(study)이 이미 조회한다. 같은 GET을 두 번 정의하지 않고
 // 그 훅을 그대로 쓴다 — 쿼리 키도 공유돼 캐시가 한 벌로 유지된다.
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
-import { FIELD_FILLED, HINT } from './fieldStyles';
+import {
+  FIELD_FILLED,
+  OPTION_LIST,
+  OPTION_ROW,
+  optionStateClass,
+} from '@/shared/ui/FormModal';
 
 interface LectureComboboxProps {
   id: string;
@@ -169,18 +174,23 @@ export function LectureCombobox({
           id={listId}
           role="listbox"
           // 어두운 패널 위 목록. 스크롤바도 어둡게 맞춘다(모달 본문과 같은 이유).
-          className="scrollbar-dark absolute top-11 right-0 left-0 z-10 max-h-40 overflow-y-auto rounded-md border-[0.5px] border-gray-600 bg-gray-800 py-1 scheme-dark"
+          // 판·줄 규격은 TODO 모달의 목록(ModalCombobox)과 같은 토큰을 쓴다 —
+          // 한 화면에서 두 모달의 드롭다운이 달라 보이면 안 된다.
+          className={cn(
+            'scrollbar-dark absolute top-11 right-0 left-0 z-10 max-h-40 overflow-y-auto scheme-dark',
+            OPTION_LIST,
+          )}
         >
           {isPending ? (
-            <li className={cn(HINT, 'px-3.5 py-2 text-gray-500')}>
+            <li className={cn(OPTION_ROW, 'text-gray-400')}>
               강의 목록을 불러오는 중이에요.
             </li>
           ) : isError ? (
-            <li className={cn(HINT, 'text-error px-3.5 py-2')}>
+            <li className={cn(OPTION_ROW, 'text-error')}>
               강의 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
             </li>
           ) : options.length === 0 ? (
-            <li className={cn(HINT, 'px-3.5 py-2 text-gray-500')}>
+            <li className={cn(OPTION_ROW, 'text-gray-400')}>
               {all.length === 0
                 ? '등록된 강의가 없어요.'
                 : '일치하는 강의가 없어요.'}
@@ -199,10 +209,12 @@ export function LectureCombobox({
                 }}
                 onMouseEnter={() => setActiveIndex(index)}
                 className={cn(
-                  'cursor-pointer truncate px-3.5 py-2 text-[13px] leading-5 font-medium tracking-[-0.26px]',
-                  index === active
-                    ? 'bg-gray-700 text-gray-100'
-                    : 'text-gray-300',
+                  OPTION_ROW,
+                  'cursor-pointer truncate transition-colors',
+                  optionStateClass({
+                    selected: lecture.projectId === value,
+                    active: index === active,
+                  }),
                 )}
               >
                 {lecture.title}

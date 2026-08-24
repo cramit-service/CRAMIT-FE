@@ -30,6 +30,31 @@ export const SECTION_DIVIDER = 'border-b-[0.5px] border-gray-700';
 // 필드 묶음 한 칸의 세로 여백. 시안에서 구분선 사이가 일정하다.
 export const SECTION_GAP = 'py-8.5';
 
+// 드롭다운으로 펼쳐지는 목록(강의·주차·시·분)의 한 판과 한 줄. 시안 1:14143.
+// 팝오버는 전부 fixed로 띄우므로 위치 클래스는 각 컴포넌트가 붙인다.
+export const OPTION_LIST =
+  'rounded-md border-[0.5px] border-gray-600 bg-gray-700 py-1 shadow-xl';
+// 시안 40×좌우18 → 0.72배 29×13. 타이포도 같은 비율(16 → 12)이고,
+// leading을 줄 높이와 같게 둬서 한 줄이 정확히 29px 상자 안에 가운데로 온다.
+// (flex로 가운데 정렬하면 텍스트가 익명 플렉스 아이템이 돼 truncate의 말줄임이 먹지 않는다)
+export const OPTION_ROW =
+  'px-3.25 text-[12px] leading-7.25 font-medium tracking-[-0.24px]';
+
+// 목록 항목의 상태별 색. 고른 항목이 호버보다 우선한다 —
+// 호버는 잠깐이지만 무엇을 골랐는지는 계속 보여야 한다.
+export function optionStateClass({
+  selected,
+  active,
+}: {
+  selected: boolean;
+  /** 키보드 하이라이트 또는 마우스 오버 */
+  active: boolean;
+}) {
+  if (selected) return 'bg-primary-400 text-gray-950';
+  if (active) return 'bg-gray-100 text-gray-900';
+  return 'text-gray-300';
+}
+
 // 하단 확정 버튼(생성하기·수정완료). 시안 346×60 → 0.72배 249×44.
 // Button 컴포넌트를 쓰지 않는 이유: size별 타이포가 고정이라 이 크기와 겹치는데
 // cn엔 tailwind-merge가 없어 덮어쓰면 승자가 클래스 생성 순서에 달린다.

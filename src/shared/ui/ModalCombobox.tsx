@@ -2,7 +2,13 @@
 // src/shared/ui/ModalCombobox.tsx
 import { useEffect, useId, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
-import { ChevronDownIcon, FIELD_OUTLINED } from '@/shared/ui/FormModal';
+import {
+  ChevronDownIcon,
+  FIELD_OUTLINED,
+  OPTION_LIST,
+  OPTION_ROW,
+  optionStateClass,
+} from '@/shared/ui/FormModal';
 
 // 강의처럼 목록이 길어질 수 있는 칸은 시안대로 검색해서 고른다.
 // 네이티브 select는 검색이 안 되고, 강의가 열 개만 넘어도 찾기 어려워진다.
@@ -237,10 +243,13 @@ export function ModalCombobox({
             width: anchor.width,
             maxHeight: LIST_MAX_HEIGHT,
           }}
-          className="scrollbar-dark fixed z-50 overflow-y-auto rounded-md border-[0.5px] border-gray-600 bg-gray-800 py-1 shadow-xl"
+          className={cn(
+            'scrollbar-dark fixed z-50 overflow-y-auto',
+            OPTION_LIST,
+          )}
         >
           {filtered.length === 0 ? (
-            <li className="px-3 py-2 text-[12px] leading-4 text-gray-500">
+            <li className={cn(OPTION_ROW, 'text-gray-400')}>
               검색 결과가 없어요.
             </li>
           ) : (
@@ -258,11 +267,12 @@ export function ModalCombobox({
                 }}
                 onMouseEnter={() => setHighlight(i)}
                 className={cn(
-                  'cursor-pointer truncate px-3 py-2 text-[13px] leading-5 transition-colors',
-                  i === highlight ? 'bg-gray-700' : '',
-                  option.value === value
-                    ? 'text-secondary-400'
-                    : 'text-gray-200',
+                  OPTION_ROW,
+                  'cursor-pointer truncate transition-colors',
+                  optionStateClass({
+                    selected: option.value === value,
+                    active: i === highlight,
+                  }),
                 )}
               >
                 {option.label}
