@@ -120,10 +120,8 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
     if (!canSubmit) return;
     setFormError(null);
 
-    // 시각은 고른 뒤에도 시간이 흐르면 저절로 과거가 된다. canSubmit에 넣어 버튼을 잠그면
-    // 현재 시각을 계속 다시 읽어야 하고, 모달을 열어둔 사이 버튼이 혼자 회색이 된다.
-    // 그래서 제출하는 그 순간에만 재고, 막을 때는 이유를 보여준다.
-    // (날짜가 오늘이 아니면 볼 필요가 없다 — 지난 날짜는 달력이 이미 막았다.)
+    // 시각은 고른 뒤에도 시간이 흐르면 저절로 과거가 된다. canSubmit에 넣어 버튼을
+    // 잠그면 모달을 열어둔 사이 버튼이 혼자 회색이 되므로, 제출하는 순간에만 잰다.
     if (
       dueDate === today &&
       dueTime !== '' &&
@@ -218,7 +216,6 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
 
       {/* 마감 일시 — 날짜와 시간이 한 라벨 아래 두 칸으로 나뉜다 (시안 2열) */}
       <div className={cn('flex flex-col gap-2', SECTION_GAP, SECTION_DIVIDER)}>
-        {/* 에러는 시험 모달의 제목과 같은 자리 — 라벨 줄 오른쪽 끝 */}
         <div className="flex items-baseline justify-between gap-4">
           <label htmlFor={`${fieldId}-due-date`} className={LABEL}>
             마감 일시
@@ -234,8 +231,7 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
           )}
         </div>
         <div className="grid grid-cols-2">
-          {/* 날짜도 시간도 목록에서만 고른다 (직접 입력·Enter 제출 차단).
-              라벨이 "마감 일시" 하나뿐이라 시간 칸이 무엇인지는 aria-label로 알린다. */}
+          {/* 라벨이 "마감 일시" 하나뿐이라 시간 칸이 무엇인지는 aria-label로 알린다. */}
           <ModalDateField
             id={`${fieldId}-due-date`}
             value={dueDate}

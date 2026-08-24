@@ -119,7 +119,6 @@ export function ModalTimeField({
   const selectHour = (h: string) => onChange(`${h}:${minute ?? '00'}`);
   const selectMinute = (m: string) => onChange(`${hour ?? '00'}:${m}`);
 
-  // 고른 값이 없으면 두 열 다 첫 항목이 포커스를 받는다.
   const hourFocus = hour ?? HOURS[0];
   const minuteFocus = minute ?? MINUTES[0];
 
@@ -146,7 +145,6 @@ export function ModalTimeField({
       const target: Column = e.key === 'ArrowRight' ? 'minute' : 'hour';
       if (target === col) return;
       e.preventDefault();
-      // 옮겨가는 열에서도 고른 값(없으면 첫 항목)이 포커스를 받는다.
       popoverRef.current
         ?.querySelector<HTMLButtonElement>(
           `[data-col="${target}"][data-focus="true"]`,
@@ -226,8 +224,7 @@ export function ModalTimeField({
           role="dialog"
           aria-label="시간 선택"
           onKeyDown={handleKeyDown}
-          // 팝오버는 absolute다. 위 래퍼의 relative가 기준이 된다 — 없으면 문서 최상위를
-          // 기준으로 잡아 모달 밖 엉뚱한 자리에 뜬다. (CLAUDE.md 4-5)
+          // absolute의 기준은 위 래퍼의 relative다. (CLAUDE.md 4-5)
           className={cn(
             'absolute top-11 right-0 left-0 z-10 grid grid-cols-2',
             OPTION_LIST,

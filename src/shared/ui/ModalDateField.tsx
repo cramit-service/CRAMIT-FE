@@ -238,8 +238,7 @@ export function ModalDateField({
           ref={popoverRef}
           role="dialog"
           aria-label="날짜 선택"
-          // 팝오버는 absolute다. 위 래퍼의 relative가 기준이 된다 — 없으면 문서 최상위를
-          // 기준으로 잡아 모달 밖 엉뚱한 자리에 뜬다. (CLAUDE.md 4-5)
+          // absolute의 기준은 위 래퍼의 relative다. (CLAUDE.md 4-5)
           className="absolute top-11 left-0 z-10 w-63 rounded-lg border-[0.5px] border-gray-600 bg-gray-800 p-3 shadow-xl"
         >
           {/* 달 이동 */}

@@ -18,8 +18,6 @@ export interface ComboboxOption {
   label: string;
 }
 
-// 목록이 길어도 화면을 덮지 않게 자른다(max-h-52 = 208px). 나머지는 스크롤로 본다.
-
 interface ModalComboboxProps {
   id: string;
   /** 고른 항목의 value. 빈 문자열이면 미선택. */
@@ -209,8 +207,7 @@ export function ModalCombobox({
           ref={listRef}
           id={listId}
           role="listbox"
-          // 목록은 absolute다. 위 래퍼의 relative가 기준이 된다 — 없으면 문서 최상위를
-          // 기준으로 잡아 모달 밖 엉뚱한 자리에 뜬다. (CLAUDE.md 4-5)
+          // absolute의 기준은 위 래퍼의 relative다. (CLAUDE.md 4-5)
           className={cn(
             'scrollbar-dark absolute top-11 right-0 left-0 z-10 max-h-52 overflow-y-auto',
             OPTION_LIST,

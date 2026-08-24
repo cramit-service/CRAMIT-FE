@@ -31,7 +31,7 @@ export const SECTION_DIVIDER = 'border-b-[0.5px] border-gray-700';
 export const SECTION_GAP = 'py-8.5';
 
 // 드롭다운으로 펼쳐지는 목록(강의·주차·시·분)의 한 판과 한 줄. 시안 1:14143.
-// 팝오버는 전부 fixed로 띄우므로 위치 클래스는 각 컴포넌트가 붙인다.
+// 띄우는 위치는 각 컴포넌트가 정한다 — 여기엔 판과 줄의 생김새만 둔다.
 export const OPTION_LIST =
   'rounded-md border-[0.5px] border-gray-600 bg-gray-700 py-1 shadow-xl';
 // 시안 40×좌우18 → 0.72배 29×13. 타이포도 같은 비율(16 → 12)이고,
