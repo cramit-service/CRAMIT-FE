@@ -23,8 +23,6 @@ const MINUTES = Array.from({ length: 60 }, (_, i) =>
 
 // 열 하나의 최대 높이. 29px 행이 일곱 개쯤 보이고 나머지는 스크롤로 본다.
 const COLUMN_MAX_HEIGHT = 203;
-// 팝오버를 위로 뒤집을지 판단할 때 쓰는 대략 높이(열 높이 + 위아래 여백).
-const POPOVER_HEIGHT = COLUMN_MAX_HEIGHT + 8;
 
 type Column = 'hour' | 'minute';
 
@@ -50,12 +48,6 @@ export function ModalTimeField({
 }: ModalTimeFieldProps) {
   const listId = useId();
   const [open, setOpen] = useState(false);
-  // 팝오버는 fixed로 띄운다. 모달 폼이 overflow-y-auto라 absolute로 두면 잘린다.
-  const [anchor, setAnchor] = useState<{
-    top: number;
-    left: number;
-    width: number;
-  } | null>(null);
 
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -72,27 +64,13 @@ export function ModalTimeField({
     triggerRef.current?.focus();
   }, []);
 
-  // 트리거를 기준으로 팝오버 위치를 다시 잡는다. 열 때와 스크롤·리사이즈 때 같은 계산을 쓴다.
-  const place = useCallback(() => {
-    const rect = triggerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const below = rect.bottom + 4;
-    const flip = below + POPOVER_HEIGHT > window.innerHeight;
-    setAnchor({
-      top: flip ? rect.top - POPOVER_HEIGHT - 4 : below,
-      left: rect.left,
-      width: rect.width,
-    });
-  }, []);
-
   const openPopover = () => {
-    if (!triggerRef.current) return;
-    place();
     syncRef.current = true;
     setOpen(true);
   };
 
-  // 바깥 클릭으로 닫고, 스크롤·리사이즈에는 따라 움직인다. (ModalDateField와 같은 이유)
+  // 바깥을 누르면 닫는다. 팝오버는 absolute라 폼이 스크롤되면 트리거를 따라 움직이므로
+  // 스크롤은 따로 들을 필요가 없다. (ModalDateField와 같다)
   useEffect(() => {
     if (!open) return;
 
@@ -106,17 +84,6 @@ export function ModalTimeField({
       }
       setOpen(false);
     };
-    // 캡처 단계로 듣는다 — 스크롤은 버블링하지 않는다.
-    // 두 열이 각자 스크롤되면 이 핸들러도 함께 불리지만, 트리거 위치가 그대로라 결과가 같다.
-    const onScroll = () => {
-      const rect = triggerRef.current?.getBoundingClientRect();
-      // 트리거가 화면 밖으로 완전히 밀려나면 따라갈 자리가 없다. 그때만 닫는다.
-      if (!rect || rect.bottom < 0 || rect.top > window.innerHeight) {
-        setOpen(false);
-        return;
-      }
-      place();
-    };
     // Escape를 document 캡처 단계로 받는 이유는 ModalDateField와 같다 —
     // 팝오버에 붙이면 모달이 window에서 먼저 받아 통째로 닫힌다.
     const onKeyDownCapture = (e: KeyboardEvent) => {
@@ -128,15 +95,11 @@ export function ModalTimeField({
 
     document.addEventListener('mousedown', onPointerDown);
     document.addEventListener('keydown', onKeyDownCapture, true);
-    window.addEventListener('scroll', onScroll, true);
-    window.addEventListener('resize', onScroll);
     return () => {
       document.removeEventListener('mousedown', onPointerDown);
       document.removeEventListener('keydown', onKeyDownCapture, true);
-      window.removeEventListener('scroll', onScroll, true);
-      window.removeEventListener('resize', onScroll);
     };
-  }, [open, close, place]);
+  }, [open, close]);
 
   // 열릴 때 두 열을 각각 고른 값 위치로 굴리고, 시 열로 포커스를 넣는다.
   // 값이 없으면 00이 맨 위라 굴릴 것도 없다.
@@ -257,14 +220,18 @@ export function ModalTimeField({
         <ChevronDownIcon className="size-3 shrink-0 text-gray-500" />
       </button>
 
-      {open && anchor && (
+      {open && (
         <div
           ref={popoverRef}
           role="dialog"
           aria-label="시간 선택"
           onKeyDown={handleKeyDown}
-          style={{ top: anchor.top, left: anchor.left, width: anchor.width }}
-          className={cn('fixed z-50 grid grid-cols-2', OPTION_LIST)}
+          // 팝오버는 absolute다. 위 래퍼의 relative가 기준이 된다 — 없으면 문서 최상위를
+          // 기준으로 잡아 모달 밖 엉뚱한 자리에 뜬다. (CLAUDE.md 4-5)
+          className={cn(
+            'absolute top-11 right-0 left-0 z-10 grid grid-cols-2',
+            OPTION_LIST,
+          )}
         >
           {renderColumn('hour', HOURS, hour, hourFocus, selectHour, '시')}
           {renderColumn(

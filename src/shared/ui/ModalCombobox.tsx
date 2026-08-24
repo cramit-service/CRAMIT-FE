@@ -18,8 +18,7 @@ export interface ComboboxOption {
   label: string;
 }
 
-// 목록이 길어도 팝오버가 화면을 덮지 않게 자른다. 나머지는 스크롤로 본다.
-const LIST_MAX_HEIGHT = 208;
+// 목록이 길어도 화면을 덮지 않게 자른다(max-h-52 = 208px). 나머지는 스크롤로 본다.
 
 interface ModalComboboxProps {
   id: string;
@@ -49,12 +48,6 @@ export function ModalCombobox({
   // null이면 "고른 항목을 그대로 보여주는 중", 문자열이면 사용자가 입력한 검색어.
   const [query, setQuery] = useState<string | null>(null);
   const [highlight, setHighlight] = useState(0);
-  // 팝오버는 fixed로 띄운다. 모달 폼이 overflow-y-auto라 absolute로 두면 잘린다.
-  const [anchor, setAnchor] = useState<{
-    top: number;
-    left: number;
-    width: number;
-  } | null>(null);
 
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -68,21 +61,8 @@ export function ModalCombobox({
           o.label.toLowerCase().includes(query.trim().toLowerCase()),
         );
 
-  const place = () => {
-    const rect = inputRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const below = rect.bottom + 4;
-    const flip = below + LIST_MAX_HEIGHT > window.innerHeight;
-    setAnchor({
-      top: flip ? rect.top - LIST_MAX_HEIGHT - 4 : below,
-      left: rect.left,
-      width: rect.width,
-    });
-  };
-
   const openList = () => {
     if (disabled) return;
-    place();
     setOpen(true);
     // 고른 항목이 있으면 그 위치에서 시작한다.
     setHighlight(
@@ -105,8 +85,8 @@ export function ModalCombobox({
     setQuery(null);
   };
 
-  // 바깥 클릭으로 닫고, 스크롤·리사이즈에는 따라 움직인다. (ModalDateField와 같은 이유)
-  // 예전에는 스크롤에 닫아 버려서, 모달을 조금만 굴려도 고르던 목록이 사라졌다.
+  // 바깥을 누르면 닫는다. 목록은 absolute라 폼이 스크롤되면 입력칸을 따라 움직이므로
+  // 스크롤은 따로 들을 필요가 없다.
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: MouseEvent) => {
@@ -114,23 +94,8 @@ export function ModalCombobox({
       if (listRef.current?.contains(e.target as Node)) return;
       closeList();
     };
-    const onScroll = () => {
-      const rect = inputRef.current?.getBoundingClientRect();
-      // 입력칸이 화면 밖으로 완전히 밀려나면 따라갈 자리가 없다. 그때만 닫는다.
-      if (!rect || rect.bottom < 0 || rect.top > window.innerHeight) {
-        closeList();
-        return;
-      }
-      place();
-    };
     document.addEventListener('mousedown', onPointerDown);
-    window.addEventListener('scroll', onScroll, true);
-    window.addEventListener('resize', onScroll);
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown);
-      window.removeEventListener('scroll', onScroll, true);
-      window.removeEventListener('resize', onScroll);
-    };
+    return () => document.removeEventListener('mousedown', onPointerDown);
   }, [open]);
 
   // 강조된 항목이 보이도록 스크롤을 따라 올린다.
@@ -196,15 +161,11 @@ export function ModalCombobox({
         onChange={(e) => {
           setQuery(e.target.value);
           setHighlight(0);
-          if (!open) {
-            place();
-            setOpen(true);
-          }
+          setOpen(true);
         }}
         onFocus={openList}
-        // Tab으로 빠져나가면 목록이 떠 있는 채로 남는다. fixed로 띄운 팝오버라
-        // 모달과 무관한 자리에 둥둥 뜬다. 항목 선택은 mousedown에서 이미 끝나므로
-        // 여기서 닫아도 클릭이 씹히지 않는다.
+        // Tab으로 빠져나가면 목록이 떠 있는 채로 남는다. 항목 선택은 mousedown에서
+        // 이미 끝나므로 여기서 닫아도 클릭이 씹히지 않는다.
         onBlur={closeList}
         onKeyDown={handleKeyDown}
         className={cn(
@@ -244,19 +205,15 @@ export function ModalCombobox({
         <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-3.5 size-3 -translate-y-1/2 text-gray-500" />
       )}
 
-      {open && anchor && (
+      {open && (
         <ul
           ref={listRef}
           id={listId}
           role="listbox"
-          style={{
-            top: anchor.top,
-            left: anchor.left,
-            width: anchor.width,
-            maxHeight: LIST_MAX_HEIGHT,
-          }}
+          // 목록은 absolute다. 위 래퍼의 relative가 기준이 된다 — 없으면 문서 최상위를
+          // 기준으로 잡아 모달 밖 엉뚱한 자리에 뜬다. (CLAUDE.md 4-5)
           className={cn(
-            'scrollbar-dark fixed z-50 overflow-y-auto',
+            'scrollbar-dark absolute top-11 right-0 left-0 z-10 max-h-52 overflow-y-auto',
             OPTION_LIST,
           )}
         >

@@ -16,8 +16,6 @@ import {
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'] as const;
 // 6주 × 7일. 달마다 높이가 들쭉날쭉하지 않게 항상 42칸으로 고정한다.
 const CELLS = 42;
-// 팝오버를 위로 뒤집을지 판단할 때 쓰는 대략 높이(헤더 + 요일 + 6주 + 여백).
-const POPOVER_HEIGHT = 296;
 
 // 달력 격자. 홈 캘린더와 같은 일요일 시작이다 — 한 화면에서 두 달력의 요일 순서가
 // 다르면 날짜를 잘못 고른다.
@@ -74,10 +72,6 @@ export function ModalDateField({
 }: ModalDateFieldProps) {
   const gridId = useId();
   const [open, setOpen] = useState(false);
-  // 팝오버는 fixed로 띄운다. 모달 폼이 overflow-y-auto라 absolute로 두면 잘린다.
-  const [anchor, setAnchor] = useState<{ top: number; left: number } | null>(
-    null,
-  );
   // 보고 있는 달. 값이 있으면 그 달, 없으면 이번 달에서 시작한다.
   const [view, setView] = useState(() => {
     const base = parseValue(value);
@@ -99,22 +93,7 @@ export function ModalDateField({
     triggerRef.current?.focus();
   }, []);
 
-  // 트리거를 기준으로 팝오버 위치를 다시 잡는다. 열 때와 스크롤·리사이즈 때 같은 계산을 쓴다.
-  const place = useCallback(() => {
-    const rect = triggerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    // 아래 공간이 모자라면 위로 뒤집는다.
-    const below = rect.bottom + 6;
-    const flip = below + POPOVER_HEIGHT > window.innerHeight;
-    setAnchor({
-      top: flip ? rect.top - POPOVER_HEIGHT - 6 : below,
-      left: rect.left,
-    });
-  }, []);
-
   const openPopover = () => {
-    if (!triggerRef.current) return;
-    place();
     // 값이 있으면 그 달을 다시 펴 준다 (닫는 사이 달을 넘겨 뒀을 수 있다).
     if (value) {
       const d = parseValue(value);
@@ -125,9 +104,8 @@ export function ModalDateField({
     setOpen(true);
   };
 
-  // 바깥 클릭으로 닫고, 스크롤·리사이즈에는 따라 움직인다.
-  // fixed로 띄웠기 때문에 폼이 스크롤되면 팝오버만 제자리에 남는다. 예전에는 그때 닫아 버렸는데,
-  // 모달을 조금만 굴려도 달력이 사라져 Escape를 누른 것처럼 보였다. 이제는 다시 자리를 잡는다.
+  // 바깥을 누르면 닫는다. 팝오버는 absolute라 폼이 스크롤되면 트리거를 따라 움직이므로
+  // 스크롤은 따로 들을 필요가 없다.
   useEffect(() => {
     if (!open) return;
 
@@ -140,16 +118,6 @@ export function ModalDateField({
         return;
       }
       setOpen(false);
-    };
-    // 캡처 단계로 듣는다 — 스크롤은 버블링하지 않는다.
-    const onScroll = () => {
-      const rect = triggerRef.current?.getBoundingClientRect();
-      // 트리거가 화면 밖으로 완전히 밀려나면 따라갈 자리가 없다. 그때만 닫는다.
-      if (!rect || rect.bottom < 0 || rect.top > window.innerHeight) {
-        setOpen(false);
-        return;
-      }
-      place();
     };
 
     // Escape는 팝오버 엘리먼트가 아니라 document에서 캡처 단계로 받는다.
@@ -166,15 +134,11 @@ export function ModalDateField({
 
     document.addEventListener('mousedown', onPointerDown);
     document.addEventListener('keydown', onKeyDownCapture, true);
-    window.addEventListener('scroll', onScroll, true);
-    window.addEventListener('resize', onScroll);
     return () => {
       document.removeEventListener('mousedown', onPointerDown);
       document.removeEventListener('keydown', onKeyDownCapture, true);
-      window.removeEventListener('scroll', onScroll, true);
-      window.removeEventListener('resize', onScroll);
     };
-  }, [open, close, place]);
+  }, [open, close]);
 
   useEffect(() => {
     if (!open || !focusGridRef.current) return;
@@ -269,13 +233,14 @@ export function ModalDateField({
         <ChevronDownIcon className="size-3 shrink-0 text-gray-500" />
       </button>
 
-      {open && anchor && (
+      {open && (
         <div
           ref={popoverRef}
           role="dialog"
           aria-label="날짜 선택"
-          style={{ top: anchor.top, left: anchor.left }}
-          className="fixed z-50 w-63 rounded-lg border-[0.5px] border-gray-600 bg-gray-800 p-3 shadow-xl"
+          // 팝오버는 absolute다. 위 래퍼의 relative가 기준이 된다 — 없으면 문서 최상위를
+          // 기준으로 잡아 모달 밖 엉뚱한 자리에 뜬다. (CLAUDE.md 4-5)
+          className="absolute top-11 left-0 z-10 w-63 rounded-lg border-[0.5px] border-gray-600 bg-gray-800 p-3 shadow-xl"
         >
           {/* 달 이동 */}
           <div className="mb-2 flex items-center justify-between">
