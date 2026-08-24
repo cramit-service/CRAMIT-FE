@@ -91,7 +91,6 @@ export function ModalCombobox({
     if (!open) return;
     const onPointerDown = (e: MouseEvent) => {
       if (wrapRef.current?.contains(e.target as Node)) return;
-      if (listRef.current?.contains(e.target as Node)) return;
       closeList();
     };
     document.addEventListener('mousedown', onPointerDown);

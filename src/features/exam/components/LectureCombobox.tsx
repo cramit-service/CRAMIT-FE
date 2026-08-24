@@ -177,7 +177,7 @@ export function LectureCombobox({
           // 판·줄 규격은 TODO 모달의 목록(ModalCombobox)과 같은 토큰을 쓴다 —
           // 한 화면에서 두 모달의 드롭다운이 달라 보이면 안 된다.
           className={cn(
-            'scrollbar-dark absolute top-11 right-0 left-0 z-10 max-h-40 overflow-y-auto scheme-dark',
+            'scrollbar-dark absolute top-11 right-0 left-0 z-10 max-h-40 overflow-y-auto',
             OPTION_LIST,
           )}
         >
