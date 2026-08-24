@@ -153,9 +153,11 @@ export function StudyViewerScreen({
   };
 
   return (
-    // Figma 시안은 1920 기준 절대 px라 실제 화면(사이드바 제외)에선 과하게 커진다.
-    // 챕터 상세 화면과 같은 약 0.72배 축소 비율을 그대로 따른다.
-    <div className="mx-auto w-full max-w-[1152px] px-8 pt-12 pb-12">
+    // 이 화면만 시안 폭(1920 기준 콘텐츠 1152 = 0.72배)을 따르지 않는다.
+    // 시안대로 두면 1920 화면에서 좌우 512px이 통째로 비고, 이분할일 때 PDF가
+    // 338px까지 줄어 자료를 읽을 수 없다. 여기는 "읽는" 화면이 아니라 "보는" 화면이라
+    // 폭·높이가 곧 기능이라서, 남는 공간을 끝까지 쓴다(h-dvh + 패널이 남은 높이를 채움).
+    <div className="flex h-dvh w-full flex-col px-6 pt-10 pb-8">
       <ViewerHeader
         chapter={chapter}
         project={project}
@@ -163,11 +165,11 @@ export function StudyViewerScreen({
         onTabToggle={toggleTab}
       />
 
-      <div ref={areaRef} className="mt-5">
+      <div ref={areaRef} className="mt-5 flex min-h-0 flex-1 flex-col">
         {isSplit ? (
           // 이분할 — 좌우 패널 사이 핸들을 끌어 폭을 나눈다.
           // 핸들이 간격을 겸하므로 flex gap은 주지 않는다(주면 간격이 두 번 생긴다).
-          <div className="flex">
+          <div className="flex h-full">
             <div
               className="min-w-0"
               // 핸들 폭을 뺀 나머지를 비율로 가른다. 우측은 flex-1로 남는 만큼 채운다.
