@@ -198,8 +198,8 @@ export function ModalDateField({
   const isBlocked = (iso: string) => min !== undefined && iso < min;
 
   // 포커스를 처음 받을 칸 — 고른 날이 이 달에 있으면 그 날, 없으면 고를 수 있는 첫 날.
-  // disabled 버튼은 focus()를 받지 않는다. min 보정을 안 하면 지난 달이 섞인 달에서
-  // 달력을 열어도 포커스가 아무 데도 안 들어가 화살표 키가 통째로 먹지 않는다.
+  // 고를 수 있는 날이 하나도 없는 달(전체가 min 이전)이면 첫 칸으로 떨어진다.
+  // aria-disabled라 그 칸도 포커스를 받으므로 화살표로 빠져나올 수 있다.
   const monthCells = cells
     .filter((d) => d.getMonth() + 1 === view.month)
     .map(toLocalDateString);
@@ -300,8 +300,15 @@ export function ModalDateField({
                   data-focus={iso === focusTarget}
                   // 격자 전체가 탭 정지 하나가 되도록 포커스 대상만 탭 순서에 남긴다.
                   tabIndex={iso === focusTarget ? 0 : -1}
-                  onClick={() => select(date)}
-                  disabled={blocked}
+                  // disabled가 아니라 aria-disabled다. disabled 버튼은 focus()를
+                  // 받지 않아, 차단된 칸으로 화살표를 옮기면 포커스가 body로 떨어지고
+                  // 그 뒤로 격자 안에서 아무 키도 듣지 않게 된다. 고를 수 없다는 사실은
+                  // 보조기기에 알리되 포커스는 계속 받게 두고, 고르는 것만 막는다.
+                  onClick={() => {
+                    if (blocked) return;
+                    select(date);
+                  }}
+                  aria-disabled={blocked}
                   aria-pressed={selected}
                   aria-current={iso === today ? 'date' : undefined}
                   className={cn(

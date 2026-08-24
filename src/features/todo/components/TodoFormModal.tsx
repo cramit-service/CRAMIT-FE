@@ -62,7 +62,13 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
     isError: isLecturesError,
   } = useProjectSummaries();
   // 강의를 고르기 전에는 주차를 물어볼 대상이 없다 — 훅이 enabled로 요청을 막는다.
-  const { data: chapters } = useChapters(projectId);
+  // isPending이 아니라 isLoading을 본다 — enabled가 false인 동안에도 status는 계속
+  // 'pending'이라, isPending으로 재면 강의를 고르기 전에도 "불러오는 중"이 뜬다.
+  const {
+    data: chapters,
+    isLoading: isChaptersLoading,
+    isError: isChaptersError,
+  } = useChapters(projectId);
 
   const lectureOptions = useMemo(
     () => (lectures ?? []).map((l) => ({ value: l.projectId, label: l.title })),
@@ -304,6 +310,16 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
           {projectId === NONE && (
             <p className={cn(HINT, 'text-gray-500')}>
               강의를 먼저 고르면 주차를 연결할 수 있어요.
+            </p>
+          )}
+          {isChaptersLoading && (
+            <p role="status" className={cn(HINT, 'text-gray-500')}>
+              주차 목록을 불러오는 중이에요.
+            </p>
+          )}
+          {isChaptersError && (
+            <p role="alert" className={cn(HINT, 'text-error')}>
+              주차 목록을 불러오지 못했어요.
             </p>
           )}
         </div>

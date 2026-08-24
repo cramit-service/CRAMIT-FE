@@ -107,10 +107,10 @@ export function ModalTimeField({
     if (!open || !syncRef.current) return;
     syncRef.current = false;
     popoverRef.current
-      ?.querySelectorAll<HTMLButtonElement>('[data-focus="true"]')
+      ?.querySelectorAll<HTMLElement>('[data-focus="true"]')
       .forEach((el) => el.scrollIntoView({ block: 'nearest' }));
     popoverRef.current
-      ?.querySelector<HTMLButtonElement>('[data-col="hour"][data-focus="true"]')
+      ?.querySelector<HTMLElement>('[data-col="hour"][data-focus="true"]')
       ?.focus();
   }, [open]);
 
@@ -134,7 +134,7 @@ export function ModalTimeField({
       const index = Number(focused?.dataset.index ?? -1);
       const next = index + (e.key === 'ArrowDown' ? 1 : -1);
       popoverRef.current
-        ?.querySelector<HTMLButtonElement>(
+        ?.querySelector<HTMLElement>(
           `[data-col="${col}"][data-index="${next}"]`,
         )
         ?.focus();
@@ -146,7 +146,7 @@ export function ModalTimeField({
       if (target === col) return;
       e.preventDefault();
       popoverRef.current
-        ?.querySelector<HTMLButtonElement>(
+        ?.querySelector<HTMLElement>(
           `[data-col="${target}"][data-focus="true"]`,
         )
         ?.focus();
@@ -171,24 +171,32 @@ export function ModalTimeField({
       {options.map((option, i) => {
         const selected = option === selectedValue;
         return (
-          <li key={option} role="option" aria-selected={selected}>
-            <button
-              type="button"
-              data-col={col}
-              data-index={i}
-              data-focus={option === focusValue}
-              // 열 하나가 탭 정지 하나가 되도록 포커스 대상만 탭 순서에 남긴다.
-              tabIndex={option === focusValue ? 0 : -1}
-              onClick={() => onSelect(option)}
-              className={cn(
-                OPTION_ROW,
-                'w-full text-center transition-colors',
-                optionStateClass({ selected, active: false }),
-                !selected && 'hover:bg-gray-100 hover:text-gray-900',
-              )}
-            >
-              {option}
-            </button>
+          // 역할과 포커스를 한 요소에 둔다. option 안에 button을 넣으면 보조기기가
+          // 포커스된 것을 "버튼"으로 읽어 선택 상태를 알리지 않는다.
+          <li
+            key={option}
+            role="option"
+            aria-selected={selected}
+            data-col={col}
+            data-index={i}
+            data-focus={option === focusValue}
+            // 열 하나가 탭 정지 하나가 되도록 포커스 대상만 탭 순서에 남긴다.
+            tabIndex={option === focusValue ? 0 : -1}
+            onClick={() => onSelect(option)}
+            onKeyDown={(e) => {
+              if (e.key !== 'Enter' && e.key !== ' ') return;
+              // Space는 막지 않으면 열이 한 화면 굴러간다.
+              e.preventDefault();
+              onSelect(option);
+            }}
+            className={cn(
+              OPTION_ROW,
+              'cursor-pointer text-center transition-colors',
+              optionStateClass({ selected, active: false }),
+              !selected && 'hover:bg-gray-100 hover:text-gray-900',
+            )}
+          >
+            {option}
           </li>
         );
       })}
