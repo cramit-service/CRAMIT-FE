@@ -120,6 +120,42 @@ export const mockTodos: Todo[] = [
     memo: null,
     isCompleted: false,
   },
+  // 아래 셋은 캘린더 한 칸에 일정이 넘칠 때(+N)를 보기 위한 것이다.
+  // mockExams에 D-3·D-8 시험이 있어 이 날짜가 각각 3개(+1)·4개(+2) 칸이 된다.
+  // 날짜를 옮기면 두 상태 중 하나가 화면에서 사라진다.
+  {
+    todoId: '11',
+    projectId: '3',
+    title: '실습 코드 리팩터링',
+    lectureName: '자료구조',
+    dueDate: dateFromToday(3),
+    dueTime: null,
+    lectureId: null,
+    memo: null,
+    isCompleted: false,
+  },
+  {
+    todoId: '12',
+    projectId: '5',
+    title: '정규화 연습문제',
+    lectureName: '데이터베이스',
+    dueDate: dateFromToday(8),
+    dueTime: null,
+    lectureId: null,
+    memo: null,
+    isCompleted: false,
+  },
+  {
+    todoId: '13',
+    projectId: '6',
+    title: '고유값 계산 연습',
+    lectureName: '선형대수학',
+    dueDate: dateFromToday(8),
+    dueTime: '11:00',
+    lectureId: null,
+    memo: null,
+    isCompleted: false,
+  },
 ];
 
 // mock 전용 쓰기 헬퍼. 새로고침하면 사라진다(모듈 메모리라 세션 단위). mockExams와 같은 방식이다.
