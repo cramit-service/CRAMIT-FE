@@ -105,7 +105,8 @@ export function ModalCombobox({
     setQuery(null);
   };
 
-  // 바깥 클릭 / 스크롤 / 리사이즈로 닫는다. (ModalDateField와 같은 이유)
+  // 바깥 클릭으로 닫고, 스크롤·리사이즈에는 따라 움직인다. (ModalDateField와 같은 이유)
+  // 예전에는 스크롤에 닫아 버려서, 모달을 조금만 굴려도 고르던 목록이 사라졌다.
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: MouseEvent) => {
@@ -113,7 +114,15 @@ export function ModalCombobox({
       if (listRef.current?.contains(e.target as Node)) return;
       closeList();
     };
-    const onScroll = () => closeList();
+    const onScroll = () => {
+      const rect = inputRef.current?.getBoundingClientRect();
+      // 입력칸이 화면 밖으로 완전히 밀려나면 따라갈 자리가 없다. 그때만 닫는다.
+      if (!rect || rect.bottom < 0 || rect.top > window.innerHeight) {
+        closeList();
+        return;
+      }
+      place();
+    };
     document.addEventListener('mousedown', onPointerDown);
     window.addEventListener('scroll', onScroll, true);
     window.addEventListener('resize', onScroll);
@@ -208,6 +217,9 @@ export function ModalCombobox({
       {clearable && value && !disabled ? (
         <button
           type="button"
+          // 이게 없으면 누르는 순간 입력칸이 blur돼 onBlur가 목록을 닫고, 이어지는
+          // focus()가 onFocus를 태워 방금 닫은 목록이 도로 열린다. 포커스를 아예 뺏지 않는다.
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => {
             onChange('');
             setQuery(null);

@@ -96,7 +96,8 @@ export function ModalDateField({
     triggerRef.current?.focus();
   }, []);
 
-  const openPopover = () => {
+  // 트리거를 기준으로 팝오버 위치를 다시 잡는다. 열 때와 스크롤·리사이즈 때 같은 계산을 쓴다.
+  const place = useCallback(() => {
     const rect = triggerRef.current?.getBoundingClientRect();
     if (!rect) return;
     // 아래 공간이 모자라면 위로 뒤집는다.
@@ -106,6 +107,11 @@ export function ModalDateField({
       top: flip ? rect.top - POPOVER_HEIGHT - 6 : below,
       left: rect.left,
     });
+  }, []);
+
+  const openPopover = () => {
+    if (!triggerRef.current) return;
+    place();
     // 값이 있으면 그 달을 다시 펴 준다 (닫는 사이 달을 넘겨 뒀을 수 있다).
     if (value) {
       const d = parseValue(value);
@@ -116,8 +122,9 @@ export function ModalDateField({
     setOpen(true);
   };
 
-  // 바깥 클릭 / 스크롤 / 리사이즈로 닫는다.
-  // fixed로 띄웠기 때문에 폼이 스크롤되면 팝오버만 제자리에 남는다 — 그때는 닫는 게 맞다.
+  // 바깥 클릭으로 닫고, 스크롤·리사이즈에는 따라 움직인다.
+  // fixed로 띄웠기 때문에 폼이 스크롤되면 팝오버만 제자리에 남는다. 예전에는 그때 닫아 버렸는데,
+  // 모달을 조금만 굴려도 달력이 사라져 Escape를 누른 것처럼 보였다. 이제는 다시 자리를 잡는다.
   useEffect(() => {
     if (!open) return;
 
@@ -132,7 +139,15 @@ export function ModalDateField({
       setOpen(false);
     };
     // 캡처 단계로 듣는다 — 스크롤은 버블링하지 않는다.
-    const onScroll = () => setOpen(false);
+    const onScroll = () => {
+      const rect = triggerRef.current?.getBoundingClientRect();
+      // 트리거가 화면 밖으로 완전히 밀려나면 따라갈 자리가 없다. 그때만 닫는다.
+      if (!rect || rect.bottom < 0 || rect.top > window.innerHeight) {
+        setOpen(false);
+        return;
+      }
+      place();
+    };
 
     // Escape는 팝오버 엘리먼트가 아니라 document에서 캡처 단계로 받는다.
     // 달을 넘기면 포커스를 갖던 날짜 버튼이 사라져 포커스가 body로 떨어진다. 그때의
@@ -156,7 +171,7 @@ export function ModalDateField({
       window.removeEventListener('scroll', onScroll, true);
       window.removeEventListener('resize', onScroll);
     };
-  }, [open, close]);
+  }, [open, close, place]);
 
   useEffect(() => {
     if (!open || !focusGridRef.current) return;
