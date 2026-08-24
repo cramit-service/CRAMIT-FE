@@ -2,19 +2,20 @@
 // src/features/todo/components/TodoFormModal.tsx
 import { useId, useMemo, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
+import { toLocalDateString, toLocalTimeString } from '@/shared/lib/date';
 import {
   DANGER_ACTION,
   FIELD_FILLED,
-  FIELD_OUTLINED,
-  FIELD_WIDTH,
   FormModal,
   HINT,
   LABEL,
   PRIMARY_ACTION,
   SECTION_DIVIDER,
+  SECTION_GAP,
 } from '@/shared/ui/FormModal';
 import { ModalCombobox } from '@/shared/ui/ModalCombobox';
 import { ModalDateField } from '@/shared/ui/ModalDateField';
+import { ModalTimeField } from '@/shared/ui/ModalTimeField';
 // 강의·주차 목록은 study가 이미 조회한다. 같은 요청을 두 번 정의하지 않고 그 훅을 그대로 쓴다
 // — 쿼리 키도 공유돼 캐시가 한 벌로 유지된다. (새 주차 업로드 모달과 동일)
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
@@ -52,6 +53,8 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
   const [lectureId, setLectureId] = useState(todo?.lectureId ?? NONE);
   const [memo, setMemo] = useState(todo?.memo ?? '');
   const [formError, setFormError] = useState<string | null>(null);
+  // 지난 시각으로 제출했을 때만 채워진다. 자세한 이유는 handleSubmit 참고.
+  const [dueTimeError, setDueTimeError] = useState<string | null>(null);
 
   const {
     data: lectures,
@@ -74,10 +77,25 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
     [chapters],
   );
 
+  // 과거로 만들면 홈 캘린더의 지나간 칸에 박혀 사실상 사라진다.
+  // 이미 지난 TODO를 수정 중이면 그 날짜까지는 열어둬야 제목·메모만 고칠 수 있다.
+  const today = toLocalDateString(new Date());
+  const minDueDate = todo && todo.dueDate < today ? todo.dueDate : today;
+
   const busy =
     createMutation.isPending ||
     updateMutation.isPending ||
     deleteMutation.isPending;
+
+  // 날짜나 시간을 고치는 순간 앞서 띄운 경고는 더 이상 그 값에 대한 것이 아니다.
+  const handleDueDateChange = (value: string) => {
+    setDueDate(value);
+    setDueTimeError(null);
+  };
+  const handleDueTimeChange = (value: string) => {
+    setDueTime(value);
+    setDueTimeError(null);
+  };
 
   // 강의를 바꾸면 이전 강의의 주차가 남아 있으면 안 된다. 같이 비운다.
   const handleProjectChange = (value: string) => {
@@ -101,6 +119,20 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
     e.preventDefault();
     if (!canSubmit) return;
     setFormError(null);
+
+    // 시각은 고른 뒤에도 시간이 흐르면 저절로 과거가 된다. canSubmit에 넣어 버튼을 잠그면
+    // 현재 시각을 계속 다시 읽어야 하고, 모달을 열어둔 사이 버튼이 혼자 회색이 된다.
+    // 그래서 제출하는 그 순간에만 재고, 막을 때는 이유를 보여준다.
+    // (날짜가 오늘이 아니면 볼 필요가 없다 — 지난 날짜는 달력이 이미 막았다.)
+    if (
+      dueDate === today &&
+      dueTime !== '' &&
+      dueTime < toLocalTimeString(new Date())
+    ) {
+      setDueTimeError('이미 지난 시간이에요.');
+      return;
+    }
+    setDueTimeError(null);
 
     const payload = {
       projectId: projectId || null,
@@ -184,27 +216,39 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
       </div>
 
       {/* 마감 일시 — 날짜와 시간이 한 라벨 아래 두 칸으로 나뉜다 (시안 2열) */}
-      <div className={cn('flex flex-col gap-2 py-8.5', SECTION_DIVIDER)}>
-        <label htmlFor={`${fieldId}-due-date`} className={LABEL}>
-          마감 일시
-        </label>
+      <div className={cn('flex flex-col gap-2', SECTION_GAP, SECTION_DIVIDER)}>
+        {/* 에러는 시험 모달의 제목과 같은 자리 — 라벨 줄 오른쪽 끝 */}
+        <div className="flex items-baseline justify-between gap-4">
+          <label htmlFor={`${fieldId}-due-date`} className={LABEL}>
+            마감 일시
+          </label>
+          {dueTimeError && (
+            <p
+              id={`${fieldId}-due-time-error`}
+              role="alert"
+              className={cn(HINT, 'text-error')}
+            >
+              {dueTimeError}
+            </p>
+          )}
+        </div>
         <div className="grid grid-cols-2">
-          {/* 날짜는 달력에서만 고른다 (세그먼트 직접 입력·Enter 제출 차단) */}
+          {/* 날짜도 시간도 목록에서만 고른다 (직접 입력·Enter 제출 차단).
+              라벨이 "마감 일시" 하나뿐이라 시간 칸이 무엇인지는 aria-label로 알린다. */}
           <ModalDateField
             id={`${fieldId}-due-date`}
             value={dueDate}
-            onChange={setDueDate}
+            onChange={handleDueDateChange}
+            min={minDueDate}
             disabled={busy}
           />
-          {/* 시간은 선택이고 자릿수가 둘뿐이라 네이티브 time을 그대로 쓴다.
-              라벨이 "마감 일시" 하나뿐이라 이 칸이 무엇인지는 aria-label로 알린다. */}
-          <input
-            type="time"
-            aria-label="마감 시간 (선택)"
+          <ModalTimeField
+            id={`${fieldId}-due-time`}
+            ariaLabel="마감 시간 (선택)"
             value={dueTime}
-            onChange={(e) => setDueTime(e.target.value)}
+            onChange={handleDueTimeChange}
             disabled={busy}
-            className={cn(FIELD_OUTLINED, FIELD_WIDTH, '[color-scheme:dark]')}
+            describedBy={dueTimeError ? `${fieldId}-due-time-error` : undefined}
           />
         </div>
       </div>
@@ -213,7 +257,11 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
           두 콤보박스는 기본이 w-full이라 열을 꽉 채워 서로 맞닿는다. 폭을 잡고
           열 사이 간격(시안 15)을 줘서 떨어뜨린다. */}
       <div
-        className={cn('grid grid-cols-2 gap-x-[15px] py-8.5', SECTION_DIVIDER)}
+        className={cn(
+          'grid grid-cols-2 gap-x-[15px]',
+          SECTION_GAP,
+          SECTION_DIVIDER,
+        )}
       >
         <div className="flex flex-col gap-2">
           <label htmlFor={`${fieldId}-project`} className={LABEL}>
