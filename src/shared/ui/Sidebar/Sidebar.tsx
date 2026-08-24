@@ -51,11 +51,17 @@ export function Sidebar() {
       </button>
 
       {/* 로고 (심볼) — 접힘/펼침 모두 표시.
-          메뉴 아이콘과 같은 폭 90px 칸에 담아 세로로 정렬을 맞추고, 접을 때 자리가 안 움직이게 한다. */}
-      <div className="flex items-center py-6">
+          메뉴 아이콘과 같은 폭 90px 칸에 담아 세로로 정렬을 맞추고, 접을 때 자리가 안 움직이게 한다.
+          크기는 시안 노드(24:9634의 icon, 27×37)가 아니라 보이는 마크를 기준으로 맞췄다.
+          그 노드는 투명 여백을 2~3px 물고 있어 실제 마크는 23×33이고, 우리 PNG는 여백이 더
+          적어서 박스를 37로 주면 마크만 35px로 커진다. 35px일 때 마크가 시안과 같은 33px가 된다.
+          위치도 같은 이유로 보이는 마크 기준이다 — 마크 위쪽 여백이 1px이라 pt를 33으로 줘야
+          마크가 시안과 같은 y=34에 선다.
+          홈이 시안 1:1 스케일이라(home/page.tsx) 이 레일도 0.72배 없이 px를 그대로 옮긴다. */}
+      <div className="flex items-center pt-[33px] pb-6">
         <span className="flex w-22.5 shrink-0 justify-center">
           {/* 높이는 호출처가 정한다 — Logo는 기본 크기를 갖지 않는다 */}
-          <Logo variant="symbol" className="h-11" />
+          <Logo variant="symbol" className="h-[35px]" />
         </span>
       </div>
 
