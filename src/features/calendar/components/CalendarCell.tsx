@@ -42,20 +42,38 @@ interface CalendarCellProps {
   cell: Cell;
   items: ScheduleItem[];
   isToday: boolean;
+  /** 이 날짜만 보도록 TODO 체크리스트가 걸러진 상태인지 */
+  isSelected: boolean;
+  onSelect: () => void;
 }
 
-// h-full로 grid 줄 높이를 그대로 채우고, 넘치는 건 overflow-hidden으로 자른다.
-// min-w-0을 줘야 안쪽 태그가 열 폭에 맞춰 잘린다.
+// h-full/w-full을 명시해야 한다 — <button>은 display:flex를 줘도 내용 크기로 줄어들어
+// grid 칸을 안 채운다. min-w-0은 안쪽 태그가 열 폭에 맞춰 잘리게 한다.
 // justify-between은 시안대로 — 날짜 숫자는 위, 일정 태그는 칸 바닥에 붙는다.
-export function CalendarCell({ cell, items, isToday }: CalendarCellProps) {
+//
+// 선택 표시가 테두리가 아니라 outline인 이유: 테두리는 자리를 차지해 칸 안쪽 폭을 바꾸고,
+// 그러면 선택할 때마다 태그가 잘리는 위치가 달라진다. outline은 레이아웃 밖에 그린다.
+export function CalendarCell({
+  cell,
+  items,
+  isToday,
+  isSelected,
+  onSelect,
+}: CalendarCellProps) {
   const visible = items.slice(0, MAX_VISIBLE_TAGS);
   const hiddenCount = items.length - visible.length;
 
   return (
-    <div
+    <button
+      type="button"
+      aria-pressed={isSelected}
+      aria-label={`${cell.day}일${items.length > 0 ? ` 일정 ${items.length}건` : ''}`}
+      onClick={onSelect}
       className={cn(
-        'flex h-full min-w-0 flex-col justify-between gap-1 overflow-hidden p-1',
+        'flex h-full w-full min-w-0 cursor-pointer flex-col justify-between gap-1 overflow-hidden p-1 text-left',
+        'focus-visible:ring-secondary-400 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
         cell.isCurrentMonth ? 'bg-white' : 'bg-gray-200',
+        isSelected && 'outline-secondary-400 outline-2 -outline-offset-2',
       )}
     >
       <span
@@ -88,6 +106,6 @@ export function CalendarCell({ cell, items, isToday }: CalendarCellProps) {
           )}
         </div>
       )}
-    </div>
+    </button>
   );
 }
