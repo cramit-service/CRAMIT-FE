@@ -27,6 +27,22 @@ export function Sidebar() {
   // 펼친 채로 바깥을 누르면 접는다. 딤이 아니라 document에서 듣는 이유는, 딤(z-20)보다
   // 위에 있는 것(챗독 z-30·z-40)을 눌렀을 때도 접혀야 하기 때문이다.
   // 딤이 덮은 영역의 클릭은 딤이 먹으므로 콘텐츠에는 닿지 않는다.
+  // Escape로도 접는다. aside에 달면 포커스가 콘텐츠로 넘어간 뒤에는 keydown이 aside를
+  // 거치지 않아 안 먹으므로 document에서 듣는다.
+  // 단, 모달이 열려 있으면 Escape는 모달 것이다 — Modal도 window 버블 단계에서 듣고 전파를
+  // 막지 않아서, 걸러내지 않으면 Escape 한 번에 모달과 사이드바가 같이 닫힌다.
+  // aria-modal은 Modal이 실제로 붙이는 표준 속성이라 내부 구현에 기대는 게 아니다.
+  useEffect(() => {
+    if (!expanded) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (document.querySelector('[aria-modal="true"]')) return;
+      setExpanded(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [expanded]);
+
   useEffect(() => {
     if (!expanded) return;
     const onMouseDown = (e: MouseEvent) => {
@@ -53,9 +69,6 @@ export function Sidebar() {
       />
       <aside
         ref={asideRef}
-        // Escape는 window가 아니라 이 요소에서 듣는다. Modal도 Escape를 window 버블 단계에서
-        // 듣고 전파를 막지 않아서, window에 달면 모달이 열린 상태의 Escape 한 번에
-        // 모달이 닫히면서 사이드바까지 같이 접힌다.
         // 사이드바 링크로 화면을 옮기면 접는다. 사이드바는 (main) 레이아웃에 있어
         // 라우트가 바뀌어도 언마운트되지 않으므로, 없으면 펼친 채로 다음 화면까지 따라온다.
         // pathname을 useEffect로 지켜보지 않고 이동을 일으킨 클릭에서 바꾼다
@@ -63,10 +76,6 @@ export function Sidebar() {
         // 링크만 골라내는 이유 — 토글·최근학습 펼치기는 이동이 아니라 사이드바 자체 조작이다.
         onClick={(e) => {
           if ((e.target as HTMLElement).closest('a')) setExpanded(false);
-        }}
-        onKeyDown={(e) => {
-          if (e.key !== 'Escape' || !expanded) return;
-          setExpanded(false);
         }}
         className={cn(
           // fixed로 흐름에서 빼 콘텐츠 위를 덮는다. 폭이 바뀌어도 main은 좌패딩이 고정이라
@@ -114,7 +123,14 @@ export function Sidebar() {
         </div>
 
         {/* 메인 메뉴 */}
-        <nav className="flex flex-1 flex-col gap-1">
+        {/* 짧은 화면에서는 이 칸만 스크롤해 하단 메뉴(내 정보 수정·더보기)를 항상 남긴다.
+            aside가 h-screen이라 콘텐츠 합(펼침 547px)이 뷰포트보다 크면 하단이 화면 밖으로
+            밀려 닿을 수 없었다 — 오버레이 전환 이전부터 있던 문제다.
+            min-h-0이 없으면 세로 flex 자식의 min-height: auto가 콘텐츠 높이 아래로 줄어드는 걸
+            막아 overflow-y-auto가 걸릴 일이 없다. 주축이 세로라 여기선 min-h-0이 필요하다.
+            overflow-x-hidden은 세로 스크롤바가 생겼을 때 90px 아이콘 칸이 6px 넘치며
+            가로 스크롤이 따라 생기는 걸 막는다(한 축이 visible이 아니면 다른 축은 auto가 된다). */}
+        <nav className="scrollbar-dark flex min-h-0 flex-1 flex-col gap-1 overflow-x-hidden overflow-y-auto overscroll-contain">
           <SidebarItem
             icon={<HomeNavIcon active={isActive('/home')} />}
             label="홈"
