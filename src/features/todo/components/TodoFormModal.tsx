@@ -276,15 +276,14 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
             onChange={handleProjectChange}
             options={lectureOptions}
             disabled={busy}
-            placeholder="선택 없음"
+            // 로딩은 칸 아래 문구가 아니라 placeholder로 알린다. 문구는 로딩이 끝나면
+            // 사라지면서 한 줄(18) + gap-2(8) = 26px 만큼 모달 높이를 줄여 화면이 출렁였다.
+            // 로딩 중에는 options가 비어 있어 고른 항목의 라벨도 못 찾으므로,
+            // 수정으로 열어 강의가 이미 선택돼 있어도 이 placeholder가 보인다.
+            placeholder={isLecturesPending ? '불러오는 중이에요' : '선택 없음'}
             clearable
             width="w-[240px]"
           />
-          {isLecturesPending && (
-            <p role="status" className={cn(HINT, 'text-gray-500')}>
-              강의 목록을 불러오는 중이에요.
-            </p>
-          )}
           {isLecturesError && (
             <p role="alert" className={cn(HINT, 'text-error')}>
               강의 목록을 불러오지 못했어요.
@@ -303,18 +302,16 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
             onChange={setLectureId}
             options={chapterOptions}
             disabled={busy || projectId === NONE}
-            placeholder="선택 없음"
+            // 강의 칸과 같은 이유로 로딩은 placeholder에 싣는다.
+            placeholder={isChaptersLoading ? '불러오는 중이에요' : '선택 없음'}
             clearable
             width="w-[240px]"
           />
+          {/* 이 문구는 강의를 고르기 전까지 계속 떠 있다(사라졌다 나타나지 않는다).
+              그래서 위 로딩 문구와 달리 높이를 출렁이게 하지 않는다. */}
           {projectId === NONE && (
             <p className={cn(HINT, 'text-gray-500')}>
               강의를 먼저 고르면 주차를 연결할 수 있어요.
-            </p>
-          )}
-          {isChaptersLoading && (
-            <p role="status" className={cn(HINT, 'text-gray-500')}>
-              주차 목록을 불러오는 중이에요.
             </p>
           )}
           {isChaptersError && (
