@@ -1,6 +1,8 @@
 'use client';
 // src/features/study/components/ChapterDetailScreen.tsx
 import { useState } from 'react';
+import { NewChapterUploadModal } from '@/features/project/components/NewChapterUploadModal';
+import type { Chapter } from '@/shared/types/api';
 import { useProjectDetail } from '@/features/study/hooks/useProjectDetail';
 import { useChapters } from '@/features/study/hooks/useChapters';
 import { ProjectHeader } from './ProjectHeader';
@@ -9,11 +11,13 @@ import { ChapterCard } from './ChapterCard';
 import { Pagination } from './Pagination';
 import { SharedBoardPlaceholder } from './SharedBoardPlaceholder';
 
-const PAGE_SIZE = 3;
+const PAGE_SIZE = 4;
 
 // 챕터 상세(단계별 학습) 화면. page.tsx는 이 컴포넌트를 조립만 한다.
 export function ChapterDetailScreen({ projectId }: { projectId: string }) {
   const [page, setPage] = useState(1);
+  // 꾹 눌러 연 "주차 정보 수정하기" 대상. 닫을 때 통째로 언마운트해 입력값이 남지 않게 한다.
+  const [editingChapter, setEditingChapter] = useState<Chapter | null>(null);
   const {
     data: project,
     isLoading: projectLoading,
@@ -49,14 +53,18 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
 
   // 클라이언트 페이지네이션 (mock)
   const totalPages = Math.max(1, Math.ceil(ordered.length / PAGE_SIZE));
-  const current = Math.min(page, totalPages);
+  // page는 화면이 살아있는 동안 유지되므로 챕터가 지워지거나 PAGE_SIZE가 바뀌어
+  // totalPages가 줄면 범위를 벗어난다. 위아래 모두 잘라 slice가 빈 배열이 되지 않게 한다.
+  const current = Math.min(Math.max(1, page), totalPages);
   const start = (current - 1) * PAGE_SIZE;
   const visible = ordered.slice(start, start + PAGE_SIZE);
 
   return (
     // Figma 시안은 1920 기준 절대 px라 실제 화면(사이드바 제외)에선 과하게 커진다.
     // 비례는 그대로 두고 전체를 약 0.72배로 줄여 한 화면에 들어오게 한다.
-    <div className="mx-auto w-full max-w-4xl px-8 pt-12 pb-12">
+    // 다만 본문 폭만은 0.72배(896px)로 두면 좌우 여백이 과해 카드가 답답해 보여서
+    // 강의 목록 화면(LectureListScreen)과 같은 max-w-6xl로 맞췄다.
+    <div className="mx-auto w-full max-w-6xl px-8 pt-12 pb-12">
       <ProjectHeader project={project} />
 
       <section className="mt-7">
@@ -80,7 +88,12 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
             </p>
           ) : (
             visible.map((chapter) => (
-              <ChapterCard key={chapter.chapterId} chapter={chapter} />
+              <ChapterCard
+                key={chapter.chapterId}
+                chapter={chapter}
+                // 공유받은 강의의 주차는 내가 고칠 수 없다 (헤더의 업로드 버튼과 같은 기준).
+                onLongPress={project.sharedBy ? undefined : setEditingChapter}
+              />
             ))
           )}
         </div>
@@ -96,6 +109,15 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
 
       {/* 공유 강의일 때만 공유 게시판 자리 노출 (내 강의면 없음) */}
       {project.isShared && <SharedBoardPlaceholder />}
+
+      {editingChapter && (
+        <NewChapterUploadModal
+          projectId={projectId}
+          projectTitle={project.title}
+          chapter={editingChapter}
+          onClose={() => setEditingChapter(null)}
+        />
+      )}
     </div>
   );
 }

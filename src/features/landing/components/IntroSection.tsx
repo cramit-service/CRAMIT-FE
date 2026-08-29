@@ -3,9 +3,12 @@ import Image from 'next/image';
 
 export function IntroSection() {
   return (
-    // gray-100이 흰색 토큰이다
-    <section className="bg-gray-100 px-6 py-32">
-      <div className="mx-auto grid max-w-6xl items-center gap-14 md:grid-cols-[2fr_3fr]">
+    // gray-100이 흰색 토큰이다.
+    // min-h-screen — 소개 화면 하나가 한 장면을 꽉 채운다. 클릭 한 번에 한 섹션씩 넘어간다.
+    // py-32는 남겨 둔다. 창이 낮아 내용이 한 화면을 넘기면 min-h가 늘어나 잘리지 않는다.
+    <section className="flex min-h-screen items-center bg-gray-100 px-6 py-32">
+      {/* 부모가 flex라 w-full이 없으면 내용 폭으로 줄어든다 */}
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-14 md:grid-cols-[2fr_3fr]">
         {/* Figma 시안 이미지(main_dashboard_1). 시안 비율이 3:2라 원본(4:3)을 잘라 맞춘다 */}
         <Image
           src="/landing/intro-desk.jpg"

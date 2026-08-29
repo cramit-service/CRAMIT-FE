@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
 import { formatChapterDate } from '@/features/study/lib/format';
+import { useLongPress } from '@/features/study/hooks/useLongPress';
 import { CalendarIcon, ChevronRightIcon, RefreshIcon } from './icons';
 import type { Chapter, ChapterStatus } from '@/shared/types/api';
 
@@ -36,8 +37,19 @@ const actionStyle: Record<ChapterStatus, string> = {
   DONE: 'border-[0.5px] border-gray-400 bg-gray-300 text-white hover:bg-gray-400',
 };
 
-export function ChapterCard({ chapter }: { chapter: Chapter }) {
+interface ChapterCardProps {
+  chapter: Chapter;
+  /** 카드를 꾹 눌렀을 때 (주차 정보 수정). 없으면 제스처를 걸지 않는다. */
+  onLongPress?: (chapter: Chapter) => void;
+}
+
+export function ChapterCard({ chapter, onLongPress }: ChapterCardProps) {
   const router = useRouter();
+  // 시안에 수정 버튼이 따로 없다 — 카드를 꾹 눌러서 주차 정보 수정으로 들어간다.
+  const longPress = useLongPress(
+    () => onLongPress?.(chapter),
+    onLongPress !== undefined,
+  );
 
   const goStudy = () => {
     // 학습 뷰어(PDF 강의 자료 / AI 요약 / 원문 스크립트 / TODO)로 이동한다.
@@ -46,7 +58,11 @@ export function ChapterCard({ chapter }: { chapter: Chapter }) {
 
   return (
     // Figma 시안(높이 152/패딩 40·24)을 전체 화면과 같은 0.72배로 줄인 값.
-    <div className="flex min-h-[108px] items-center justify-between gap-4 rounded-md bg-white px-6 py-4">
+    // 꾹 누르는 동안 글자가 드래그 선택되면 제스처처럼 안 보여서 select-none을 둔다.
+    <div
+      {...longPress}
+      className="flex min-h-[108px] items-center justify-between gap-4 rounded-md bg-white px-6 py-4 select-none"
+    >
       {/* 좌측: Chapter 번호(제목) + 설명 + 날짜 */}
       <div className="flex min-w-0 flex-col gap-2">
         <div className="flex flex-col gap-0.5">

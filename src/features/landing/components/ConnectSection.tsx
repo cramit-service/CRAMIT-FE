@@ -25,8 +25,10 @@ const FEATURES = [
 
 export function ConnectSection() {
   return (
-    <section className="bg-gray-950 px-6 py-32">
-      <div className="mx-auto max-w-6xl">
+    // min-h-screen — 소개 화면 하나가 한 장면을 꽉 채운다 (IntroSection과 같은 규칙)
+    <section className="flex min-h-screen items-center bg-gray-950 px-6 py-32">
+      {/* 부모가 flex라 w-full이 없으면 내용 폭으로 줄어든다 */}
+      <div className="mx-auto w-full max-w-6xl">
         <div className="grid gap-10 md:grid-cols-2 md:items-start">
           <h2 className="text-secondary-400 text-2xl font-bold md:text-4xl">
             크래밋이 당신의 학습을 연결합니다.

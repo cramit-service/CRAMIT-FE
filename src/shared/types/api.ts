@@ -105,6 +105,11 @@ export interface Chapter {
   title: string; // 카드 본문 한 줄 (예: "알고리즘 기초 알아보기")
   createdAt: string; // ISO 날짜 문자열
   status: ChapterStatus;
+  // 아래 둘은 "주차 정보 수정하기" 모달이 기존 값을 채우는 데 쓴다.
+  // TODO(백엔드): 챕터 조회 응답에 lectureDate·professor를 포함해 달라고 요청해야 한다.
+  //   없으면 수정 모달이 빈 날짜를 저장해 기존 값을 덮어쓴다.
+  lectureDate: string; // 주차 수강 날짜 (YYYY-MM-DD)
+  professor: string | null; // 교수명 (선택)
   // 백엔드 확정 후 조정. 필드명 카멜/ID 타입은 기존 방침 따름
 }
 
@@ -118,6 +123,13 @@ export interface CreateChapterRequest {
   professor: string | null; // 교수명 (선택)
   materialFile: File | null; // 강의 자료 PDF (선택)
   audioFile: File | null; // 강의 녹음 파일 (선택)
+}
+
+// 주차(챕터) 수정 요청 — "주차 정보 수정하기" 모달.
+// 폼이 칸을 통째로 저장하므로 생성과 같은 필드를 모두 보낸다(부분 수정이 아니다).
+// 파일 2종은 새로 고른 것만 보낸다 — null이면 기존 파일을 그대로 둔다.
+export interface UpdateChapterRequest extends CreateChapterRequest {
+  chapterId: string;
 }
 
 // 프로젝트 상세 헤더에 필요한 메타.

@@ -24,10 +24,16 @@ export function LandingHeader() {
         scrolled ? 'bg-primary-100/80 backdrop-blur-md' : 'bg-transparent',
       )}
     >
-      <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-end px-6">
+      {/* 시안(1:4986 Top)에는 가운데 로고뿐이고 로그인·회원가입 버튼이 없어 맞출 값이 없다.
+          그래서 화면 우측 끝에 붙은 유일한 다른 요소인 ScrollTopButton(right-8)에 맞춰 px-8로 둔다.
+          예전엔 본문과 같은 max-w-6xl 안에 있어 넓은 화면에서 우측에 크게 떠 있었다.
+          폭을 풀어도 로고는 left-1/2이라 화면 정중앙 그대로다(시안 960/1920). */}
+      <div className="relative flex h-16 items-center justify-between px-8 sm:justify-end">
+        {/* 로고를 화면 정중앙에 고정하면 좁은 폭에서 우측 메뉴와 겹친다(390px에서 34px 겹침).
+            sm 미만에서는 absolute를 풀어 좌측에 흐름대로 두고 justify-between으로 벌린다. */}
         <Link
           href="/"
-          className="absolute left-1/2 -translate-x-1/2"
+          className="sm:absolute sm:left-1/2 sm:-translate-x-1/2"
           aria-label="크래밋 홈"
         >
           {/* Figma 헤더 워드마크는 110x22 */}
