@@ -16,8 +16,6 @@ import {
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'] as const;
 // 6주 × 7일. 달마다 높이가 들쭉날쭉하지 않게 항상 42칸으로 고정한다.
 const CELLS = 42;
-// 팝오버를 위로 뒤집을지 판단할 때 쓰는 대략 높이(헤더 + 요일 + 6주 + 여백).
-const POPOVER_HEIGHT = 296;
 
 // 달력 격자. 홈 캘린더와 같은 일요일 시작이다 — 한 화면에서 두 달력의 요일 순서가
 // 다르면 날짜를 잘못 고른다.
@@ -60,6 +58,8 @@ interface ModalDateFieldProps {
   disabled?: boolean;
   /** 라벨이 따로 없는 자리(마감 시간 옆 등)에서 이 칸이 무엇인지 알린다. */
   ariaLabel?: string;
+  /** 'YYYY-MM-DD'. 이 날 이전은 고를 수 없다. 지난 날짜 차단용. */
+  min?: string;
 }
 
 export function ModalDateField({
@@ -68,13 +68,10 @@ export function ModalDateField({
   onChange,
   disabled,
   ariaLabel,
+  min,
 }: ModalDateFieldProps) {
   const gridId = useId();
   const [open, setOpen] = useState(false);
-  // 팝오버는 fixed로 띄운다. 모달 폼이 overflow-y-auto라 absolute로 두면 잘린다.
-  const [anchor, setAnchor] = useState<{ top: number; left: number } | null>(
-    null,
-  );
   // 보고 있는 달. 값이 있으면 그 달, 없으면 이번 달에서 시작한다.
   const [view, setView] = useState(() => {
     const base = parseValue(value);
@@ -97,15 +94,6 @@ export function ModalDateField({
   }, []);
 
   const openPopover = () => {
-    const rect = triggerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    // 아래 공간이 모자라면 위로 뒤집는다.
-    const below = rect.bottom + 6;
-    const flip = below + POPOVER_HEIGHT > window.innerHeight;
-    setAnchor({
-      top: flip ? rect.top - POPOVER_HEIGHT - 6 : below,
-      left: rect.left,
-    });
     // 값이 있으면 그 달을 다시 펴 준다 (닫는 사이 달을 넘겨 뒀을 수 있다).
     if (value) {
       const d = parseValue(value);
@@ -116,8 +104,8 @@ export function ModalDateField({
     setOpen(true);
   };
 
-  // 바깥 클릭 / 스크롤 / 리사이즈로 닫는다.
-  // fixed로 띄웠기 때문에 폼이 스크롤되면 팝오버만 제자리에 남는다 — 그때는 닫는 게 맞다.
+  // 바깥을 누르면 닫는다. 팝오버는 absolute라 폼이 스크롤되면 트리거를 따라 움직이므로
+  // 스크롤은 따로 들을 필요가 없다.
   useEffect(() => {
     if (!open) return;
 
@@ -131,8 +119,6 @@ export function ModalDateField({
       }
       setOpen(false);
     };
-    // 캡처 단계로 듣는다 — 스크롤은 버블링하지 않는다.
-    const onScroll = () => setOpen(false);
 
     // Escape는 팝오버 엘리먼트가 아니라 document에서 캡처 단계로 받는다.
     // 달을 넘기면 포커스를 갖던 날짜 버튼이 사라져 포커스가 body로 떨어진다. 그때의
@@ -148,13 +134,9 @@ export function ModalDateField({
 
     document.addEventListener('mousedown', onPointerDown);
     document.addEventListener('keydown', onKeyDownCapture, true);
-    window.addEventListener('scroll', onScroll, true);
-    window.addEventListener('resize', onScroll);
     return () => {
       document.removeEventListener('mousedown', onPointerDown);
       document.removeEventListener('keydown', onKeyDownCapture, true);
-      window.removeEventListener('scroll', onScroll, true);
-      window.removeEventListener('resize', onScroll);
     };
   }, [open, close]);
 
@@ -212,11 +194,21 @@ export function ModalDateField({
 
   const cells = buildGrid(view.year, view.month);
   const today = toLocalDateString(new Date());
-  // 포커스를 처음 받을 칸 — 고른 날이 이 달에 있으면 그 날, 없으면 1일.
+  // 'YYYY-MM-DD'는 자릿수가 고정이라 문자열 비교가 곧 날짜 비교다.
+  const isBlocked = (iso: string) => min !== undefined && iso < min;
+
+  // 포커스를 처음 받을 칸 — 고른 날이 이 달에 있으면 그 날, 없으면 고를 수 있는 첫 날.
+  // 고를 수 있는 날이 하나도 없는 달(전체가 min 이전)이면 첫 칸으로 떨어진다.
+  // aria-disabled라 그 칸도 포커스를 받으므로 화살표로 빠져나올 수 있다.
+  const monthCells = cells
+    .filter((d) => d.getMonth() + 1 === view.month)
+    .map(toLocalDateString);
   const focusTarget =
-    value && cells.some((d) => toLocalDateString(d) === value)
+    value &&
+    !isBlocked(value) &&
+    cells.some((d) => toLocalDateString(d) === value)
       ? value
-      : toLocalDateString(new Date(view.year, view.month - 1, 1));
+      : (monthCells.find((iso) => !isBlocked(iso)) ?? monthCells[0]);
 
   return (
     <div className={cn('relative', FIELD_WIDTH)}>
@@ -241,13 +233,13 @@ export function ModalDateField({
         <ChevronDownIcon className="size-3 shrink-0 text-gray-500" />
       </button>
 
-      {open && anchor && (
+      {open && (
         <div
           ref={popoverRef}
           role="dialog"
           aria-label="날짜 선택"
-          style={{ top: anchor.top, left: anchor.left }}
-          className="fixed z-50 w-[252px] rounded-lg border-[0.5px] border-gray-600 bg-gray-800 p-3 shadow-xl"
+          // absolute의 기준은 위 래퍼의 relative다. (CLAUDE.md 4-5)
+          className="absolute top-11 left-0 z-10 w-63 rounded-lg border-[0.5px] border-gray-600 bg-gray-800 p-3 shadow-xl"
         >
           {/* 달 이동 */}
           <div className="mb-2 flex items-center justify-between">
@@ -299,6 +291,7 @@ export function ModalDateField({
               const iso = toLocalDateString(date);
               const inMonth = date.getMonth() + 1 === view.month;
               const selected = iso === value;
+              const blocked = isBlocked(iso);
               return (
                 <button
                   key={iso}
@@ -307,16 +300,26 @@ export function ModalDateField({
                   data-focus={iso === focusTarget}
                   // 격자 전체가 탭 정지 하나가 되도록 포커스 대상만 탭 순서에 남긴다.
                   tabIndex={iso === focusTarget ? 0 : -1}
-                  onClick={() => select(date)}
+                  // disabled가 아니라 aria-disabled다. disabled 버튼은 focus()를
+                  // 받지 않아, 차단된 칸으로 화살표를 옮기면 포커스가 body로 떨어지고
+                  // 그 뒤로 격자 안에서 아무 키도 듣지 않게 된다. 고를 수 없다는 사실은
+                  // 보조기기에 알리되 포커스는 계속 받게 두고, 고르는 것만 막는다.
+                  onClick={() => {
+                    if (blocked) return;
+                    select(date);
+                  }}
+                  aria-disabled={blocked}
                   aria-pressed={selected}
                   aria-current={iso === today ? 'date' : undefined}
                   className={cn(
                     'flex h-7 items-center justify-center rounded-md text-[12px] leading-4 font-medium transition-colors',
-                    selected
-                      ? 'bg-secondary-400 text-gray-950'
-                      : inMonth
-                        ? 'text-gray-200 hover:bg-gray-700'
-                        : 'text-gray-600 hover:bg-gray-700',
+                    blocked
+                      ? 'cursor-not-allowed text-gray-700'
+                      : selected
+                        ? 'bg-primary-400 text-gray-950'
+                        : inMonth
+                          ? 'text-gray-200 hover:bg-gray-700'
+                          : 'text-gray-600 hover:bg-gray-700',
                     // 오늘은 고르지 않았을 때만 테두리로 표시한다(고르면 채움과 겹친다).
                     iso === today && !selected && 'ring-1 ring-gray-500',
                   )}

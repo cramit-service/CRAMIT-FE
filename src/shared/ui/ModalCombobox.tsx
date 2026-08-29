@@ -2,7 +2,13 @@
 // src/shared/ui/ModalCombobox.tsx
 import { useEffect, useId, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
-import { ChevronDownIcon, FIELD_OUTLINED } from '@/shared/ui/FormModal';
+import {
+  ChevronDownIcon,
+  FIELD_OUTLINED,
+  OPTION_LIST,
+  OPTION_ROW,
+  optionStateClass,
+} from '@/shared/ui/FormModal';
 
 // 강의처럼 목록이 길어질 수 있는 칸은 시안대로 검색해서 고른다.
 // 네이티브 select는 검색이 안 되고, 강의가 열 개만 넘어도 찾기 어려워진다.
@@ -11,9 +17,6 @@ export interface ComboboxOption {
   value: string;
   label: string;
 }
-
-// 목록이 길어도 팝오버가 화면을 덮지 않게 자른다. 나머지는 스크롤로 본다.
-const LIST_MAX_HEIGHT = 208;
 
 interface ModalComboboxProps {
   id: string;
@@ -43,12 +46,6 @@ export function ModalCombobox({
   // null이면 "고른 항목을 그대로 보여주는 중", 문자열이면 사용자가 입력한 검색어.
   const [query, setQuery] = useState<string | null>(null);
   const [highlight, setHighlight] = useState(0);
-  // 팝오버는 fixed로 띄운다. 모달 폼이 overflow-y-auto라 absolute로 두면 잘린다.
-  const [anchor, setAnchor] = useState<{
-    top: number;
-    left: number;
-    width: number;
-  } | null>(null);
 
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -62,21 +59,8 @@ export function ModalCombobox({
           o.label.toLowerCase().includes(query.trim().toLowerCase()),
         );
 
-  const place = () => {
-    const rect = inputRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const below = rect.bottom + 4;
-    const flip = below + LIST_MAX_HEIGHT > window.innerHeight;
-    setAnchor({
-      top: flip ? rect.top - LIST_MAX_HEIGHT - 4 : below,
-      left: rect.left,
-      width: rect.width,
-    });
-  };
-
   const openList = () => {
     if (disabled) return;
-    place();
     setOpen(true);
     // 고른 항목이 있으면 그 위치에서 시작한다.
     setHighlight(
@@ -99,23 +83,16 @@ export function ModalCombobox({
     setQuery(null);
   };
 
-  // 바깥 클릭 / 스크롤 / 리사이즈로 닫는다. (ModalDateField와 같은 이유)
+  // 바깥을 누르면 닫는다. 목록은 absolute라 폼이 스크롤되면 입력칸을 따라 움직이므로
+  // 스크롤은 따로 들을 필요가 없다.
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: MouseEvent) => {
       if (wrapRef.current?.contains(e.target as Node)) return;
-      if (listRef.current?.contains(e.target as Node)) return;
       closeList();
     };
-    const onScroll = () => closeList();
     document.addEventListener('mousedown', onPointerDown);
-    window.addEventListener('scroll', onScroll, true);
-    window.addEventListener('resize', onScroll);
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown);
-      window.removeEventListener('scroll', onScroll, true);
-      window.removeEventListener('resize', onScroll);
-    };
+    return () => document.removeEventListener('mousedown', onPointerDown);
   }, [open]);
 
   // 강조된 항목이 보이도록 스크롤을 따라 올린다.
@@ -181,15 +158,11 @@ export function ModalCombobox({
         onChange={(e) => {
           setQuery(e.target.value);
           setHighlight(0);
-          if (!open) {
-            place();
-            setOpen(true);
-          }
+          setOpen(true);
         }}
         onFocus={openList}
-        // Tab으로 빠져나가면 목록이 떠 있는 채로 남는다. fixed로 띄운 팝오버라
-        // 모달과 무관한 자리에 둥둥 뜬다. 항목 선택은 mousedown에서 이미 끝나므로
-        // 여기서 닫아도 클릭이 씹히지 않는다.
+        // Tab으로 빠져나가면 목록이 떠 있는 채로 남는다. 항목 선택은 mousedown에서
+        // 이미 끝나므로 여기서 닫아도 클릭이 씹히지 않는다.
         onBlur={closeList}
         onKeyDown={handleKeyDown}
         className={cn(
@@ -202,6 +175,9 @@ export function ModalCombobox({
       {clearable && value && !disabled ? (
         <button
           type="button"
+          // 이게 없으면 누르는 순간 입력칸이 blur돼 onBlur가 목록을 닫고, 이어지는
+          // focus()가 onFocus를 태워 방금 닫은 목록이 도로 열린다. 포커스를 아예 뺏지 않는다.
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => {
             onChange('');
             setQuery(null);
@@ -226,21 +202,19 @@ export function ModalCombobox({
         <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-3.5 size-3 -translate-y-1/2 text-gray-500" />
       )}
 
-      {open && anchor && (
+      {open && (
         <ul
           ref={listRef}
           id={listId}
           role="listbox"
-          style={{
-            top: anchor.top,
-            left: anchor.left,
-            width: anchor.width,
-            maxHeight: LIST_MAX_HEIGHT,
-          }}
-          className="scrollbar-dark fixed z-50 overflow-y-auto rounded-md border-[0.5px] border-gray-600 bg-gray-800 py-1 shadow-xl"
+          // absolute의 기준은 위 래퍼의 relative다. (CLAUDE.md 4-5)
+          className={cn(
+            'scrollbar-dark absolute top-11 right-0 left-0 z-10 max-h-52 overflow-y-auto',
+            OPTION_LIST,
+          )}
         >
           {filtered.length === 0 ? (
-            <li className="px-3 py-2 text-[12px] leading-4 text-gray-500">
+            <li className={cn(OPTION_ROW, 'text-gray-400')}>
               검색 결과가 없어요.
             </li>
           ) : (
@@ -258,11 +232,12 @@ export function ModalCombobox({
                 }}
                 onMouseEnter={() => setHighlight(i)}
                 className={cn(
-                  'cursor-pointer truncate px-3 py-2 text-[13px] leading-5 transition-colors',
-                  i === highlight ? 'bg-gray-700' : '',
-                  option.value === value
-                    ? 'text-secondary-400'
-                    : 'text-gray-200',
+                  OPTION_ROW,
+                  'cursor-pointer truncate transition-colors',
+                  optionStateClass({
+                    selected: option.value === value,
+                    active: i === highlight,
+                  }),
                 )}
               >
                 {option.label}

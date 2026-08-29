@@ -9,6 +9,14 @@ export function toLocalDateString(d: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+// 'HH:mm'. 마감 시간처럼 분 단위까지만 다루는 값과 자릿수를 맞춘다.
+// 같은 자릿수라서 문자열 비교가 곧 시각 비교가 된다.
+export function toLocalTimeString(d: Date): string {
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
 // offset이 음수면 과거. 월/연 경계는 setDate가 알아서 넘겨준다.
 export function dateFromToday(offset: number): string {
   const d = new Date();

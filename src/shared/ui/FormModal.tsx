@@ -30,6 +30,31 @@ export const SECTION_DIVIDER = 'border-b-[0.5px] border-gray-700';
 // 필드 묶음 한 칸의 세로 여백. 시안에서 구분선 사이가 일정하다.
 export const SECTION_GAP = 'py-8.5';
 
+// 드롭다운으로 펼쳐지는 목록(강의·주차·시·분)의 한 판과 한 줄. 시안 1:14143.
+// 띄우는 위치는 각 컴포넌트가 정한다 — 여기엔 판과 줄의 생김새만 둔다.
+export const OPTION_LIST =
+  'rounded-md border-[0.5px] border-gray-600 bg-gray-700 py-1 shadow-xl';
+// 시안 40×좌우18 → 0.72배 29×13. 타이포도 같은 비율(16 → 12)이고,
+// leading을 줄 높이와 같게 둬서 한 줄이 정확히 29px 상자 안에 가운데로 온다.
+// (flex로 가운데 정렬하면 텍스트가 익명 플렉스 아이템이 돼 truncate의 말줄임이 먹지 않는다)
+export const OPTION_ROW =
+  'px-3.25 text-[12px] leading-7.25 font-medium tracking-[-0.24px]';
+
+// 목록 항목의 상태별 색. 고른 항목이 호버보다 우선한다 —
+// 호버는 잠깐이지만 무엇을 골랐는지는 계속 보여야 한다.
+export function optionStateClass({
+  selected,
+  active,
+}: {
+  selected: boolean;
+  /** 키보드 하이라이트 또는 마우스 오버 */
+  active: boolean;
+}) {
+  if (selected) return 'bg-primary-400 text-gray-950';
+  if (active) return 'bg-gray-100 text-gray-900';
+  return 'text-gray-300';
+}
+
 // 하단 확정 버튼(생성하기·수정완료). 시안 346×60 → 0.72배 249×44.
 // Button 컴포넌트를 쓰지 않는 이유: size별 타이포가 고정이라 이 크기와 겹치는데
 // cn엔 tailwind-merge가 없어 덮어쓰면 승자가 클래스 생성 순서에 달린다.
@@ -108,7 +133,7 @@ export function ModalSelect({
         disabled={disabled}
         className={cn(
           FIELD_OUTLINED,
-          'w-full appearance-none pr-9 [color-scheme:dark]',
+          'w-full appearance-none pr-9 scheme-dark',
         )}
       >
         {children}
@@ -121,7 +146,7 @@ export function ModalSelect({
 interface FormModalProps {
   /** 모달 이름. 보조기술이 이 모달을 무엇이라 읽을지 결정한다. */
   title: string;
-  /** 시안에 제목 글자가 실제로 그려진 모달만 true (공유하기·새 주차 업로드). */
+  /** 시안에 제목 글자가 실제로 그려진 모달만 true. 기본은 sr-only로 숨긴다. */
   titleVisible?: boolean;
   /** 제목 크기가 시안마다 달라 기본값과 다르게 그릴 때만 넘긴다.
    *  (강의 모달은 시안 32px = 0.72배 23px, 공유하기는 기본값 16px) */
@@ -170,7 +195,7 @@ export function FormModal({
       // relative는 닫기 버튼의 기준이자, 제목을 숨길 때 쓰는 sr-only(=position:absolute)의
       // 기준이기도 하다. 없으면 숨긴 제목이 문서 최상위 기준으로 떠 페이지 높이를 밀어낸다.
       className={cn(
-        'relative flex max-h-[calc(100vh-64px)] w-[691px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-lg border-[0.5px] border-gray-600 bg-gray-900',
+        'relative flex max-h-[calc(100vh-64px)] w-172.75 max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-lg border-[0.5px] border-gray-600 bg-gray-900',
         fixedHeight,
       )}
     >
@@ -179,7 +204,7 @@ export function FormModal({
         onClick={handleClose}
         aria-label="닫기"
         disabled={busy}
-        className="absolute top-[23px] right-[23px] z-10 text-gray-400 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-700"
+        className="absolute top-5.75 right-5.75 z-10 text-gray-400 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-700"
       >
         <CloseIcon className="size-5" />
       </button>
@@ -192,7 +217,7 @@ export function FormModal({
         // 페이지가 이동해 버린다. 기본값으로 그것만 막는다.
         onSubmit={onSubmit ?? ((e) => e.preventDefault())}
         className={cn(
-          'scrollbar-dark flex min-h-0 flex-col overflow-y-auto px-15 pb-7 [color-scheme:dark]',
+          'scrollbar-dark flex min-h-0 flex-col overflow-y-auto px-15 pb-7 scheme-dark',
           // 높이를 고정한 모달에서만 폼이 남은 공간을 채워야 푸터가 바닥으로 간다.
           // 기본(내용 높이) 모달에 flex-1을 주면 min-h-0과 겹쳐 높이가 0으로 접힌다.
           fixedHeight && 'flex-1',
