@@ -21,6 +21,9 @@ export function useLongPress({ onLongPress, onPress }: UseLongPressOptions) {
   const timerRef = useRef<number | null>(null);
   // 누르기 시작한 좌표. cancel되면 null — "이번 누름은 무효"라는 표시를 겸한다.
   const startRef = useRef<{ x: number; y: number } | null>(null);
+  // 지금 판정 중인 포인터. 이게 정해져 있으면 다른 포인터(두 번째 손가락)는 무시한다.
+  // 없으면 두 번째 pointerdown이 첫 타이머를 지우지 않고 덮어써 타이머가 샌다.
+  const pointerIdRef = useRef<number | null>(null);
   const firedRef = useRef(false);
   const [pressing, setPressing] = useState(false);
 
@@ -30,6 +33,7 @@ export function useLongPress({ onLongPress, onPress }: UseLongPressOptions) {
       timerRef.current = null;
     }
     startRef.current = null;
+    pointerIdRef.current = null;
     setPressing(false);
   };
 
@@ -41,6 +45,9 @@ export function useLongPress({ onLongPress, onPress }: UseLongPressOptions) {
     [],
   );
 
+  const isActive = (e: React.PointerEvent) =>
+    pointerIdRef.current === e.pointerId;
+
   return {
     /** 누르고 있는 중인지 — 시각 피드백용 */
     pressing,
@@ -48,6 +55,13 @@ export function useLongPress({ onLongPress, onPress }: UseLongPressOptions) {
       onPointerDown: (e: React.PointerEvent) => {
         // 우클릭은 수정으로 가는 별도 경로라 여기서 잡지 않는다.
         if (e.button !== 0) return;
+        if (pointerIdRef.current !== null) return;
+
+        // 포인터를 이 요소에 붙들어 둔다. 손가락이 행 밖으로 나가도 move·up이 계속 여기로
+        // 오므로 취소 여부를 거리 하나로만 정할 수 있다. 캡처가 없으면 행 가장자리에서
+        // 3px만 삐져나가도 pointerleave가 떠서, 10px까지 봐준다는 규칙이 무의미해진다.
+        e.currentTarget.setPointerCapture(e.pointerId);
+        pointerIdRef.current = e.pointerId;
         firedRef.current = false;
         startRef.current = { x: e.clientX, y: e.clientY };
         setPressing(true);
@@ -58,24 +72,30 @@ export function useLongPress({ onLongPress, onPress }: UseLongPressOptions) {
         }, DELAY_MS);
       },
       onPointerMove: (e: React.PointerEvent) => {
+        if (!isActive(e)) return;
         const start = startRef.current;
         if (!start) return;
         const moved = Math.hypot(e.clientX - start.x, e.clientY - start.y);
         if (moved > MOVE_TOLERANCE_PX) cancel();
       },
-      onPointerUp: () => {
+      onPointerUp: (e: React.PointerEvent) => {
+        if (!isActive(e)) return;
         // startRef가 비었으면 이미 취소된 누름이다(움직였거나 길게 눌러 발동했거나).
         const valid = startRef.current !== null && !firedRef.current;
         cancel();
         if (valid) onPress();
       },
       // 터치 스크롤이 시작되면 브라우저가 pointercancel을 준다 — 그때도 판정을 접는다.
-      onPointerCancel: cancel,
-      onPointerLeave: cancel,
+      onPointerCancel: (e: React.PointerEvent) => {
+        if (!isActive(e)) return;
+        cancel();
+      },
       onKeyDown: (e: React.KeyboardEvent) => {
         if (e.key !== ' ' && e.key !== 'Enter') return;
         // Space는 기본이 페이지 스크롤이고, 둘 다 button의 기본 click을 부른다.
         e.preventDefault();
+        // 키를 누르고 있으면 keydown이 반복해서 온다. 그대로 두면 완료가 연타된다.
+        if (e.repeat) return;
         onPress();
       },
     },
