@@ -30,6 +30,33 @@ function CheckIcon({ className }: { className?: string }) {
   );
 }
 
+// 체크박스의 "네모" 표시만 떼어낸 것. 상태를 받아 그리기만 하고 아무것도 토글하지 않는다.
+// button 안에는 input을 넣을 수 없어서(중첩 인터랙티브 요소), 행 전체가 하나의 버튼인 화면은
+// Checkbox 본체를 못 쓴다(예: 홈 TODO 체크리스트 — 행을 눌러 완료한다).
+// 그런 곳이 네모를 직접 그리면 모양이 갈라지므로 여기 한 곳에서만 정의한다.
+export function CheckboxBox({
+  checked,
+  className,
+}: {
+  checked: boolean;
+  className?: string;
+}) {
+  return (
+    <span
+      className={cn(
+        'flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border transition-colors',
+        // 체크 시 색을 채우고, 아니면 아이콘을 투명하게 두어 크기 변화를 막는다
+        checked
+          ? 'border-secondary-400 bg-secondary-400 text-gray-100'
+          : 'border-gray-400 bg-gray-100 text-transparent',
+        className,
+      )}
+    >
+      <CheckIcon className="h-3.5 w-3.5" />
+    </span>
+  );
+}
+
 export function Checkbox({
   checked,
   onChange,
@@ -54,18 +81,11 @@ export function Checkbox({
         aria-label={ariaLabel}
         className="peer sr-only"
       />
-      <span
-        className={cn(
-          'flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border transition-colors',
-          'peer-focus-visible:ring-secondary-400 peer-focus-visible:ring-2 peer-focus-visible:ring-offset-1',
-          // 체크 시 색을 채우고, 아니면 아이콘을 투명하게 두어 크기 변화를 막는다
-          checked
-            ? 'border-secondary-400 bg-secondary-400 text-gray-100'
-            : 'border-gray-400 bg-gray-100 text-transparent',
-        )}
-      >
-        <CheckIcon className="h-3.5 w-3.5" />
-      </span>
+      {/* 포커스 링은 여기 남긴다 — peer-*는 형제인 input이 있어야 동작하므로 CheckboxBox로 못 옮긴다 */}
+      <CheckboxBox
+        checked={checked}
+        className="peer-focus-visible:ring-secondary-400 peer-focus-visible:ring-2 peer-focus-visible:ring-offset-1"
+      />
       {/* 라벨이 없으면 span 자체를 그리지 않는다 — 빈 span이 남으면 gap만큼 클릭 영역이 넓어진다 */}
       {label !== undefined && <span className="text-gray-900">{label}</span>}
     </label>

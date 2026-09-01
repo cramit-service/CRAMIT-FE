@@ -156,6 +156,41 @@ export const mockTodos: Todo[] = [
     memo: null,
     isCompleted: false,
   },
+  // 마감이 지난 항목 — 보기 드롭다운의 "지난 할 일"을 확인하려면 과거 날짜가 있어야 한다.
+  // 완료/미완료를 섞어 두어 지나고도 안 한 것이 눈에 띄는지 볼 수 있게 한다.
+  {
+    todoId: '14',
+    projectId: '2',
+    title: '1주차 퀴즈 응시',
+    lectureName: '운영체제',
+    dueDate: dateFromToday(-1),
+    dueTime: '23:59',
+    lectureId: null,
+    memo: null,
+    isCompleted: true,
+  },
+  {
+    todoId: '15',
+    projectId: '4',
+    title: '서브넷 마스크 계산 연습',
+    lectureName: '컴퓨터네트워크',
+    dueDate: dateFromToday(-4),
+    dueTime: null,
+    lectureId: null,
+    memo: '연습문제 3장까지',
+    isCompleted: false,
+  },
+  {
+    todoId: '16',
+    projectId: '3',
+    title: '오리엔테이션 자료 읽기',
+    lectureName: '자료구조',
+    dueDate: dateFromToday(-9),
+    dueTime: '10:00',
+    lectureId: null,
+    memo: null,
+    isCompleted: true,
+  },
 ];
 
 // mock 전용 쓰기 헬퍼. 새로고침하면 사라진다(모듈 메모리라 세션 단위). mockExams와 같은 방식이다.

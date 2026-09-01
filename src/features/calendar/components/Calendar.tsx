@@ -6,6 +6,7 @@ import { useAllExams } from '@/features/exam/hooks/useAllExams';
 import { useTodos } from '@/features/todo/hooks/useTodos';
 import { examName } from '@/features/exam/lib/examName';
 import { todoName } from '@/features/todo/lib/todoName';
+import { useTodoFilter } from '@/features/todo/hooks/useTodoFilter';
 import { buildMonthGrid } from '@/features/calendar/lib/month';
 import { useCalendarMonth } from '@/features/calendar/hooks/useCalendarMonth';
 import { CalendarCell, type ScheduleItem } from './CalendarCell';
@@ -18,6 +19,7 @@ export function Calendar() {
   const { year, month, goPrev, goNext } = useCalendarMonth();
   const { data: exams } = useAllExams();
   const { data: todos } = useTodos();
+  const { filter, toggleDate } = useTodoFilter();
 
   const cells = useMemo(() => buildMonthGrid(year, month), [year, month]);
 
@@ -100,6 +102,10 @@ export function Calendar() {
               cell={cell}
               items={scheduleByDate.get(cell.dateStr) ?? []}
               isToday={cell.dateStr === todayStr}
+              isSelected={
+                filter.kind === 'date' && filter.date === cell.dateStr
+              }
+              onSelect={() => toggleDate(cell.dateStr)}
             />
           ))}
         </div>
