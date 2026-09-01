@@ -52,17 +52,12 @@ export function OnboardingFlow() {
 
     try {
       await registerOnboardingProfile({ nickname, agreedTermIds, plan });
-
-      // TODO: 홈 라우트가 생기면 router.push('/home')으로 교체한다.
-      console.log('[mock] 온보딩 완료 — 홈으로 이동할 자리', {
-        nickname,
-        agreedTermIds,
-        plan,
-      });
+      router.push('/home');
+      // 성공하면 제출 상태를 풀지 않는다. 이동이 끝날 때까지 이 화면이 남아 있어서,
+      // 여기서 풀면 '시작하기'가 잠깐 다시 눌리는 상태가 되고 등록이 두 번 나갈 수 있다.
     } catch (error) {
       // TODO: 공통 에러 토스트가 생기면 그쪽으로 옮긴다
       console.error('온보딩 프로필 등록 실패', error);
-    } finally {
       isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
