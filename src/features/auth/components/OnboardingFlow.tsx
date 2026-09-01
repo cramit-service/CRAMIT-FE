@@ -24,6 +24,7 @@ export function OnboardingFlow() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   // 필수 약관이 모두 동의돼야 다음으로 넘어간다 (선택 약관은 영향 없음)
   const canGoNext =
@@ -32,6 +33,9 @@ export function OnboardingFlow() {
       : nicknameStatus === 'available';
 
   const handleBack = () => {
+    // 실패 안내는 그 스텝에 매인 것이라 스텝을 벗어나면 지운다
+    setFormError(null);
+
     if (step === 'terms') {
       router.push('/login');
       return;
@@ -48,21 +52,18 @@ export function OnboardingFlow() {
     if (isSubmittingRef.current) return;
     isSubmittingRef.current = true;
     setIsSubmitting(true);
+    setFormError(null);
     setSelectedPlan(plan);
 
     try {
       await registerOnboardingProfile({ nickname, agreedTermIds, plan });
-
-      // TODO: 홈 라우트가 생기면 router.push('/home')으로 교체한다.
-      console.log('[mock] 온보딩 완료 — 홈으로 이동할 자리', {
-        nickname,
-        agreedTermIds,
-        plan,
-      });
+      router.push('/home');
+      // 성공하면 제출 상태를 풀지 않는다. 이동이 끝날 때까지 이 화면이 남아 있어서,
+      // 여기서 풀면 '시작하기'가 잠깐 다시 눌리는 상태가 되고 등록이 두 번 나갈 수 있다.
     } catch (error) {
-      // TODO: 공통 에러 토스트가 생기면 그쪽으로 옮긴다
+      // TODO: 공통 에러 토스트가 생기면 이 안내를 그쪽으로 옮긴다
       console.error('온보딩 프로필 등록 실패', error);
-    } finally {
+      setFormError('등록에 실패했어요. 잠시 후 다시 시도해 주세요.');
       isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
@@ -100,12 +101,24 @@ export function OnboardingFlow() {
         )}
       </div>
 
+      {formError && (
+        <p
+          role="alert"
+          className="text-error mx-auto mb-4 w-full max-w-5xl shrink-0 text-sm font-medium"
+        >
+          {formError}
+        </p>
+      )}
+
       {/* 요금제 스텝은 카드의 '시작하기'가 완료를 맡으므로 '다음'을 두지 않는다 */}
       <div className="mx-auto flex w-full max-w-5xl shrink-0 items-center justify-between gap-4">
         <Button
           variant="outline"
           size="lg"
           className="w-full max-w-xs"
+          // 제출 중에는 스텝을 벗어나지 못하게 막는다. 나간 뒤에 등록이 성공하면
+          // router.push('/home')가 사용자가 직접 한 이동을 덮어쓴다.
+          disabled={isSubmitting}
           onClick={handleBack}
         >
           이전

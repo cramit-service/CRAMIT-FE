@@ -93,15 +93,20 @@ export function NicknameStep({
             className="min-w-0 flex-1 bg-transparent py-1 text-gray-100 placeholder:text-gray-500 focus:outline-none"
           />
 
+          {/*
+            어두운 필드 위라 채운 하늘색 판 + 검정 글자는 바 위에 다른 바를 덧댄 것처럼 보인다.
+            판을 없애고 글자·테두리만 밝게 둬서 필드 안의 액션으로 읽히게 한다.
+            (호버에서만 채워 눌리는 대상임을 알린다.)
+          */}
           <button
             type="button"
             onClick={handleCheck}
             disabled={!canCheck}
             className={cn(
-              'shrink-0 rounded-sm px-4 py-2 text-sm font-medium transition-colors',
+              'shrink-0 rounded-md border px-4 py-1.5 text-sm font-medium transition-colors',
               canCheck
-                ? 'bg-secondary-400 hover:bg-secondary-500 text-gray-900'
-                : 'cursor-not-allowed bg-gray-400 text-gray-600',
+                ? 'border-secondary-400 text-secondary-400 hover:bg-secondary-400 hover:text-gray-950'
+                : 'cursor-not-allowed border-gray-600 text-gray-600',
             )}
           >
             중복확인
