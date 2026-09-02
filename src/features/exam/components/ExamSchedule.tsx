@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import type { Exam } from '@/shared/types/api';
 import { Button } from '@/shared/ui/Button';
+import { Icon } from '@/shared/ui/Icon';
 import { cn } from '@/shared/lib/cn';
 import { formatKoreanDate } from '@/shared/lib/date';
 import { daysUntil, ddayLabel, ddayBadgeClass } from '@/features/exam/lib/dday';
@@ -115,7 +116,7 @@ export function ExamSchedule() {
                       onClick={() => setEditing(exam)}
                       className="focus-visible:ring-secondary-400 relative z-10 flex size-7 shrink-0 items-center justify-center rounded-md text-gray-400 opacity-0 transition group-focus-within:opacity-100 group-hover:opacity-100 before:absolute before:-inset-2 hover:bg-gray-200 hover:text-gray-700 focus-visible:ring-2 focus-visible:outline-none"
                     >
-                      <PencilIcon className="size-4" />
+                      <Icon name="edit" size={16} />
                     </button>
                     <ChevronRightIcon className="size-4 shrink-0 text-gray-400 transition-colors group-hover:text-gray-600" />
                   </li>
@@ -133,26 +134,6 @@ export function ExamSchedule() {
         />
       )}
     </section>
-  );
-}
-
-// 수정 아이콘. 같은 파일의 다른 아이콘과 규격을 맞춘다(24 viewBox·stroke 2·round).
-function PencilIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M4 20h4L19 9a2.5 2.5 0 0 0-4-4L4 16v4Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
 
