@@ -2,7 +2,6 @@
 // src/features/exam/components/StudyBanner.tsx
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/shared/ui/Button';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
 import { cn } from '@/shared/lib/cn';
 import { daysUntil, ddayLabel, ddayBadgeClass } from '@/features/exam/lib/dday';
@@ -55,11 +54,9 @@ export function StudyBanner() {
         className="pointer-events-none absolute right-3 bottom-3 h-26 w-auto select-none"
       />
       {featured && (
-        // [제목+CTA] 묶음을 배너 세로 중앙에 둔다.
-        // 예전에는 CTA가 20px 텍스트라 묶음을 (gap+CTA)의 절반인 14px만큼 내려 '제목'이 중앙에
-        // 오도록 맞췄는데, CTA가 44px 버튼이 되면서 같은 보정이 묶음을 배너 아래로 밀어낸다.
-        // 이제는 묶음 자체를 중앙에 둔다 — 버튼이 제목과 대등한 무게라 제목만 기준 삼을 이유가 없다.
-        <div className="flex flex-col gap-2">
+        // 제목이 배너 세로 중앙에 오도록 [제목+CTA] 묶음을 CTA 높이의 절반(약 14px)만큼 아래로 민다.
+        // (묶음을 그냥 justify-center로 두면 제목이 중앙보다 위로 올라간다)
+        <div className="flex translate-y-3.5 flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2.5">
             <h3 className="text-[24px] leading-[34px] font-semibold tracking-[-0.48px] text-gray-800">
               {examName(featured)}
@@ -78,21 +75,14 @@ export function StudyBanner() {
               학습 진행률 {featured.progress}%
             </span>
           </div>
-          {/* 홈의 핵심 CTA — 학습 화면으로 들어가는 유일한 자리였는데도 20px 고스트 텍스트라
-              옆 섹션의 '추가하기'(채움 버튼)보다 약해 위계가 뒤집혀 있었다.
-              연두(point)는 시그니처 강조·핵심 CTA용이고(CLAUDE.md 4-2), 두 개의 '추가하기'가 쓰는
-              dark와 색이 갈려 같은 화면에서 역할이 섞이지 않는다.
-              배너 좌측 60%는 거의 흰색이라(GradientBackground wide) 연두가 충분히 뜬다.
-              size="sm"의 높이 44는 터치 최소 크기도 함께 만족한다(이전 20). */}
-          <Button
-            variant="point"
-            size="sm"
-            className="w-fit gap-1"
+          <button
+            type="button"
             onClick={() => router.push(`/projects/${featured.projectId}`)}
+            className="flex w-fit items-center gap-1 text-[14px] leading-5 font-medium tracking-[-0.28px] text-gray-500 transition-colors hover:text-gray-600"
           >
             학습하러 가기
             <ChevronRightIcon className="size-4" />
-          </Button>
+          </button>
         </div>
       )}
     </GradientBackground>
