@@ -1,8 +1,9 @@
 'use client';
 // src/features/project/components/NewChapterUploadModal.tsx
-import { useId, useMemo, useState } from 'react';
+import { useId, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
+import { ApiRequestError, UPLOAD_ABORTED } from '@/shared/lib/apiClient';
 import { Modal } from '@/shared/ui/Modal';
 import {
   FIELD_FILLED,
@@ -17,6 +18,7 @@ import { ModalDateField } from '@/shared/ui/ModalDateField';
 // 그 훅을 그대로 쓴다 — 쿼리 키도 공유돼 캐시가 한 벌로 유지된다.
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
 import { FileDropzone } from './FileDropzone';
+import { ChapterUploadOverlay } from './ChapterUploadOverlay';
 import { ChevronDownIcon, CloseIcon, CloudUploadIcon } from './icons';
 import { useCreateChapter } from '@/features/project/hooks/useCreateChapter';
 import { useUpdateChapter } from '@/features/project/hooks/useUpdateChapter';
@@ -69,6 +71,10 @@ export function NewChapterUploadModal({
   const [materialError, setMaterialError] = useState<string | null>(null);
   const [audioError, setAudioError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  // 전송 진행률 0~1. 업로드가 시작되면 폼 대신 대기 화면이 이 값을 그린다.
+  const [progress, setProgress] = useState(0);
+  // 지금 진행 중인 업로드를 멈추는 손잡이. 대기 화면의 "업로드 취소"가 당긴다.
+  const abortRef = useRef<AbortController | null>(null);
 
   // 주차를 올릴 수 있는 건 내 강의뿐이라 공유받은 강의(sharedBy 있음)는 뺀다.
   // 목록이 아직 안 왔거나 응답에 지금 강의가 빠져 있어도,
@@ -86,23 +92,40 @@ export function NewChapterUploadModal({
       : [{ id: projectId, title: projectTitle }, ...list];
   }, [lectures, projectId, projectTitle]);
 
+  // 파일이 하나도 없는 주차는 STT도 요약도 만들 수 없어 status: 'BEFORE'로 남는다.
+  // 강의자료와 요약본을 나란히 보는 게 이 제품의 전부라, 그런 주차는 만들어 봐야 아무것도 못 한다.
+  // 수정 모드에서는 이미 올라간 파일이 그대로 유지되므로 새로 고르지 않아도 된다.
+  const hasMaterial =
+    materialFile !== null || Boolean(chapter?.materialFileName);
+  const hasAudio = audioFile !== null || Boolean(chapter?.audioFileName);
+  const hasAnyFile = hasMaterial || hasAudio;
+
   const canSubmit =
     title.trim() !== '' &&
     lectureDate !== '' &&
     targetProjectId !== '' &&
+    hasAnyFile &&
     !materialError &&
     !audioError;
 
-  // 업로드 중에 배경·ESC로 닫으면 진행 중인 요청이 그대로 버려진다. 끝날 때까지 막는다.
+  // 업로드 중에는 이 폼이 화면에 없다(대기 화면이 대신 뜬다). 닫는 길은 그쪽 "업로드 취소"뿐이라
+  // 배경·ESC로 요청이 조용히 버려질 일은 없다.
   const handleClose = () => {
     if (isPending) return;
     onClose();
   };
 
+  // 취소하면 전송이 끊기고 mutation이 UPLOAD_ABORTED로 실패해 폼으로 돌아온다.
+  const handleCancel = () => abortRef.current?.abort();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit || isPending) return;
     setFormError(null);
+    setProgress(0);
+
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     const payload = {
       projectId: targetProjectId,
@@ -111,6 +134,8 @@ export function NewChapterUploadModal({
       professor: professor.trim() || null,
       materialFile,
       audioFile,
+      onProgress: setProgress,
+      signal: controller.signal,
     };
 
     const handlers = {
@@ -122,13 +147,18 @@ export function NewChapterUploadModal({
           router.push(`/projects/${targetProjectId}`);
         }
       },
-      onError: (error: Error) =>
+      onError: (error: Error) => {
+        // 사용자가 직접 멈춘 건 실패가 아니다. 문구 없이 폼으로 돌아가기만 한다.
+        if (error instanceof ApiRequestError && error.code === UPLOAD_ABORTED) {
+          return;
+        }
         setFormError(
           error.message ||
             (isEdit
               ? '수정에 실패했어요. 잠시 후 다시 시도해 주세요.'
               : '업로드에 실패했어요. 잠시 후 다시 시도해 주세요.'),
-        ),
+        );
+      },
     };
 
     if (isEdit) {
@@ -140,6 +170,23 @@ export function NewChapterUploadModal({
     }
     createChapterMutation.mutate(payload, handlers);
   };
+
+  // 업로드가 시작되면 시안(1:5259)대로 화면을 통째로 대기 화면에 넘긴다.
+  // 폼을 그대로 두고 위에 덮지 않는 이유는, 200MB가 올라가는 몇 분 동안
+  // 사용자가 볼 게 진행률과 취소뿐이기 때문이다.
+  if (isPending) {
+    return (
+      <ChapterUploadOverlay
+        message={
+          isEdit
+            ? '주차 정보를 저장 중입니다...'
+            : '새로운 주차를 업로드 중입니다...'
+        }
+        progress={progress}
+        onCancel={handleCancel}
+      />
+    );
+  }
 
   return (
     <Modal
@@ -266,8 +313,8 @@ export function NewChapterUploadModal({
             />
           </div>
 
-          {/* 파일 업로드 2종. 실제로는 둘 다 선택이지만, 라벨의 "(선택)" 표기는
-              시안(528:8664)에 없어 뺀다 — 선택이라는 사실은 칸 안 안내 문구가 말해 준다. */}
+          {/* 파일 업로드 2종. 둘 다 고를 필요는 없지만 하나는 있어야 한다(hasAnyFile).
+              라벨의 "(선택)" 표기는 시안(528:8664)에 없어 뺀다 — 규칙은 아래 안내 문구가 말해 준다. */}
           <div className="grid grid-cols-2 gap-[13px] pt-8.5">
             <FileDropzone
               kind="material"
@@ -277,6 +324,7 @@ export function NewChapterUploadModal({
               error={materialError}
               onError={setMaterialError}
               disabled={isPending}
+              existingFileName={chapter?.materialFileName}
             />
             <FileDropzone
               kind="audio"
@@ -286,8 +334,17 @@ export function NewChapterUploadModal({
               error={audioError}
               onError={setAudioError}
               disabled={isPending}
+              existingFileName={chapter?.audioFileName}
             />
           </div>
+
+          {/* 확정 버튼이 왜 꺼져 있는지 화면에서 알 수 있어야 한다.
+              누르고 나서 실패로 알리는 게 아니라, 규칙을 미리 말해 준다. */}
+          {!hasAnyFile && (
+            <p className={cn(HINT, 'mt-3 text-gray-500')}>
+              강의 자료나 음성 파일 중 하나는 올려야 요약을 만들 수 있어요.
+            </p>
+          )}
         </div>
 
         {/* 시안 높이(876px)가 노트북 화면을 넘으면 위 영역이 스크롤되는데, 확정 버튼까지

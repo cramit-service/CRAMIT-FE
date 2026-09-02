@@ -20,6 +20,8 @@ export const mockChapters: Chapter[] = [
     status: 'DONE',
     lectureDate: '2026-07-01',
     professor: '박지훈',
+    materialFileName: '강의자료.pdf',
+    audioFileName: '강의녹음.m4a',
   },
   {
     chapterId: 'c2',
@@ -30,6 +32,8 @@ export const mockChapters: Chapter[] = [
     status: 'IN_PROGRESS',
     lectureDate: '2026-07-04',
     professor: '박지훈',
+    materialFileName: '강의자료.pdf',
+    audioFileName: '강의녹음.m4a',
   },
   {
     chapterId: 'c3',
@@ -40,6 +44,8 @@ export const mockChapters: Chapter[] = [
     status: 'BEFORE',
     lectureDate: '2026-07-08',
     professor: '박지훈',
+    materialFileName: '강의자료.pdf',
+    audioFileName: '강의녹음.m4a',
   },
   {
     chapterId: 'c4',
@@ -50,6 +56,8 @@ export const mockChapters: Chapter[] = [
     status: 'DONE',
     lectureDate: '2026-07-14',
     professor: '박지훈',
+    materialFileName: '강의자료.pdf',
+    audioFileName: '강의녹음.m4a',
   },
   {
     chapterId: 'c5',
@@ -60,6 +68,8 @@ export const mockChapters: Chapter[] = [
     status: 'IN_PROGRESS',
     lectureDate: '2026-07-16',
     professor: '박지훈',
+    materialFileName: '강의자료.pdf',
+    audioFileName: '강의녹음.m4a',
   },
   {
     chapterId: 'c6',
@@ -70,6 +80,8 @@ export const mockChapters: Chapter[] = [
     status: 'BEFORE',
     lectureDate: '2026-07-18',
     professor: '박지훈',
+    materialFileName: '강의자료.pdf',
+    audioFileName: null,
   },
 ];
 
