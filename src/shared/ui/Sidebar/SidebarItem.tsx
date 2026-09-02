@@ -12,6 +12,9 @@ interface SidebarItemProps {
   // 사이드바 펼침 여부. 접힘이면 아이콘만 가운데 정렬.
   expanded: boolean;
   onClick?: () => void;
+  // 동작이 아직 정해지지 않은 항목. 눌리지 않고 흐리게 그린다.
+  // href가 있는 항목에는 쓰지 않는다 — Link는 비활성화할 수 없다.
+  disabled?: boolean;
 }
 
 // 사이드바 단일 메뉴 항목. 홈/학습하기/내 정보 수정/더보기에 공용으로 쓴다.
@@ -22,11 +25,19 @@ export function SidebarItem({
   active = false,
   expanded,
   onClick,
+  disabled = false,
 }: SidebarItemProps) {
+  // 준비 중 항목은 아이콘까지 함께 흐려야 하는데, 사이드바 아이콘은 PNG <Image>라
+  // text-* 색이 먹지 않는다. 그래서 색이 아니라 항목 전체의 opacity로 낮춘다.
+  // 낮춘 대비(약 4:1)는 WCAG 1.4.3의 비활성 컨트롤 예외에 해당해 문제가 되지 않는다.
   const className = cn(
     'relative flex items-center py-3 transition-colors',
     // 활성: 연두 강조 / 비활성: 라벨은 밝게 (덮어쓰기 금지 → 삼항 분기)
-    active ? 'text-primary-400' : 'text-gray-200 hover:text-white',
+    disabled
+      ? 'cursor-not-allowed text-gray-200 opacity-50'
+      : active
+        ? 'text-primary-400'
+        : 'text-gray-200 hover:text-white',
   );
 
   const inner = (
@@ -53,12 +64,23 @@ export function SidebarItem({
     </>
   );
 
-  // 접힘 상태에선 라벨이 안 보이므로 접근성용 title/aria-label 제공
-  const a11y = expanded ? {} : { title: label, 'aria-label': label };
+  // 접힘 상태에선 라벨이 안 보이므로 접근성용 이름을 따로 준다.
+  const a11y = expanded ? {} : { 'aria-label': label };
+  // 툴팁 — 접힘이면 무슨 항목인지, 준비 중이면 왜 안 눌리는지. 둘 다면 함께 보여준다.
+  // 흐린 색만으로는 "고장인지 준비 중인지"를 알 수 없다.
+  const tooltip = [expanded ? null : label, disabled ? '준비 중이에요' : null]
+    .filter(Boolean)
+    .join(' — ');
 
   if (href) {
     return (
-      <Link href={href} className={className} onClick={onClick} {...a11y}>
+      <Link
+        href={href}
+        className={className}
+        onClick={onClick}
+        title={tooltip || undefined}
+        {...a11y}
+      >
         {inner}
       </Link>
     );
@@ -69,6 +91,8 @@ export function SidebarItem({
       type="button"
       className={cn('w-full', className)}
       onClick={onClick}
+      disabled={disabled}
+      title={tooltip || undefined}
       {...a11y}
     >
       {inner}

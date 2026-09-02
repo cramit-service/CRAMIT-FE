@@ -151,19 +151,26 @@ export function Sidebar() {
 
         {/* 하단 메뉴 */}
         <div className="flex flex-col gap-1 pt-2 pb-6">
+          {/* 라벨이 "내 정보 수정"이었는데 열리는 건 알림 설정·요금제·계정 설정이 있는
+              설정 페이지다. 게다가 그 페이지 안에 진짜 프로필 편집으로 가는
+              "내 정보 수정" 버튼이 또 있어, 같은 이름이 두 계층에서 다른 것을 가리켰다.
+              여기를 "설정"으로 바꿔 이름과 목적지를 맞춘다(페이지 안 버튼은 그대로 둔다). */}
           <SidebarItem
             icon={<UserNavIcon />}
-            label="내 정보 수정"
+            label="설정"
             href="/settings/profile"
             active={isActive('/settings/profile')}
             expanded={expanded}
           />
-          {/* TODO(기능): 더보기 — 로그아웃/설정 등 세부 동작 미정. 자리만. */}
+          {/* TODO(기능): 더보기 — 담을 내용이 아직 없다. 로그아웃·회원탈퇴·알림·요금제는
+              모두 위의 설정 페이지에 이미 있어서, 지금 넣을 만한 것이 남아 있지 않다.
+              예전에는 onClick={() => {}}이라 눌러도 아무 일이 없었다 — 고장난 것처럼 보인다.
+              동작이 정해질 때까지 비활성으로 두어 "지금은 쓸 수 없다"를 드러낸다. */}
           <SidebarItem
             icon={<MoreNavIcon />}
             label="더보기"
             expanded={expanded}
-            onClick={() => {}}
+            disabled
           />
         </div>
       </aside>
