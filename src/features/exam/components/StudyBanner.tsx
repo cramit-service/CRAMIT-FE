@@ -1,7 +1,7 @@
 'use client';
 // src/features/exam/components/StudyBanner.tsx
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
 import { cn } from '@/shared/lib/cn';
 import { daysUntil, ddayLabel, ddayBadgeClass } from '@/features/exam/lib/dday';
@@ -11,7 +11,6 @@ import { useExams } from '@/features/exam/hooks/useExams';
 // 학습 배너. 가장 임박한 시험(exams[0])의 강의를 "이어서 학습" 대상으로 보여준다.
 // 데이터는 시험 일정과 함께 내려온다(useExams 재사용). 배경은 랜딩과 동일한 GradientBackground.
 export function StudyBanner() {
-  const router = useRouter();
   const { data: exams, isLoading, isError } = useExams();
   // getExams가 임박한 순으로 정렬해 주므로 첫 번째가 배너 대상.
   const featured = exams?.[0];
@@ -27,7 +26,7 @@ export function StudyBanner() {
   return (
     <GradientBackground
       variant="wide"
-      className="flex min-h-35.5 flex-col justify-center rounded-md border border-gray-800 px-8 py-6"
+      className="has-[a:focus-visible]:ring-secondary-400 flex min-h-35.5 flex-col justify-center rounded-md border border-gray-800 px-8 py-6 transition-shadow hover:shadow-md has-[a:focus-visible]:ring-2"
     >
       {/* 배너 장식 — 캐릭터(고양이)와 낙서. 오른쪽에 절대배치. 순수 장식이라 aria-hidden.
           SVG라 next/image 최적화 경로(400)를 피하려 unoptimized로 그대로 서빙한다. */}
@@ -54,36 +53,43 @@ export function StudyBanner() {
         className="pointer-events-none absolute right-3 bottom-3 h-26 w-auto select-none"
       />
       {featured && (
-        // 제목이 배너 세로 중앙에 오도록 [제목+CTA] 묶음을 CTA 높이의 절반(약 14px)만큼 아래로 민다.
-        // (묶음을 그냥 justify-center로 두면 제목이 중앙보다 위로 올라간다)
-        <div className="flex translate-y-3.5 flex-col gap-2">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h3 className="text-[24px] leading-[34px] font-semibold tracking-[-0.48px] text-gray-800">
-              {examName(featured)}
-            </h3>
-            {/* 시험 일정 카드와 같은 규칙으로 색을 나눈다(D-DAY 빨강 / D-1~3 노랑 / D-4+ 파랑).
+        // 배너 전체가 학습 진입 링크다. after로 배너를 통째로 덮어 어디를 눌러도 들어간다 —
+        // 시험 행과 같은 규칙(카드 전체가 진입점)이라 홈에서 진입 방식이 갈리지 않는다.
+        // 제목이 배너 세로 중앙에 오도록 묶음을 (gap 8 + 줄 높이 24)의 절반인 16px만큼 내린다.
+        <Link
+          href={`/projects/${featured.projectId}`}
+          className="block after:absolute after:inset-0"
+        >
+          {/* 세로 위치 보정은 반드시 링크 '안쪽'에 둔다. transform이 걸린 요소는 그 안의
+              absolute 자식에게 컨테이닝 블록이 되어, 링크에 걸면 after가 배너가 아니라
+              링크 자기 박스만 덮는다(장식 영역을 눌러도 안 들어간다). */}
+          <div className="flex translate-y-4 flex-col gap-2">
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* 시험 일정 카드와 같은 규칙으로 색을 나눈다(D-DAY 빨강 / D-1~3 노랑 / D-4+ 파랑).
                 크기는 옆의 진행률 뱃지와 같아야 한다 — 나란히 놓이는 한 쌍이라 어긋나면 바로 보인다. */}
-            <span
-              className={cn(
-                'inline-flex items-center rounded-md border-[0.5px] px-2 py-0.5 text-[12px] leading-4.5 font-medium',
-                ddayBadgeClass(days),
-              )}
-            >
-              {ddayLabel(days)}
-            </span>
-            <span className="inline-flex items-center rounded-md border-[0.5px] border-gray-800 bg-white px-2 py-0.5 text-[12px] leading-4.5 font-medium text-gray-800">
-              학습 진행률 {featured.progress}%
+              <h3 className="text-[24px] leading-[34px] font-semibold tracking-[-0.48px] text-gray-800">
+                {examName(featured)}
+              </h3>
+              <span
+                className={cn(
+                  'inline-flex items-center rounded-md border-[0.5px] px-2 py-0.5 text-[12px] leading-4.5 font-medium',
+                  ddayBadgeClass(days),
+                )}
+              >
+                {ddayLabel(days)}
+              </span>
+              <span className="inline-flex items-center rounded-md border-[0.5px] border-gray-800 bg-white px-2 py-0.5 text-[12px] leading-4.5 font-medium text-gray-800">
+                학습 진행률 {featured.progress}%
+              </span>
+            </div>
+            {/* 버튼이 아니라 어포던스 표시다 — 누르는 건 배너 전체다.
+              gray-500이던 것을 gray-800으로 올린다. 유일한 진입 신호라 눈에 걸려야 한다. */}
+            <span className="flex w-fit items-center gap-1 text-[15px] leading-6 font-semibold tracking-[-0.3px] text-gray-800">
+              학습하러 가기
+              <ChevronRightIcon className="size-4.5" />
             </span>
           </div>
-          <button
-            type="button"
-            onClick={() => router.push(`/projects/${featured.projectId}`)}
-            className="flex w-fit items-center gap-1 text-[14px] leading-5 font-medium tracking-[-0.28px] text-gray-500 transition-colors hover:text-gray-600"
-          >
-            학습하러 가기
-            <ChevronRightIcon className="size-4" />
-          </button>
-        </div>
+        </Link>
       )}
     </GradientBackground>
   );
