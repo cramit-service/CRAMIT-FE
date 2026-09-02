@@ -123,6 +123,12 @@
    한 번에 적용한다. Blink는 scrollbar-width/color가 지정돼 있으면 ::-webkit-scrollbar를
    통째로 무시하므로, WebKit 경로와 Firefox 경로를 @supports로 갈라 둔다. */
 @layer base {
+  /* 스크롤바가 생겼다 사라질 때(모달의 body overflow:hidden, 목록 필터링, 로딩→데이터)
+     뷰포트가 6px 넓어져 mx-auto 콘텐츠가 3px씩 오른쪽으로 튄다. 자리를 늘 비워 둬 막는다. */
+  html {
+    scrollbar-gutter: stable;
+  }
+
   /* 표준 scrollbar-width/color는 여기 두면 안 된다. Blink는 그게 지정돼 있으면
      ::-webkit-scrollbar 규칙을 통째로 무시하고 OS 얇은 스크롤바를 그리는데,
      Windows에서는 그 모양에 위아래 스텝 버튼이 그대로 남는다.

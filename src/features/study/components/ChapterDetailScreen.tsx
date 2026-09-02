@@ -11,6 +11,9 @@ import { ChapterCard } from './ChapterCard';
 import { Pagination } from './Pagination';
 import { SharedBoardPlaceholder } from './SharedBoardPlaceholder';
 
+// 로딩·에러 문구도 본문과 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
+const PAGE_SHELL = 'mx-auto w-full max-w-6xl px-8 pt-12 pb-12';
+
 const PAGE_SIZE = 4;
 
 // 챕터 상세(단계별 학습) 화면. page.tsx는 이 컴포넌트를 조립만 한다.
@@ -30,13 +33,13 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
   } = useChapters(projectId);
 
   if (projectLoading || chaptersLoading) {
-    return <div className="p-10 text-gray-500">불러오는 중…</div>;
+    return <div className={`${PAGE_SHELL} text-gray-500`}>불러오는 중…</div>;
   }
 
   // 조회에 실패하면 로딩 문구가 계속 남지 않게 에러 상태를 따로 보여준다.
   if (projectError || chaptersError || !project || !chapters) {
     return (
-      <div className="p-10 text-gray-500">
+      <div className={`${PAGE_SHELL} text-gray-500`}>
         강의 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
       </div>
     );
@@ -64,7 +67,7 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
     // 비례는 그대로 두고 전체를 약 0.72배로 줄여 한 화면에 들어오게 한다.
     // 다만 본문 폭만은 0.72배(896px)로 두면 좌우 여백이 과해 카드가 답답해 보여서
     // 강의 목록 화면(LectureListScreen)과 같은 max-w-6xl로 맞췄다.
-    <div className="mx-auto w-full max-w-6xl px-8 pt-12 pb-12">
+    <div className={PAGE_SHELL}>
       <ProjectHeader project={project} />
 
       <section className="mt-7">

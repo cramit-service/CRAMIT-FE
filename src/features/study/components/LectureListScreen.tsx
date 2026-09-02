@@ -12,6 +12,9 @@ import {
 import { LectureSearchBar } from './LectureSearchBar';
 import { LectureSection } from './LectureSection';
 
+// 로딩·에러 문구도 본문과 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
+const PAGE_SHELL = 'mx-auto w-full max-w-6xl px-8 py-10';
+
 // 학습하기(강의 목록) 화면. page.tsx는 이 컴포넌트를 조립만 한다.
 export function LectureListScreen() {
   const [keyword, setKeyword] = useState('');
@@ -22,14 +25,14 @@ export function LectureListScreen() {
   const { data: lectures, isLoading } = useProjectSummaries();
 
   if (isLoading) {
-    return <div className="p-10 text-gray-500">불러오는 중…</div>;
+    return <div className={`${PAGE_SHELL} text-gray-500`}>불러오는 중…</div>;
   }
 
   // isError 대신 데이터 유무로 가른다. 재조회가 실패해도 캐시에 목록이 남아 있으면
   // 화면을 통째로 에러로 바꾸지 않는다. 첫 조회 실패는 data가 없어 여기서 잡힌다.
   if (!lectures) {
     return (
-      <div className="p-10 text-gray-500">
+      <div className={`${PAGE_SHELL} text-gray-500`}>
         강의 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
       </div>
     );
@@ -50,7 +53,7 @@ export function LectureListScreen() {
   return (
     // Figma 시안은 1920 캔버스 기준 절대 px라 박스 값은 0.72배로 줄인다 (CLAUDE.md §4-4).
     // 폰트는 시안값이 이 화면에선 과해서 홈 화면 타이포 스케일(제목 24 / 본문 14 / 메타 12)을 따랐다.
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-8 py-10">
+    <div className={`${PAGE_SHELL} flex flex-col gap-6`}>
       <LectureSearchBar value={keyword} onChange={setKeyword} />
 
       <LectureSection
