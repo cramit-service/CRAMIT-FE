@@ -1,8 +1,10 @@
 'use client';
 // src/features/exam/components/ExamSchedule.tsx
+import Link from 'next/link';
 import { useState } from 'react';
 import type { Exam } from '@/shared/types/api';
 import { Button } from '@/shared/ui/Button';
+import { Icon } from '@/shared/ui/Icon';
 import { cn } from '@/shared/lib/cn';
 import { formatKoreanDate } from '@/shared/lib/date';
 import { daysUntil, ddayLabel, ddayBadgeClass } from '@/features/exam/lib/dday';
@@ -63,36 +65,60 @@ export function ExamSchedule() {
             <ul className="divide-y divide-gray-200">
               {exams.map((exam) => {
                 const days = daysUntil(exam.examDate);
+                // 행을 누르면 그 시험의 강의로 이동한다. 홈에서 학습으로 들어가는 길이
+                // 배너 하나뿐이라, 가장 자연스러운 진입점인 이 행을 열어 준다.
+                // 행 끝 셰브론은 앱의 다른 곳(배너 CTA·최근 학습)에서도 이동을 뜻하므로
+                // 이제야 모양과 동작이 맞는다. 수정은 옆 연필 버튼으로 옮겼다.
+                // relative 필수 — 아래 Link의 after가 이 행을 기준으로 펼쳐진다(CLAUDE.md 4-5).
+                // 기준이 없으면 문서 최상위가 되어 카드 바깥까지 덮는다.
                 return (
-                  <li key={exam.examId}>
-                    {/* 행 전체가 수정 모달을 여는 버튼이다. 버튼은 글자를 가운데 두므로
-                        text-left로 되돌린다. */}
+                  <li
+                    key={exam.examId}
+                    className="group relative flex items-center gap-2.5 py-2"
+                  >
+                    {/* 뱃지는 자연 크기 유지. 고정폭 슬롯에 왼쪽 정렬해 뒤 제목의 시작 x를 통일한다 */}
+                    <div className="w-14 shrink-0">
+                      <span
+                        className={cn(
+                          'inline-block rounded-md border-[0.5px] px-2 py-0.5 text-[12px] leading-4.5 font-medium',
+                          ddayBadgeClass(days),
+                        )}
+                      >
+                        {ddayLabel(days)}
+                      </span>
+                    </div>
+                    {/* after로 행 전체를 덮어 뱃지·여백을 눌러도 이동하게 한다.
+                        빈 오버레이 링크가 아니라 글자를 감싸는 이유: 링크 이름이
+                        "시험명 + 날짜"로 저절로 잡힌다(빈 링크면 aria-label을 따로 붙여야 한다). */}
+                    <Link
+                      href={`/projects/${exam.projectId}`}
+                      className="focus-visible:ring-secondary-400 min-w-0 flex-1 rounded-sm after:absolute after:inset-0 focus-visible:ring-2 focus-visible:outline-none"
+                    >
+                      <p className="truncate text-[14px] leading-5 font-medium tracking-[-0.28px] text-gray-950">
+                        {examName(exam)}
+                      </p>
+                      <p className="text-[12px] leading-4.5 tracking-[-0.24px] text-gray-600">
+                        {formatKoreanDate(exam.examDate)}
+                      </p>
+                    </Link>
+                    {/* 수정 — 이동 링크의 after가 행을 덮으므로 z-10으로 그 위에 올린다.
+                        행에 마우스를 올리거나 행 안에 포커스가 들어왔을 때만 드러낸다.
+                        이 앱은 데스크톱(웹·앱)만 대상이라 호버가 항상 있다 — 터치만 쓰는
+                        기기가 대상이었다면 호버가 없어 영영 안 나타났을 방식이다.
+                        opacity로만 숨기므로 버튼은 계속 포커스 대상이고 보조기술에도 남는다.
+                        group-focus-within이라 Tab으로 행에 들어오면 같이 보인다 —
+                        키보드로는 호버가 없으니 이게 없으면 보이지 않는 채로 포커스만 간다.
+                        보이는 크기는 28로 두고 before로 히트 영역만 44로 넓힌다(28+8*2).
+                        늘린 8px은 옆 셰브론과의 간격(10) 안쪽이라 서로 겹치지 않는다. */}
                     <button
                       type="button"
+                      aria-label={`${examName(exam)} 수정`}
                       onClick={() => setEditing(exam)}
-                      className="group flex w-full cursor-pointer items-center gap-2.5 py-2 text-left"
+                      className="focus-visible:ring-secondary-400 relative z-10 flex size-7 shrink-0 items-center justify-center rounded-md text-gray-400 opacity-0 transition group-focus-within:opacity-100 group-hover:opacity-100 before:absolute before:-inset-2 hover:bg-gray-200 hover:text-gray-700 focus-visible:ring-2 focus-visible:outline-none"
                     >
-                      {/* 뱃지는 자연 크기 유지. 고정폭 슬롯에 왼쪽 정렬해 뒤 제목의 시작 x를 통일한다 */}
-                      <div className="w-14 shrink-0">
-                        <span
-                          className={cn(
-                            'inline-block rounded-md border-[0.5px] px-2 py-0.5 text-[12px] leading-4.5 font-medium',
-                            ddayBadgeClass(days),
-                          )}
-                        >
-                          {ddayLabel(days)}
-                        </span>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-[14px] leading-5 font-medium tracking-[-0.28px] text-gray-950">
-                          {examName(exam)}
-                        </p>
-                        <p className="text-[12px] leading-4.5 tracking-[-0.24px] text-gray-600">
-                          {formatKoreanDate(exam.examDate)}
-                        </p>
-                      </div>
-                      <ChevronRightIcon className="size-4 shrink-0 text-gray-400 transition-colors group-hover:text-gray-600" />
+                      <Icon name="edit" size={16} />
                     </button>
+                    <ChevronRightIcon className="size-4 shrink-0 text-gray-400 transition-colors group-hover:text-gray-600" />
                   </li>
                 );
               })}
