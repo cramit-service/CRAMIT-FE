@@ -215,6 +215,54 @@
   }
 }
 
+/* 자동완성된 입력칸.
+   Chrome은 자동완성 항목을 고르면 UA 스타일(:-internal-autofill-selected)로 연한 파란 배경을
+   칠한다. 우선순위가 높아 background-color로는 덮이지 않는다. 어두운 바(bg-gray-800) 안의
+   투명한 input에 이게 걸리면 검은 배경 위에 흰 판이 생긴 것처럼 보인다.
+
+   앱의 input은 어디서도 배경을 직접 칠하지 않으므로(전부 bg-transparent) 배경을 글자 영역으로
+   클립해 판 자체를 지운다. 부모의 배경색을 몰라도 되는 방식이라 밝은 화면과 어두운 화면에
+   똑같이 통한다 — box-shadow inset으로 덮는 흔한 방법은 부모 색을 박아야 해서 화면마다 갈린다.
+
+   글자색은 currentColor로 두면 안 된다. UA 규칙이 color를 !important로 덮어써서
+   currentColor가 그 검정을 그대로 물어오고, 어두운 필드 위에서 글자가 사라진다.
+   -webkit-text-fill-color는 UA가 건드리지 않는 속성이라 명시색을 주면 이긴다.
+   지금 앱의 input은 전부 어두운 필드 위에 있어 밝은 글자가 기본값이고,
+   밝은 배경에 input을 두는 화면이 생기면 그 자리에서 토큰만 뒤집는다
+   (예: className="[--autofill-text:var(--color-gray-900)]").
+
+   표준 :autofill과 -webkit- 접두사를 한 셀렉터 목록에 묶으면 한쪽을 모르는 브라우저가
+   규칙 전체를 버리므로 블록을 나눠 둔다. */
+@layer base {
+  :root {
+    --autofill-text: var(--color-gray-100);
+  }
+}
+
+@layer base {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: var(--autofill-text);
+    caret-color: var(--autofill-text);
+  }
+}
+
+@layer base {
+  input:autofill,
+  input:autofill:hover,
+  input:autofill:focus,
+  input:autofill:active {
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: var(--autofill-text);
+    caret-color: var(--autofill-text);
+  }
+}
+
 /* 기본 배경/텍스트 */
 body {
   background-color: var(--color-primary-100);
