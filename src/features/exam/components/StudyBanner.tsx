@@ -26,7 +26,7 @@ export function StudyBanner() {
   return (
     <GradientBackground
       variant="wide"
-      className="has-[a:focus-visible]:ring-secondary-400 flex min-h-35.5 flex-col justify-center rounded-md border border-gray-800 px-8 py-6 transition-shadow hover:shadow-md has-[a:focus-visible]:ring-2"
+      className="has-[a:focus-visible]:ring-secondary-400 flex min-h-35.5 flex-col justify-center rounded-md border border-gray-800 px-12 py-6 transition-shadow hover:shadow-md has-[a:focus-visible]:ring-2"
     >
       {/* 배너 장식 — 캐릭터(고양이)와 낙서. 오른쪽에 절대배치. 순수 장식이라 aria-hidden.
           SVG라 next/image 최적화 경로(400)를 피하려 unoptimized로 그대로 서빙한다. */}
@@ -58,37 +58,37 @@ export function StudyBanner() {
         // 제목이 배너 세로 중앙에 오도록 묶음을 (gap 8 + 줄 높이 24)의 절반인 16px만큼 내린다.
         <Link
           href={`/projects/${featured.projectId}`}
-          className="block after:absolute after:inset-0"
+          className="flex flex-col after:absolute after:inset-0"
         >
-          {/* 세로 위치 보정은 반드시 링크 '안쪽'에 둔다. transform이 걸린 요소는 그 안의
-              absolute 자식에게 컨테이닝 블록이 되어, 링크에 걸면 after가 배너가 아니라
-              링크 자기 박스만 덮는다(장식 영역을 눌러도 안 들어간다). */}
-          <div className="flex translate-y-4 flex-col gap-2">
-            <div className="flex flex-wrap items-center gap-2.5">
-              {/* 시험 일정 카드와 같은 규칙으로 색을 나눈다(D-DAY 빨강 / D-1~3 노랑 / D-4+ 파랑).
-                크기는 옆의 진행률 뱃지와 같아야 한다 — 나란히 놓이는 한 쌍이라 어긋나면 바로 보인다. */}
-              <h3 className="text-[24px] leading-[34px] font-semibold tracking-[-0.48px] text-gray-800">
-                {examName(featured)}
-              </h3>
-              <span
-                className={cn(
-                  'inline-flex items-center rounded-md border-[0.5px] px-2 py-0.5 text-[12px] leading-4.5 font-medium',
-                  ddayBadgeClass(days),
-                )}
-              >
-                {ddayLabel(days)}
-              </span>
-              <span className="inline-flex items-center rounded-md border-[0.5px] border-gray-800 bg-white px-2 py-0.5 text-[12px] leading-4.5 font-medium text-gray-800">
-                학습 진행률 {featured.progress}%
-              </span>
-            </div>
-            {/* 버튼이 아니라 어포던스 표시다 — 누르는 건 배너 전체다.
-              gray-500이던 것을 gray-800으로 올린다. 유일한 진입 신호라 눈에 걸려야 한다. */}
-            <span className="flex w-fit items-center gap-1 text-[15px] leading-6 font-semibold tracking-[-0.3px] text-gray-800">
-              학습하러 가기
-              <ChevronRightIcon className="size-4.5" />
+          {/* 시안 24:10161 — 뱃지 / 제목 / CTA 세 줄. 순서와 간격(9·7)은 시안 그대로다.
+              제목만 시안 타이포(Heading/Medium B 32·44)를 따른다 — 배너에서 가장 큰 자리다.
+              뱃지는 시안(14·22)이 아니라 옆 시험 일정 카드와 같은 12·18로 둔다.
+              같은 D-DAY가 좌우에서 다른 크기로 보이면 안 된다.
+              CTA도 시안(Regular 20·gray-500) 대신 SemiBold 15·gray-800이다 —
+              배너 전체가 링크가 되면서 이게 유일한 진입 신호라 눈에 걸려야 한다.
+              transform은 걸지 않는다. transform이 걸린 요소는 그 안의 absolute 자식에게
+              컨테이닝 블록이 되어, after가 배너가 아니라 이 링크 박스만 덮는다. */}
+          {/* 시험 일정 카드와 같은 규칙으로 색을 나눈다(D-DAY 빨강 / D-1~3 노랑 / D-4+ 파랑). */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span
+              className={cn(
+                'inline-flex items-center rounded-md border-[0.5px] px-2 py-0.5 text-[12px] leading-4.5 font-medium',
+                ddayBadgeClass(days),
+              )}
+            >
+              {ddayLabel(days)}
+            </span>
+            <span className="inline-flex items-center rounded-md border-[0.5px] border-gray-800 bg-white px-2 py-0.5 text-[12px] leading-4.5 font-medium text-gray-800">
+              학습 진행률 {featured.progress}%
             </span>
           </div>
+          <h3 className="mt-[9px] text-[32px] leading-[44px] font-semibold tracking-[-0.64px] text-gray-800">
+            {examName(featured)}
+          </h3>
+          <span className="mt-[7px] flex w-fit items-center gap-1 text-[15px] leading-6 font-semibold tracking-[-0.3px] text-gray-800">
+            학습하러 가기
+            <ChevronRightIcon className="size-4.5" />
+          </span>
         </Link>
       )}
     </GradientBackground>
