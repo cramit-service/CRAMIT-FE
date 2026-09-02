@@ -50,6 +50,19 @@ export function ChapterUploadOverlay({
     cancelRef.current?.focus();
   }, []);
 
+  // 사이드바는 시안대로 보이지만 눌리지는 않아야 한다. 클릭은 아래 차단 층이 막고,
+  // 키보드는 여기서 막는다 — Tab으로 배경 컨트롤에 닿으면 이 화면을 잃은 채 조작하게 되고
+  // 그때 취소 버튼도 함께 사라진다. 지금 할 수 있는 건 취소뿐이라 늘 그리로 돌려보낸다.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      e.preventDefault();
+      cancelRef.current?.focus();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   // 뒤 페이지가 스크롤되면 덮여 있는데도 배경이 움직여 보인다. 모달과 같은 규칙으로 잠근다.
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -64,71 +77,77 @@ export function ChapterUploadOverlay({
   const filled = Math.floor((percent / 100) * DOT_COUNT);
 
   return (
-    // 시안에서도 좌측 사이드바는 그대로 보인다. inset-0으로 덮고 안쪽을 미는 게 아니라
-    // 레일 폭만큼 비켜서 자리를 잡아야 배경 그라데이션도 사이드바를 침범하지 않는다.
-    // left-22.5는 Sidebar의 접힘 폭(w-22.5)·main의 pl-22.5와 한 쌍이다.
-    <div className="fixed inset-y-0 right-0 left-22.5 z-50">
-      <GradientBackground layer />
+    <>
+      {/* 클릭 차단 층. 시안은 사이드바를 그대로 보여주지만, 업로드 중에 사이드바를 누르면
+          이 화면을 잃은 채 배경으로 빠져나가고 진행률·취소 버튼이 같이 사라진다.
+          보이기는 하되 눌리지 않도록 화면 전체를 투명하게 덮는다. */}
+      <div className="fixed inset-0 z-50" aria-hidden />
 
-      <div className="relative flex h-full flex-col">
-        {/* 시안 상단 바 124px(=89). 워드마크는 다른 화면과 같은 22px로 둔다. */}
-        <div className="flex h-[89px] shrink-0 items-center justify-center">
-          <Logo className="h-[22px] text-gray-950" />
-        </div>
+      {/* 그림은 시안대로 레일 폭만큼 비켜서 그린다 — 배경 그라데이션이 사이드바를 침범하지
+          않아야 한다. left-22.5는 Sidebar의 접힘 폭(w-22.5)·main의 pl-22.5와 한 쌍이다. */}
+      <div className="fixed inset-y-0 right-0 left-22.5 z-50">
+        <GradientBackground layer />
 
-        {/* 시안에서 마스코트~심볼 묶음은 화면 정중앙이다. 위 로고 바만큼을 아래 여백으로
-            돌려줘야 그 중심이 유지된다. 묶음 사이 간격은 시안 30px(=22). */}
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-[22px] pb-[89px]">
-          {/* 시안 188.366×148 → 0.72배. 리포에 이미 있는 마스코트 원본과 같은 벡터다. */}
-          <Image
-            src="/images/Crait_Cat.svg"
-            alt=""
-            width={136}
-            height={107}
-            priority
-            unoptimized
-            className="h-[107px] w-[136px] select-none"
-          />
-
-          {/* 가이드 4-4대로 타이포는 시안 크기 그대로 둔다 (32px / leading 42 / -2%). */}
-          <p className="text-center text-[32px] leading-[42px] tracking-[-0.64px] text-gray-800">
-            {message}
-          </p>
-
-          {/* 심볼이 차오르는 걸 색으로만 알리지 않도록 진행률을 값으로도 노출한다.
-              시안에 숫자는 없어서 화면에는 심볼만 두고 보조기기에만 읽힌다. */}
-          <div
-            role="progressbar"
-            aria-valuenow={percent}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuetext={`${percent}% 완료`}
-            aria-label={message}
-            className="flex items-center gap-[7px]"
-          >
-            {Array.from({ length: DOT_COUNT }, (_, index) => (
-              <BoltGlyph
-                key={index}
-                className={cn(
-                  'h-[22px] w-[15px] transition-colors duration-300',
-                  index < filled ? 'text-gray-950' : 'text-gray-100',
-                )}
-              />
-            ))}
+        <div className="relative flex h-full flex-col">
+          {/* 시안 상단 바 124px(=89). 워드마크는 다른 화면과 같은 22px로 둔다. */}
+          <div className="flex h-[89px] shrink-0 items-center justify-center">
+            <Logo className="h-[22px] text-gray-950" />
           </div>
 
-          {/* 시안에는 없지만 필요하다 — 이게 없으면 큰 파일을 잘못 골랐을 때
+          {/* 시안에서 마스코트~심볼 묶음은 화면 정중앙이다. 위 로고 바만큼을 아래 여백으로
+            돌려줘야 그 중심이 유지된다. 묶음 사이 간격은 시안 30px(=22). */}
+          <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-[22px] pb-[89px]">
+            {/* 시안 188.366×148 → 0.72배. 리포에 이미 있는 마스코트 원본과 같은 벡터다. */}
+            <Image
+              src="/images/Crait_Cat.svg"
+              alt=""
+              width={136}
+              height={107}
+              priority
+              unoptimized
+              className="h-[107px] w-[136px] select-none"
+            />
+
+            {/* 가이드 4-4대로 타이포는 시안 크기 그대로 둔다 (32px / leading 42 / -2%). */}
+            <p className="text-center text-[32px] leading-[42px] tracking-[-0.64px] text-gray-800">
+              {message}
+            </p>
+
+            {/* 심볼이 차오르는 걸 색으로만 알리지 않도록 진행률을 값으로도 노출한다.
+              시안에 숫자는 없어서 화면에는 심볼만 두고 보조기기에만 읽힌다. */}
+            <div
+              role="progressbar"
+              aria-valuenow={percent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuetext={`${percent}% 완료`}
+              aria-label={message}
+              className="flex items-center gap-[7px]"
+            >
+              {Array.from({ length: DOT_COUNT }, (_, index) => (
+                <BoltGlyph
+                  key={index}
+                  className={cn(
+                    'h-[22px] w-[15px] transition-colors duration-300',
+                    index < filled ? 'text-gray-950' : 'text-gray-100',
+                  )}
+                />
+              ))}
+            </div>
+
+            {/* 시안에는 없지만 필요하다 — 이게 없으면 큰 파일을 잘못 골랐을 때
               업로드가 끝날 때까지 화면을 벗어날 방법이 아예 없다. */}
-          <button
-            ref={cancelRef}
-            type="button"
-            onClick={onCancel}
-            className="focus-visible:ring-secondary-400 mt-2 rounded-sm px-2 py-1 text-[14px] leading-[22px] tracking-[-0.28px] text-gray-600 underline underline-offset-4 transition-colors hover:text-gray-800 focus-visible:ring-2 focus-visible:outline-none"
-          >
-            업로드 취소
-          </button>
+            <button
+              ref={cancelRef}
+              type="button"
+              onClick={onCancel}
+              className="focus-visible:ring-secondary-400 mt-2 rounded-sm px-2 py-1 text-[14px] leading-[22px] tracking-[-0.28px] text-gray-600 underline underline-offset-4 transition-colors hover:text-gray-800 focus-visible:ring-2 focus-visible:outline-none"
+            >
+              업로드 취소
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

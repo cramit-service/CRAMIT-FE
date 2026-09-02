@@ -1,6 +1,6 @@
 'use client';
 // src/features/project/components/NewChapterUploadModal.tsx
-import { useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
 import { ApiRequestError, UPLOAD_ABORTED } from '@/shared/lib/apiClient';
@@ -98,13 +98,32 @@ export function NewChapterUploadModal({
   const hasMaterial =
     materialFile !== null || Boolean(chapter?.materialFileName);
   const hasAudio = audioFile !== null || Boolean(chapter?.audioFileName);
-  const hasAnyFile = hasMaterial || hasAudio;
+  // 응답에 파일 이름 필드가 아예 없으면 이 주차에 무엇이 올라가 있는지 알 수 없다.
+  // 모른다는 이유로 막으면 제목만 고치려던 사람까지 갇히므로, 알 수 없을 때는 막지 않는다.
+  // (백엔드가 필드를 채워 주면 이 분기는 자연히 꺼진다)
+  const fileStateUnknown =
+    isEdit &&
+    chapter.materialFileName === undefined &&
+    chapter.audioFileName === undefined;
+  const hasAnyFile = fileStateUnknown || hasMaterial || hasAudio;
+
+  // 수정 모드는 바뀐 게 있어야 저장을 연다 (LectureFormModal과 같은 규칙).
+  // 없으면 아무것도 안 고치고 눌러도 요청이 나가고, 버튼도 늘 눌리는 것처럼 보인다.
+  const changed =
+    !isEdit ||
+    title.trim() !== chapter.title ||
+    lectureDate !== chapter.lectureDate ||
+    (professor.trim() || null) !== chapter.professor ||
+    targetProjectId !== chapter.projectId ||
+    materialFile !== null ||
+    audioFile !== null;
 
   const canSubmit =
     title.trim() !== '' &&
     lectureDate !== '' &&
     targetProjectId !== '' &&
     hasAnyFile &&
+    changed &&
     !materialError &&
     !audioError;
 
@@ -117,6 +136,10 @@ export function NewChapterUploadModal({
 
   // 취소하면 전송이 끊기고 mutation이 UPLOAD_ABORTED로 실패해 폼으로 돌아온다.
   const handleCancel = () => abortRef.current?.abort();
+
+  // 업로드 도중 이 컴포넌트가 사라지면(사이드바로 이동하는 등) 요청만 남아 계속 돈다.
+  // 진행률도 취소 버튼도 없이 도는 업로드가 되므로 사라질 때 같이 끊는다.
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -373,7 +396,13 @@ export function NewChapterUploadModal({
                   아이콘과 무관하게 버튼 전체 기준으로 가운데 온다. absolute의 기준이 되도록
                   버튼에 relative를 둔다. 장식이라 글자 색을 따르지 않는다(시안 gray-400). */}
               <CloudUploadIcon className="pointer-events-none absolute top-1/2 left-3.5 size-[19px] -translate-y-1/2 text-gray-400" />
-              {isPending ? (isEdit ? '저장 중…' : '업로드 중…') : '업로드하기'}
+              {isPending
+                ? isEdit
+                  ? '저장 중…'
+                  : '업로드 중…'
+                : isEdit
+                  ? '수정 완료'
+                  : '업로드하기'}
             </button>
           </div>
         </div>
