@@ -101,16 +101,19 @@ export function ExamSchedule() {
                       </p>
                     </Link>
                     {/* 수정 — 이동 링크의 after가 행을 덮으므로 z-10으로 그 위에 올린다.
-                        항상 보인다: 호버로만 드러내면 호버가 없는 터치 기기에서 영영 안 나타나
-                        보이지 않는 채로 눌리는 자리만 남는다.
+                        행에 마우스를 올리거나 행 안에 포커스가 들어왔을 때만 드러낸다.
+                        이 앱은 데스크톱(웹·앱)만 대상이라 호버가 항상 있다 — 터치만 쓰는
+                        기기가 대상이었다면 호버가 없어 영영 안 나타났을 방식이다.
+                        opacity로만 숨기므로 버튼은 계속 포커스 대상이고 보조기술에도 남는다.
+                        group-focus-within이라 Tab으로 행에 들어오면 같이 보인다 —
+                        키보드로는 호버가 없으니 이게 없으면 보이지 않는 채로 포커스만 간다.
                         보이는 크기는 28로 두고 before로 히트 영역만 44로 넓힌다(28+8*2).
-                        레이아웃을 건드리지 않으면서 터치 최소 크기를 만족시키는 방법이다 —
                         늘린 8px은 옆 셰브론과의 간격(10) 안쪽이라 서로 겹치지 않는다. */}
                     <button
                       type="button"
                       aria-label={`${examName(exam)} 수정`}
                       onClick={() => setEditing(exam)}
-                      className="focus-visible:ring-secondary-400 relative z-10 flex size-7 shrink-0 items-center justify-center rounded-md text-gray-400 transition-colors before:absolute before:-inset-2 hover:bg-gray-200 hover:text-gray-700 focus-visible:ring-2 focus-visible:outline-none"
+                      className="focus-visible:ring-secondary-400 relative z-10 flex size-7 shrink-0 items-center justify-center rounded-md text-gray-400 opacity-0 transition group-focus-within:opacity-100 group-hover:opacity-100 before:absolute before:-inset-2 hover:bg-gray-200 hover:text-gray-700 focus-visible:ring-2 focus-visible:outline-none"
                     >
                       <PencilIcon className="size-4" />
                     </button>
