@@ -8,6 +8,11 @@ import { examName } from '@/features/exam/lib/examName';
 import { todoName } from '@/features/todo/lib/todoName';
 import { useTodoFilter } from '@/features/todo/hooks/useTodoFilter';
 import { buildMonthGrid } from '@/features/calendar/lib/month';
+import {
+  SCHEDULE_TAG_BASE,
+  scheduleTagClass,
+  type ScheduleType,
+} from '@/features/calendar/lib/scheduleTag';
 import { useCalendarMonth } from '@/features/calendar/hooks/useCalendarMonth';
 import { CalendarCell, type ScheduleItem } from './CalendarCell';
 
@@ -112,10 +117,8 @@ export function Calendar() {
       </div>
 
       <div className="mt-2 flex items-center gap-1.5">
-        <LegendTag className="bg-secondary-100 text-secondary-500">
-          할 일 (TODO)
-        </LegendTag>
-        <LegendTag className="bg-level-02/30 text-warning">시험 일정</LegendTag>
+        <LegendTag type="todo">할 일 (TODO)</LegendTag>
+        <LegendTag type="exam">시험 일정</LegendTag>
       </div>
     </section>
   );
@@ -146,18 +149,18 @@ function NavButton({
   );
 }
 
+// 범례 한 칸. 셀 안 태그와 똑같이 생겨야 해서 같은 것(scheduleTag.ts)을 쓴다.
+// 예전에는 여기가 9px·medium으로 셀 태그(12px·normal)보다 작아, 범례가 가리키는 물건과
+// 다르게 생겨 있었다. 시안 수치(57×15·9px)를 따르던 흔적인데 셀 태그 쪽이 커지면서 어긋났다.
 function LegendTag({
-  className,
+  type,
   children,
 }: {
-  className?: string;
+  type: ScheduleType;
   children: React.ReactNode;
 }) {
   return (
-    // 시안 범례 pill은 57×15로 셀 안 태그보다 작다. 글자 9px + px 4로 맞춘다.
-    <span
-      className={`rounded-full px-1 py-0.5 text-[9px] leading-3 font-medium ${className}`}
-    >
+    <span className={`${SCHEDULE_TAG_BASE} ${scheduleTagClass(type)}`}>
       {children}
     </span>
   );

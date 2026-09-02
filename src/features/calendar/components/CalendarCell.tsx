@@ -1,5 +1,9 @@
 // src/features/calendar/components/CalendarCell.tsx
 import { cn } from '@/shared/lib/cn';
+import {
+  SCHEDULE_TAG_BASE,
+  scheduleTagClass,
+} from '@/features/calendar/lib/scheduleTag';
 import type { CalendarCell as Cell } from '@/features/calendar/lib/month';
 
 export interface ScheduleItem {
@@ -14,25 +18,13 @@ export interface ScheduleItem {
 // 옆 칸들과 바닥선이 맞는다. 대신 마지막 태그는 "+N" 폭만큼 좁아져 이름이 더 잘린다.
 const MAX_VISIBLE_TAGS = 2;
 
-// 시험=노랑(warning), 투두=파랑(secondary) — 색 규칙은 팀 합의값.
-// truncate는 부모가 min-w-0이어야 동작한다.
+// 생김새는 features/calendar/lib/scheduleTag.ts가 정한다 — 범례와 같은 것을 써야 해서
+// 한 곳에 모아 뒀다. 여기서는 종류만 넘긴다.
+// 시안에서 pill은 Hug contents라 글자 폭까지만 감싼다(w-full로 늘리면 안 된다).
+// 긴 이름은 칸을 넘지 않도록 max-w-full + truncate로 자른다(base에 포함).
 function ScheduleTag({ item }: { item: ScheduleItem }) {
   return (
-    <span
-      className={cn(
-        // 시안 태그: 글자 12px · px 4 · py 3 → pill 높이 21px.
-        // 글자 크기는 시안 px 그대로 두고 좌우 여백만 시안값을 따른다.
-        // leading을 명시하지 않으면 상속된 줄높이가 pill을 24px로 부풀린다.
-        // 시안에서 pill은 Hug contents라 글자 폭까지만 감싼다(w-full로 늘리면 안 된다).
-        // 긴 이름은 칸을 넘지 않도록 max-w-full + truncate로 자른다.
-        // 시안의 셀 태그는 Regular(400)다 — 네 개 중 셋이 Regular이고 하나만 Medium이라
-        // 다수를 따랐다. Medium이면 작은 글자가 뭉쳐 보인다.
-        'w-fit max-w-full truncate rounded-full px-1 py-0.75 text-[12px] leading-3.75 font-normal',
-        item.type === 'exam'
-          ? 'bg-level-02/30 text-warning'
-          : 'bg-secondary-100 text-secondary-500',
-      )}
-    >
+    <span className={cn(SCHEDULE_TAG_BASE, scheduleTagClass(item.type))}>
       {item.label}
     </span>
   );
