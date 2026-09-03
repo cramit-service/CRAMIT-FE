@@ -147,16 +147,16 @@ export function NewChapterUploadModal({
       onClose={handleClose}
       surface="bare"
       labelledBy={titleId}
-      // Figma 960px 모달을 화면과 같은 0.72배(≈691px)로. 시안 높이(876px)가 노트북
+      // Figma 960px 모달. 시안 높이(876px)가 노트북
       // 화면을 넘기므로 패널은 고정하고 안쪽만 스크롤시킨다.
-      className="relative flex max-h-[calc(100vh-64px)] w-[691px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-lg border-[0.5px] border-gray-600 bg-gray-900"
+      className="relative flex max-h-[calc(100vh-64px)] w-[960px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-lg border-[0.5px] border-gray-600 bg-gray-900"
     >
       <button
         type="button"
         onClick={handleClose}
         aria-label="닫기"
         disabled={isPending}
-        className="absolute top-[23px] right-[23px] z-10 text-gray-400 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-700"
+        className="absolute top-8 right-8 z-10 text-gray-400 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-700"
       >
         <CloseIcon className="size-5" />
       </button>
@@ -165,13 +165,11 @@ export function NewChapterUploadModal({
           모달 오른쪽에 흰 띠가 생겨 분위기가 끊긴다.
           scrollbar-color를 모르는 브라우저는 color-scheme:dark가 받아준다. */}
       <form onSubmit={handleSubmit} className="flex min-h-0 flex-col">
-        <div className="scrollbar-dark flex min-h-0 flex-1 flex-col overflow-y-auto px-15 pt-11 pb-7 [color-scheme:dark]">
-          {/* 시안 32px SemiBold. 모달 전체를 0.72배로 옮겼으므로 제목도 같이 줄이되,
-            0.72배(23px)로는 여전히 박스 대비 글자가 커서 절반인 16px까지 내렸다.
-            이 크기에서는 SemiBold가 무겁지 않고, 14px 라벨과 구분하는 역할만 한다. */}
+        <div className="scrollbar-dark flex min-h-0 flex-1 flex-col overflow-y-auto px-[83px] pt-[61px] pb-10 [color-scheme:dark]">
+          {/* 시안 32px SemiBold. 20px 라벨과 구분하는 역할이다. */}
           <h2
             id={titleId}
-            className="text-body-sm font-semibold text-gray-100"
+            className="text-heading-md font-semibold text-gray-100"
           >
             {isEdit ? '주차 정보 수정하기' : '새 주차 업로드'}
           </h2>
@@ -310,7 +308,7 @@ export function NewChapterUploadModal({
             <button
               type="submit"
               disabled={!canSubmit || isPending}
-              className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 relative flex h-11 w-[249px] items-center justify-center rounded-md text-label font-medium transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-gray-100"
+              className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 text-body-md relative flex h-15 w-[346px] items-center justify-center rounded-md font-medium transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-gray-100"
             >
               {/* 시안에서 아이콘은 글자 옆이 아니라 버튼 왼쪽에 따로 얹혀 있고, 글자는
                   아이콘과 무관하게 버튼 전체 기준으로 가운데 온다. absolute의 기준이 되도록

@@ -92,7 +92,7 @@ export function ShareProjectModal({
         <button
           type="submit"
           disabled={!canInvite || busy || isFull || identifier.trim() === ''}
-          className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 h-10 w-[78px] shrink-0 rounded-md text-[13px] leading-5 font-medium tracking-[-0.26px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-500"
+          className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 text-body h-14 w-[108px] shrink-0 rounded-md font-medium transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-500"
         >
           {inviteMutation.isPending ? '초대 중…' : '초대하기'}
         </button>
@@ -134,11 +134,11 @@ export function ShareProjectModal({
               className="flex items-center gap-3 rounded-md bg-gray-800 px-4 py-3.5"
             >
               <div className="flex min-w-0 flex-1 flex-col gap-2">
-                <span className="truncate text-[14px] leading-5 font-semibold tracking-[-0.28px] text-gray-100">
+                <span className="text-body-md truncate font-semibold text-gray-100">
                   {member.nickname}
                 </span>
                 {/* 이메일은 이름보다 한 단계 낮은 정보라 테두리 칩으로 눌러 둔다 */}
-                <span className="w-fit max-w-full truncate rounded-sm border-[0.5px] border-gray-600 px-1.5 py-0.5 text-[11px] leading-4 tracking-[-0.22px] text-gray-400">
+                <span className="text-label w-fit max-w-full truncate rounded-sm border-[0.5px] border-gray-600 px-2 py-1 text-gray-400">
                   {member.email}
                 </span>
               </div>
@@ -147,7 +147,7 @@ export function ShareProjectModal({
                 type="button"
                 onClick={() => handleRemove(member)}
                 disabled={busy}
-                className="bg-error/20 text-error shrink-0 rounded-sm px-2 py-0.5 text-[11px] leading-4 font-medium transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                className="bg-error/20 text-error text-label shrink-0 rounded-sm px-3 py-1 font-medium transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 제거하기
               </button>
