@@ -40,7 +40,7 @@ export function ViewerTabs({ activeTabs, onToggle }: ViewerTabsProps) {
             aria-pressed={active}
             aria-disabled={locked || undefined}
             className={cn(
-              'flex h-8 items-center justify-center rounded-full px-4 text-[14px] leading-[20px] font-medium tracking-[-0.28px] whitespace-nowrap transition-colors',
+              'text-label flex h-8 items-center justify-center rounded-full px-4 font-medium whitespace-nowrap transition-colors',
               active
                 ? 'bg-secondary-400 text-white'
                 : 'border-[0.5px] border-gray-500 text-gray-600 hover:border-gray-600 hover:text-gray-700',

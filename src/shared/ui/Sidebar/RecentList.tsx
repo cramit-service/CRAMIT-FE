@@ -63,7 +63,7 @@ export function RecentList({ expanded, onExpand }: RecentListProps) {
         </span>
         {/* truncate로 줄바꿈을 막는다. 펼치는 200ms 동안 사이드바가 아직 좁아서
             라벨이 두 줄로 접혔다 펴지고, 그만큼 높이가 늘었다 줄어 아이콘이 아래위로 튄다. */}
-        <span className="flex-1 truncate text-left text-[15px] font-normal">
+        <span className="text-body-sm flex-1 truncate text-left font-normal">
           최근 학습 내역
         </span>
       </div>

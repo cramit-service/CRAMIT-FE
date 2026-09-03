@@ -217,16 +217,16 @@ export function NewChapterUploadModal({
       onClose={handleClose}
       surface="bare"
       labelledBy={titleId}
-      // Figma 960px 모달을 화면과 같은 0.72배(≈691px)로. 시안 높이(876px)가 노트북
+      // Figma 960px 모달. 시안 높이(876px)가 노트북
       // 화면을 넘기므로 패널은 고정하고 안쪽만 스크롤시킨다.
-      className="relative flex max-h-[calc(100vh-64px)] w-[691px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-lg border-[0.5px] border-gray-600 bg-gray-900"
+      className="relative flex max-h-[calc(100vh-64px)] w-[min(960px,50vw)] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-lg border-[0.5px] border-gray-600 bg-gray-900"
     >
       <button
         type="button"
         onClick={handleClose}
         aria-label="닫기"
         disabled={isPending}
-        className="absolute top-[23px] right-[23px] z-10 text-gray-400 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-700"
+        className="absolute top-8 right-8 z-10 text-gray-400 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-700"
       >
         <CloseIcon className="size-5" />
       </button>
@@ -235,20 +235,21 @@ export function NewChapterUploadModal({
           모달 오른쪽에 흰 띠가 생겨 분위기가 끊긴다.
           scrollbar-color를 모르는 브라우저는 color-scheme:dark가 받아준다. */}
       <form onSubmit={handleSubmit} className="flex min-h-0 flex-col">
-        <div className="scrollbar-dark flex min-h-0 flex-1 flex-col overflow-y-auto px-15 pt-11 pb-7 [color-scheme:dark]">
-          {/* 시안 32px SemiBold. 모달 전체를 0.72배로 옮겼으므로 제목도 같이 줄이되,
-            0.72배(23px)로는 여전히 박스 대비 글자가 커서 절반인 16px까지 내렸다.
-            이 크기에서는 SemiBold가 무겁지 않고, 14px 라벨과 구분하는 역할만 한다. */}
+        <div className="scrollbar-dark flex min-h-0 flex-1 flex-col overflow-y-auto px-21 pt-15 pb-10 [color-scheme:dark]">
+          {/* 시안 32px SemiBold. 20px 라벨과 구분하는 역할이다. */}
           <h2
             id={titleId}
-            className="text-[16px] leading-6 font-semibold tracking-[-0.32px] text-gray-100"
+            className="text-heading-md font-semibold text-gray-100"
           >
             {isEdit ? '주차 정보 수정하기' : '새 주차 업로드'}
           </h2>
 
           {/* 제목 */}
           <div
-            className={cn('mt-4.5 flex flex-col gap-2 pb-8.5', SECTION_DIVIDER)}
+            className={cn(
+              'mt-6 flex flex-col gap-2 pb-[47px]',
+              SECTION_DIVIDER,
+            )}
           >
             <label htmlFor="chapter-title" className={LABEL}>
               제목
@@ -265,7 +266,7 @@ export function NewChapterUploadModal({
           </div>
 
           {/* 강의 + 주차 수강 날짜 */}
-          <div className={cn('grid grid-cols-2 py-8.5', SECTION_DIVIDER)}>
+          <div className={cn('grid grid-cols-2 py-[47px]', SECTION_DIVIDER)}>
             <div className="flex flex-col gap-2">
               <label htmlFor="chapter-project" className={LABEL}>
                 강의
@@ -322,7 +323,7 @@ export function NewChapterUploadModal({
           </div>
 
           {/* 교수명 (선택) */}
-          <div className={cn('flex flex-col gap-2 py-8.5', SECTION_DIVIDER)}>
+          <div className={cn('flex flex-col gap-2 py-[47px]', SECTION_DIVIDER)}>
             <label htmlFor="chapter-professor" className={LABEL}>
               교수명 선택 (선택)
             </label>
@@ -338,7 +339,7 @@ export function NewChapterUploadModal({
 
           {/* 파일 업로드 2종. 둘 다 고를 필요는 없지만 하나는 있어야 한다(hasAnyFile).
               라벨의 "(선택)" 표기는 시안(528:8664)에 없어 뺀다 — 규칙은 아래 안내 문구가 말해 준다. */}
-          <div className="grid grid-cols-2 gap-[13px] pt-8.5">
+          <div className="grid grid-cols-2 gap-[18px] pt-[47px]">
             <FileDropzone
               kind="material"
               label="강의 자료 업로드"
@@ -372,7 +373,7 @@ export function NewChapterUploadModal({
 
         {/* 시안 높이(876px)가 노트북 화면을 넘으면 위 영역이 스크롤되는데, 확정 버튼까지
             같이 스크롤되면 버튼이 접힌 아래로 숨는다. 스크롤 밖에 둬 항상 보이게 한다. */}
-        <div className="shrink-0 border-t-[0.5px] border-gray-700 px-15 py-5">
+        <div className="shrink-0 border-t-[0.5px] border-gray-700 px-21 py-7">
           {/* 제출 실패는 사용자가 방금 누른 결과라 보조기기가 바로 읽어야 한다. */}
           {formError && (
             <p role="alert" className={cn(HINT, 'text-error mb-2 text-right')}>
@@ -389,7 +390,7 @@ export function NewChapterUploadModal({
             <button
               type="submit"
               disabled={!canSubmit || isPending}
-              className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 relative flex h-11 w-[249px] items-center justify-center rounded-md text-[14px] leading-[22px] font-medium tracking-[-0.28px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-gray-100"
+              className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 text-body-md relative flex h-15 w-[346px] items-center justify-center rounded-md font-medium transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-gray-100"
             >
               {/* 시안에서 아이콘은 글자 옆이 아니라 버튼 왼쪽에 따로 얹혀 있고, 글자는
                   아이콘과 무관하게 버튼 전체 기준으로 가운데 온다. absolute의 기준이 되도록

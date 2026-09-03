@@ -24,9 +24,7 @@ export function PdfPagePreview({ page }: { page: number }) {
       className="flex min-w-0 flex-1 items-center justify-center rounded-md"
       style={checkerStyle(48)}
     >
-      <p className="text-[11px] leading-[17px] tracking-[-0.22px] text-gray-950">
-        PDF 미리보기 - {page}페이지
-      </p>
+      <p className="text-label text-gray-950">PDF 미리보기 - {page}페이지</p>
     </div>
   );
 }

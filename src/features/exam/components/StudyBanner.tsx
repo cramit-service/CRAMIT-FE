@@ -68,24 +68,26 @@ export function StudyBanner() {
           <div className="relative flex flex-wrap items-center gap-2.5">
             <span
               className={cn(
-                'inline-flex items-center rounded-md border-[0.5px] px-2 py-0.5 text-[12px] leading-4.5 font-medium',
+                'text-label inline-flex items-center rounded-md border-[0.5px] px-2.5 py-0.5 font-medium',
                 ddayBadgeClass(days),
               )}
             >
               {ddayLabel(days)}
             </span>
-            <span className="inline-flex items-center rounded-md border-[0.5px] border-gray-800 bg-white px-2 py-0.5 text-[12px] leading-4.5 font-medium text-gray-800">
+            <span className="text-label inline-flex items-center rounded-md border-[0.5px] border-gray-800 bg-white px-2.5 py-0.5 font-medium text-gray-800">
               학습 진행률 {featured.progress}%
             </span>
           </div>
           {/* 고양이(폭 132 + right-3)가 콘텐츠 상자를 96px 파고든다. 그만큼 비우고,
               긴 이름은 줄바꿈 대신 자른다 — 배너가 세로로 늘면 옆 시험 일정 열이 따라 늘어난다. */}
-          <h3 className="relative mt-2.25 truncate pr-24 text-[32px] leading-[44px] font-semibold tracking-[-0.64px] text-gray-800">
+          <h3 className="text-heading-md relative mt-2.25 truncate pr-24 font-semibold text-gray-800">
             {examName(featured)}
           </h3>
-          <span className="relative mt-1.75 flex w-fit items-center gap-1 text-[15px] leading-6 font-semibold tracking-[-0.3px] text-gray-800">
+          {/* 시안 24:10507은 18/30에 아이콘 22. 굵기·색은 #94에서 정한 대로 둔다 —
+              배너 전체가 링크라 이게 유일한 진입 신호다. */}
+          <span className="text-body relative mt-1.75 flex w-fit items-center gap-1 font-semibold text-gray-800">
             학습하러 가기
-            <ChevronRightIcon className="size-4.5" />
+            <ChevronRightIcon className="size-5.5" />
           </span>
         </Link>
       )}
@@ -121,10 +123,10 @@ function EmptyExamBanner() {
         preload
         className="pointer-events-none absolute right-3 bottom-3 h-26 w-auto select-none"
       />
-      <p className="relative text-[24px] leading-8.5 font-semibold tracking-[-0.48px] text-white">
+      <p className="text-heading-sm relative font-semibold text-white">
         예정된 시험 일정이 없습니다.
       </p>
-      <p className="relative text-[14px] leading-5 tracking-[-0.28px] text-gray-300">
+      <p className="text-body relative text-gray-300">
         새로운 시험이 등록되면 이곳에 표시됩니다.
       </p>
     </div>

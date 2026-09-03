@@ -10,7 +10,6 @@ import { cn } from '@/shared/lib/cn';
 const DOT_COUNT = 10;
 
 // 심볼 한 개. 시안 그룹 export(300.364×31에 10개가 31px 간격)에서 글리프 하나를 그대로 떼어냈다.
-// 상자는 가이드 4-4대로 0.72배(21.36×31 → 15×22)로 줄인다.
 function BoltGlyph({ className }: { className?: string }) {
   return (
     <svg
@@ -81,35 +80,34 @@ export function ChapterUploadOverlay({
       {/* 클릭 차단 층. 시안은 사이드바를 그대로 보여주지만, 업로드 중에 사이드바를 누르면
           이 화면을 잃은 채 배경으로 빠져나가고 진행률·취소 버튼이 같이 사라진다.
           보이기는 하되 눌리지 않도록 화면 전체를 투명하게 덮는다. */}
-      <div className="fixed inset-0 z-50" aria-hidden />
+      <div className="z-modal fixed inset-0" aria-hidden />
 
       {/* 그림은 시안대로 레일 폭만큼 비켜서 그린다 — 배경 그라데이션이 사이드바를 침범하지
           않아야 한다. left-22.5는 Sidebar의 접힘 폭(w-22.5)·main의 pl-22.5와 한 쌍이다. */}
-      <div className="fixed inset-y-0 right-0 left-22.5 z-50">
+      <div className="z-modal fixed inset-y-0 right-0 left-22.5">
         <GradientBackground layer />
 
         <div className="relative flex h-full flex-col">
-          {/* 시안 상단 바 124px(=89). 워드마크는 다른 화면과 같은 22px로 둔다. */}
-          <div className="flex h-[89px] shrink-0 items-center justify-center">
+          {/* 시안 상단 바 124px. 워드마크는 다른 화면과 같은 22px로 둔다. */}
+          <div className="flex h-[124px] shrink-0 items-center justify-center">
             <Logo className="h-[22px] text-gray-950" />
           </div>
 
           {/* 시안에서 마스코트~심볼 묶음은 화면 정중앙이다. 위 로고 바만큼을 아래 여백으로
-            돌려줘야 그 중심이 유지된다. 묶음 사이 간격은 시안 30px(=22). */}
-          <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-[22px] pb-[89px]">
-            {/* 시안 188.366×148 → 0.72배. 리포에 이미 있는 마스코트 원본과 같은 벡터다. */}
+            돌려줘야 그 중심이 유지된다. 묶음 사이 간격은 시안 30px. */}
+          <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-[30px] pb-[124px]">
+            {/* 시안 188.366×148. 리포에 이미 있는 마스코트 원본과 같은 벡터다. */}
             <Image
               src="/images/Crait_Cat.svg"
               alt=""
-              width={136}
-              height={107}
+              width={188}
+              height={148}
               priority
               unoptimized
-              className="h-[107px] w-[136px] select-none"
+              className="h-[148px] w-[188px] select-none"
             />
 
-            {/* 가이드 4-4대로 타이포는 시안 크기 그대로 둔다 (32px / leading 42 / -2%). */}
-            <p className="text-center text-[32px] leading-[42px] tracking-[-0.64px] text-gray-800">
+            <p className="text-heading-md text-center text-gray-800">
               {message}
             </p>
 
@@ -122,13 +120,13 @@ export function ChapterUploadOverlay({
               aria-valuemax={100}
               aria-valuetext={`${percent}% 완료`}
               aria-label={message}
-              className="flex items-center gap-[7px]"
+              className="flex items-center gap-[9.636px]"
             >
               {Array.from({ length: DOT_COUNT }, (_, index) => (
                 <BoltGlyph
                   key={index}
                   className={cn(
-                    'h-[22px] w-[15px] transition-colors duration-300',
+                    'h-[31px] w-[21.364px] transition-colors duration-300',
                     index < filled ? 'text-gray-950' : 'text-gray-100',
                   )}
                 />
@@ -141,7 +139,7 @@ export function ChapterUploadOverlay({
               ref={cancelRef}
               type="button"
               onClick={onCancel}
-              className="focus-visible:ring-secondary-400 mt-2 rounded-sm px-2 py-1 text-[14px] leading-[22px] tracking-[-0.28px] text-gray-600 underline underline-offset-4 transition-colors hover:text-gray-800 focus-visible:ring-2 focus-visible:outline-none"
+              className="text-label focus-visible:ring-secondary-400 mt-2 rounded-sm px-2 py-1 text-gray-600 underline underline-offset-4 transition-colors hover:text-gray-800 focus-visible:ring-2 focus-visible:outline-none"
             >
               업로드 취소
             </button>

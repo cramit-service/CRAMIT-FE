@@ -24,7 +24,7 @@ interface FileDropzoneProps {
 }
 
 // 강의 자료(PDF) / 음성 파일을 끌어다 놓거나 클릭해서 고르는 영역.
-// Figma 시안(387×270)을 화면 전체와 같은 0.72배로 줄인 값을 쓴다.
+// Figma 시안 387×270.
 export function FileDropzone({
   kind,
   label,
@@ -55,7 +55,7 @@ export function FileDropzone({
 
   // 칸 안에서 쓰는 밑줄 액션 버튼. "다시 선택"·"파일 교체"가 같은 생김새를 쓴다.
   const LINK_ACTION =
-    'rounded-sm px-2 py-1 text-[11px] leading-4 text-gray-300 underline underline-offset-2 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-600';
+    'text-label rounded-sm px-2 py-1 text-gray-300 underline underline-offset-2 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-600';
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -66,11 +66,9 @@ export function FileDropzone({
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* 모달 안 타이포는 박스와 같은 0.72배로 옮긴다 (라벨 20 → 14). */}
-      <p className="text-[14px] leading-[22px] tracking-[-0.28px] text-gray-300">
-        {label}
-      </p>
+    <div className="flex flex-col gap-[22px]">
+      {/* 라벨은 시안 20px. */}
+      <p className="text-body-md text-gray-300">{label}</p>
 
       <div
         onDragOver={(e) => {
@@ -80,7 +78,7 @@ export function FileDropzone({
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
         className={cn(
-          'h-[194px] rounded-md border border-dashed bg-gray-800 transition-colors',
+          'h-[270px] rounded-md border border-dashed bg-gray-800 transition-colors',
           // 파일을 끌고 오면 테두리로 "여기에 놓으면 된다"를 알린다.
           dragging ? 'border-secondary-400 bg-gray-700' : 'border-gray-400',
         )}
@@ -99,12 +97,12 @@ export function FileDropzone({
         />
 
         {file ? (
-          <div className="flex size-full flex-col items-center justify-center gap-1.5 px-4 text-center">
-            <CloudUploadIcon className="text-secondary-400 size-4" />
-            <p className="max-w-full truncate text-[12px] leading-[18px] tracking-[-0.24px] text-gray-100">
+          <div className="flex size-full flex-col items-center justify-center gap-2 px-[22px] text-center">
+            <CloudUploadIcon className="text-secondary-400 size-[22px]" />
+            <p className="text-button-sm max-w-full truncate text-gray-100">
               {file.name}
             </p>
-            <p className="text-[11px] leading-4 tracking-[-0.22px] text-gray-600">
+            <p className="text-label text-gray-600">
               {formatFileSize(file.size)}
             </p>
             <div className="mt-0.5 flex items-center gap-2">
@@ -126,7 +124,7 @@ export function FileDropzone({
                 }}
                 disabled={disabled}
                 aria-label={`${spec.label} 파일 삭제`}
-                className="text-error rounded-sm px-2 py-1 text-[11px] leading-4 underline underline-offset-2 transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:text-gray-600"
+                className="text-error text-label rounded-sm px-2 py-1 underline underline-offset-2 transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:text-gray-600"
               >
                 삭제
               </button>
@@ -138,12 +136,10 @@ export function FileDropzone({
           // 새로 고르기 전까지는 이 파일이 유지된다는 걸 문구로도 말해 준다.
           <div className="flex size-full flex-col items-center justify-center gap-1.5 px-4 text-center">
             <CloudUploadIcon className="size-4 text-gray-500" />
-            <p className="max-w-full truncate text-[12px] leading-[18px] tracking-[-0.24px] text-gray-300">
+            <p className="text-button-sm max-w-full truncate text-gray-300">
               {existingFileName}
             </p>
-            <p className="text-[11px] leading-4 tracking-[-0.22px] text-gray-600">
-              이미 올라간 파일이에요
-            </p>
+            <p className="text-label text-gray-600">이미 올라간 파일이에요</p>
             <button
               type="button"
               onClick={openPicker}
@@ -162,13 +158,13 @@ export function FileDropzone({
             disabled={disabled}
             aria-label={`${spec.label} 파일 고르기`}
             aria-describedby={describedBy}
-            className="flex size-full cursor-pointer flex-col items-center justify-center gap-1.5 px-4 text-center disabled:cursor-not-allowed"
+            className="flex size-full cursor-pointer flex-col items-center justify-center gap-2 px-[22px] text-center disabled:cursor-not-allowed"
           >
-            <span className="flex items-center gap-1.5 text-[12px] leading-[18px] tracking-[-0.24px] text-gray-300">
-              <CloudUploadIcon className="size-4" />
+            <span className="text-button-sm flex items-center gap-2 text-gray-300">
+              <CloudUploadIcon className="size-[22px]" />
               파일 선택
             </span>
-            <span className="text-[11px] leading-4 tracking-[-0.22px] text-gray-600">
+            <span className="text-label text-gray-600">
               {spec.hint}
               <br />
               {spec.formatHint}
@@ -182,7 +178,7 @@ export function FileDropzone({
         <p
           id={errorId}
           role="alert"
-          className="text-error text-[12px] leading-[18px] tracking-[-0.24px] break-keep"
+          className="text-error text-button-sm break-keep"
         >
           {error}
         </p>

@@ -4,6 +4,49 @@
   /* ===== Font ===== */
   --font-sans: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
 
+  /* ===== Typography =====
+     Figma의 Typography 변수를 그대로 옮긴다. 굵기는 토큰에 넣지 않는다 — font-medium·font-semibold로 따로 준다.
+     자간은 시안이 전부 -2%다. Heading/Small M만 -2.5%인데 24px에서 0.12px 차이라 -2%로 합쳤다. */
+  --text-heading-lg: 52px; /* Heading/Large */
+  --text-heading-lg--line-height: 74px;
+  --text-heading-lg--letter-spacing: -0.02em;
+
+  --text-heading-md: 32px; /* Heading/Medium B */
+  --text-heading-md--line-height: 44px;
+  --text-heading-md--letter-spacing: -0.02em;
+
+  --text-heading-sm: 24px; /* Heading/Small B·M */
+  --text-heading-sm--line-height: 36px;
+  --text-heading-sm--letter-spacing: -0.02em;
+
+  --text-body-lg: 22px; /* Body/Large M */
+  --text-body-lg--line-height: 32px;
+  --text-body-lg--letter-spacing: -0.02em;
+
+  --text-body-md: 20px; /* Body/Medium, Button/Large2 */
+  --text-body-md--line-height: 30px;
+  --text-body-md--letter-spacing: -0.02em;
+
+  --text-body: 18px; /* Body/Regular1·2, Button/Medium */
+  --text-body--line-height: 30px;
+  --text-body--letter-spacing: -0.02em;
+
+  --text-body-sm: 16px; /* Body/Small */
+  --text-body-sm--line-height: 24px;
+  --text-body-sm--letter-spacing: -0.02em;
+
+  --text-button-lg: 20px; /* Button/Large1 — 같은 20px이지만 줄높이가 body-md와 다르다 */
+  --text-button-lg--line-height: 28px;
+  --text-button-lg--letter-spacing: -0.02em;
+
+  --text-button-sm: 16px; /* Button/Small — body-sm과 줄높이가 다르다 */
+  --text-button-sm--line-height: 28px;
+  --text-button-sm--letter-spacing: -0.02em;
+
+  --text-label: 14px; /* Button/Label2 */
+  --text-label--line-height: 22px;
+  --text-label--letter-spacing: -0.02em;
+
   /* ===== Primary (형광 연두 - 아이덴티티/성공/주목) ===== */
   --color-primary-100: #fcfaf7; /* background */
   --color-primary-200: #f1ff89;

@@ -37,7 +37,7 @@ export function SummaryToolbarButton({
     <button
       type="button"
       className={cn(
-        'flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-md px-3 text-[14px] leading-[20px] font-medium tracking-[-0.28px] whitespace-nowrap transition-colors',
+        'text-label flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-md px-3 font-medium whitespace-nowrap transition-colors',
         // 비활성이면 회색만, 아니면 tone 색상 (shared/ui/Button과 같은 방식)
         disabled
           ? 'cursor-not-allowed bg-gray-600 text-gray-400'

@@ -1,6 +1,6 @@
 'use client';
 // src/features/study/components/ChapterDetailScreen.tsx
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { NewChapterUploadModal } from '@/features/project/components/NewChapterUploadModal';
 import type { Chapter } from '@/shared/types/api';
 import { useProjectDetail } from '@/features/study/hooks/useProjectDetail';
@@ -11,8 +11,17 @@ import { ChapterCard } from './ChapterCard';
 import { Pagination } from './Pagination';
 import { SharedBoardPlaceholder } from './SharedBoardPlaceholder';
 
-// 로딩·에러 문구도 본문과 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
-const PAGE_SHELL = 'mx-auto w-full max-w-6xl px-8 pt-12 pb-12';
+// 콘텐츠 폭은 홈·강의 목록과 같은 1512 (CLAUDE.md 4-4). 바깥 여백은 남는 공간이 갖는다.
+// 로딩·에러 문구도 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
+function PageShell({ children }: { children: ReactNode }) {
+  return (
+    <div className="px-4 pt-12 pb-12 md:px-8 lg:px-0">
+      <div className="mx-auto w-full lg:w-[82.57%] lg:max-w-[1511px]">
+        {children}
+      </div>
+    </div>
+  );
+}
 
 const PAGE_SIZE = 4;
 
@@ -33,15 +42,21 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
   } = useChapters(projectId);
 
   if (projectLoading || chaptersLoading) {
-    return <div className={`${PAGE_SHELL} text-gray-500`}>불러오는 중…</div>;
+    return (
+      <PageShell>
+        <p className="text-gray-500">불러오는 중…</p>
+      </PageShell>
+    );
   }
 
   // 조회에 실패하면 로딩 문구가 계속 남지 않게 에러 상태를 따로 보여준다.
   if (projectError || chaptersError || !project || !chapters) {
     return (
-      <div className={`${PAGE_SHELL} text-gray-500`}>
-        강의 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
-      </div>
+      <PageShell>
+        <p className="text-gray-500">
+          강의 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
+        </p>
+      </PageShell>
     );
   }
 
@@ -63,19 +78,13 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
   const visible = ordered.slice(start, start + PAGE_SIZE);
 
   return (
-    // Figma 시안은 1920 기준 절대 px라 실제 화면(사이드바 제외)에선 과하게 커진다.
-    // 비례는 그대로 두고 전체를 약 0.72배로 줄여 한 화면에 들어오게 한다.
-    // 다만 본문 폭만은 0.72배(896px)로 두면 좌우 여백이 과해 카드가 답답해 보여서
-    // 강의 목록 화면(LectureListScreen)과 같은 max-w-6xl로 맞췄다.
-    <div className={PAGE_SHELL}>
+    <PageShell>
       <ProjectHeader project={project} />
 
       <section className="mt-7">
         {/* 섹션 제목 + 우측 학습 진행률 바 */}
         <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
-          <h2 className="text-[18px] leading-[28px] font-semibold tracking-[-0.36px] text-gray-950">
-            단계별 학습
-          </h2>
+          <h2 className="text-body font-semibold text-gray-950">단계별 학습</h2>
           <div className="ml-auto w-full max-w-[280px] min-w-[160px] flex-1">
             <LearningProgress percent={progress} />
           </div>
@@ -85,7 +94,7 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
         <div className="flex flex-col gap-2">
           {visible.length === 0 ? (
             // 아직 주차를 올리지 않은 프로젝트는 빈 영역 대신 안내를 보여준다.
-            <p className="rounded-md bg-white px-6 py-12 text-center text-[14px] leading-[22px] text-gray-500">
+            <p className="text-label rounded-md bg-white px-6 py-12 text-center text-gray-500">
               아직 업로드된 강의가 없어요. 새 주차를 업로드해 학습을
               시작해보세요.
             </p>
@@ -121,6 +130,6 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
           onClose={() => setEditingChapter(null)}
         />
       )}
-    </div>
+    </PageShell>
   );
 }

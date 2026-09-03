@@ -19,7 +19,7 @@ export function LectureSearchBar({ value, onChange }: LectureSearchBarProps) {
         onChange={(e) => onChange(e.target.value)}
         placeholder="강의 명 또는 키워드를 검색해 주세요."
         aria-label="강의 검색"
-        className="min-w-0 flex-1 bg-transparent text-[14px] leading-5 font-medium tracking-[-0.28px] text-gray-100 placeholder:text-gray-400 focus:outline-none"
+        className="text-label min-w-0 flex-1 bg-transparent font-medium text-gray-100 placeholder:text-gray-400 focus:outline-none"
       />
       <Icon name="search" size={16} className="text-gray-400" />
     </div>

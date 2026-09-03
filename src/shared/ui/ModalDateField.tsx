@@ -253,7 +253,7 @@ export function ModalDateField({
             </button>
             <span
               aria-live="polite"
-              className="text-[13px] leading-5 font-medium text-gray-100"
+              className="text-body font-medium text-gray-100"
             >
               {view.year}년 {view.month}월
             </span>
@@ -273,7 +273,7 @@ export function ModalDateField({
               <span
                 key={w}
                 aria-hidden
-                className="flex h-6 items-center justify-center text-[10px] leading-3 font-medium text-gray-500"
+                className="text-label flex h-8 items-center justify-center font-medium text-gray-500"
               >
                 {w}
               </span>
@@ -312,7 +312,7 @@ export function ModalDateField({
                   aria-pressed={selected}
                   aria-current={iso === today ? 'date' : undefined}
                   className={cn(
-                    'flex h-7 items-center justify-center rounded-md text-[12px] leading-4 font-medium transition-colors',
+                    'text-button-sm flex h-10 items-center justify-center rounded-md font-medium transition-colors',
                     blocked
                       ? 'cursor-not-allowed text-gray-700'
                       : selected

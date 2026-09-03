@@ -14,7 +14,7 @@ import { ExamFormModal } from './ExamFormModal';
 
 function StatusMessage({ children }: { children: React.ReactNode }) {
   return (
-    <p className="flex h-full items-center justify-center text-center text-[13px] text-gray-500">
+    <p className="text-body flex h-full items-center justify-center text-center text-gray-500">
       {children}
     </p>
   );
@@ -30,7 +30,7 @@ export function ExamSchedule() {
   return (
     <section>
       <div className="mb-1.5 flex items-center justify-between">
-        <h2 className="text-[18px] leading-7 font-medium tracking-[-0.36px] text-gray-950">
+        <h2 className="text-body font-medium text-gray-950">
           다가오는 시험 일정
         </h2>
         <Button
@@ -76,11 +76,12 @@ export function ExamSchedule() {
                     key={exam.examId}
                     className="group relative flex items-center gap-2.5 py-2"
                   >
-                    {/* 뱃지는 자연 크기 유지. 고정폭 슬롯에 왼쪽 정렬해 뒤 제목의 시작 x를 통일한다 */}
-                    <div className="w-14 shrink-0">
+                    {/* 뱃지는 자연 크기 유지. 고정폭 슬롯에 왼쪽 정렬해 뒤 제목의 시작 x를 통일한다.
+                        슬롯 폭은 가장 긴 "D-DAY"의 자연 폭(61px)에 맞춘다 — 좁으면 두 줄로 접힌다. */}
+                    <div className="w-16 shrink-0">
                       <span
                         className={cn(
-                          'inline-block rounded-md border-[0.5px] px-2 py-0.5 text-[12px] leading-4.5 font-medium',
+                          'text-label inline-block rounded-md border-[0.5px] px-2.5 py-0.5 font-medium',
                           ddayBadgeClass(days),
                         )}
                       >
@@ -94,10 +95,10 @@ export function ExamSchedule() {
                       href={`/projects/${exam.projectId}`}
                       className="focus-visible:ring-secondary-400 min-w-0 flex-1 rounded-sm after:absolute after:inset-0 focus-visible:ring-2 focus-visible:outline-none"
                     >
-                      <p className="truncate text-[14px] leading-5 font-medium tracking-[-0.28px] text-gray-950">
+                      <p className="text-label truncate font-medium text-gray-950">
                         {examName(exam)}
                       </p>
-                      <p className="text-[12px] leading-4.5 tracking-[-0.24px] text-gray-600">
+                      <p className="text-label text-gray-600">
                         {formatKoreanDate(exam.examDate)}
                       </p>
                     </Link>

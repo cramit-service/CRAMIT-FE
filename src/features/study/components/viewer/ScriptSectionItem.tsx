@@ -30,21 +30,21 @@ export function ScriptSectionItem({
         // 머리글 전체가 토글 버튼이라 폭을 꽉 채운다.
         className="focus-visible:ring-secondary-400 flex w-full items-center gap-1.5 rounded-sm text-left outline-none focus-visible:ring-2"
       >
-        <span className="flex h-[22px] w-[55px] shrink-0 items-center justify-center rounded-full border-[0.5px] border-white text-[12px] leading-[22px] font-medium text-white">
+        <span className="text-button-sm flex h-[22px] w-[55px] shrink-0 items-center justify-center rounded-full border-[0.5px] border-white font-medium text-white">
           PDF P.{String(section.page).padStart(2, '0')}
         </span>
         {/* 폭이 모자라면 시간부터 버린다. 제목이 먼저 잘리면 무슨 구간인지 알 수 없는데,
             시간은 펼치면 세그먼트마다 다시 나오므로 여기서 빠져도 잃는 게 없다. */}
         <span className="flex shrink-0 items-center gap-1.5 @max-[340px]:hidden">
           <Icon name="time" size={17} className="text-gray-400" />
-          <span className="text-[16px] leading-[24px] font-medium tracking-[-0.32px] text-gray-400 tabular-nums">
+          <span className="text-body-sm font-medium text-gray-400 tabular-nums">
             {formatPlayTime(section.startSec)} –{' '}
             {formatPlayTime(section.endSec)}
           </span>
         </span>
         {/* 구간 소제목 — 시안에서 유일하게 연두로 강조되는 부분.
             남는 폭을 이쪽이 가져가고, 줄어들 때도 마지막까지 버틴다. */}
-        <span className="text-primary-200 min-w-0 flex-1 truncate text-[16px] leading-[24px] font-medium tracking-[-0.32px]">
+        <span className="text-primary-200 text-body-sm min-w-0 flex-1 truncate font-medium">
           • {section.title}
         </span>
         <Icon
@@ -59,7 +59,7 @@ export function ScriptSectionItem({
           {section.segments.map((segment) => (
             <li
               key={segment.atSec}
-              className="bg-primary-200 flex gap-1.5 rounded-sm p-[9px] text-[14px] leading-[22px] tracking-[-0.28px] text-gray-950"
+              className="bg-primary-200 text-label flex gap-1.5 rounded-sm p-[9px] text-gray-950"
             >
               <span className="shrink-0 tabular-nums">
                 {formatPlayTime(segment.atSec)}

@@ -17,8 +17,7 @@ export function Card({
     <div
       className={cn(
         'rounded-lg border border-gray-300 bg-white p-4',
-        clickable &&
-          'cursor-pointer transition-shadow hover:shadow-md',
+        clickable && 'cursor-pointer transition-shadow hover:shadow-md',
         className,
       )}
       {...props}

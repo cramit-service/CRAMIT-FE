@@ -67,7 +67,7 @@ export function SortSelect({ value, onChange, label }: SortSelectProps) {
         aria-controls={open ? listId : undefined}
         // 버튼 글자가 "등록순"뿐이라 두 섹션의 드롭다운이 구분되지 않는다
         aria-label={`${label}, 현재 ${SORT_LABEL[value]}`}
-        className="flex h-7 items-center gap-1 rounded-md border-[0.5px] border-gray-500 pr-2 pl-2.5 text-[14px] leading-5 font-medium tracking-[-0.28px] text-gray-600 transition-colors hover:border-gray-600 hover:text-gray-800"
+        className="text-label flex h-7 items-center gap-1 rounded-md border-[0.5px] border-gray-500 pr-2 pl-2.5 font-medium text-gray-600 transition-colors hover:border-gray-600 hover:text-gray-800"
       >
         {SORT_LABEL[value]}
         <ChevronDownIcon className="size-3.5" />
@@ -92,7 +92,7 @@ export function SortSelect({ value, onChange, label }: SortSelectProps) {
                   triggerRef.current?.focus();
                 }}
                 className={cn(
-                  'w-full px-2.5 py-1 text-left text-[14px] leading-5 font-medium tracking-[-0.28px] whitespace-nowrap transition-colors hover:bg-gray-200',
+                  'text-label w-full px-2.5 py-1 text-left font-medium whitespace-nowrap transition-colors hover:bg-gray-200',
                   option === value ? 'text-gray-800' : 'text-gray-600',
                 )}
               >

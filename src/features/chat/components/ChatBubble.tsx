@@ -7,9 +7,8 @@ import { formatFileSize } from '@/features/chat/lib/attachment';
 import { cn } from '@/shared/lib/cn';
 import type { ChatMessage } from '@/shared/types/api';
 
-// 접힌 높이. 시안은 264px 고정(×0.72 ≈ 190).
-// 이 높이를 넘는 말풍선만 아래를 흐리게 덮고 "더 보기"를 붙인다.
-const COLLAPSED_HEIGHT = 190;
+// 접힌 높이(시안 고정값). 이 높이를 넘는 말풍선만 아래를 흐리게 덮고 "더 보기"를 붙인다.
+const COLLAPSED_HEIGHT = 264;
 
 // 대화 한 줄. 내 말은 오른쪽 연두, AI는 왼쪽 흰 말풍선이다(시안).
 export function ChatBubble({ message }: { message: ChatMessage }) {
@@ -24,25 +23,23 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
   }, []);
 
   return (
-    // 위로 솟는 반짝임이 말풍선 사이 간격(ul의 gap-5)을 먹지 않게 AI 행만 위를 띄운다.
-    <li
-      className={cn('flex', isMine ? 'justify-end' : 'justify-start pt-[17px]')}
-    >
+    // 위로 솟는 반짝임이 말풍선 사이 간격(ul의 gap)을 먹지 않게 AI 행만 위를 띄운다.
+    <li className={cn('flex', isMine ? 'justify-end' : 'justify-start pt-6')}>
       <div
         // 최대 폭이 좌우가 다르다 — 시안 대화 열 632 기준 AI 612(≈97%), 내 질문 262(≈41%).
         className={cn(
-          'relative rounded-sm border-[0.5px] px-[14px] py-[9px]',
+          'relative rounded-sm border-[0.5px] px-5 py-3',
           isMine
             ? 'bg-primary-400 border-primary-200 max-w-[41%]'
             : 'border-secondary-400 max-w-[97%] bg-white',
         )}
       >
         {/* 시안(36×36 @ x20,y102 / 말풍선 x20,y126): 반짝임의 왼쪽 변이 말풍선 왼쪽
-            변과 맞고 위로 24px(×0.72 = 17px) 솟아 모서리에 걸친다.
+            변과 맞고 위로 24px 솟아 모서리에 걸친다.
             말풍선의 자식이라야 배경 위에 그려진다 — 형제로 두면 relative인
             말풍선이 위에 깔려 겹친 부분이 가려진다. */}
         {!isMine && (
-          <SparkleIcon className="text-secondary-400 absolute -top-[17px] left-0 size-[26px]" />
+          <SparkleIcon className="text-secondary-400 absolute -top-6 left-0 size-9" />
         )}
 
         {/* 첨부 파일 (질문에 파일을 붙인 경우). 시안이 없어 미리보기 없이 칩으로만 둔다. */}
@@ -55,11 +52,11 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
                 : 'border-secondary-400 bg-white',
             )}
           >
-            <PaperclipIcon className="size-3.5 shrink-0 text-gray-600" />
-            <span className="min-w-0 truncate text-[12px] leading-4.5 tracking-[-0.24px] text-gray-800">
+            <PaperclipIcon className="size-5 shrink-0 text-gray-600" />
+            <span className="text-body-sm min-w-0 truncate text-gray-800">
               {message.attachment.name}
             </span>
-            <span className="shrink-0 text-[11px] leading-4 tracking-[-0.22px] text-gray-600">
+            <span className="text-label shrink-0 text-gray-600">
               {formatFileSize(message.attachment.size)}
             </span>
           </div>
@@ -79,7 +76,7 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
                   : { maxHeight: COLLAPSED_HEIGHT }
               }
               className={cn(
-                'text-[14px] leading-[22px] tracking-[-0.28px] whitespace-pre-line text-gray-800',
+                'text-body-md whitespace-pre-line text-gray-800',
                 !expanded && overflows && 'overflow-hidden',
               )}
             >
@@ -91,7 +88,7 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
               <span
                 aria-hidden
                 className={cn(
-                  'pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-linear-to-b to-55%',
+                  'pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-linear-to-b to-55%',
                   isMine ? 'to-primary-400' : 'to-white',
                 )}
               />
@@ -103,10 +100,10 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
           <button
             type="button"
             onClick={() => setExpanded(true)}
-            className="mt-1 flex items-center gap-1 text-[12px] leading-[18px] font-medium tracking-[-0.24px] text-gray-800 transition-opacity hover:opacity-70"
+            className="text-body-sm mt-1 flex items-center gap-1 font-medium text-gray-800 transition-opacity hover:opacity-70"
           >
             더 보기
-            <ChevronDown className="size-3.5" />
+            <ChevronDown className="size-[19px]" />
           </button>
         )}
       </div>
@@ -122,7 +119,7 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
           unoptimized
           // 말풍선이 relative라 그대로 두면 정적 배치인 캐릭터가 그 아래로 깔려
           // 꼬리만 삐져나온다. 같은 relative를 줘서 말풍선 위에 얹는다.
-          className="pointer-events-none relative mt-auto ml-[-26px] h-9 w-auto shrink-0 select-none"
+          className="pointer-events-none relative mt-auto ml-[-36px] h-[50px] w-auto shrink-0 select-none"
         />
       )}
     </li>

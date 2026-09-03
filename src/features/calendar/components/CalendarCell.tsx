@@ -90,7 +90,7 @@ export function CalendarCell({
             hiddenCount > 0 && index === visible.length - 1 ? (
               <div key={item.id} className="flex items-center gap-1">
                 <ScheduleTag item={item} />
-                <span className="shrink-0 text-[12px] font-medium text-gray-500">
+                <span className="text-button-sm shrink-0 font-medium text-gray-500">
                   +{hiddenCount}
                 </span>
               </div>

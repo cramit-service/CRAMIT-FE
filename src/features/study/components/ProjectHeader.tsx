@@ -15,10 +15,9 @@ import type { ProjectDetail } from '@/shared/types/api';
 // 높이·타이포를 한 곳에 두어 두 버튼이 서로 어긋나지 않게 한다.
 // Button 컴포넌트를 쓰지 않는 이유: size 스케일에 이 헤더에 맞는 단계가 없다
 // (xs 28px/12px, sm 46px/16px).
-// Figma: 공유하기 40 / 새 주차 업로드 44 → 0.72배로 줄이면 29/32. 나란히 놓이는
-// 버튼이라 큰 쪽(32px)에 맞춰 둘을 같은 높이로 둔다.
+// Figma: 공유하기 40 / 새 주차 업로드 44. 나란히 놓이는 버튼이라 큰 쪽에 맞춰 같은 높이로 둔다.
 const HEADER_ACTION =
-  'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md px-3 text-[14px] leading-none font-medium tracking-[-0.28px] transition-colors';
+  'inline-flex h-11 shrink-0 items-center gap-2 rounded-md px-4 text-label leading-none font-medium transition-colors';
 
 // 챕터 상세 상단 헤더: 뒤로가기 + 과목명/태그 + 우측 액션(공유/업로드)을 한 줄로 배치.
 export function ProjectHeader({ project }: { project: ProjectDetail }) {
@@ -32,23 +31,23 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
     <header className="relative flex flex-wrap items-center gap-x-4 gap-y-3">
       {/* 강의 목록으로 뒤로가기.
           Figma: 콘텐츠 열(과목명/섹션/카드) 왼쪽 바깥으로 걸어(outdent)
-          제목·섹션·카드가 같은 정렬선을 갖게 한다. */}
+          제목·섹션·카드가 같은 정렬선을 갖게 한다.
+          다만 걸 자리(좌측 여백)는 콘텐츠 열이 82.57%로 자리잡은 뒤 남는 8.7%다. 이 폭이
+          버튼(약 110px)보다 좁아지면 사이드바(90) 밑으로 들어가 잘리므로 흐름 안으로 내린다. */}
       <button
         type="button"
         // router.back()을 쓰면 방금 나온 학습 뷰어로 되돌아간다.
         // 뷰어의 '이전으로'가 push라 /projects/{id}가 히스토리에 중복으로 쌓이기 때문이다.
         // 뷰어(ViewerHeader)와 같은 규칙으로 상위 경로를 고정해 항상 강의 목록으로 나간다.
         onClick={() => router.push('/projects')}
-        className="absolute top-1/2 right-full mr-4 inline-flex -translate-y-1/2 items-center gap-1.5 whitespace-nowrap text-gray-950 transition-colors hover:text-gray-700"
+        className="mb-3 inline-flex items-center gap-1.5 whitespace-nowrap text-gray-950 transition-colors hover:text-gray-700 min-[1410px]:absolute min-[1410px]:top-1/2 min-[1410px]:right-full min-[1410px]:mr-4 min-[1410px]:mb-0 min-[1410px]:-translate-y-1/2"
       >
         <ChevronLeftIcon className="size-5" />
-        <span className="text-[14px] leading-[22px] font-medium tracking-[-0.28px]">
-          이전으로
-        </span>
+        <span className="text-label font-medium">이전으로</span>
       </button>
 
       {/* 과목명 + 정보 태그들 */}
-      <h1 className="text-[24px] leading-[34px] font-semibold tracking-[-0.48px] text-gray-950">
+      <h1 className="text-heading-sm font-semibold text-gray-950">
         {project.title}
       </h1>
       <Tag tone="dark">{project.professor} 교수님</Tag>
@@ -65,7 +64,7 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
         <button
           type="button"
           onClick={() => setEditOpen(true)}
-          className="inline-flex items-center gap-1 text-[12px] text-gray-400 transition-colors hover:text-gray-600"
+          className="text-button-sm inline-flex items-center gap-1 text-gray-400 transition-colors hover:text-gray-600"
         >
           <PencilIcon className="size-3" />
           수정하기

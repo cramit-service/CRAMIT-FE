@@ -76,7 +76,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
   if (summaryQuery.isProcessing) {
     return (
       <section className={cn(PANEL, 'items-center justify-center')}>
-        <p className="text-[14px] leading-[22px] text-gray-400">
+        <p className="text-label text-gray-400">
           AI가 요약을 생성하고 있습니다. 완료되면 자동으로 표시됩니다.
         </p>
       </section>
@@ -86,9 +86,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
   if (summaryQuery.isPending) {
     return (
       <section className={cn(PANEL, 'items-center justify-center')}>
-        <p className="text-[14px] leading-[22px] text-gray-500">
-          요약을 불러오는 중…
-        </p>
+        <p className="text-label text-gray-500">요약을 불러오는 중…</p>
       </section>
     );
   }
@@ -96,7 +94,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
   if (summaryQuery.isError || !summary) {
     return (
       <section className={cn(PANEL, 'items-center justify-center gap-4')}>
-        <p className="text-[14px] leading-[22px] text-gray-400">
+        <p className="text-label text-gray-400">
           요약을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
         </p>
         <Button
@@ -117,15 +115,15 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
           넘치고 그대로 문서 폭까지 밀어내 페이지에 가로 스크롤이 생긴다. */}
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="flex h-[22px] shrink-0 items-center justify-center rounded-full border-[0.5px] border-white px-1.5 text-[12px] leading-[22px] font-medium text-white">
+          <span className="text-button-sm flex h-[22px] shrink-0 items-center justify-center rounded-full border-[0.5px] border-white px-1.5 font-medium text-white">
             MD
           </span>
-          <p className="truncate text-[14px] leading-[22px] font-medium tracking-[-0.28px] text-white">
+          <p className="text-label truncate font-medium text-white">
             {summary.fileName}
           </p>
           <p
             aria-live="polite"
-            className="shrink-0 text-[12px] leading-[22px] text-gray-400"
+            className="text-button-sm shrink-0 text-gray-400"
           >
             {notice}
           </p>
@@ -184,7 +182,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
               <MarkdownContent markdown={markdown} />
             ) : (
               // 생성 중(PROCESSING)은 위에서 따로 걸러내므로 여기는 '생성됐지만 비어 있음'이다
-              <p className="text-[14px] leading-[22px] text-gray-500">
+              <p className="text-label text-gray-500">
                 아직 생성된 요약이 없습니다.
               </p>
             )}
@@ -200,7 +198,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
             spellCheck={false}
             aria-label="요약 Markdown 원문 편집"
             // 기본 outline은 지우되 키보드 포커스는 링으로 남긴다 (마우스 클릭 시엔 안 보인다)
-            className="focus-visible:ring-secondary-400 h-full w-full resize-none rounded-md px-8 py-7 font-mono text-[13px] leading-[22px] text-gray-800 outline-none focus-visible:ring-2 focus-visible:ring-inset"
+            className="focus-visible:ring-secondary-400 text-body h-full w-full resize-none rounded-md px-8 py-7 font-mono text-gray-800 outline-none focus-visible:ring-2 focus-visible:ring-inset"
           />
         )}
 

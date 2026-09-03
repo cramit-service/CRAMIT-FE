@@ -57,23 +57,23 @@ export function ChapterCard({ chapter, onLongPress }: ChapterCardProps) {
   };
 
   return (
-    // Figma 시안(높이 152/패딩 40·24)을 전체 화면과 같은 0.72배로 줄인 값.
+    // Figma 시안 높이 152 / 패딩 40·24.
     // 꾹 누르는 동안 글자가 드래그 선택되면 제스처처럼 안 보여서 select-none을 둔다.
     <div
       {...longPress}
-      className="flex min-h-[108px] items-center justify-between gap-4 rounded-md bg-white px-6 py-4 select-none"
+      className="flex min-h-[152px] items-center justify-between gap-[22px] rounded-md bg-white px-10 py-6 select-none"
     >
       {/* 좌측: Chapter 번호(제목) + 설명 + 날짜 */}
       <div className="flex min-w-0 flex-col gap-2">
         <div className="flex flex-col gap-0.5">
-          <p className="text-[16px] leading-[24px] tracking-[-0.32px] text-gray-950">
+          <p className="text-body-sm text-gray-950">
             Chapter {chapter.chapterNumber}
           </p>
-          <p className="text-[14px] leading-[22px] font-medium tracking-[-0.28px] text-gray-700">
+          <p className="text-label font-medium text-gray-700">
             {chapter.title}
           </p>
         </div>
-        <p className="flex items-center gap-1 text-[12px] leading-[18px] font-medium tracking-[-0.24px] text-gray-500">
+        <p className="text-button-sm flex items-center gap-1 font-medium text-gray-500">
           <CalendarIcon className="size-3.5" />
           {formatChapterDate(chapter.createdAt)}
         </p>
@@ -83,7 +83,7 @@ export function ChapterCard({ chapter, onLongPress }: ChapterCardProps) {
       <div className="flex w-[260px] shrink-0 items-center justify-between gap-4">
         <span
           className={cn(
-            'text-[16px] leading-[24px] font-medium tracking-[-0.32px]',
+            'text-body-sm font-medium',
             statusTextStyle[chapter.status],
           )}
         >
@@ -93,7 +93,7 @@ export function ChapterCard({ chapter, onLongPress }: ChapterCardProps) {
           type="button"
           onClick={goStudy}
           className={cn(
-            'flex h-11 w-[140px] items-center justify-center gap-1.5 rounded-md px-3 text-[14px] leading-[20px] font-medium tracking-[-0.28px] transition-colors',
+            'text-label flex h-11 w-[140px] items-center justify-center gap-1.5 rounded-md px-3 font-medium transition-colors',
             actionStyle[chapter.status],
           )}
         >
