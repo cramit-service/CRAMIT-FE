@@ -15,8 +15,7 @@ export const FIELD_BASE =
   'h-10 rounded-md px-3.5 text-[13px] leading-5 font-medium tracking-[-0.26px] outline-none';
 // 제목·메모처럼 채워진 입력. 값은 흰색, 안내 문구는 한 단계 흐리게 둬서 비어 있는 게 보이게 한다.
 export const FIELD_FILLED = `${FIELD_BASE} bg-gray-800 text-gray-100 placeholder:text-gray-300 focus:ring-1 focus:ring-secondary-400`;
-// 셀렉트·날짜처럼 테두리만 있는 입력. 폭은 호출처가 정한다
-// (여기에 w-full을 넣으면 호출처의 고정 폭과 겹쳐 승자가 클래스 생성 순서에 달린다).
+// 셀렉트·날짜처럼 테두리만 있는 입력. 폭은 호출처가 정한다.
 export const FIELD_OUTLINED = `${FIELD_BASE} border-[0.5px] border-gray-500 bg-transparent text-gray-300 focus:border-secondary-400`;
 // 강의·날짜 칸 폭. 시안은 186px(=134px)이지만 "2026-07-21"과 한글 과목명이 잘려서 조금 넓혔다.
 export const FIELD_WIDTH = 'w-[156px]';
@@ -56,8 +55,7 @@ export function optionStateClass({
 }
 
 // 하단 확정 버튼(생성하기·수정완료). 시안 346×60 → 0.72배 249×44.
-// Button 컴포넌트를 쓰지 않는 이유: size별 타이포가 고정이라 이 크기와 겹치는데
-// cn엔 tailwind-merge가 없어 덮어쓰면 승자가 클래스 생성 순서에 달린다.
+// TODO: cn()이 클래스를 병합하게 됐으니 Button + className으로 대체할 수 있다.
 export const PRIMARY_ACTION =
   'enabled:bg-secondary-400 enabled:hover:bg-secondary-500 flex h-11 w-[249px] items-center justify-center rounded-md text-[14px] leading-[22px] font-medium tracking-[-0.28px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-500';
 // 삭제 버튼. 시안 192×60 → 0.72배 138×44. 위험 액션이라 error 토큰.

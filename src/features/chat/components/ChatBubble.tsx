@@ -30,7 +30,6 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
     >
       <div
         // 최대 폭이 좌우가 다르다 — 시안 대화 열 632 기준 AI 612(≈97%), 내 질문 262(≈41%).
-        // cn엔 merge가 없어 max-w를 공통 문자열에 두고 덮어쓸 수 없다. 분기마다 완성된 세트로 준다.
         className={cn(
           'relative rounded-sm border-[0.5px] px-[14px] py-[9px]',
           isMine

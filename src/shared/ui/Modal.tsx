@@ -8,8 +8,7 @@ import { cn } from '@/shared/lib/cn';
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-// 패널 기본 스타일. cn()에는 tailwind-merge가 없어 className으로 배경·여백을 덮어쓰면
-// 승자가 클래스 생성 순서에 달린다. 그래서 서로 겹치지 않는 '완성된' 세트를 prop으로 고른다.
+// 패널 기본 스타일. 자주 쓰는 조합은 이름으로 고르고, 나머지는 className으로 덮는다.
 // - card : 밝은 기본 카드 (확인/삭제 등 짧은 모달)
 // - bare : 폭·배경·여백을 호출처가 전부 정한다 (시안이 따로 있는 큰 다크 모달)
 type Surface = 'card' | 'bare';
