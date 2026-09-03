@@ -58,20 +58,20 @@ export function StudyBanner() {
         // (묶음을 그냥 justify-center로 두면 제목이 중앙보다 위로 올라간다)
         <div className="flex translate-y-3.5 flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2.5">
-            <h3 className="text-heading-sm font-semibold text-gray-800">
+            <h3 className="text-heading-md font-semibold text-gray-800">
               {examName(featured)}
             </h3>
             {/* 시험 일정 카드와 같은 규칙으로 색을 나눈다(D-DAY 빨강 / D-1~3 노랑 / D-4+ 파랑).
                 크기는 옆의 진행률 뱃지와 같아야 한다 — 나란히 놓이는 한 쌍이라 어긋나면 바로 보인다. */}
             <span
               className={cn(
-                'text-button-sm inline-flex items-center rounded-md border-[0.5px] px-2 py-0.5 font-medium',
+                'text-label inline-flex items-center rounded-md border-[0.5px] px-2.5 py-0.5 font-medium',
                 ddayBadgeClass(days),
               )}
             >
               {ddayLabel(days)}
             </span>
-            <span className="text-button-sm inline-flex items-center rounded-md border-[0.5px] border-gray-800 bg-white px-2 py-0.5 font-medium text-gray-800">
+            <span className="text-label inline-flex items-center rounded-md border-[0.5px] border-gray-800 bg-white px-2.5 py-0.5 font-medium text-gray-800">
               학습 진행률 {featured.progress}%
             </span>
           </div>
@@ -120,7 +120,7 @@ function EmptyExamBanner() {
       <p className="text-heading-sm relative font-semibold text-white">
         예정된 시험 일정이 없습니다.
       </p>
-      <p className="text-label relative text-gray-300">
+      <p className="text-body relative text-gray-300">
         새로운 시험이 등록되면 이곳에 표시됩니다.
       </p>
     </div>

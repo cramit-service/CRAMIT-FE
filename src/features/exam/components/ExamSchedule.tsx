@@ -81,7 +81,7 @@ export function ExamSchedule() {
                     <div className="w-16 shrink-0">
                       <span
                         className={cn(
-                          'text-label inline-block rounded-md border-[0.5px] px-2 py-0.5 font-medium',
+                          'text-label inline-block rounded-md border-[0.5px] px-2.5 py-0.5 font-medium',
                           ddayBadgeClass(days),
                         )}
                       >
@@ -98,7 +98,7 @@ export function ExamSchedule() {
                       <p className="text-label truncate font-medium text-gray-950">
                         {examName(exam)}
                       </p>
-                      <p className="text-button-sm text-gray-600">
+                      <p className="text-label text-gray-600">
                         {formatKoreanDate(exam.examDate)}
                       </p>
                     </Link>
