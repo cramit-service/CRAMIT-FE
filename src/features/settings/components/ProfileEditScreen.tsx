@@ -10,6 +10,9 @@ import {
   useUpdateNickname,
 } from '@/features/settings/hooks/useMyProfile';
 
+// 로딩·에러 문구도 본문과 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
+const PAGE_SHELL = 'mx-auto w-full max-w-[538px] px-6 py-12';
+
 // 중복확인 결과 (온보딩 NicknameStep과 같은 3상태)
 type NicknameStatus = 'idle' | 'available' | 'taken';
 
@@ -34,11 +37,11 @@ export function ProfileEditScreen() {
   const isChecking = useRef(false);
 
   if (isPending) {
-    return <div className="p-10 text-gray-500">불러오는 중…</div>;
+    return <div className={`${PAGE_SHELL} text-gray-500`}>불러오는 중…</div>;
   }
   if (isError || !profile) {
     return (
-      <div className="p-10 text-gray-500">
+      <div className={`${PAGE_SHELL} text-gray-500`}>
         내 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
       </div>
     );
@@ -85,7 +88,7 @@ export function ProfileEditScreen() {
     // 잘리므로 세로 가운데 정렬로 두고 위아래 최소 여백만 지킨다.
     <form
       onSubmit={handleSubmit}
-      className="mx-auto flex min-h-screen w-full max-w-[538px] flex-col justify-center px-6 py-12"
+      className={`${PAGE_SHELL} flex min-h-screen flex-col justify-center`}
     >
       {/* 아바타 + 편집 뱃지 */}
       <div className="relative self-center">

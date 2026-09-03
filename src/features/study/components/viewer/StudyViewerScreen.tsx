@@ -17,6 +17,9 @@ import { Resizer } from '@/features/study/components/viewer/Resizer';
 import { Button } from '@/shared/ui/Button';
 import type { ViewerTab } from '@/shared/types/api';
 
+// 로딩·에러 문구도 본문과 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
+const PAGE_SHELL = 'w-full px-6 pt-10 pb-8';
+
 interface StudyViewerScreenProps {
   projectId: string;
   chapterId: string;
@@ -97,12 +100,12 @@ export function StudyViewerScreen({
   // 로딩 / 에러 / 빈 데이터를 구분한다.
   // 셋을 뭉뚱그려 falsy로 판단하면 조회에 실패해도 "불러오는 중…"에서 멈춘다.
   if (queries.some((q) => q.isPending)) {
-    return <div className="p-10 text-gray-500">불러오는 중…</div>;
+    return <div className={`${PAGE_SHELL} text-gray-500`}>불러오는 중…</div>;
   }
 
   if (queries.some((q) => q.isError)) {
     return (
-      <div className="flex flex-col items-start gap-4 p-10">
+      <div className={`${PAGE_SHELL} flex flex-col items-start gap-4`}>
         <p className="text-gray-700">
           학습 자료를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
         </p>
@@ -124,7 +127,9 @@ export function StudyViewerScreen({
   // 성공했는데 본문이 비어 있는 경우 (204 등)
   if (!project || !chapter || !material) {
     return (
-      <div className="p-10 text-gray-500">표시할 학습 자료가 없습니다.</div>
+      <div className={`${PAGE_SHELL} text-gray-500`}>
+        표시할 학습 자료가 없습니다.
+      </div>
     );
   }
 
@@ -157,7 +162,7 @@ export function StudyViewerScreen({
     // 시안대로 두면 1920 화면에서 좌우 512px이 통째로 비고, 이분할일 때 PDF가
     // 338px까지 줄어 자료를 읽을 수 없다. 여기는 "읽는" 화면이 아니라 "보는" 화면이라
     // 폭·높이가 곧 기능이라서, 남는 공간을 끝까지 쓴다(h-dvh + 패널이 남은 높이를 채움).
-    <div className="flex h-dvh w-full flex-col px-6 pt-10 pb-8">
+    <div className={`${PAGE_SHELL} flex h-dvh flex-col`}>
       <ViewerHeader
         chapter={chapter}
         project={project}
