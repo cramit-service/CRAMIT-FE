@@ -24,8 +24,8 @@ export function Sidebar() {
 
   // 접힘 상태에선 목록이 안 보이므로, 최근학습 아이콘을 누르면 사이드바를 펼쳐 준다.
 
-  // 펼친 채로 바깥을 누르면 접는다. 딤이 아니라 document에서 듣는 이유는, 딤(z-20)보다
-  // 위에 있는 것(챗독 z-30·z-40)을 눌렀을 때도 접혀야 하기 때문이다.
+  // 펼친 채로 바깥을 누르면 접는다. 딤이 아니라 document에서 듣는 이유는, 딤(z-dim)보다
+  // 위에 있는 것(챗독 z-nav·z-float)을 눌렀을 때도 접혀야 하기 때문이다.
   // 딤이 덮은 영역의 클릭은 딤이 먹으므로 콘텐츠에는 닿지 않는다.
   // Escape로도 접는다. aside에 달면 포커스가 콘텐츠로 넘어간 뒤에는 keydown이 aside를
   // 거치지 않아 안 먹으므로 document에서 듣는다.
@@ -55,15 +55,15 @@ export function Sidebar() {
 
   return (
     <>
-      {/* 펼침 딤. 콘텐츠(z-10 이하)만 덮고 사이드바(z-30)·모달(z-50)은 건드리지 않는다.
-          챗독(z-30·z-40)은 이 위라 딤이 걸리지 않는다 — 없애려면 z 스케일 전체를 손봐야 한다.
+      {/* 펼침 딤. 콘텐츠만 덮고 사이드바(z-nav)·모달(z-modal)은 건드리지 않는다.
+          챗독(z-nav·z-float)은 이 위라 딤이 걸리지 않는다 — 딤을 챗독 위로 올릴지는 미정.
           조건부 렌더가 아니라 opacity를 토글한다. 사이드바 폭 전환과 같은 200ms로
           페이드해야 둘이 따로 놀지 않고, 접힐 때도 사라지는 게 보인다.
           접힘일 때 pointer-events를 끄지 않으면 딤이 안 보이는 채로 화면 전체를 막는다. */}
       <div
         aria-hidden
         className={cn(
-          'fixed inset-0 z-20 bg-black/40 transition-opacity duration-200',
+          'z-dim fixed inset-0 bg-black/40 transition-opacity duration-200',
           expanded ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       />
@@ -80,10 +80,10 @@ export function Sidebar() {
         className={cn(
           // fixed로 흐름에서 빼 콘텐츠 위를 덮는다. 폭이 바뀌어도 main은 좌패딩이 고정이라
           // 따라 움직이지 않는다(app/(main)/layout.tsx).
-          // z-30은 접기 토글 때문이다. 토글은 폭의 절반이 사이드바 바깥(main 위)으로 걸쳐 있는데,
-          // fixed + z-index가 만드는 쌓임 맥락 안에서는 토글의 z-20이 main 안의 요소와 직접
-          // 겨루지 못한다. 걸친 절반이 클릭을 받으려면 사이드바 자체가 main 위에 있어야 한다.
-          'fixed top-0 left-0 z-30 flex h-screen flex-col bg-gray-950 text-gray-300 transition-[width] duration-200 ease-in-out',
+          // z-nav는 접기 토글 때문이다. 토글은 폭의 절반이 사이드바 바깥(main 위)으로 걸쳐 있는데,
+          // fixed + z-index가 만드는 쌓임 맥락 안에서는 토글의 지역 z-20이 main 안의 요소와
+          // 직접 겨루지 못한다. 걸친 절반이 클릭을 받으려면 사이드바 자체가 main 위에 있어야 한다.
+          'z-nav fixed top-0 left-0 flex h-screen flex-col bg-gray-950 text-gray-300 transition-[width] duration-200 ease-in-out',
           // 접힘 90px은 시안값 그대로다 — 홈 시안(24:9523)이 접힌 레일 기준으로 그려져 있다.
           // 오버레이라 콘텐츠가 이 폭을 따라 움직이지는 않지만, main의 좌패딩(pl-22.5)이
           // 이 값에 맞춰 고정돼 있으므로 한쪽을 바꾸면 다른 쪽도 같이 바꿔야 한다.

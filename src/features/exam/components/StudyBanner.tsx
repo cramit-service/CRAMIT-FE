@@ -1,7 +1,7 @@
 'use client';
 // src/features/exam/components/StudyBanner.tsx
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
 import { cn } from '@/shared/lib/cn';
 import { daysUntil, ddayLabel, ddayBadgeClass } from '@/features/exam/lib/dday';
@@ -11,7 +11,6 @@ import { useExams } from '@/features/exam/hooks/useExams';
 // 학습 배너. 가장 임박한 시험(exams[0])의 강의를 "이어서 학습" 대상으로 보여준다.
 // 데이터는 시험 일정과 함께 내려온다(useExams 재사용). 배경은 랜딩과 동일한 GradientBackground.
 export function StudyBanner() {
-  const router = useRouter();
   const { data: exams, isLoading, isError } = useExams();
   // getExams가 임박한 순으로 정렬해 주므로 첫 번째가 배너 대상.
   const featured = exams?.[0];
@@ -27,7 +26,12 @@ export function StudyBanner() {
   return (
     <GradientBackground
       variant="wide"
-      className="flex min-h-35.5 flex-col justify-center rounded-md border border-gray-800 px-8 py-6"
+      // 호버 그림자는 featured가 있을 때만 — 로딩·에러 때는 안쪽 Link가 없어서
+      // 눌리지 않는데 그림자만 뜨면 눌리는 것처럼 보인다.
+      className={cn(
+        'has-[a:focus-visible]:ring-secondary-400 flex min-h-35.5 flex-col justify-center rounded-md border border-gray-800 px-12 py-6 transition-shadow has-[a:focus-visible]:ring-2',
+        featured && 'hover:shadow-md',
+      )}
     >
       {/* 배너 장식 — 캐릭터(고양이)와 낙서. 오른쪽에 절대배치. 순수 장식이라 aria-hidden.
           SVG라 next/image 최적화 경로(400)를 피하려 unoptimized로 그대로 서빙한다. */}
@@ -54,15 +58,14 @@ export function StudyBanner() {
         className="pointer-events-none absolute right-3 bottom-3 h-26 w-auto select-none"
       />
       {featured && (
-        // 제목이 배너 세로 중앙에 오도록 [제목+CTA] 묶음을 CTA 높이의 절반(약 14px)만큼 아래로 민다.
-        // (묶음을 그냥 justify-center로 두면 제목이 중앙보다 위로 올라간다)
-        <div className="flex translate-y-3.5 flex-col gap-2">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h3 className="text-heading-md font-semibold text-gray-800">
-              {examName(featured)}
-            </h3>
-            {/* 시험 일정 카드와 같은 규칙으로 색을 나눈다(D-DAY 빨강 / D-1~3 노랑 / D-4+ 파랑).
-                크기는 옆의 진행률 뱃지와 같아야 한다 — 나란히 놓이는 한 쌍이라 어긋나면 바로 보인다. */}
+        // 배너 전체가 학습 진입 링크다. Link에는 위치를 주지 않는다 — 주는 순간 after의
+        // 기준이 배너가 아니라 링크 박스가 된다. 쌓임 기준은 대신 안쪽 세 줄에 준다.
+        <Link
+          href={`/projects/${featured.projectId}`}
+          className="flex flex-col after:absolute after:inset-0 focus-visible:outline-none"
+        >
+          {/* 시안 24:10161. 뱃지 크기는 옆 시험 일정 카드와 맞춘다 — 같은 D-DAY가 좌우에서 다르면 안 된다. */}
+          <div className="relative flex flex-wrap items-center gap-2.5">
             <span
               className={cn(
                 'text-label inline-flex items-center rounded-md border-[0.5px] px-2.5 py-0.5 font-medium',
@@ -75,15 +78,18 @@ export function StudyBanner() {
               학습 진행률 {featured.progress}%
             </span>
           </div>
-          <button
-            type="button"
-            onClick={() => router.push(`/projects/${featured.projectId}`)}
-            className="text-label flex w-fit items-center gap-1 font-medium text-gray-500 transition-colors hover:text-gray-600"
-          >
+          {/* 고양이(폭 132 + right-3)가 콘텐츠 상자를 96px 파고든다. 그만큼 비우고,
+              긴 이름은 줄바꿈 대신 자른다 — 배너가 세로로 늘면 옆 시험 일정 열이 따라 늘어난다. */}
+          <h3 className="text-heading-md relative mt-2.25 truncate pr-24 font-semibold text-gray-800">
+            {examName(featured)}
+          </h3>
+          {/* 시안 24:10507은 18/30에 아이콘 22. 굵기·색은 #94에서 정한 대로 둔다 —
+              배너 전체가 링크라 이게 유일한 진입 신호다. */}
+          <span className="text-body relative mt-1.75 flex w-fit items-center gap-1 font-semibold text-gray-800">
             학습하러 가기
-            <ChevronRightIcon className="size-4" />
-          </button>
-        </div>
+            <ChevronRightIcon className="size-5.5" />
+          </span>
+        </Link>
       )}
     </GradientBackground>
   );
