@@ -45,34 +45,38 @@ async function request<T>(
     ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {}),
   });
 
-  // 응답 본문 파싱 (204 No Content 등 빈 응답 대비).
-  // 업로드처럼 큰 본문은 프록시·게이트웨이가 413·502·504를 HTML로 돌려주기도 한다.
-  // 그대로 JSON.parse하면 SyntaxError가 그대로 화면까지 올라가므로("Unexpected token '<'")
-  // 파싱 실패는 삼키고 아래 상태 코드 분기가 판단하게 둔다.
-  const text = await res.text();
+  return parseBody<T>(res.ok, res.status, await res.text());
+}
+
+// 응답 본문 파싱 + 에러 판정 (204 No Content 등 빈 응답 대비).
+// 업로드처럼 큰 본문은 프록시·게이트웨이가 413·502·504를 HTML로 돌려주기도 한다.
+// 그대로 JSON.parse하면 SyntaxError가 그대로 화면까지 올라가므로("Unexpected token '<'")
+// 파싱 실패는 삼키고 상태 코드 분기가 판단하게 둔다.
+// fetch 경로와 아래 XHR 업로드 경로가 같은 규칙을 쓰도록 한 곳에 둔다.
+function parseBody<T>(ok: boolean, status: number, text: string): T {
   let data: unknown = null;
   if (text) {
     try {
       data = JSON.parse(text);
     } catch {
       // 성공 응답인데 JSON이 아니면 호출처가 기대한 타입이 아니다. 여기서 끊는다.
-      if (res.ok) {
+      if (ok) {
         throw new ApiRequestError(
           'INVALID_RESPONSE',
           '서버 응답을 해석할 수 없습니다.',
-          res.status,
+          status,
         );
       }
     }
   }
 
   // 에러 응답 처리 (기획서 10.1 포맷)
-  if (!res.ok) {
+  if (!ok) {
     const errorData = data as ApiError;
     throw new ApiRequestError(
       errorData?.error?.code ?? 'UNKNOWN',
       errorData?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
-      res.status,
+      status,
     );
   }
 
@@ -91,6 +95,91 @@ export class ApiRequestError extends Error {
   }
 }
 
+// 업로드를 사용자가 직접 멈춘 경우. 호출처가 "실패"와 "취소"를 다르게 다뤄야 해서
+// (취소는 에러 문구를 띄우지 않는다) 코드로 구분한다.
+export const UPLOAD_ABORTED = 'UPLOAD_ABORTED';
+
+export interface UploadOptions {
+  /** 전송 진행률 0~1. 서버로 보낼 총 바이트를 모르면 호출되지 않는다. */
+  onProgress?: (ratio: number) => void;
+  /** 업로드 취소용. abort되면 UPLOAD_ABORTED 코드로 reject된다. */
+  signal?: AbortSignal;
+}
+
+// 파일이 실려 가는 요청 전용 경로.
+// fetch를 쓰지 않는 이유: fetch는 "응답을 받는" 진행률만 관측할 수 있고 "보내는" 진행률을
+// 알려주지 않는다. 200MB짜리 녹음을 올리는 동안 화면에 아무것도 못 그리게 되므로
+// 이 경로만 XMLHttpRequest를 쓴다(upload.onprogress). 나머지 요청은 그대로 fetch를 탄다.
+function uploadRequest<T>(
+  method: string,
+  path: string,
+  form: FormData,
+  { onProgress, signal }: UploadOptions = {},
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const aborted = () =>
+      new ApiRequestError(UPLOAD_ABORTED, '업로드를 취소했어요.', 0);
+
+    // 보내기도 전에 이미 취소된 경우 (취소 직후 재시도 등)
+    if (signal?.aborted) {
+      reject(aborted());
+      return;
+    }
+
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, `${BASE_URL}${path}`);
+
+    // FormData의 multipart 경계(boundary)는 브라우저가 붙인다 — Content-Type을 직접 넣으면
+    // 경계가 빠져 서버가 본문을 파싱하지 못한다 (fetch 경로와 같은 이유).
+    const token = getAccessToken();
+    if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+    // 총 바이트를 모르면(스트리밍 인코딩 등) 비율을 만들 수 없다. 그때는 알리지 않아
+    // 호출처가 마지막으로 받은 값을 그대로 두게 한다 — 0으로 되돌리면 막대가 뒤로 간다.
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && e.total > 0) onProgress?.(e.loaded / e.total);
+    };
+
+    // signal은 요청이 끝나면 더 들을 이유가 없다. 남겨두면 취소 한 번에
+    // 이미 끝난 요청의 xhr까지 abort를 부른다.
+    const onAbort = () => xhr.abort();
+    signal?.addEventListener('abort', onAbort);
+    const settle = (run: () => void) => {
+      signal?.removeEventListener('abort', onAbort);
+      run();
+    };
+
+    xhr.onload = () =>
+      settle(() => {
+        const ok = xhr.status >= 200 && xhr.status < 300;
+        try {
+          resolve(parseBody<T>(ok, xhr.status, xhr.responseText));
+        } catch (error) {
+          reject(error);
+        }
+      });
+    xhr.onerror = () =>
+      settle(() =>
+        reject(
+          new ApiRequestError(
+            'NETWORK',
+            '네트워크 문제로 업로드하지 못했어요.',
+            0,
+          ),
+        ),
+      );
+    xhr.onabort = () => settle(() => reject(aborted()));
+    xhr.ontimeout = () =>
+      settle(() =>
+        reject(
+          new ApiRequestError('TIMEOUT', '업로드가 시간을 초과했어요.', 0),
+        ),
+      );
+
+    xhr.send(form);
+  });
+}
+
 // 실제로 화면에서 쓸 메서드들
 export const apiClient = {
   get: <T>(path: string, options?: RequestOptions) =>
@@ -104,4 +193,11 @@ export const apiClient = {
 
   delete: <T>(path: string, options?: RequestOptions) =>
     request<T>('DELETE', path, undefined, options),
+
+  // 파일 업로드 (진행률·취소 지원). 본문은 항상 FormData다.
+  upload: <T>(path: string, form: FormData, options?: UploadOptions) =>
+    uploadRequest<T>('POST', path, form, options),
+
+  uploadPatch: <T>(path: string, form: FormData, options?: UploadOptions) =>
+    uploadRequest<T>('PATCH', path, form, options),
 };

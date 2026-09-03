@@ -20,6 +20,9 @@ import {
   SettingSection,
 } from '@/features/settings/components/SettingRow';
 
+// 로딩·에러 문구도 본문과 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
+const PAGE_SHELL = 'mx-auto w-full max-w-[747px] px-6 pt-[83px] pb-[67px]';
+
 // 요금제 표기. PlanId는 코드값이라 화면에는 사람이 읽는 이름을 쓴다.
 const PLAN_LABEL: Record<PlanId, string> = {
   FREE: 'Free Plan',
@@ -41,12 +44,12 @@ export function ProfileScreen() {
   const [actionError, setActionError] = useState<string | null>(null);
 
   if (isPending) {
-    return <div className="p-10 text-gray-500">불러오는 중…</div>;
+    return <div className={`${PAGE_SHELL} text-gray-500`}>불러오는 중…</div>;
   }
 
   if (isError || !profile) {
     return (
-      <div className="flex flex-col items-start gap-4 p-10">
+      <div className={`${PAGE_SHELL} flex flex-col items-start gap-4`}>
         <p className="text-gray-700">
           내 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
@@ -80,7 +83,7 @@ export function ProfileScreen() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[747px] flex-col items-center px-6 pt-[83px] pb-[67px]">
+    <div className={`${PAGE_SHELL} flex flex-col items-center`}>
       {/* 아바타 + 닉네임 + 수정 버튼 */}
       {/* 시안 아바타(110)는 사각 프레임으로 내보내져 배경이 함께 온다. 원형으로 잘라 쓴다. */}
       <div className="size-[110px] overflow-hidden rounded-full">

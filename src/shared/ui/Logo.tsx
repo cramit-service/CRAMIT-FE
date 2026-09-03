@@ -21,7 +21,7 @@ interface LogoProps {
 
 // CRAMIT 심볼 마크. 실제 로고 에셋(public/logo-symbol.png)을 그대로 사용한다.
 // 연두·하늘 두 알약이 겹치는 반투명 표현이 원본 디자인이라 이미지로 넣는다.
-// 크기(높이)는 호출처가 정한다 — 기본 클래스에 두면 호출처 클래스와 충돌한다(cn은 tailwind-merge 아님).
+// 크기(높이)는 호출처가 정한다.
 function SymbolMark({ className }: { className?: string }) {
   return (
     <Image
@@ -38,9 +38,8 @@ function SymbolMark({ className }: { className?: string }) {
 // 글자는 fill-current라 부모의 text-* 색을 따르고, 마침표(dot)는 dotClassName으로 색을 준다.
 // 기본 마침표 색은 시그니처 연두(primary-400)이고, 연두 배경 위에서는 어둡게 덮어쓴다.
 //
-// 크기·색은 호출처가 정한다(cn은 tailwind-merge가 아니라 단순 join이라 기본 클래스를 박으면
-// 호출처 클래스와 충돌한다). 기본 높이만 height 속성(24)으로 주고 — 클래스는 속성을 이기므로
-// 호출처가 h-* 하나만 주면 그 값이 확실히 이긴다. 색은 부모 text-*(currentColor)를 물려받는다.
+// 크기·색은 호출처가 정한다. 기본 높이는 height 속성(24)으로만 주고 — 클래스가 속성을
+// 이기므로 호출처가 h-* 하나만 주면 그 값이 이긴다. 색은 부모 text-*(currentColor)를 물려받는다.
 function Wordmark({
   className,
   dotClassName = 'fill-primary-400',
