@@ -26,7 +26,12 @@ export function StudyBanner() {
   return (
     <GradientBackground
       variant="wide"
-      className="has-[a:focus-visible]:ring-secondary-400 flex min-h-35.5 flex-col justify-center rounded-md border border-gray-800 px-12 py-6 transition-shadow hover:shadow-md has-[a:focus-visible]:ring-2"
+      // 호버 그림자는 featured가 있을 때만 — 로딩·에러 때는 안쪽 Link가 없어서
+      // 눌리지 않는데 그림자만 뜨면 눌리는 것처럼 보인다.
+      className={cn(
+        'has-[a:focus-visible]:ring-secondary-400 flex min-h-35.5 flex-col justify-center rounded-md border border-gray-800 px-12 py-6 transition-shadow has-[a:focus-visible]:ring-2',
+        featured && 'hover:shadow-md',
+      )}
     >
       {/* 배너 장식 — 캐릭터(고양이)와 낙서. 오른쪽에 절대배치. 순수 장식이라 aria-hidden.
           SVG라 next/image 최적화 경로(400)를 피하려 unoptimized로 그대로 서빙한다. */}
@@ -53,23 +58,14 @@ export function StudyBanner() {
         className="pointer-events-none absolute right-3 bottom-3 h-26 w-auto select-none"
       />
       {featured && (
-        // 배너 전체가 학습 진입 링크다. after로 배너를 통째로 덮어 어디를 눌러도 들어간다 —
-        // 시험 행과 같은 규칙(카드 전체가 진입점)이라 홈에서 진입 방식이 갈리지 않는다.
-        // 제목이 배너 세로 중앙에 오도록 묶음을 (gap 8 + 줄 높이 24)의 절반인 16px만큼 내린다.
+        // 배너 전체가 학습 진입 링크다. Link에는 위치를 주지 않는다 — 주는 순간 after의
+        // 기준이 배너가 아니라 링크 박스가 된다. 쌓임 기준은 대신 안쪽 세 줄에 준다.
         <Link
           href={`/projects/${featured.projectId}`}
-          className="flex flex-col after:absolute after:inset-0"
+          className="flex flex-col after:absolute after:inset-0 focus-visible:outline-none"
         >
-          {/* 시안 24:10161 — 뱃지 / 제목 / CTA 세 줄. 순서와 간격(9·7)은 시안 그대로다.
-              제목만 시안 타이포(Heading/Medium B 32·44)를 따른다 — 배너에서 가장 큰 자리다.
-              뱃지는 시안(14·22)이 아니라 옆 시험 일정 카드와 같은 12·18로 둔다.
-              같은 D-DAY가 좌우에서 다른 크기로 보이면 안 된다.
-              CTA도 시안(Regular 20·gray-500) 대신 SemiBold 15·gray-800이다 —
-              배너 전체가 링크가 되면서 이게 유일한 진입 신호라 눈에 걸려야 한다.
-              transform은 걸지 않는다. transform이 걸린 요소는 그 안의 absolute 자식에게
-              컨테이닝 블록이 되어, after가 배너가 아니라 이 링크 박스만 덮는다. */}
-          {/* 시험 일정 카드와 같은 규칙으로 색을 나눈다(D-DAY 빨강 / D-1~3 노랑 / D-4+ 파랑). */}
-          <div className="flex flex-wrap items-center gap-2.5">
+          {/* 시안 24:10161. 뱃지 크기는 옆 시험 일정 카드와 맞춘다 — 같은 D-DAY가 좌우에서 다르면 안 된다. */}
+          <div className="relative flex flex-wrap items-center gap-2.5">
             <span
               className={cn(
                 'inline-flex items-center rounded-md border-[0.5px] px-2 py-0.5 text-[12px] leading-4.5 font-medium',
@@ -82,10 +78,12 @@ export function StudyBanner() {
               학습 진행률 {featured.progress}%
             </span>
           </div>
-          <h3 className="mt-[9px] text-[32px] leading-[44px] font-semibold tracking-[-0.64px] text-gray-800">
+          {/* 고양이(폭 132 + right-3)가 콘텐츠 상자를 96px 파고든다. 그만큼 비우고,
+              긴 이름은 줄바꿈 대신 자른다 — 배너가 세로로 늘면 옆 시험 일정 열이 따라 늘어난다. */}
+          <h3 className="relative mt-2.25 truncate pr-24 text-[32px] leading-[44px] font-semibold tracking-[-0.64px] text-gray-800">
             {examName(featured)}
           </h3>
-          <span className="mt-[7px] flex w-fit items-center gap-1 text-[15px] leading-6 font-semibold tracking-[-0.3px] text-gray-800">
+          <span className="relative mt-1.75 flex w-fit items-center gap-1 text-[15px] leading-6 font-semibold tracking-[-0.3px] text-gray-800">
             학습하러 가기
             <ChevronRightIcon className="size-4.5" />
           </span>
