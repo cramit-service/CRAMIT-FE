@@ -100,15 +100,15 @@ export function ChatPanel({
         // 시안처럼 대화 영역 우하단에 머문다(내용을 따라 위로 올라오지 않는다).
         // 패널 본문은 흰 바탕이다(어두운 건 스크롤되지 않는 입력 바뿐).
         // 시안 스크롤바는 트랙 #e7e7e8(gray-300) + 썸 #aeb1b6(gray-500) — scrollbar-slim이 그 값이다.
-        className="scrollbar-slim relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-7 pt-8 pb-4"
+        className="scrollbar-slim relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-10 pt-[50px] pb-6"
       >
         {chatQuery.isPending ? (
-          <p className="pt-10 text-center text-[13px] text-gray-500">
+          <p className="text-body pt-10 text-center text-gray-500">
             대화를 불러오는 중…
           </p>
         ) : chatQuery.isError ? (
           <div className="flex flex-col items-center gap-3 pt-10">
-            <p className="text-center text-[13px] text-gray-600">
+            <p className="text-body text-center text-gray-600">
               대화를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
             </p>
             <Button
@@ -123,17 +123,17 @@ export function ChatPanel({
         ) : messages.length === 0 ? (
           // mock은 인사말을 항상 포함하지만, 백엔드가 빈 배열을 주면 아무 안내도 없이
           // 빈 화면만 남는다. 로딩·에러와 마찬가지로 빈 상태도 말해 준다.
-          <p className="pt-10 text-center text-[13px] text-gray-500">
+          <p className="text-body pt-10 text-center text-gray-500">
             아직 주고받은 대화가 없어요. 궁금한 내용을 물어보세요.
           </p>
         ) : (
-          <ul className="flex flex-col gap-5">
+          <ul className="flex flex-col gap-7">
             {messages.map((message) => (
               <ChatBubble key={message.messageId} message={message} />
             ))}
             {sending && (
               <li className="flex justify-start">
-                <p className="rounded-sm border-[0.5px] border-gray-300 bg-white px-[14px] py-[9px] text-[13px] leading-[22px] text-gray-500">
+                <p className="text-body-md rounded-sm border-[0.5px] border-gray-300 bg-white px-5 py-3 text-gray-500">
                   답변을 준비하고 있어요…
                 </p>
               </li>
@@ -151,7 +151,7 @@ export function ChatPanel({
                 type="button"
                 onClick={() => send(question)}
                 disabled={sending}
-                className="rounded-full border border-white bg-white px-4 py-1 text-[14px] leading-7 font-medium tracking-[-0.28px] text-gray-800 shadow-sm transition-colors hover:bg-gray-200 disabled:opacity-50"
+                className="text-button-sm rounded-full border border-white bg-white px-[17px] py-1.5 font-medium text-gray-800 shadow-sm transition-colors hover:bg-gray-200 disabled:opacity-50"
               >
                 {question}
               </button>
@@ -167,9 +167,9 @@ export function ChatPanel({
               listRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
             }
             aria-label="맨 위로"
-            className="sticky bottom-0 mt-auto flex size-9 shrink-0 items-center justify-center self-end rounded-full border-2 border-gray-950 bg-white/80 text-gray-950 backdrop-blur transition-colors hover:bg-white"
+            className="sticky bottom-0 mt-auto flex size-12 shrink-0 items-center justify-center self-end rounded-full border-2 border-gray-950 bg-white/80 text-gray-950 backdrop-blur transition-colors hover:bg-white"
           >
-            <ArrowUpIcon className="h-[17px] w-[14px]" />
+            <ArrowUpIcon className="h-6 w-[19px]" />
           </button>
         )}
       </div>
@@ -180,7 +180,7 @@ export function ChatPanel({
           e.preventDefault();
           send(draft);
         }}
-        className="flex shrink-0 flex-col gap-2 border-t-[0.3px] border-gray-500 bg-gray-800 px-7 py-[14px]"
+        className="flex shrink-0 flex-col gap-2 border-t-[0.3px] border-gray-500 bg-gray-800 px-10 py-5"
       >
         {/* 전송 실패 — 낙관적으로 넣었던 말풍선은 롤백돼 사라지므로, 여기서 말해주지 않으면
             보낸 게 조용히 없어진 것처럼 보인다. 입력은 지워진 뒤라 재시도는 여기서만 가능하다. */}
@@ -190,10 +190,10 @@ export function ChatPanel({
             className="flex items-center gap-2 rounded-sm border border-gray-500 bg-gray-700 px-2 py-1.5"
           >
             <span className="min-w-0 flex-1">
-              <span className="text-error block text-[12px] leading-4.5 tracking-[-0.24px] break-keep">
+              <span className="text-error text-body-sm block break-keep">
                 질문을 보내지 못했습니다.
               </span>
-              <span className="block truncate text-[11px] leading-4 tracking-[-0.22px] text-gray-400">
+              <span className="text-label block truncate text-gray-400">
                 {failedLabel}
               </span>
             </span>
@@ -212,7 +212,7 @@ export function ChatPanel({
               aria-label="전송 실패 알림 닫기"
               className="shrink-0 text-gray-400 transition-colors hover:text-gray-100"
             >
-              <CloseIcon className="size-3" />
+              <CloseIcon className="size-4" />
             </button>
           </div>
         )}
@@ -220,11 +220,11 @@ export function ChatPanel({
         {/* 고른 파일 (시안 없음 — 미리보기 없이 이름·크기만 보여준다) */}
         {file && (
           <div className="flex max-w-full items-center gap-2 self-start rounded-sm border border-gray-500 bg-gray-700 px-2 py-1">
-            <PaperclipIcon className="size-3.5 shrink-0 text-gray-300" />
-            <span className="min-w-0 truncate text-[12px] leading-4.5 tracking-[-0.24px] text-gray-100">
+            <PaperclipIcon className="size-5 shrink-0 text-gray-300" />
+            <span className="text-body-sm min-w-0 truncate text-gray-100">
               {file.name}
             </span>
-            <span className="shrink-0 text-[11px] leading-4 tracking-[-0.22px] text-gray-400">
+            <span className="text-label shrink-0 text-gray-400">
               {formatFileSize(file.size)}
             </span>
             <button
@@ -236,7 +236,7 @@ export function ChatPanel({
               aria-label="첨부 파일 빼기"
               className="shrink-0 text-gray-400 transition-colors hover:text-gray-100"
             >
-              <CloseIcon className="size-3" />
+              <CloseIcon className="size-4" />
             </button>
           </div>
         )}
@@ -246,13 +246,13 @@ export function ChatPanel({
           <p
             id={fileErrorId}
             role="alert"
-            className="text-error text-[12px] leading-4.5 tracking-[-0.24px] break-keep"
+            className="text-error text-body-sm break-keep"
           >
             {fileError}
           </p>
         )}
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           {/* 같은 파일을 뺐다가 다시 고르면 change가 안 뜬다. value를 비워 매번 뜨게 한다.
               sr-only는 position:absolute라 스크롤 컨테이너를 탈출한다 — hidden으로 둔다. */}
           <input
@@ -274,7 +274,7 @@ export function ChatPanel({
             aria-describedby={fileError ? fileErrorId : undefined}
             className="shrink-0 text-gray-400 transition-colors hover:text-gray-100 disabled:opacity-50 disabled:hover:text-gray-400"
           >
-            <PaperclipIcon className="size-[18px]" />
+            <PaperclipIcon className="size-6" />
           </button>
 
           <input
@@ -282,16 +282,16 @@ export function ChatPanel({
             onChange={(e) => setDraft(e.target.value)}
             placeholder="질문 내용을 입력해 주세요."
             aria-label="질문 내용"
-            className="min-w-0 flex-1 bg-transparent text-[14px] leading-6 font-medium tracking-[-0.28px] text-gray-300 outline-none placeholder:text-gray-300"
+            className="text-body-sm min-w-0 flex-1 bg-transparent font-medium text-gray-300 outline-none placeholder:text-gray-300"
           />
 
           <button
             type="submit"
             disabled={(!draft.trim() && !file) || sending}
             aria-label="보내기"
-            className="bg-secondary-400 flex size-[26px] shrink-0 items-center justify-center rounded-full text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+            className="bg-secondary-400 flex size-9 shrink-0 items-center justify-center rounded-full text-white transition-opacity hover:opacity-90 disabled:opacity-40"
           >
-            <SendIcon className="size-[11px]" />
+            <SendIcon className="size-[15px]" />
           </button>
         </div>
       </form>
