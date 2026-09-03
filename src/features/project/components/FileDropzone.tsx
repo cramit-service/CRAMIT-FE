@@ -19,6 +19,8 @@ interface FileDropzoneProps {
   error: string | null;
   onError: (message: string | null) => void;
   disabled?: boolean;
+  /** 수정 모드에서 이미 올라가 있는 파일의 이름. 새로 고르지 않으면 이 파일이 유지된다. */
+  existingFileName?: string | null;
 }
 
 // 강의 자료(PDF) / 음성 파일을 끌어다 놓거나 클릭해서 고르는 영역.
@@ -31,6 +33,7 @@ export function FileDropzone({
   error,
   onError,
   disabled,
+  existingFileName,
 }: FileDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const errorId = useId();
@@ -49,6 +52,10 @@ export function FileDropzone({
   };
 
   const openPicker = () => inputRef.current?.click();
+
+  // 칸 안에서 쓰는 밑줄 액션 버튼. "다시 선택"·"파일 교체"가 같은 생김새를 쓴다.
+  const LINK_ACTION =
+    'rounded-sm px-2 py-1 text-[11px] leading-4 text-gray-300 underline underline-offset-2 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-600';
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -107,7 +114,7 @@ export function FileDropzone({
                 disabled={disabled}
                 aria-label={`${spec.label} 파일 다시 고르기`}
                 aria-describedby={describedBy}
-                className="rounded-sm px-2 py-1 text-[11px] leading-4 text-gray-300 underline underline-offset-2 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-600"
+                className={LINK_ACTION}
               >
                 다시 선택
               </button>
@@ -124,6 +131,29 @@ export function FileDropzone({
                 삭제
               </button>
             </div>
+          </div>
+        ) : existingFileName ? (
+          // 수정 모드에서 이미 올라가 있는 파일. 이 칸을 빈 채로 두면 "파일이 날아갔다"로 읽혀
+          // 사용자가 같은 파일을 다시 올리게 된다(200MB짜리 녹음이 그대로 재전송된다).
+          // 새로 고르기 전까지는 이 파일이 유지된다는 걸 문구로도 말해 준다.
+          <div className="flex size-full flex-col items-center justify-center gap-1.5 px-4 text-center">
+            <CloudUploadIcon className="size-4 text-gray-500" />
+            <p className="max-w-full truncate text-[12px] leading-[18px] tracking-[-0.24px] text-gray-300">
+              {existingFileName}
+            </p>
+            <p className="text-[11px] leading-4 tracking-[-0.22px] text-gray-600">
+              이미 올라간 파일이에요
+            </p>
+            <button
+              type="button"
+              onClick={openPicker}
+              disabled={disabled}
+              aria-label={`${spec.label} 파일 교체하기`}
+              aria-describedby={describedBy}
+              className={cn(LINK_ACTION, 'mt-0.5')}
+            >
+              파일 교체
+            </button>
           </div>
         ) : (
           <button

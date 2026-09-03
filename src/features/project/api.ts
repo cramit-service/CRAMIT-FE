@@ -8,7 +8,12 @@ import type {
   ProjectSummary,
   UpdateProjectRequest,
 } from '@/shared/types/api';
-import { apiClient } from '@/shared/lib/apiClient';
+import {
+  ApiRequestError,
+  UPLOAD_ABORTED,
+  apiClient,
+  type UploadOptions,
+} from '@/shared/lib/apiClient';
 import {
   addMockProjectSummary,
   findMockProjectSummary,
@@ -27,6 +32,23 @@ const USE_MOCK = true;
 
 // 가짜 지연을 흉내내는 헬퍼 (실제 네트워크처럼 잠깐 기다림).
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// mock 업로드의 진행률·취소를 실제 XHR 경로와 같은 모양으로 흉내낸다.
+// 이게 없으면 USE_MOCK 상태에서 대기 화면이 늘 0%로 멈춰 있어 화면을 확인할 수 없다.
+async function mockUpload(
+  { onProgress, signal }: UploadOptions,
+  totalMs: number,
+): Promise<void> {
+  const steps = 20;
+  for (let i = 1; i <= steps; i += 1) {
+    await delay(totalMs / steps);
+    // 취소는 다음 조각을 보내기 전에 확인한다 — 실제 XHR의 abort와 같은 시점이다.
+    if (signal?.aborted) {
+      throw new ApiRequestError(UPLOAD_ABORTED, '업로드를 취소했어요.', 0);
+    }
+    onProgress?.(i / steps);
+  }
+}
 
 // 프로젝트 목록 조회
 export async function getProjects(): Promise<Project[]> {
@@ -107,10 +129,11 @@ export async function updateLecture(
 // TODO: 백엔드 엔드포인트·필드명 확정 시 경로와 form key 재확인 필요.
 export async function createChapter(
   req: CreateChapterRequest,
+  options: UploadOptions = {},
 ): Promise<Chapter> {
   if (USE_MOCK) {
     // 파일 크기와 무관하게 늘 같은 시간이 걸리면 업로드 느낌이 안 나서 조금 길게 둔다.
-    await delay(800);
+    await mockUpload(options, 2400);
     const chapter: Chapter = {
       chapterId: `c${Date.now()}`,
       projectId: req.projectId,
@@ -121,6 +144,8 @@ export async function createChapter(
       status: 'BEFORE',
       lectureDate: req.lectureDate,
       professor: req.professor,
+      materialFileName: req.materialFile?.name ?? null,
+      audioFileName: req.audioFile?.name ?? null,
     };
     addMockChapter(chapter);
     return chapter;
@@ -133,7 +158,11 @@ export async function createChapter(
   if (req.materialFile) form.append('materialFile', req.materialFile);
   if (req.audioFile) form.append('audioFile', req.audioFile);
 
-  return apiClient.post<Chapter>(`/projects/${req.projectId}/chapters`, form);
+  return apiClient.upload<Chapter>(
+    `/projects/${req.projectId}/chapters`,
+    form,
+    options,
+  );
 }
 
 // 주차(챕터) 수정 — 주차 카드를 꾹 눌러 여는 "주차 정보 수정하기" 모달.
@@ -141,9 +170,10 @@ export async function createChapter(
 // TODO: 백엔드 엔드포인트·필드명 확정 시 경로와 form key 재확인 필요.
 export async function updateChapter(
   req: UpdateChapterRequest,
+  options: UploadOptions = {},
 ): Promise<Chapter> {
   if (USE_MOCK) {
-    await delay(500);
+    await mockUpload(options, 1600);
     const current = findMockChapter(req.chapterId);
     if (!current) throw new Error('수정할 주차를 찾지 못했어요.');
     // 주차 번호·생성 시각·학습 상태처럼 모달이 건드리지 않는 값은 그대로 둔다.
@@ -153,6 +183,8 @@ export async function updateChapter(
       title: req.title,
       lectureDate: req.lectureDate,
       professor: req.professor,
+      materialFileName: req.materialFile?.name ?? current.materialFileName,
+      audioFileName: req.audioFile?.name ?? current.audioFileName,
     };
     updateMockChapter(chapter);
     return chapter;
@@ -165,5 +197,9 @@ export async function updateChapter(
   if (req.materialFile) form.append('materialFile', req.materialFile);
   if (req.audioFile) form.append('audioFile', req.audioFile);
 
-  return apiClient.patch<Chapter>(`/chapters/${req.chapterId}`, form);
+  return apiClient.uploadPatch<Chapter>(
+    `/chapters/${req.chapterId}`,
+    form,
+    options,
+  );
 }
