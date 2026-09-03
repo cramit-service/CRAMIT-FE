@@ -13,7 +13,7 @@ import {
 // 중복확인 결과 (온보딩 NicknameStep과 같은 3상태)
 type NicknameStatus = 'idle' | 'available' | 'taken';
 
-// 시안 747×76 입력 → 0.72배 538×55. 상태에 따라 테두리 색만 갈린다.
+// 시안 입력 747×76. 상태에 따라 테두리 색만 갈린다.
 const BORDER_BY_STATUS: Record<NicknameStatus, string> = {
   idle: 'border-gray-800',
   available: 'border-secondary-400',
@@ -85,11 +85,11 @@ export function ProfileEditScreen() {
     // 잘리므로 세로 가운데 정렬로 두고 위아래 최소 여백만 지킨다.
     <form
       onSubmit={handleSubmit}
-      className="mx-auto flex min-h-screen w-full max-w-[538px] flex-col justify-center px-6 py-12"
+      className="mx-auto flex min-h-screen w-full max-w-[747px] flex-col justify-center px-6 py-12"
     >
       {/* 아바타 + 편집 뱃지 */}
       <div className="relative self-center">
-        <div className="size-[79px] overflow-hidden rounded-full">
+        <div className="size-[110px] overflow-hidden rounded-full">
           {/* 이 화면에서도 아바타가 LCP로 잡힌다 (ProfileScreen과 동일) */}
           <Image
             src={profile.profileImage ?? '/images/avatar-default.svg'}
@@ -101,44 +101,38 @@ export function ProfileEditScreen() {
             className="size-full object-cover"
           />
         </div>
-        {/* 시안 33×33 → 0.72배 24. 이미지 업로드 플로우가 시안에 없어 상태만 알린다. */}
+        {/* 시안 33×33. 이미지 업로드 플로우가 시안에 없어 상태만 알린다. */}
         <button
           type="button"
           onClick={() => setNotice('프로필 사진 변경은 준비 중이에요.')}
           aria-label="프로필 사진 변경"
-          className="absolute right-0 bottom-0.5 flex size-6 items-center justify-center rounded-full bg-gray-800 text-gray-100 transition-colors hover:bg-gray-700"
+          className="absolute right-0 bottom-0.5 flex size-[33px] items-center justify-center rounded-full bg-gray-800 text-gray-100 transition-colors hover:bg-gray-700"
         >
-          <PencilIcon className="size-3" />
+          <PencilIcon className="size-4" />
         </button>
       </div>
       {notice && (
-        <p
-          role="status"
-          className="mt-3 self-center text-[13px] leading-5 text-gray-600"
-        >
+        <p role="status" className="text-body mt-4 self-center text-gray-600">
           {notice}
         </p>
       )}
 
       {/* 닉네임 */}
-      <div className="mt-10.5 flex flex-col gap-1.5">
+      <div className="mt-[58px] flex flex-col gap-1.5">
         <div className="flex items-baseline justify-between gap-4">
           <label
             htmlFor="profile-nickname"
-            className="text-[13px] leading-5 font-medium tracking-[-0.26px] text-gray-700"
+            className="text-body font-medium text-gray-700"
           >
             닉네임
           </label>
           {status === 'available' && (
-            <p className="text-secondary-400 text-[13px] leading-5 font-medium">
+            <p className="text-secondary-400 text-body font-medium">
               사용 가능한 닉네임입니다.
             </p>
           )}
           {status === 'taken' && (
-            <p
-              role="alert"
-              className="text-error text-[13px] leading-5 font-medium"
-            >
+            <p role="alert" className="text-error text-body font-medium">
               사용 중인 닉네임입니다.
             </p>
           )}
@@ -146,7 +140,7 @@ export function ProfileEditScreen() {
 
         <div
           className={cn(
-            'flex h-[55px] items-center gap-2.5 rounded-md border bg-gray-800 px-3.5 transition-colors',
+            'flex h-[76px] items-center gap-3.5 rounded-md border bg-gray-800 px-5 transition-colors',
             BORDER_BY_STATUS[status],
           )}
         >
@@ -160,14 +154,14 @@ export function ProfileEditScreen() {
             }}
             placeholder="닉네임을 작성해주세요."
             disabled={updateMutation.isPending}
-            className="min-w-0 flex-1 bg-transparent text-body-sm font-medium text-gray-100 placeholder:text-gray-500 focus:outline-none"
+            className="text-body-sm min-w-0 flex-1 bg-transparent font-medium text-gray-100 placeholder:text-gray-500 focus:outline-none"
           />
-          {/* 시안 93×46 → 0.72배 67×33 */}
+          {/* 시안 93×46 */}
           <button
             type="button"
             onClick={handleCheck}
             disabled={!changed || updateMutation.isPending}
-            className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 flex h-[33px] w-[67px] shrink-0 items-center justify-center rounded-md text-[13px] leading-5 font-medium tracking-[-0.26px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-600 disabled:text-gray-400"
+            className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 text-body flex h-[46px] w-[93px] shrink-0 items-center justify-center rounded-md font-medium transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-600 disabled:text-gray-400"
           >
             중복확인
           </button>
@@ -175,25 +169,25 @@ export function ProfileEditScreen() {
       </div>
 
       {formError && (
-        <p role="alert" className="text-error mt-3 text-[13px] leading-5">
+        <p role="alert" className="text-error text-body mt-3">
           {formError}
         </p>
       )}
 
-      {/* 시안 366×76 두 개, 간격 15 → 0.72배 263×55, 간격 11 */}
-      <div className="mt-10.5 grid grid-cols-2 gap-[11px]">
+      {/* 시안 366×76 두 개, 간격 15 */}
+      <div className="mt-[58px] grid grid-cols-2 gap-[15px]">
         <button
           type="button"
           onClick={() => router.push('/settings/profile')}
           disabled={updateMutation.isPending}
-          className="flex h-[55px] items-center justify-center rounded-md border border-gray-400 bg-gray-100 text-[15px] leading-6 font-medium tracking-[-0.3px] text-gray-900 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-60"
+          className="text-body-lg flex h-[76px] items-center justify-center rounded-md border border-gray-400 bg-gray-100 font-medium text-gray-900 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-60"
         >
           뒤로 가기
         </button>
         <button
           type="submit"
           disabled={!canSubmit}
-          className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 flex h-[55px] items-center justify-center rounded-md text-[15px] leading-6 font-medium tracking-[-0.3px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-gray-100"
+          className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 text-body-lg flex h-[76px] items-center justify-center rounded-md font-medium transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-gray-100"
         >
           {updateMutation.isPending ? '저장 중…' : '수정 완료'}
         </button>

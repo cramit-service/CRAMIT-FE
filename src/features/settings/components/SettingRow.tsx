@@ -3,7 +3,7 @@
 import { cn } from '@/shared/lib/cn';
 
 // 프로필 화면의 어두운 행 한 줄. 알림·요금제·계정 설정이 모두 같은 상자를 쓴다.
-// Figma: 747×76, radius 6, 좌우 패딩 20, 글자 20px.
+// Figma: 747×76, radius 6, 좌우 패딩 20. 글자는 시안 Body/Small(16/24).
 // 이 화면은 홈처럼 글자를 시안 px 그대로 쓰므로 상자도 1:1로 둔다 (CLAUDE.md 4-4).
 const ROW =
   'flex h-19 w-full items-center justify-between gap-4 rounded-md bg-gray-800 px-5';
@@ -101,7 +101,7 @@ function ChevronRightIcon({ className }: { className?: string }) {
   );
 }
 
-// 섹션 제목 (알림 설정 / 요금제 / 계정 설정). Figma 24 → 0.72배.
+// 섹션 제목 (알림 설정 / 요금제 / 계정 설정). 시안 Button/Medium(18/30).
 export function SettingSection({
   title,
   children,
@@ -111,9 +111,7 @@ export function SettingSection({
 }) {
   return (
     <section className="flex flex-col gap-1.5">
-      <h2 className="text-[13px] leading-5 font-medium tracking-[-0.26px] text-gray-700">
-        {title}
-      </h2>
+      <h2 className="text-body font-medium text-gray-700">{title}</h2>
       {children}
     </section>
   );
