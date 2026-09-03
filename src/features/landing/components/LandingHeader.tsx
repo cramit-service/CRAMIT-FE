@@ -20,7 +20,7 @@ export function LandingHeader() {
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 transition-colors',
+        'z-header sticky top-0 transition-colors',
         scrolled ? 'bg-primary-100/80 backdrop-blur-md' : 'bg-transparent',
       )}
     >
