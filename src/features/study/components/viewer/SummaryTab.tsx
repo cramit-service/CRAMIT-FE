@@ -76,7 +76,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
   if (summaryQuery.isProcessing) {
     return (
       <section className={cn(PANEL, 'items-center justify-center')}>
-        <p className="text-[14px] leading-[22px] text-gray-400">
+        <p className="text-label text-gray-400">
           AI가 요약을 생성하고 있습니다. 완료되면 자동으로 표시됩니다.
         </p>
       </section>
@@ -86,7 +86,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
   if (summaryQuery.isPending) {
     return (
       <section className={cn(PANEL, 'items-center justify-center')}>
-        <p className="text-[14px] leading-[22px] text-gray-500">
+        <p className="text-label text-gray-500">
           요약을 불러오는 중…
         </p>
       </section>
@@ -96,7 +96,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
   if (summaryQuery.isError || !summary) {
     return (
       <section className={cn(PANEL, 'items-center justify-center gap-4')}>
-        <p className="text-[14px] leading-[22px] text-gray-400">
+        <p className="text-label text-gray-400">
           요약을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
         </p>
         <Button
@@ -120,7 +120,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
           <span className="flex h-[22px] shrink-0 items-center justify-center rounded-full border-[0.5px] border-white px-1.5 text-[12px] leading-[22px] font-medium text-white">
             MD
           </span>
-          <p className="truncate text-[14px] leading-[22px] font-medium tracking-[-0.28px] text-white">
+          <p className="truncate text-label font-medium text-white">
             {summary.fileName}
           </p>
           <p
@@ -184,7 +184,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
               <MarkdownContent markdown={markdown} />
             ) : (
               // 생성 중(PROCESSING)은 위에서 따로 걸러내므로 여기는 '생성됐지만 비어 있음'이다
-              <p className="text-[14px] leading-[22px] text-gray-500">
+              <p className="text-label text-gray-500">
                 아직 생성된 요약이 없습니다.
               </p>
             )}

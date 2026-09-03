@@ -187,7 +187,7 @@ export function ProfileScreen() {
         >
           정말 탈퇴할까요?
         </h2>
-        <p className="mt-2 text-[14px] leading-[22px] text-gray-600">
+        <p className="mt-2 text-label text-gray-600">
           탈퇴하면 만든 강의와 학습 기록이 모두 사라지고 되돌릴 수 없어요.
         </p>
         <div className="mt-6 flex justify-end gap-2">

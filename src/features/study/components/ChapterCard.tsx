@@ -66,10 +66,10 @@ export function ChapterCard({ chapter, onLongPress }: ChapterCardProps) {
       {/* 좌측: Chapter 번호(제목) + 설명 + 날짜 */}
       <div className="flex min-w-0 flex-col gap-2">
         <div className="flex flex-col gap-0.5">
-          <p className="text-[16px] leading-[24px] tracking-[-0.32px] text-gray-950">
+          <p className="text-body-sm text-gray-950">
             Chapter {chapter.chapterNumber}
           </p>
-          <p className="text-[14px] leading-[22px] font-medium tracking-[-0.28px] text-gray-700">
+          <p className="text-label font-medium text-gray-700">
             {chapter.title}
           </p>
         </div>
@@ -83,7 +83,7 @@ export function ChapterCard({ chapter, onLongPress }: ChapterCardProps) {
       <div className="flex w-[260px] shrink-0 items-center justify-between gap-4">
         <span
           className={cn(
-            'text-[16px] leading-[24px] font-medium tracking-[-0.32px]',
+            'text-body-sm font-medium',
             statusTextStyle[chapter.status],
           )}
         >

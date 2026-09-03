@@ -7,7 +7,7 @@ import remarkGfm from 'remark-gfm';
 // 태그별 클래스를 직접 지정해 디자인 토큰만 쓰도록 한다.
 const components: Components = {
   h1: ({ children }) => (
-    <h1 className="mt-10 mb-4 text-[22px] leading-[32px] font-semibold tracking-[-0.44px] text-gray-950 first:mt-0">
+    <h1 className="mt-10 mb-4 text-body-lg font-semibold text-gray-950 first:mt-0">
       {children}
     </h1>
   ),
@@ -60,7 +60,7 @@ const components: Components = {
   // 표는 좁은 화면에서 넘칠 수 있어 가로 스크롤 컨테이너로 감싼다
   table: ({ children }) => (
     <div className="my-4 overflow-x-auto">
-      <table className="w-full border-collapse text-[14px] leading-[22px] tracking-[-0.28px]">
+      <table className="w-full border-collapse text-label">
         {children}
       </table>
     </div>

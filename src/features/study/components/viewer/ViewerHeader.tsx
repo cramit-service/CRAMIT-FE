@@ -36,7 +36,7 @@ export function ViewerHeader({
           className="inline-flex shrink-0 items-center gap-1.5 text-gray-950 transition-colors hover:text-gray-700"
         >
           <ChevronLeftIcon className="size-5" />
-          <span className="text-[14px] leading-[22px] font-medium tracking-[-0.28px]">
+          <span className="text-label font-medium">
             이전으로
           </span>
         </button>
@@ -49,7 +49,7 @@ export function ViewerHeader({
       <div className="mt-7 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         <ViewerTabs activeTabs={activeTabs} onToggle={onTabToggle} />
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-[14px] leading-[22px] tracking-[-0.28px] text-gray-950">
+          <p className="text-label text-gray-950">
             {project.title}
           </p>
           <Tag tone="dark">{project.professor} 교수님</Tag>

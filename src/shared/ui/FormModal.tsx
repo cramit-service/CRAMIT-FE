@@ -23,7 +23,7 @@ export const FIELD_WIDTH = 'w-[156px]';
 
 // 라벨도 같은 0.72배 (20 → 14).
 export const LABEL =
-  'text-[14px] leading-[22px] tracking-[-0.28px] text-gray-300';
+  'text-label text-gray-300';
 // 보조 문구(상태 안내·에러)는 한 단계 더 작게.
 export const HINT = 'text-[12px] leading-[18px] tracking-[-0.24px] break-keep';
 export const SECTION_DIVIDER = 'border-b-[0.5px] border-gray-700';
@@ -59,11 +59,11 @@ export function optionStateClass({
 // Button 컴포넌트를 쓰지 않는 이유: size별 타이포가 고정이라 이 크기와 겹치는데
 // cn엔 tailwind-merge가 없어 덮어쓰면 승자가 클래스 생성 순서에 달린다.
 export const PRIMARY_ACTION =
-  'enabled:bg-secondary-400 enabled:hover:bg-secondary-500 flex h-11 w-[249px] items-center justify-center rounded-md text-[14px] leading-[22px] font-medium tracking-[-0.28px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-500';
+  'enabled:bg-secondary-400 enabled:hover:bg-secondary-500 flex h-11 w-[249px] items-center justify-center rounded-md text-label font-medium transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-500';
 // 삭제 버튼. 시안 192×60 → 0.72배 138×44. 위험 액션이라 error 토큰.
 // 글자는 흰색 대신 gray-950 — error(#ff5d6b) 위에서 흰 글자는 대비가 2.7:1로 읽기 어렵다.
 export const DANGER_ACTION =
-  'enabled:bg-error mr-auto flex h-11 w-[138px] items-center justify-center rounded-md text-[14px] leading-[22px] font-medium tracking-[-0.28px] transition-colors enabled:text-gray-950 enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-500';
+  'enabled:bg-error mr-auto flex h-11 w-[138px] items-center justify-center rounded-md text-label font-medium transition-colors enabled:text-gray-950 enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-500';
 
 interface IconProps {
   className?: string;
@@ -233,7 +233,7 @@ export function FormModal({
           className={
             titleVisible
               ? (titleClassName ??
-                'mb-4.5 text-[16px] leading-6 font-semibold tracking-[-0.32px] text-gray-100')
+                'mb-4.5 text-body-sm font-semibold text-gray-100')
               : 'sr-only'
           }
         >

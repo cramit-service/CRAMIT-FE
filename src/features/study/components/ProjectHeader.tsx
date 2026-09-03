@@ -43,7 +43,7 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
         className="absolute top-1/2 right-full mr-4 inline-flex -translate-y-1/2 items-center gap-1.5 whitespace-nowrap text-gray-950 transition-colors hover:text-gray-700"
       >
         <ChevronLeftIcon className="size-5" />
-        <span className="text-[14px] leading-[22px] font-medium tracking-[-0.28px]">
+        <span className="text-label font-medium">
           이전으로
         </span>
       </button>

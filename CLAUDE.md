@@ -94,15 +94,33 @@ src/
 - `Card`: `clickable`
 - `Modal`: `open` / `onClose`
 
-### 4-4. Figma → 코드 스케일 (0.72배)
+### 4-4. Figma → 코드는 축척 없이 1:1
 
-Figma 시안은 **1920 캔버스 기준**이라 픽셀을 1:1로 옮기면 실제 화면에서 커진다. 옮길 때:
+Figma 캔버스는 1920이지만 **콘텐츠 폭은 1511**이다 (사이드바 90 + 여백 159 + 콘텐츠 1511 + 여백 160).
+줄일 것이 없다 — **박스도 타이포도 시안 값을 그대로 옮긴다.**
 
-- **박스 지오메트리(높이·폭·패딩·gap·버튼 크기·radius 등 공간 값)는 Figma px × 0.72** 로 줄인다.
-- **타이포(font-size)는 Figma px 그대로** 둔다(축소하지 않는다). `tracking`은 Figma % → px로 환산해 붙인다 (예: 18px에 -2% → `tracking-[-0.36px]`).
+- **콘텐츠 폭은 `max-w-[1512px] mx-auto`로 통일한다.** 좌우 여백은 시안 고정값이 아니라 남는 공간이 갖는다.
+- **1512보다 좁아지면 축소가 아니라 재배치한다** (`lg` 미만에서 `grid-cols-1`로 쌓기). 카드 안쪽 폭도 고정 px이 아니라 `fr`·`flex` + `min-w-0`으로 둔다. 높이는 고정이어도 된다.
 - 값에 정규 클래스가 있으면 정규 클래스(`leading-7`, `size-4.5`), 없으면 명시적 `[Npx]`를 쓴다. **린터 경고 0을 유지한다.**
 
-이미 study/auth/landing 화면 전체에 적용돼 있다. 새 화면도 같은 규칙을 따른다.
+#### 타이포는 토큰으로만
+
+`text-[14px] leading-[22px] tracking-[-0.28px]` 같은 임의값을 새로 쓰지 않는다. 자간은 토큰에 −0.02em이 들어 있고, **굵기는 `font-medium`·`font-semibold`로 따로 준다.**
+
+| 토큰              | size / line-height | Figma 변수                     |
+| ----------------- | ------------------ | ------------------------------ |
+| `text-heading-lg` | 52 / 74            | Heading/Large                  |
+| `text-heading-md` | 32 / 44            | Heading/Medium B               |
+| `text-heading-sm` | 24 / 36            | Heading/Small B·M              |
+| `text-body-lg`    | 22 / 32            | Body/Large M                   |
+| `text-body-md`    | 20 / 30            | Body/Medium, Button/Large2     |
+| `text-body`       | 18 / 30            | Body/Regular1·2, Button/Medium |
+| `text-body-sm`    | 16 / 24            | Body/Small                     |
+| `text-button-lg`  | 20 / 28            | Button/Large1                  |
+| `text-button-sm`  | 16 / 28            | Button/Small                   |
+| `text-label`      | 14 / 22            | Button/Label2                  |
+
+> **이전 규칙(박스만 0.72배)은 폐기됐다.** 시안 콘텐츠 폭을 1920으로 잘못 읽어 나온 값이고, 타이포는 줄이지 않아 글자/박스 비율이 시안과 어긋났다. 남은 0.72 값은 화면별로 순차 복원한다 — 주석에 원래 시안 값이 대부분 남아 있다.
 
 ### 4-5. 절대 위치 요소는 `relative` 부모를 반드시 둔다
 

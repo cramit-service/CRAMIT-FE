@@ -35,10 +35,11 @@ const variantStyles: Record<Variant, string> = {
 //        cn()은 tailwind-merge가 아니라 className으로 sm을 덮어쓰면 승자가 생성 순서에
 //        달린다. 그래서 덮어쓰지 않고 정식 size로 둔다.
 const sizeStyles: Record<Size, string> = {
+  // xs만 시안에 대응하는 타이포 변수가 없어 임의값을 남긴다.
   xs: 'h-7 px-3 text-[12px] leading-none font-medium tracking-[-0.24px]',
-  sm: 'px-4 py-2 text-[16px] leading-[28px] font-medium',
-  md: 'px-5 py-2.5 text-[18px] leading-[30px] font-medium',
-  lg: 'px-6 py-4 text-[20px] leading-[28px] font-semibold',
+  sm: 'text-button-sm px-4 py-2 font-medium',
+  md: 'text-body px-5 py-2.5 font-medium',
+  lg: 'text-button-lg px-6 py-4 font-semibold',
 };
 
 export function Button({
@@ -56,7 +57,7 @@ export function Button({
     <button
       type={type}
       className={cn(
-        'inline-flex items-center justify-center rounded-md tracking-[-0.02em] whitespace-nowrap transition-colors',
+        'inline-flex items-center justify-center rounded-md whitespace-nowrap transition-colors',
         sizeStyles[size],
         // 비활성이면 회색 채움에 밝은 글자, 아니면 variant 색상 적용
         disabled

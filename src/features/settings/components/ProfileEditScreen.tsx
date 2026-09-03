@@ -160,7 +160,7 @@ export function ProfileEditScreen() {
             }}
             placeholder="닉네임을 작성해주세요."
             disabled={updateMutation.isPending}
-            className="min-w-0 flex-1 bg-transparent text-[16px] leading-6 font-medium tracking-[-0.32px] text-gray-100 placeholder:text-gray-500 focus:outline-none"
+            className="min-w-0 flex-1 bg-transparent text-body-sm font-medium text-gray-100 placeholder:text-gray-500 focus:outline-none"
           />
           {/* 시안 93×46 → 0.72배 67×33 */}
           <button

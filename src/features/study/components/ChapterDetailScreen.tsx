@@ -82,7 +82,7 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
         <div className="flex flex-col gap-2">
           {visible.length === 0 ? (
             // 아직 주차를 올리지 않은 프로젝트는 빈 영역 대신 안내를 보여준다.
-            <p className="rounded-md bg-white px-6 py-12 text-center text-[14px] leading-[22px] text-gray-500">
+            <p className="rounded-md bg-white px-6 py-12 text-center text-label text-gray-500">
               아직 업로드된 강의가 없어요. 새 주차를 업로드해 학습을
               시작해보세요.
             </p>

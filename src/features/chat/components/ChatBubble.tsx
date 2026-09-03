@@ -80,7 +80,7 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
                   : { maxHeight: COLLAPSED_HEIGHT }
               }
               className={cn(
-                'text-[14px] leading-[22px] tracking-[-0.28px] whitespace-pre-line text-gray-800',
+                'text-label whitespace-pre-line text-gray-800',
                 !expanded && overflows && 'overflow-hidden',
               )}
             >

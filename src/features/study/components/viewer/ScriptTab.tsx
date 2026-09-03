@@ -37,7 +37,7 @@ export function ScriptTab({
   if (scriptQuery.isProcessing) {
     return (
       <section className={cn(PANEL, 'items-center justify-center')}>
-        <p className="text-[14px] leading-[22px] text-gray-400">
+        <p className="text-label text-gray-400">
           녹음을 텍스트로 변환하고 있습니다. 완료되면 자동으로 표시됩니다.
         </p>
       </section>
@@ -47,7 +47,7 @@ export function ScriptTab({
   if (scriptQuery.isPending) {
     return (
       <section className={cn(PANEL, 'items-center justify-center')}>
-        <p className="text-[14px] leading-[22px] text-gray-500">
+        <p className="text-label text-gray-500">
           원문 스크립트를 불러오는 중…
         </p>
       </section>
@@ -57,7 +57,7 @@ export function ScriptTab({
   if (scriptQuery.isError || !scriptQuery.data) {
     return (
       <section className={cn(PANEL, 'items-center justify-center gap-4')}>
-        <p className="text-[14px] leading-[22px] text-gray-400">
+        <p className="text-label text-gray-400">
           원문 스크립트를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
         </p>
         {/* 재시도 중에 버튼이 그대로면 눌린 줄 모르고 계속 누르게 된다 */}
@@ -79,20 +79,20 @@ export function ScriptTab({
     <section className={cn(PANEL, 'px-8 pt-5')}>
       {/* 상단: 안내문 + 재생 위치 (재생 컨트롤은 PDF 탭에만 둔다) */}
       <div className="flex shrink-0 items-start justify-between gap-4">
-        <p className="text-[14px] leading-[22px] font-medium tracking-[-0.28px] text-white">
+        <p className="text-label font-medium text-white">
           녹음본을 텍스트화해서 PPT 페이지별로 정리했습니다. 녹음본 재생은 ‘PDF
           강의 자료’를 이용해 주세요.
         </p>
         <div className="text-primary-400 flex shrink-0 items-center gap-1.5">
           <Icon name="time" size={17} />
-          <p className="text-[14px] leading-[22px] font-medium tracking-[-0.28px] tabular-nums">
+          <p className="text-label font-medium tabular-nums">
             {formatPlayTime(currentTime)} / {formatPlayTime(duration)}
           </p>
         </div>
       </div>
 
       {sections.length === 0 ? (
-        <p className="flex flex-1 items-center justify-center text-[14px] leading-[22px] text-gray-500">
+        <p className="flex flex-1 items-center justify-center text-label text-gray-500">
           아직 생성된 스크립트가 없습니다.
         </p>
       ) : (

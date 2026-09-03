@@ -37,14 +37,14 @@ export function ScriptSectionItem({
             시간은 펼치면 세그먼트마다 다시 나오므로 여기서 빠져도 잃는 게 없다. */}
         <span className="flex shrink-0 items-center gap-1.5 @max-[340px]:hidden">
           <Icon name="time" size={17} className="text-gray-400" />
-          <span className="text-[16px] leading-[24px] font-medium tracking-[-0.32px] text-gray-400 tabular-nums">
+          <span className="text-body-sm font-medium text-gray-400 tabular-nums">
             {formatPlayTime(section.startSec)} –{' '}
             {formatPlayTime(section.endSec)}
           </span>
         </span>
         {/* 구간 소제목 — 시안에서 유일하게 연두로 강조되는 부분.
             남는 폭을 이쪽이 가져가고, 줄어들 때도 마지막까지 버틴다. */}
-        <span className="text-primary-200 min-w-0 flex-1 truncate text-[16px] leading-[24px] font-medium tracking-[-0.32px]">
+        <span className="text-primary-200 min-w-0 flex-1 truncate text-body-sm font-medium">
           • {section.title}
         </span>
         <Icon
@@ -59,7 +59,7 @@ export function ScriptSectionItem({
           {section.segments.map((segment) => (
             <li
               key={segment.atSec}
-              className="bg-primary-200 flex gap-1.5 rounded-sm p-[9px] text-[14px] leading-[22px] tracking-[-0.28px] text-gray-950"
+              className="bg-primary-200 flex gap-1.5 rounded-sm p-[9px] text-label text-gray-950"
             >
               <span className="shrink-0 tabular-nums">
                 {formatPlayTime(segment.atSec)}

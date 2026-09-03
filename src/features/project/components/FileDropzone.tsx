@@ -61,7 +61,7 @@ export function FileDropzone({
   return (
     <div className="flex flex-col gap-4">
       {/* 모달 안 타이포는 박스와 같은 0.72배로 옮긴다 (라벨 20 → 14). */}
-      <p className="text-[14px] leading-[22px] tracking-[-0.28px] text-gray-300">
+      <p className="text-label text-gray-300">
         {label}
       </p>
 

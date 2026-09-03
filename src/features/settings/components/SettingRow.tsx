@@ -9,7 +9,7 @@ const ROW =
   'flex h-19 w-full items-center justify-between gap-4 rounded-md bg-gray-800 px-5';
 // 색은 여기 넣지 않는다. cn()엔 tailwind-merge가 없어 text-gray-100 위에 text-error를
 // 덧붙이면 둘 다 남고 승자가 클래스 생성 순서에 달린다(회원탈퇴가 흰 글자로 나왔다).
-const ROW_TEXT = 'text-[16px] leading-6 font-medium tracking-[-0.32px]';
+const ROW_TEXT = 'text-body-sm font-medium';
 // 서로 겹치지 않는 '완성된' 색 세트를 통째로 고른다.
 const ROW_TEXT_COLOR = { normal: 'text-gray-100', danger: 'text-error' };
 

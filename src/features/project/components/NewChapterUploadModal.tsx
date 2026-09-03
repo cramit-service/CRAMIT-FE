@@ -171,7 +171,7 @@ export function NewChapterUploadModal({
             이 크기에서는 SemiBold가 무겁지 않고, 14px 라벨과 구분하는 역할만 한다. */}
           <h2
             id={titleId}
-            className="text-[16px] leading-6 font-semibold tracking-[-0.32px] text-gray-100"
+            className="text-body-sm font-semibold text-gray-100"
           >
             {isEdit ? '주차 정보 수정하기' : '새 주차 업로드'}
           </h2>
@@ -310,7 +310,7 @@ export function NewChapterUploadModal({
             <button
               type="submit"
               disabled={!canSubmit || isPending}
-              className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 relative flex h-11 w-[249px] items-center justify-center rounded-md text-[14px] leading-[22px] font-medium tracking-[-0.28px] transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-gray-100"
+              className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 relative flex h-11 w-[249px] items-center justify-center rounded-md text-label font-medium transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-gray-100"
             >
               {/* 시안에서 아이콘은 글자 옆이 아니라 버튼 왼쪽에 따로 얹혀 있고, 글자는
                   아이콘과 무관하게 버튼 전체 기준으로 가운데 온다. absolute의 기준이 되도록
