@@ -16,8 +16,8 @@ export const FIELD_FILLED = `${FIELD_BASE} bg-gray-800 text-gray-100 placeholder
 // 셀렉트·날짜처럼 테두리만 있는 입력. 폭은 호출처가 정한다
 // (여기에 w-full을 넣으면 호출처의 고정 폭과 겹쳐 승자가 클래스 생성 순서에 달린다).
 export const FIELD_OUTLINED = `${FIELD_BASE} border-[0.5px] border-gray-500 bg-transparent text-gray-300 focus:border-secondary-400`;
-// 강의·날짜 칸 폭. 시안은 186px이지만 "2026-07-21"과 한글 과목명이 잘려서 조금 넓혔다.
-export const FIELD_WIDTH = 'w-[217px]';
+// 강의·날짜 칸 폭. 시안값(1:3573 / 1:3579).
+export const FIELD_WIDTH = 'w-[186px]';
 
 // 라벨은 시안 20px.
 export const LABEL = 'text-body-md text-gray-300';
@@ -186,12 +186,13 @@ export function FormModal({
       onClose={handleClose}
       surface="bare"
       labelledBy={titleId}
-      // Figma 960px 모달. 시안 높이가 노트북 화면을 넘기므로
-      // 패널은 고정하고 안쪽만 스크롤시킨다.
+      // Figma 960px 모달은 1920 캔버스의 50%다. 시안 px을 박으면 좁은 화면에서 비율이
+      // 커지므로(1536에서 63%) 비율로 두고 시안값을 상한으로 삼는다.
+      // 시안 높이가 화면을 넘기므로 패널은 고정하고 안쪽만 스크롤시킨다.
       // relative는 닫기 버튼의 기준이자, 제목을 숨길 때 쓰는 sr-only(=position:absolute)의
       // 기준이기도 하다. 없으면 숨긴 제목이 문서 최상위 기준으로 떠 페이지 높이를 밀어낸다.
       className={cn(
-        'relative flex max-h-[calc(100vh-64px)] w-240 max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-lg border-[0.5px] border-gray-600 bg-gray-900',
+        'relative flex max-h-[calc(100vh-64px)] w-[min(960px,50vw)] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-lg border-[0.5px] border-gray-600 bg-gray-900',
         fixedHeight,
       )}
     >
@@ -213,13 +214,13 @@ export function FormModal({
         // 페이지가 이동해 버린다. 기본값으로 그것만 막는다.
         onSubmit={onSubmit ?? ((e) => e.preventDefault())}
         className={cn(
-          'scrollbar-dark flex min-h-0 flex-col overflow-y-auto px-[83px] pb-10 scheme-dark',
+          'scrollbar-dark flex min-h-0 flex-col overflow-y-auto px-21 pb-10 scheme-dark',
           // 높이를 고정한 모달에서만 폼이 남은 공간을 채워야 푸터가 바닥으로 간다.
           // 기본(내용 높이) 모달에 flex-1을 주면 min-h-0과 겹쳐 높이가 0으로 접힌다.
           fixedHeight && 'flex-1',
           // 제목이 보이는 모달은 제목이 위 여백을 일부 대신한다. 숨긴 모달은 첫 라벨까지의
           // 거리가 시안(≈65px)에 맞도록 여백을 더 준다.
-          titleVisible ? 'pt-[61px]' : 'pt-[89px]',
+          titleVisible ? 'pt-15' : 'pt-[89px]',
         )}
       >
         {/* 제목 기본은 시안 22px. 32px SemiBold인 모달은 titleClassName으로 넘긴다. */}

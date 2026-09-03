@@ -61,8 +61,8 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
 
   return (
     // 콘텐츠 폭은 홈·강의 목록과 같은 1512 (CLAUDE.md 4-4).
-    <div className="px-4 pt-12 pb-12 md:px-8 lg:px-12">
-      <div className="mx-auto w-full max-w-[1512px]">
+    <div className="px-4 pt-12 pb-12 md:px-8 lg:px-0">
+      <div className="mx-auto w-full lg:w-[82.57%] lg:max-w-[1511px]">
         <ProjectHeader project={project} />
 
         <section className="mt-7">

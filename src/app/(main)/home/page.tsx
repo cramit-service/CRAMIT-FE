@@ -28,12 +28,12 @@ import { TodoFilterProvider } from '@/features/todo/hooks/useTodoFilter';
 // 생긴 여백이다. 어디로 보낼지는 시안을 봐야 정할 수 있다.
 export default function HomePage() {
   return (
-    <div className="px-4 pt-10 pb-5 md:px-8 lg:min-h-dvh lg:px-12 lg:pt-[68px] lg:pb-11">
+    <div className="px-4 pt-10 pb-5 md:px-8 lg:min-h-dvh lg:px-0 lg:pt-[68px] lg:pb-11">
       {/* 캘린더에서 고른 날짜를 TODO 체크리스트가 알아야 한다. 둘은 격자에서 형제라
           서로를 모르므로 공통 조상인 여기서 Context로 묶는다. page는 조립만 하고
           상태는 훅이 들고 있어 'use client'가 필요 없다. */}
       <TodoFilterProvider>
-        <div className="grid grid-cols-1 gap-6 lg:mx-auto lg:w-full lg:max-w-[1512px] lg:grid-cols-[minmax(0,839fr)_minmax(0,655fr)] lg:grid-rows-[auto_auto] lg:gap-x-[17px] lg:gap-y-13">
+        <div className="grid grid-cols-1 gap-6 lg:mx-auto lg:w-[82.57%] lg:max-w-[1511px] lg:grid-cols-[minmax(0,839fr)_minmax(0,655fr)] lg:grid-rows-[auto_auto] lg:gap-x-[17px] lg:gap-y-13">
           <StudyBanner />
           <ExamSchedule />
           <Calendar />

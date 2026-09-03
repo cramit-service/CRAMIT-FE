@@ -32,14 +32,16 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
     <header className="relative flex flex-wrap items-center gap-x-4 gap-y-3">
       {/* 강의 목록으로 뒤로가기.
           Figma: 콘텐츠 열(과목명/섹션/카드) 왼쪽 바깥으로 걸어(outdent)
-          제목·섹션·카드가 같은 정렬선을 갖게 한다. */}
+          제목·섹션·카드가 같은 정렬선을 갖게 한다.
+          다만 걸 자리(좌측 여백)는 콘텐츠 열이 82.57%로 자리잡은 뒤 남는 8.7%다. 이 폭이
+          버튼(약 110px)보다 좁아지면 사이드바(90) 밑으로 들어가 잘리므로 흐름 안으로 내린다. */}
       <button
         type="button"
         // router.back()을 쓰면 방금 나온 학습 뷰어로 되돌아간다.
         // 뷰어의 '이전으로'가 push라 /projects/{id}가 히스토리에 중복으로 쌓이기 때문이다.
         // 뷰어(ViewerHeader)와 같은 규칙으로 상위 경로를 고정해 항상 강의 목록으로 나간다.
         onClick={() => router.push('/projects')}
-        className="absolute top-1/2 right-full mr-4 inline-flex -translate-y-1/2 items-center gap-1.5 whitespace-nowrap text-gray-950 transition-colors hover:text-gray-700"
+        className="mb-3 inline-flex items-center gap-1.5 whitespace-nowrap text-gray-950 transition-colors hover:text-gray-700 min-[1410px]:absolute min-[1410px]:top-1/2 min-[1410px]:right-full min-[1410px]:mr-4 min-[1410px]:mb-0 min-[1410px]:-translate-y-1/2"
       >
         <ChevronLeftIcon className="size-5" />
         <span className="text-label font-medium">이전으로</span>

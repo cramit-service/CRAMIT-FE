@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { ChatPanel } from '@/features/chat/components/ChatPanel';
 import { cn } from '@/shared/lib/cn';
 
-// 시안 패널 폭. 세로 탭은 이 폭 바깥 왼쪽에 붙는다.
-const PANEL_WIDTH = 707;
+// 시안 패널 폭 707은 1920 캔버스의 36.82%다. 시안 px을 그대로 박으면 좁은 화면에서
+// 차지하는 비율이 커지므로(1536에서 46%) 비율로 두고 시안값을 상한으로 삼는다.
+// 세로 탭은 이 폭 바깥 왼쪽에 붙으므로 같은 값을 써야 한다.
+const PANEL_WIDTH = 'min(707px, 36.82vw)';
 
 // 프로젝트 하위 레이아웃에서만 노출되는 채팅 도크.
 // 우측 화면 경계의 세로 탭을 누르면 챗봇 패널이 오버레이로 열린다(시안: 뒤 화면을 밀지 않는다).
@@ -28,7 +30,9 @@ export function ChatDock({ projectId }: { projectId: string }) {
         // duration도 패널(300ms)에 맞춘다. 기본값은 150ms라 탭만 먼저 도착한다.
         className="from-secondary-200/60 to-primary-300/30 fixed top-[262px] right-0 z-40 flex h-[107px] w-8 flex-col items-center justify-center gap-1 rounded-l-md border-y border-l border-gray-700 bg-white bg-linear-to-b text-gray-700 transition-transform duration-300"
         // 패널 폭이 상수라 Tailwind가 클래스를 미리 만들 수 없다. 이동량은 인라인으로 준다.
-        style={{ transform: `translateX(${open ? -PANEL_WIDTH : 0}px)` }}
+        style={{
+          transform: open ? `translateX(calc(-1 * ${PANEL_WIDTH}))` : undefined,
+        }}
       >
         {/* 세로쓰기라 line-height가 글자 사이 간격이 된다. 시안 18px은 스케일에 없어
             크기·자간만 토큰을 쓰고 줄높이만 덮는다. */}

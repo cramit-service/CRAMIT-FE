@@ -51,8 +51,8 @@ export function LectureListScreen() {
     // 콘텐츠 폭은 홈과 같은 1512 (CLAUDE.md 4-4). 바깥 여백은 남는 공간이 갖는다.
     // TODO(타이포): 이 화면 글자는 시안이 아니라 홈 스케일을 따랐다 — 폭이 1512로 돌아왔으니
     // 시안(1:2523) 기준으로 다시 볼 것.
-    <div className="px-4 py-10 md:px-8 lg:px-12">
-      <div className="mx-auto flex w-full max-w-[1512px] flex-col gap-6">
+    <div className="px-4 py-10 md:px-8 lg:px-0">
+      <div className="mx-auto flex w-full flex-col gap-6 lg:w-[82.57%] lg:max-w-[1511px]">
         <LectureSearchBar value={keyword} onChange={setKeyword} />
 
         <LectureSection

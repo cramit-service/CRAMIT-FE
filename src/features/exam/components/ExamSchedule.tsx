@@ -76,11 +76,12 @@ export function ExamSchedule() {
                     key={exam.examId}
                     className="group relative flex items-center gap-2.5 py-2"
                   >
-                    {/* 뱃지는 자연 크기 유지. 고정폭 슬롯에 왼쪽 정렬해 뒤 제목의 시작 x를 통일한다 */}
-                    <div className="w-14 shrink-0">
+                    {/* 뱃지는 자연 크기 유지. 고정폭 슬롯에 왼쪽 정렬해 뒤 제목의 시작 x를 통일한다.
+                        슬롯 폭은 가장 긴 "D-DAY"의 자연 폭(61px)에 맞춘다 — 좁으면 두 줄로 접힌다. */}
+                    <div className="w-16 shrink-0">
                       <span
                         className={cn(
-                          'text-button-sm inline-block rounded-md border-[0.5px] px-2 py-0.5 font-medium',
+                          'text-label inline-block rounded-md border-[0.5px] px-2 py-0.5 font-medium',
                           ddayBadgeClass(days),
                         )}
                       >
