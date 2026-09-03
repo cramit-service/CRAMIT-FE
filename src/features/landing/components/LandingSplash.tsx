@@ -81,7 +81,7 @@ export function LandingSplash() {
       ref={overlayRef}
       data-splash-overlay
       aria-hidden
-      className="animate-splash-out fixed inset-0 z-100"
+      className="animate-splash-out z-splash fixed inset-0"
     >
       <GradientBackground layer />
 

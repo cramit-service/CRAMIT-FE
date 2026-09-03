@@ -111,7 +111,7 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="z-modal fixed inset-0 flex items-center justify-center bg-black/50"
       // click은 누른 곳과 뗀 곳의 공통 조상에서 발생한다. onClick으로 닫으면
       // 패널 안 글자를 드래그하다 배경에서 손을 떼는 순간 모달이 닫혀 입력이 날아간다.
       // 배경에서 눌러 배경에서 뗀 경우만 닫는다.
