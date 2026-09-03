@@ -31,7 +31,7 @@ export function Input({
           'placeholder:text-gray-400 focus:outline-none',
           error
             ? 'border-error focus:border-error'
-            : 'border-gray-400 focus:border-secondary-400',
+            : 'focus:border-secondary-400 border-gray-400',
           disabled && 'cursor-not-allowed bg-gray-200 text-gray-500',
           className,
         )}

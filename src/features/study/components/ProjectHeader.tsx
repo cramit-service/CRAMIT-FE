@@ -16,10 +16,9 @@ import type { ProjectDetail } from '@/shared/types/api';
 // Button 컴포넌트를 쓰지 않는 이유: size 스케일에 이 헤더에 맞는 단계가 없고
 // (xs 28px/12px, sm 46px/16px), cn엔 tailwind-merge가 없어 className으로 높이나
 // 타이포를 덮으면 승자가 클래스 생성 순서에 달린다.
-// Figma: 공유하기 40 / 새 주차 업로드 44 → 0.72배로 줄이면 29/32. 나란히 놓이는
-// 버튼이라 큰 쪽(32px)에 맞춰 둘을 같은 높이로 둔다.
+// Figma: 공유하기 40 / 새 주차 업로드 44. 나란히 놓이는 버튼이라 큰 쪽에 맞춰 같은 높이로 둔다.
 const HEADER_ACTION =
-  'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md px-3 text-[14px] leading-none font-medium tracking-[-0.28px] transition-colors';
+  'inline-flex h-11 shrink-0 items-center gap-2 rounded-md px-4 text-label leading-none font-medium transition-colors';
 
 // 챕터 상세 상단 헤더: 뒤로가기 + 과목명/태그 + 우측 액션(공유/업로드)을 한 줄로 배치.
 export function ProjectHeader({ project }: { project: ProjectDetail }) {
@@ -43,13 +42,11 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
         className="absolute top-1/2 right-full mr-4 inline-flex -translate-y-1/2 items-center gap-1.5 whitespace-nowrap text-gray-950 transition-colors hover:text-gray-700"
       >
         <ChevronLeftIcon className="size-5" />
-        <span className="text-label font-medium">
-          이전으로
-        </span>
+        <span className="text-label font-medium">이전으로</span>
       </button>
 
       {/* 과목명 + 정보 태그들 */}
-      <h1 className="text-[24px] leading-[34px] font-semibold tracking-[-0.48px] text-gray-950">
+      <h1 className="text-heading-sm font-semibold text-gray-950">
         {project.title}
       </h1>
       <Tag tone="dark">{project.professor} 교수님</Tag>
@@ -66,7 +63,7 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
         <button
           type="button"
           onClick={() => setEditOpen(true)}
-          className="inline-flex items-center gap-1 text-[12px] text-gray-400 transition-colors hover:text-gray-600"
+          className="text-button-sm inline-flex items-center gap-1 text-gray-400 transition-colors hover:text-gray-600"
         >
           <PencilIcon className="size-3" />
           수정하기

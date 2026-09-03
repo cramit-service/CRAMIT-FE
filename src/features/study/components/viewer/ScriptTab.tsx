@@ -47,9 +47,7 @@ export function ScriptTab({
   if (scriptQuery.isPending) {
     return (
       <section className={cn(PANEL, 'items-center justify-center')}>
-        <p className="text-label text-gray-500">
-          원문 스크립트를 불러오는 중…
-        </p>
+        <p className="text-label text-gray-500">원문 스크립트를 불러오는 중…</p>
       </section>
     );
   }
@@ -92,7 +90,7 @@ export function ScriptTab({
       </div>
 
       {sections.length === 0 ? (
-        <p className="flex flex-1 items-center justify-center text-label text-gray-500">
+        <p className="text-label flex flex-1 items-center justify-center text-gray-500">
           아직 생성된 스크립트가 없습니다.
         </p>
       ) : (

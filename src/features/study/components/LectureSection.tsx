@@ -36,13 +36,11 @@ export function LectureSection({
       <header className="mb-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         {/* 제목과 설명은 크기가 달라(24px/12px) 베이스라인으로 맞춘다 — 시안도 같은 선에 있다 */}
         <div className="flex flex-wrap items-baseline gap-x-2.5">
-          <h2 className="text-[24px] leading-8.5 font-semibold tracking-[-0.48px] text-gray-950">
+          <h2 className="text-heading-sm font-semibold text-gray-950">
             {title}
           </h2>
           {description && (
-            <p className="text-[12px] leading-4.5 tracking-[-0.24px] text-gray-600">
-              {description}
-            </p>
+            <p className="text-button-sm text-gray-600">{description}</p>
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -56,7 +54,7 @@ export function LectureSection({
       </header>
 
       {lectures.length === 0 ? (
-        <p className="rounded-md bg-white px-6 py-12 text-center text-[13px] text-gray-500">
+        <p className="text-body rounded-md bg-white px-6 py-12 text-center text-gray-500">
           {searching ? '검색 결과가 없어요.' : emptyMessage}
         </p>
       ) : (

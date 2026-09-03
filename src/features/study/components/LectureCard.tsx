@@ -35,7 +35,7 @@ export function LectureCard({ lecture, tone }: LectureCardProps) {
       )}
     >
       <span className="flex min-w-0 flex-1 flex-col gap-3">
-        <span className="truncate text-body-sm font-semibold text-gray-800">
+        <span className="text-body-sm truncate font-semibold text-gray-800">
           {lecture.title}
         </span>
 

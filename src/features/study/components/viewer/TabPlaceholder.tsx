@@ -7,9 +7,7 @@ import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
 export function TabPlaceholder({ label }: { label: string }) {
   return (
     <section className={cn(VIEWER_PANEL, 'flex items-center justify-center')}>
-      <p className="text-label font-medium text-gray-500">
-        {label}
-      </p>
+      <p className="text-label font-medium text-gray-500">{label}</p>
     </section>
   );
 }

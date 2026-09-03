@@ -41,7 +41,7 @@ export function AudioPlayer({
       {/* 어느 자료의 몇 페이지인지가 이 줄에서 가장 중요하다. 웬만하면 줄이지 않는다.
           다만 재생 버튼·시간까지 합쳐도 안 들어가는 폭(280 미만)에서는 이쪽이 양보한다.
           끝까지 안 줄이면 컨트롤이 밖으로 밀려나 결국 라벨 위를 덮는다. */}
-      <p className="shrink-0 text-label font-medium whitespace-nowrap text-white @max-[280px]:min-w-0 @max-[280px]:shrink @max-[280px]:truncate">
+      <p className="text-label shrink-0 font-medium whitespace-nowrap text-white @max-[280px]:min-w-0 @max-[280px]:shrink @max-[280px]:truncate">
         PDF 강의자료 ({currentPage}/{pageCount})
       </p>
 

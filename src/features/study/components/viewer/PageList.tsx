@@ -56,7 +56,7 @@ export function PageList({
                 onClick={() => onSelect(page)}
                 aria-current={page === currentPage ? 'true' : undefined}
                 className={cn(
-                  'flex h-[34px] w-full items-center justify-center rounded-sm text-[12px] leading-[20px] font-medium tracking-[-0.24px] text-gray-900 transition-colors',
+                  'text-button-sm flex h-[34px] w-full items-center justify-center rounded-sm font-medium text-gray-900 transition-colors',
                   page === currentPage
                     ? 'border-secondary-600 bg-secondary-400 border-2'
                     : 'bg-secondary-100 hover:bg-secondary-200 border-2 border-transparent',
@@ -82,7 +82,7 @@ export function PageList({
                 {/* 페이지 번호 배지 (Figma: 썸네일 좌상단에 겹쳐 놓임) */}
                 <span
                   className={cn(
-                    'absolute top-1.5 left-1 rounded-sm px-1.5 py-px text-[10px] leading-[14px] tracking-[-0.2px] text-white',
+                    'text-label absolute top-1.5 left-1 rounded-sm px-1.5 py-px text-white',
                     page === currentPage ? 'bg-secondary-400' : 'bg-gray-800',
                   )}
                 >

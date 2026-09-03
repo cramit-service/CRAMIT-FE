@@ -60,64 +60,63 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
   const visible = ordered.slice(start, start + PAGE_SIZE);
 
   return (
-    // Figma 시안은 1920 기준 절대 px라 실제 화면(사이드바 제외)에선 과하게 커진다.
-    // 비례는 그대로 두고 전체를 약 0.72배로 줄여 한 화면에 들어오게 한다.
-    // 다만 본문 폭만은 0.72배(896px)로 두면 좌우 여백이 과해 카드가 답답해 보여서
-    // 강의 목록 화면(LectureListScreen)과 같은 max-w-6xl로 맞췄다.
-    <div className="mx-auto w-full max-w-6xl px-8 pt-12 pb-12">
-      <ProjectHeader project={project} />
+    // 콘텐츠 폭은 홈·강의 목록과 같은 1512 (CLAUDE.md 4-4).
+    <div className="px-4 pt-12 pb-12 md:px-8 lg:px-12">
+      <div className="mx-auto w-full max-w-[1512px]">
+        <ProjectHeader project={project} />
 
-      <section className="mt-7">
-        {/* 섹션 제목 + 우측 학습 진행률 바 */}
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
-          <h2 className="text-[18px] leading-[28px] font-semibold tracking-[-0.36px] text-gray-950">
-            단계별 학습
-          </h2>
-          <div className="ml-auto w-full max-w-[280px] min-w-[160px] flex-1">
-            <LearningProgress percent={progress} />
+        <section className="mt-7">
+          {/* 섹션 제목 + 우측 학습 진행률 바 */}
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+            <h2 className="text-body font-semibold text-gray-950">
+              단계별 학습
+            </h2>
+            <div className="ml-auto w-full max-w-[280px] min-w-[160px] flex-1">
+              <LearningProgress percent={progress} />
+            </div>
           </div>
-        </div>
 
-        {/* 카드 간 간격 */}
-        <div className="flex flex-col gap-2">
-          {visible.length === 0 ? (
-            // 아직 주차를 올리지 않은 프로젝트는 빈 영역 대신 안내를 보여준다.
-            <p className="rounded-md bg-white px-6 py-12 text-center text-label text-gray-500">
-              아직 업로드된 강의가 없어요. 새 주차를 업로드해 학습을
-              시작해보세요.
-            </p>
-          ) : (
-            visible.map((chapter) => (
-              <ChapterCard
-                key={chapter.chapterId}
-                chapter={chapter}
-                // 공유받은 강의의 주차는 내가 고칠 수 없다 (헤더의 업로드 버튼과 같은 기준).
-                onLongPress={project.sharedBy ? undefined : setEditingChapter}
-              />
-            ))
-          )}
-        </div>
+          {/* 카드 간 간격 */}
+          <div className="flex flex-col gap-2">
+            {visible.length === 0 ? (
+              // 아직 주차를 올리지 않은 프로젝트는 빈 영역 대신 안내를 보여준다.
+              <p className="text-label rounded-md bg-white px-6 py-12 text-center text-gray-500">
+                아직 업로드된 강의가 없어요. 새 주차를 업로드해 학습을
+                시작해보세요.
+              </p>
+            ) : (
+              visible.map((chapter) => (
+                <ChapterCard
+                  key={chapter.chapterId}
+                  chapter={chapter}
+                  // 공유받은 강의의 주차는 내가 고칠 수 없다 (헤더의 업로드 버튼과 같은 기준).
+                  onLongPress={project.sharedBy ? undefined : setEditingChapter}
+                />
+              ))
+            )}
+          </div>
 
-        <div className="mt-5">
-          <Pagination
-            currentPage={current}
-            totalPages={totalPages}
-            onPageChange={setPage}
+          <div className="mt-5">
+            <Pagination
+              currentPage={current}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
+          </div>
+        </section>
+
+        {/* 공유 강의일 때만 공유 게시판 자리 노출 (내 강의면 없음) */}
+        {project.isShared && <SharedBoardPlaceholder />}
+
+        {editingChapter && (
+          <NewChapterUploadModal
+            projectId={projectId}
+            projectTitle={project.title}
+            chapter={editingChapter}
+            onClose={() => setEditingChapter(null)}
           />
-        </div>
-      </section>
-
-      {/* 공유 강의일 때만 공유 게시판 자리 노출 (내 강의면 없음) */}
-      {project.isShared && <SharedBoardPlaceholder />}
-
-      {editingChapter && (
-        <NewChapterUploadModal
-          projectId={projectId}
-          projectTitle={project.title}
-          chapter={editingChapter}
-          onClose={() => setEditingChapter(null)}
-        />
-      )}
+        )}
+      </div>
     </div>
   );
 }

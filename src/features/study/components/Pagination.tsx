@@ -45,7 +45,7 @@ function PageButton({
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'flex size-6 items-center justify-center rounded-md border-[0.5px] text-xs font-medium tracking-[-0.12px] transition-colors',
+        'text-button-sm flex size-8 items-center justify-center rounded-md border-[0.5px] font-medium transition-colors',
         active
           ? 'border-secondary-400 bg-gray-800 text-white'
           : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-100',

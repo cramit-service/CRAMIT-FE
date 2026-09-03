@@ -59,7 +59,7 @@ export function SidebarItem({
         {icon}
       </span>
       {expanded && (
-        <span className="truncate pr-5 text-[15px] font-normal">{label}</span>
+        <span className="text-body-sm truncate pr-5 font-normal">{label}</span>
       )}
     </>
   );

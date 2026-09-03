@@ -75,7 +75,7 @@ export function TodoViewSelect() {
             setOpen(false);
           }
         }}
-        className="flex h-7 w-25 cursor-pointer items-center justify-between gap-1 rounded-md border-[0.5px] border-gray-500 px-3 text-[12px] font-medium tracking-[-0.24px] whitespace-nowrap text-gray-600 transition-colors hover:border-gray-600"
+        className="text-button-sm flex h-7 w-25 cursor-pointer items-center justify-between gap-1 rounded-md border-[0.5px] border-gray-500 px-3 font-medium whitespace-nowrap text-gray-600 transition-colors hover:border-gray-600"
       >
         {labelFor(filter)}
         <ChevronDownIcon
@@ -103,7 +103,7 @@ export function TodoViewSelect() {
                     setOpen(false);
                   }}
                   className={cn(
-                    'flex h-7 w-full cursor-pointer items-center px-3 text-left text-[12px] font-medium tracking-[-0.24px] transition-colors',
+                    'text-button-sm flex h-7 w-full cursor-pointer items-center px-3 text-left font-medium transition-colors',
                     selected
                       ? 'bg-primary-400 text-gray-950'
                       : 'text-gray-300 hover:bg-gray-600',

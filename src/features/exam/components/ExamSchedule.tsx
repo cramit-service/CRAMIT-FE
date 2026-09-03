@@ -14,7 +14,7 @@ import { ExamFormModal } from './ExamFormModal';
 
 function StatusMessage({ children }: { children: React.ReactNode }) {
   return (
-    <p className="flex h-full items-center justify-center text-center text-[13px] text-gray-500">
+    <p className="text-body flex h-full items-center justify-center text-center text-gray-500">
       {children}
     </p>
   );
@@ -30,7 +30,7 @@ export function ExamSchedule() {
   return (
     <section>
       <div className="mb-1.5 flex items-center justify-between">
-        <h2 className="text-[18px] leading-7 font-medium tracking-[-0.36px] text-gray-950">
+        <h2 className="text-body font-medium text-gray-950">
           다가오는 시험 일정
         </h2>
         <Button
@@ -80,7 +80,7 @@ export function ExamSchedule() {
                     <div className="w-14 shrink-0">
                       <span
                         className={cn(
-                          'inline-block rounded-md border-[0.5px] px-2 py-0.5 text-[12px] leading-4.5 font-medium',
+                          'text-button-sm inline-block rounded-md border-[0.5px] px-2 py-0.5 font-medium',
                           ddayBadgeClass(days),
                         )}
                       >
@@ -94,10 +94,10 @@ export function ExamSchedule() {
                       href={`/projects/${exam.projectId}`}
                       className="focus-visible:ring-secondary-400 min-w-0 flex-1 rounded-sm after:absolute after:inset-0 focus-visible:ring-2 focus-visible:outline-none"
                     >
-                      <p className="truncate text-[14px] leading-5 font-medium tracking-[-0.28px] text-gray-950">
+                      <p className="text-label truncate font-medium text-gray-950">
                         {examName(exam)}
                       </p>
-                      <p className="text-[12px] leading-4.5 tracking-[-0.24px] text-gray-600">
+                      <p className="text-button-sm text-gray-600">
                         {formatKoreanDate(exam.examDate)}
                       </p>
                     </Link>
