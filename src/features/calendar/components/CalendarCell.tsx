@@ -75,9 +75,11 @@ export function CalendarCell({
           // leading을 명시하지 않으면 부모에서 상속된 줄높이가 그대로 들어와
           // 글꼴이 바뀔 때 슬롯 안 위치가 흔들린다.
           'inline-flex size-5 shrink-0 items-center justify-center rounded-full text-[13.5px] leading-5 font-medium',
+          // 앞뒤 달 채움 칸에도 오늘이 올 수 있다(달을 넘기면 보인다). 네 갈래를
+          // 배타적으로 두지 않으면 어두운 원 위에 흐린 글자가 얹혀 숫자가 안 보인다.
           isToday && 'bg-gray-900 text-white',
           !isToday && cell.isCurrentMonth && 'text-gray-950',
-          !cell.isCurrentMonth && 'text-gray-950/40',
+          !isToday && !cell.isCurrentMonth && 'text-gray-950/40',
         )}
       >
         {cell.day}

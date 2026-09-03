@@ -13,9 +13,8 @@ import type { ProjectDetail } from '@/shared/types/api';
 
 // 헤더 우측 액션 2종(공유하기·새 주차 업로드)의 공통 골격.
 // 높이·타이포를 한 곳에 두어 두 버튼이 서로 어긋나지 않게 한다.
-// Button 컴포넌트를 쓰지 않는 이유: size 스케일에 이 헤더에 맞는 단계가 없고
-// (xs 28px/12px, sm 46px/16px), cn엔 tailwind-merge가 없어 className으로 높이나
-// 타이포를 덮으면 승자가 클래스 생성 순서에 달린다.
+// Button 컴포넌트를 쓰지 않는 이유: size 스케일에 이 헤더에 맞는 단계가 없다
+// (xs 28px/12px, sm 46px/16px).
 // Figma: 공유하기 40 / 새 주차 업로드 44 → 0.72배로 줄이면 29/32. 나란히 놓이는
 // 버튼이라 큰 쪽(32px)에 맞춰 둘을 같은 높이로 둔다.
 const HEADER_ACTION =
