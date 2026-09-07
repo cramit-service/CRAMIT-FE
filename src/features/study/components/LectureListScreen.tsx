@@ -17,7 +17,7 @@ import { LectureSection } from './LectureSection';
 function PageShell({ children }: { children: ReactNode }) {
   return (
     <div className="px-4 py-10 md:px-8 lg:px-0">
-      <div className="mx-auto flex w-full flex-col gap-6 lg:w-[82.57%] lg:max-w-[1511px]">
+      <div className="lg:content-col mx-auto flex w-full flex-col gap-6">
         {children}
       </div>
     </div>

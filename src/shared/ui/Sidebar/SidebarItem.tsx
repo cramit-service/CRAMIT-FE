@@ -2,6 +2,7 @@
 // src/shared/ui/Sidebar/SidebarItem.tsx
 import Link from 'next/link';
 import { cn } from '@/shared/lib/cn';
+import { Tooltip } from '@/shared/ui/Tooltip';
 
 interface SidebarItemProps {
   icon: React.ReactNode;
@@ -31,7 +32,7 @@ export function SidebarItem({
   // text-* 색이 먹지 않는다. 그래서 색이 아니라 항목 전체의 opacity로 낮춘다.
   // 낮춘 대비(약 4:1)는 WCAG 1.4.3의 비활성 컨트롤 예외에 해당해 문제가 되지 않는다.
   const className = cn(
-    'relative flex items-center py-3 transition-colors',
+    'focus-visible:ring-secondary-400 focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none relative flex items-center py-3 transition-colors',
     // 활성: 연두 강조 / 비활성: 라벨은 밝게 (덮어쓰기 금지 → 삼항 분기)
     disabled
       ? 'cursor-not-allowed text-gray-200 opacity-50'
@@ -42,9 +43,10 @@ export function SidebarItem({
 
   const inner = (
     <>
-      {/* 활성 표시용 좌측 연두 탭 (활성일 때만, 사이드바 좌측 경계에 붙음) */}
+      {/* 활성 배경. 접힘·펼침이 같은 언어를 쓰도록 좌측 탭 대신 항목 자체를 칠한다.
+          레일 안쪽으로 8px 들여 양끝을 살린다 — 꽉 채우면 잘린 것처럼 보인다. */}
       {active && (
-        <span className="bg-primary-400 absolute top-1/2 left-0 h-6 w-1 -translate-y-1/2 rounded-r-full" />
+        <span className="absolute inset-y-0 right-2 left-2 rounded-lg bg-gray-800" />
       )}
       {/* 아이콘 칸 폭은 사이드바 접힘 폭(Sidebar의 w-22.5)과 같다. 그래서 아이콘 중심이
           펼침·접힘 모두 같은 x에 있고, 폭이 줄어드는 동안에도 제자리에 머문다.
@@ -52,15 +54,23 @@ export function SidebarItem({
           비활성 아이콘은 라벨보다 살짝 어둡게 — 활성이면 연두를 상속한다. */}
       <span
         className={cn(
-          'flex w-22.5 shrink-0 justify-center',
+          'relative flex w-22.5 shrink-0 justify-center',
           !active && 'text-gray-400',
         )}
       >
         {icon}
       </span>
-      {expanded && (
-        <span className="text-body-sm truncate pr-5 font-normal">{label}</span>
-      )}
+      {/* 접힘에서도 DOM에 남기고 opacity로만 지운다 — 조건부 렌더로 빼면 폭이 줄어드는
+          200ms 동안 라벨이 먼저 사라져 아이콘이 제자리에 있다는 느낌이 깨진다. */}
+      <span
+        className={cn(
+          'text-body-sm relative truncate pr-5 font-normal',
+          'transition-opacity duration-150 ease-out',
+          expanded ? 'opacity-100' : 'pointer-events-none opacity-0',
+        )}
+      >
+        {label}
+      </span>
     </>
   );
 
@@ -74,28 +84,25 @@ export function SidebarItem({
 
   if (href) {
     return (
-      <Link
-        href={href}
-        className={className}
-        onClick={onClick}
-        title={tooltip || undefined}
-        {...a11y}
-      >
-        {inner}
-      </Link>
+      <Tooltip label={tooltip} disabled={!tooltip}>
+        <Link href={href} className={className} onClick={onClick} {...a11y}>
+          {inner}
+        </Link>
+      </Tooltip>
     );
   }
 
   return (
-    <button
-      type="button"
-      className={cn('w-full', className)}
-      onClick={onClick}
-      disabled={disabled}
-      title={tooltip || undefined}
-      {...a11y}
-    >
-      {inner}
-    </button>
+    <Tooltip label={tooltip} disabled={!tooltip}>
+      <button
+        type="button"
+        className={cn('w-full', className)}
+        onClick={onClick}
+        disabled={disabled}
+        {...a11y}
+      >
+        {inner}
+      </button>
+    </Tooltip>
   );
 }

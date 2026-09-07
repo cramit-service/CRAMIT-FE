@@ -178,8 +178,45 @@
 @utility z-modal {
   z-index: 60; /* 모달. 헤더와 같은 50이라 어느 쪽이 위인지 우연에 달려 있었다 */
 }
+@utility z-tooltip {
+  z-index: 70; /* 툴팁. 모달 안에서도 떠야 해서 모달 위다 */
+}
 @utility z-splash {
   z-index: 100; /* 랜딩 스플래시 */
+}
+
+/* ===== 콘텐츠 열 =====
+   시안 열 1511은 사이드바 레일(90)을 뺀 1830의 82.57%다. 사이드바를 펼치면 콘텐츠를
+   밀어내지만 열 폭은 레일 기준 그대로 두고 남는 여백에서만 뺀다 — 열 안쪽 박스가 시안
+   1:1이라 열이 줄면 전부 같이 어긋난다.
+   100vw가 아니라 100%(main의 콘텐츠 박스)로 재는 이유는 scrollbar-gutter다. */
+@utility content-col {
+  width: min(1511px, calc((100% + var(--sidebar-w) - 90px) * 0.8257));
+  max-width: calc(100% - 80px);
+  margin-inline: auto;
+}
+
+/* 스크롤 영역이 항목을 반쯤 자른 채 끝나지 않게 아래쪽을 페이드로 닫는다.
+   내용이 짧아 바닥에 닿지 않으면 빈 자리를 덮어 아무것도 안 보인다 —
+   그래서 스크롤이 실제로 생겼을 때만 눈에 띈다. */
+@utility fade-bottom {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 calc(100% - 20px),
+    transparent
+  );
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent);
+}
+
+/* 콘텐츠 열 바깥(좌측 여백)에 거는 요소 — 강의 상세의 "이전으로".
+   여백은 사이드바를 펼치면 좁아지므로 접힘(data-sidebar=rail)일 때만 건다. */
+@utility outdent-left {
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  margin-right: calc(var(--spacing) * 4);
+  margin-bottom: 0;
+  transform: translateY(-50%);
 }
 
 /* ===== 스크롤바 =====
@@ -192,6 +229,12 @@
      뷰포트가 6px 넓어져 mx-auto 콘텐츠가 3px씩 오른쪽으로 튄다. 자리를 늘 비워 둬 막는다. */
   html {
     scrollbar-gutter: stable;
+  }
+
+  /* 사이드바 폭. (main) 레이아웃이 펼침 여부에 따라 덮어쓴다 — 사이드바 자신의 폭,
+     main의 좌패딩, content-col이 모두 이 하나를 본다. */
+  :root {
+    --sidebar-w: 90px;
   }
 
   /* 표준 scrollbar-width/color는 여기 두면 안 된다. Blink는 그게 지정돼 있으면
