@@ -9,6 +9,7 @@ import type {
   ProjectSummary,
 } from '@/shared/types/api';
 import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
+import { getMaterialFileUrl } from '@/mocks/materialStore';
 import {
   mockChapters,
   mockLectureMaterial,
@@ -119,15 +120,30 @@ export async function getChapter(
   return apiClient.get<Chapter>(`/chapters/${chapterId}`, { signal });
 }
 
-// 챕터의 강의자료(PDF 페이지 수·녹음 길이) 조회
-// TODO: 실제 pdfUrl/audioUrl은 백엔드 확정 후 응답에 추가한다
+// 챕터의 강의자료(PDF 위치·페이지 수·녹음 길이) 조회
+// TODO: audioUrl은 백엔드 확정 후 응답에 추가한다
 export async function getLectureMaterial(
   chapterId: string,
   signal?: AbortSignal,
 ): Promise<LectureMaterial> {
   if (USE_MOCK) {
     await delay(300, signal);
-    return { ...mockLectureMaterial, chapterId };
+    // 이 챕터에 직접 올린 파일이 있으면 그걸 그린다.
+    const uploaded = await getMaterialFileUrl(chapterId);
+    // 샘플은 mockLectureMaterial이 가리키는 챕터(c4) 하나에만 붙인다. 모든 챕터에 깔면
+    // 어디에 올려도 이미 자료가 있는 것처럼 보여 직접 올린 게 붙었는지 확인할 수가 없다.
+    const sample =
+      chapterId === mockLectureMaterial.chapterId
+        ? mockLectureMaterial.pdfUrl
+        : null;
+    const pdfUrl = uploaded ?? sample;
+    return {
+      ...mockLectureMaterial,
+      chapterId,
+      pdfUrl,
+      // 자료가 없으면 페이지 수도 0이어야 목록이 유령 페이지로 차지 않는다
+      pdfPageCount: pdfUrl ? mockLectureMaterial.pdfPageCount : 0,
+    };
   }
   return apiClient.get<LectureMaterial>(`/chapters/${chapterId}/material`, {
     signal,

@@ -1,6 +1,8 @@
 // src/features/study/components/viewer/PdfPlaceholder.tsx
-// 실제 PDF 렌더 전 자리표시용 체크무늬.
-// TODO(PDF): 백엔드에서 pdfUrl을 받으면 react-pdf 등으로 실제 페이지를 렌더한다.
+// PDF가 아직 안 그려졌을 때(로딩·실패·자료 없음) 깔리는 체크무늬와 큰 미리보기 틀.
+import type { PDFDocumentProxy } from 'pdfjs-dist';
+import { cn } from '@/shared/lib/cn';
+import { PdfCanvas } from '@/features/study/components/viewer/PdfCanvas';
 
 // 색은 @theme 토큰 변수를 그대로 참조한다 (하드코딩 금지 규칙 준수).
 // 체크무늬는 Tailwind 유틸로 표현할 수 없어 background-image로만 처리한다.
@@ -17,14 +19,41 @@ export function checkerStyle(size: number): React.CSSProperties {
   };
 }
 
-// 우측 큰 미리보기 영역
-export function PdfPagePreview({ page }: { page: number }) {
+interface PdfPagePreviewProps {
+  doc: PDFDocumentProxy | null;
+  page: number;
+  isLoading: boolean;
+  failed: boolean;
+}
+
+// 우측 큰 미리보기 영역. 문서가 오기 전까지는 체크무늬가 자리를 잡고 있는다.
+export function PdfPagePreview({
+  doc,
+  page,
+  isLoading,
+  failed,
+}: PdfPagePreviewProps) {
   return (
     <div
-      className="flex min-w-0 flex-1 items-center justify-center rounded-md"
-      style={checkerStyle(48)}
+      className={cn(
+        'flex min-w-0 flex-1 items-center justify-center overflow-hidden rounded-md',
+        // 페이지가 그려지면 남는 좌우 여백은 패널 색 그대로 둔다.
+        // 체크무늬를 깔아 두면 종이 옆에 무늬가 붙어 보인다.
+        doc && 'bg-gray-950/40',
+      )}
+      style={doc ? undefined : checkerStyle(48)}
     >
-      <p className="text-label text-gray-950">PDF 미리보기 - {page}페이지</p>
+      {doc ? (
+        <PdfCanvas doc={doc} page={page} className="size-full" />
+      ) : (
+        <p className="text-label text-gray-950">
+          {failed
+            ? '강의 자료를 불러오지 못했어요'
+            : isLoading
+              ? '강의 자료를 불러오는 중…'
+              : '아직 올라온 강의 자료가 없어요'}
+        </p>
+      )}
     </div>
   );
 }

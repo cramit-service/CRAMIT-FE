@@ -1,20 +1,27 @@
 'use client';
 // src/features/study/components/viewer/PageList.tsx
+import { useEffect, useRef } from 'react';
+import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { cn } from '@/shared/lib/cn';
 import { checkerStyle } from '@/features/study/components/viewer/PdfPlaceholder';
+import { PdfThumbnail } from '@/features/study/components/viewer/PdfThumbnail';
 
-// 좌측 목록 폭 한계 (Figma: 썸네일 172px / 번호 레일 48px을 약 0.72배로 축소한 값)
+// 좌측 목록 폭 한계
 export const LIST_MIN_WIDTH = 36;
 export const LIST_MAX_WIDTH = 160;
-export const LIST_DEFAULT_WIDTH = 124;
 
 // 이 폭 아래로 줄이면 썸네일 대신 페이지 번호(P.01)만 보여준다 (Figma 1-4655 상태)
 const NUMBER_MODE_WIDTH = 72;
 
-// 썸네일 세로/가로 비 (Figma 96.564 / 172.136)
+// 썸네일 세로/가로 비. 문서를 열기 전까지 쓰는 값이다 (Figma 96.564 / 172.136).
+// 문서가 오면 첫 페이지 비율로 갈아탄다 — 강의자료는 A4 세로도 흔하다.
 const THUMBNAIL_RATIO = 0.561;
 
 interface PageListProps {
+  // 썸네일도 큰 미리보기와 같은 문서에서 뽑는다
+  doc: PDFDocumentProxy | null;
+  // 첫 페이지의 높이/폭. 없으면 시안 비율로 그린다.
+  ratio: number | null;
   pageCount: number;
   currentPage: number;
   onSelect: (page: number) => void;
@@ -29,28 +36,55 @@ const fadeStyle: React.CSSProperties = {
 };
 
 export function PageList({
+  doc,
+  ratio,
   pageCount,
   currentPage,
   onSelect,
   width,
 }: PageListProps) {
+  const listRef = useRef<HTMLUListElement>(null);
+  const currentRef = useRef<HTMLLIElement>(null);
+
+  // 방향키로 넘긴 페이지가 목록 밖이면 어디로 갔는지 알 수 없다.
+  // scrollIntoView는 바깥 스크롤까지 같이 움직여 화면이 튀므로 목록만 직접 민다.
+  useEffect(() => {
+    const list = listRef.current;
+    const item = currentRef.current;
+    if (!list || !item) return;
+    const top = item.offsetTop;
+    const bottom = top + item.offsetHeight;
+    if (top < list.scrollTop) {
+      list.scrollTop = top;
+    } else if (bottom > list.scrollTop + list.clientHeight) {
+      list.scrollTop = bottom - list.clientHeight;
+    }
+  }, [currentPage]);
+
   const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
+  // 체크무늬는 자리표시다. 페이지가 그려지면 종이 뒤로 무늬가 비쳐 보인다.
+  const thumbnailBackground: React.CSSProperties = doc
+    ? { backgroundColor: 'var(--color-gray-100)' }
+    : checkerStyle(12);
   const isNumberMode = width < NUMBER_MODE_WIDTH;
-  const thumbnailHeight = Math.round(width * THUMBNAIL_RATIO);
+  const thumbnailHeight = Math.round(width * (ratio ?? THUMBNAIL_RATIO));
 
   return (
     <div className="relative shrink-0" style={{ width }}>
       <ul
+        ref={listRef}
         className={cn(
-          // 스크롤바는 숨긴다 — Figma엔 없고, 바로 옆 드래그 핸들과 겹쳐 보인다.
-          // 더 볼 내용이 있다는 신호는 아래쪽 페이드가 대신한다.
-          'h-full [scrollbar-width:none] overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden',
+          // offsetTop이 목록 기준이 되도록 — 스크롤 위치 계산이 여기에 기댄다
+          'relative',
+          // 60~80장짜리 강의자료는 썸을 끌어 한 번에 훑어야 한다. 시안엔 없지만
+          // 페이드만으로는 그 긴 목록을 지날 방법이 없다(드래그 핸들을 걷어내 자리가 났다).
+          'scrollbar-dark h-full overflow-y-auto pr-1',
           isNumberMode ? 'space-y-1.5' : 'space-y-3.5',
         )}
       >
         {pages.map((page) =>
           isNumberMode ? (
-            <li key={page}>
+            <li key={page} ref={page === currentPage ? currentRef : undefined}>
               <button
                 type="button"
                 onClick={() => onSelect(page)}
@@ -66,7 +100,7 @@ export function PageList({
               </button>
             </li>
           ) : (
-            <li key={page}>
+            <li key={page} ref={page === currentPage ? currentRef : undefined}>
               <button
                 type="button"
                 onClick={() => onSelect(page)}
@@ -77,8 +111,9 @@ export function PageList({
                     ? 'border-secondary-600 border-2'
                     : 'hover:border-secondary-300 border-2 border-transparent',
                 )}
-                style={{ ...checkerStyle(12), height: thumbnailHeight }}
+                style={{ ...thumbnailBackground, height: thumbnailHeight }}
               >
+                <PdfThumbnail doc={doc} page={page} />
                 {/* 페이지 번호 배지 (Figma: 썸네일 좌상단에 겹쳐 놓임) */}
                 <span
                   className={cn(

@@ -14,6 +14,7 @@ import {
   apiClient,
   type UploadOptions,
 } from '@/shared/lib/apiClient';
+import { saveMaterialFile } from '@/mocks/materialStore';
 import {
   addMockProjectSummary,
   findMockProjectSummary,
@@ -148,6 +149,8 @@ export async function createChapter(
       audioFileName: req.audioFile?.name ?? null,
     };
     addMockChapter(chapter);
+    // 백엔드가 파일을 보관하기 전까지는 브라우저가 들고 있다가 뷰어에 그대로 넘긴다
+    await saveMaterialFile(chapter.chapterId, req.materialFile);
     return chapter;
   }
 
@@ -187,6 +190,7 @@ export async function updateChapter(
       audioFileName: req.audioFile?.name ?? current.audioFileName,
     };
     updateMockChapter(chapter);
+    await saveMaterialFile(chapter.chapterId, req.materialFile);
     return chapter;
   }
 
