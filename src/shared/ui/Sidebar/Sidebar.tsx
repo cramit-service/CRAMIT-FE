@@ -182,6 +182,9 @@ export function Sidebar({ expanded, onToggle }: SidebarProps) {
               // 세로 중심은 로고 행 중앙(헤더 92의 절반=46). 가로는 경계에 걸친다.
               className={cn(
                 'focus-visible:ring-secondary-400 absolute top-11.5 right-0 flex size-6 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-gray-700 bg-gray-800 text-gray-100 transition-opacity duration-150 ease-out hover:bg-gray-700 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:outline-none',
+                // hover가 없는 입력(터치)에서는 hover 상태를 만들 수 없다. 그러면 8px 엣지
+                // 스트립만으로 펼쳐야 해서 사실상 못 편다 — 그 환경에서는 상시로 띄운다.
+                '[@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100',
                 hovering || justCollapsed
                   ? 'opacity-100'
                   : 'pointer-events-none opacity-0',

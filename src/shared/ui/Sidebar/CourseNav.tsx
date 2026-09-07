@@ -149,6 +149,18 @@ function CourseSection({
               목록을 불러오지 못했어요
             </li>
           )}
+          {/* 성공했는데 비어 있는 경우 — 소제목만 남으면 고장으로 읽힌다.
+              강의를 만들 수 있는 곳으로 보낸다. */}
+          {!pending && !error && courses.length === 0 && expanded && (
+            <li>
+              <Link
+                href="/projects"
+                className="text-label focus-visible:ring-secondary-400 block py-2 pl-22.5 text-gray-500 transition-colors hover:text-gray-300 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
+              >
+                아직 강의가 없어요 · 등록하러 가기
+              </Link>
+            </li>
+          )}
           {courses.map((course) => {
             const href = `/projects/${course.projectId}`;
             const active = pathname === href || pathname.startsWith(`${href}/`);

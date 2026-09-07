@@ -192,7 +192,9 @@
    100vw가 아니라 100%(main의 콘텐츠 박스)로 재는 이유는 scrollbar-gutter다. */
 @utility content-col {
   width: min(1511px, calc((100% + var(--sidebar-w) - 90px) * 0.8257));
-  max-width: calc(100% - 80px);
+  /* 열이 사이드바에 닿지 않게 좌우 20px은 남긴다. 이보다 크게 잡으면 1280·1366에서
+     상한이 먼저 걸려 펼칠 때 열이 깎인다 — 폭을 지키자던 애초 목적과 어긋난다. */
+  max-width: calc(100% - 40px);
   margin-inline: auto;
 }
 
