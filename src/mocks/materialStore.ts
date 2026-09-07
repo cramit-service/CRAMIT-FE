@@ -25,17 +25,20 @@ function openDb(): Promise<IDBDatabase | null> {
   });
 }
 
+// 저장소를 못 여는 환경(사생활 보호 모드 등)은 null로 접고 지나가지만,
+// 열린 저장소에서의 요청 실패(용량 초과 등)는 삼키지 않고 그대로 던진다.
 function tx<T>(
   mode: IDBTransactionMode,
   run: (store: IDBObjectStore) => IDBRequest<T>,
 ): Promise<T | null> {
   return openDb().then(
     (db) =>
-      new Promise<T | null>((resolve) => {
+      new Promise<T | null>((resolve, reject) => {
         if (!db) return resolve(null);
         const request = run(db.transaction(STORE, mode).objectStore(STORE));
         request.onsuccess = () => resolve(request.result);
-        request.onerror = () => resolve(null);
+        request.onerror = () =>
+          reject(request.error ?? new Error('IndexedDB 요청 실패'));
       }),
   );
 }
@@ -54,7 +57,10 @@ export async function getMaterialFileUrl(chapterId: string) {
   const cached = urlCache.get(chapterId);
   if (cached) return cached;
 
-  const blob = await tx<Blob>('readonly', (store) => store.get(chapterId));
+  // 읽기 실패는 "자료 없음"으로 떨어뜨린다 — 화면을 못 열 이유가 되지는 않는다
+  const blob = await tx<Blob>('readonly', (store) =>
+    store.get(chapterId),
+  ).catch(() => null);
   if (!blob) return null;
 
   const url = URL.createObjectURL(blob);

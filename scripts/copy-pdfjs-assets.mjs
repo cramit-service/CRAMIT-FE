@@ -13,17 +13,24 @@ const src = join(root, 'node_modules', 'pdfjs-dist');
 const dest = join(root, 'public', 'pdfjs');
 const stamp = join(dest, '.version');
 
+const DIRS = ['cmaps', 'standard_fonts'];
+
 const { version } = JSON.parse(
   await readFile(join(src, 'package.json'), 'utf8'),
 );
 
-// 같은 버전이 이미 복사돼 있으면 건너뛴다 (predev/prebuild에서 매번 도는 걸 막는다)
-if (existsSync(stamp) && (await readFile(stamp, 'utf8')) === version) {
+// 같은 버전이 이미 복사돼 있으면 건너뛴다 (predev/prebuild에서 매번 도는 걸 막는다).
+// 버전 파일만 보면, 누가 cmaps만 지웠을 때 그대로 넘어가 폰트 요청이 404가 된다.
+const copied =
+  existsSync(stamp) &&
+  (await readFile(stamp, 'utf8')) === version &&
+  DIRS.every((dir) => existsSync(join(dest, dir)));
+if (copied) {
   process.exit(0);
 }
 
 await mkdir(dest, { recursive: true });
-for (const dir of ['cmaps', 'standard_fonts']) {
+for (const dir of DIRS) {
   await cp(join(src, dir), join(dest, dir), { recursive: true });
 }
 await writeFile(stamp, version);

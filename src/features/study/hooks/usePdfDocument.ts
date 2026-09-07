@@ -36,7 +36,10 @@ export function usePdfDocument(source: PdfSource | null) {
           setLoaded({ source, doc, ratio: height / width, failed: false });
         }
       })
-      .catch(() => {
+      .catch(async () => {
+        // 문서는 열렸는데 첫 페이지에서 실패한 경우가 있다. 그대로 두면 실패를 보여 주는
+        // 동안 워커가 살아 있으므로 여기서 정리한다(cleanup의 destroy와 중복돼도 무해하다).
+        await task.destroy();
         if (!cancelled) {
           setLoaded({ source, doc: null, ratio: null, failed: true });
         }
