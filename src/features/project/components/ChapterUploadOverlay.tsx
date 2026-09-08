@@ -83,8 +83,8 @@ export function ChapterUploadOverlay({
       <div className="z-modal fixed inset-0" aria-hidden />
 
       {/* 그림은 시안대로 레일 폭만큼 비켜서 그린다 — 배경 그라데이션이 사이드바를 침범하지
-          않아야 한다. left-22.5는 Sidebar의 접힘 폭(w-22.5)·main의 pl-22.5와 한 쌍이다. */}
-      <div className="z-modal fixed inset-y-0 right-0 left-22.5">
+          않아야 한다. 폭은 사이드바·main 좌패딩과 같은 --sidebar-w를 본다. */}
+      <div className="z-modal fixed inset-y-0 right-0 left-[var(--sidebar-w)]">
         <GradientBackground layer />
 
         <div className="relative flex h-full flex-col">

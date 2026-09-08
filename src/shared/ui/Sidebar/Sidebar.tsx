@@ -1,179 +1,282 @@
 'use client';
 // src/shared/ui/Sidebar/Sidebar.tsx
-import { useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Logo } from '@/shared/ui/Logo';
 import { cn } from '@/shared/lib/cn';
+import { Tooltip } from '@/shared/ui/Tooltip';
+import { useMyProfile } from '@/features/settings/hooks/useMyProfile';
 import { SidebarItem } from './SidebarItem';
-import { RecentList } from './RecentList';
-import { HomeNavIcon, BookNavIcon, UserNavIcon, MoreNavIcon } from './navIcons';
-import { ChevronLeftIcon, ChevronRightIcon } from './icons';
+import { CourseNav } from './CourseNav';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  HouseIcon,
+  ListIcon,
+} from './icons';
+
+// 접은 직후 chevron을 잠깐 보여 주는 시간. "어디로 갔는지" 한 번 알려 주는 용도다.
+const PEEK_MS = 1500;
+const NAV_ID = 'sidebar-nav';
+// 구독할 게 없는 클라이언트 전용 값을 useSyncExternalStore로 읽을 때 쓰는 빈 구독.
+// 렌더마다 새 함수를 넘기면 매번 재구독하므로 모듈 밖에 둔다.
+const noopSubscribe = () => () => {};
+
+interface SidebarProps {
+  // 폭 상태는 MainShell이 갖는다 — main의 좌패딩이 같은 값을 따라가야 해서다.
+  expanded: boolean;
+  onToggle: () => void;
+}
 
 // 로그인 후 모든 화면이 공유하는 좌측 사이드바 골격.
-// 접힘(아이콘만) / 펼침(아이콘+라벨) 두 상태를 토글로 전환한다.
-export function Sidebar() {
-  // 오버레이라 펼치면 콘텐츠를 덮는다. 홈 시안이 접힌 레일(90) 기준으로 그려져 있어
-  // 접힘이 기본 상태고, 펼침은 필요할 때 잠깐 여는 상태다.
-  const [expanded, setExpanded] = useState(false);
+// 접힘(아이콘만) / 펼침(아이콘+라벨+과목 목록) 두 상태를 토글로 전환한다.
+export function Sidebar({ expanded, onToggle }: SidebarProps) {
   const pathname = usePathname();
-  const asideRef = useRef<HTMLElement>(null);
+  const { data: profile } = useMyProfile();
+  // 접힘에서 chevron을 띄우는 조건 — 엣지/헤더 hover, 그리고 접은 직후 잠깐
+  const [hovering, setHovering] = useState(false);
+  const [justCollapsed, setJustCollapsed] = useState(false);
+  const peekTimer = useRef<number | null>(null);
+  // 서버에서는 알 수 없는 값이라 서버 스냅샷은 Ctrl로 둔다
+  const isMac = useSyncExternalStore(
+    noopSubscribe,
+    () => /Mac|iPhone|iPad/.test(window.navigator.userAgent),
+    () => false,
+  );
+
+  useEffect(
+    () => () => {
+      if (peekTimer.current) window.clearTimeout(peekTimer.current);
+    },
+    [],
+  );
+
+  // 접기는 이 경로로만 일어난다 — 새로고침 복원은 여기를 안 지나므로
+  // 저장된 접힘으로 들어온 사용자에게는 chevron이 저절로 뜨지 않는다.
+  const handleToggle = useCallback(() => {
+    if (peekTimer.current) window.clearTimeout(peekTimer.current);
+    if (expanded) {
+      setJustCollapsed(true);
+      peekTimer.current = window.setTimeout(
+        () => setJustCollapsed(false),
+        PEEK_MS,
+      );
+    } else {
+      setJustCollapsed(false);
+    }
+    onToggle();
+  }, [expanded, onToggle]);
+
+  // Ctrl/⌘ + B. 글자를 치는 중에는 가로채지 않는다.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'b') return;
+      const el = document.activeElement;
+      if (
+        el instanceof HTMLElement &&
+        el.closest('input, textarea, [contenteditable]')
+      ) {
+        return;
+      }
+      e.preventDefault();
+      handleToggle();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [handleToggle]);
 
   // 현재 경로가 해당 메뉴에 속하면 활성 (href '#'는 라우트 미정이라 제외)
   const isActive = (href: string) =>
     href !== '#' && (pathname === href || pathname.startsWith(`${href}/`));
 
-  // 접힘 상태에선 목록이 안 보이므로, 최근학습 아이콘을 누르면 사이드바를 펼쳐 준다.
+  const profileActive = isActive('/settings/profile');
+  const profileName = profile?.nickname ?? '내 프로필';
+  const chord = isMac ? '⌘B' : 'Ctrl+B';
+  const toggleLabel = expanded
+    ? `사이드바 접기 (${chord})`
+    : `사이드바 펼치기 (${chord})`;
 
-  // 펼친 채로 바깥을 누르면 접는다. 딤이 아니라 document에서 듣는 이유는, 딤(z-dim)보다
-  // 위에 있는 것(챗독 z-nav·z-float)을 눌렀을 때도 접혀야 하기 때문이다.
-  // 딤이 덮은 영역의 클릭은 딤이 먹으므로 콘텐츠에는 닿지 않는다.
-  // Escape로도 접는다. aside에 달면 포커스가 콘텐츠로 넘어간 뒤에는 keydown이 aside를
-  // 거치지 않아 안 먹으므로 document에서 듣는다.
-  // 단, 모달이 열려 있으면 Escape는 모달 것이다 — Modal도 window 버블 단계에서 듣고 전파를
-  // 막지 않아서, 걸러내지 않으면 Escape 한 번에 모달과 사이드바가 같이 닫힌다.
-  // aria-modal은 Modal이 실제로 붙이는 표준 속성이라 내부 구현에 기대는 게 아니다.
-  useEffect(() => {
-    if (!expanded) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      if (document.querySelector('[aria-modal="true"]')) return;
-      setExpanded(false);
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [expanded]);
-
-  useEffect(() => {
-    if (!expanded) return;
-    const onMouseDown = (e: MouseEvent) => {
-      if (asideRef.current?.contains(e.target as Node)) return;
-      setExpanded(false);
-    };
-    document.addEventListener('mousedown', onMouseDown);
-    return () => document.removeEventListener('mousedown', onMouseDown);
-  }, [expanded]);
+  // 라벨은 접힘에서 opacity로만 지운다. 조건부 렌더로 빼면 폭이 줄어드는 200ms 동안
+  // 라벨이 먼저 사라져 아이콘이 제자리에 있다는 느낌이 깨진다.
+  const labelClass = cn(
+    'transition-opacity duration-150 ease-out',
+    expanded ? 'opacity-100' : 'pointer-events-none opacity-0',
+  );
 
   return (
-    <>
-      {/* 펼침 딤. 콘텐츠만 덮고 사이드바(z-nav)·모달(z-modal)은 건드리지 않는다.
-          챗독(z-nav·z-float)은 이 위라 딤이 걸리지 않는다 — 딤을 챗독 위로 올릴지는 미정.
-          조건부 렌더가 아니라 opacity를 토글한다. 사이드바 폭 전환과 같은 200ms로
-          페이드해야 둘이 따로 놀지 않고, 접힐 때도 사라지는 게 보인다.
-          접힘일 때 pointer-events를 끄지 않으면 딤이 안 보이는 채로 화면 전체를 막는다. */}
-      <div
-        aria-hidden
-        className={cn(
-          'z-dim fixed inset-0 bg-black/40 transition-opacity duration-200',
-          expanded ? 'opacity-100' : 'pointer-events-none opacity-0',
-        )}
-      />
-      <aside
-        ref={asideRef}
-        // 사이드바 링크로 화면을 옮기면 접는다. 사이드바는 (main) 레이아웃에 있어
-        // 라우트가 바뀌어도 언마운트되지 않으므로, 없으면 펼친 채로 다음 화면까지 따라온다.
-        // pathname을 useEffect로 지켜보지 않고 이동을 일으킨 클릭에서 바꾼다
-        // (effect 안에서 setState 하면 react-hooks 규칙에도 걸린다).
-        // 링크만 골라내는 이유 — 토글·최근학습 펼치기는 이동이 아니라 사이드바 자체 조작이다.
-        onClick={(e) => {
-          if ((e.target as HTMLElement).closest('a')) setExpanded(false);
-        }}
-        className={cn(
-          // fixed로 흐름에서 빼 콘텐츠 위를 덮는다. 폭이 바뀌어도 main은 좌패딩이 고정이라
-          // 따라 움직이지 않는다(app/(main)/layout.tsx).
-          // z-nav는 접기 토글 때문이다. 토글은 폭의 절반이 사이드바 바깥(main 위)으로 걸쳐 있는데,
-          // fixed + z-index가 만드는 쌓임 맥락 안에서는 토글의 지역 z-20이 main 안의 요소와
-          // 직접 겨루지 못한다. 걸친 절반이 클릭을 받으려면 사이드바 자체가 main 위에 있어야 한다.
-          'z-nav fixed top-0 left-0 flex h-screen flex-col bg-gray-950 text-gray-300 transition-[width] duration-200 ease-in-out',
-          // 접힘 90px은 시안값 그대로다 — 홈 시안(24:9523)이 접힌 레일 기준으로 그려져 있다.
-          // 오버레이라 콘텐츠가 이 폭을 따라 움직이지는 않지만, main의 좌패딩(pl-22.5)이
-          // 이 값에 맞춰 고정돼 있으므로 한쪽을 바꾸면 다른 쪽도 같이 바꿔야 한다.
-          // SidebarItem·RecentList의 아이콘 칸 폭도 같은 값이어야 한다.
-          // 어긋나면 접을 때 아이콘이 가운데를 벗어나거나 좌우로 움직인다.
-          // 펼침 256px은 메뉴 라벨이 들어가야 해서 시안에 대응하는 값이 없다.
-          expanded ? 'w-64' : 'w-22.5',
-        )}
-      >
-        {/* 접기/펴기 토글 — 우측 경계에 떠 있는 둥근 사각 버튼 */}
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          aria-label={expanded ? '사이드바 접기' : '사이드바 펼치기'}
-          className="absolute top-16 -right-4 z-20 flex size-8 items-center justify-center rounded-lg border border-gray-800 bg-gray-900 text-gray-300 shadow-lg transition-colors hover:text-gray-100"
-        >
-          {expanded ? (
-            <ChevronLeftIcon className="size-5" />
-          ) : (
-            <ChevronRightIcon className="size-5" />
-          )}
-        </button>
-
-        {/* 로고 (심볼) — 접힘/펼침 모두 표시.
-          메뉴 아이콘과 같은 폭 90px 칸에 담아 세로로 정렬을 맞추고, 접을 때 자리가 안 움직이게 한다.
-          크기는 시안 노드(24:9634의 icon, 27×37)가 아니라 보이는 마크를 기준으로 맞췄다.
+    <aside
+      // fixed로 흐름에서 빼고, 밀어내는 몫은 main의 좌패딩이 맡는다.
+      // 폭은 --sidebar-w 하나만 본다 — 사이드바·main 좌패딩·content-col이 같은 값을
+      // 봐야 펼칠 때 셋이 따로 놀지 않는다(MainShell이 정한다).
+      // 엣지 스트립과 chevron이 우측 경계 밖으로 나가야 해서 여기서는 자르지 않는다.
+      // 라벨을 자르는 건 헤더·nav·하단 세 칸이 각자 맡는다.
+      className="z-nav fixed top-0 left-0 flex h-screen w-[var(--sidebar-w)] flex-col bg-gray-950 text-gray-300 transition-[width] duration-200 ease-out"
+    >
+      {/* 헤더 — 높이(92)는 두 상태가 같아야 한다. 접힘에서 토글을 로고 아래 한 줄로 두면
+          그 줄이 아래 항목 전부를 밀어 내려 전환이 점프처럼 보인다(그래서 엣지로 뺐다).
+          로고 심볼은 메뉴 아이콘과 같은 폭 90px 칸에 담아 세로 정렬을 맞추고,
+          워드마크는 메뉴 라벨과 같은 열에서 시작한다.
+          심볼 크기는 시안 노드(24:9634의 icon, 27×37)가 아니라 보이는 마크를 기준으로 맞췄다.
           그 노드는 투명 여백을 2~3px 물고 있어 실제 마크는 23×33이고, 우리 PNG는 여백이 더
           적어서 박스를 37로 주면 마크만 35px로 커진다. 35px일 때 마크가 시안과 같은 33px가 된다.
           위치도 같은 이유로 보이는 마크 기준이다 — 마크 위쪽 여백이 1px이라 pt를 33으로 줘야
           마크가 시안과 같은 y=34에 선다.
-          홈이 시안 1:1 스케일이라(home/page.tsx) 이 레일도 0.72배 없이 px를 그대로 옮긴다. */}
-        <div className="flex items-center pt-[33px] pb-6">
-          <span className="flex w-22.5 shrink-0 justify-center">
-            {/* 높이는 호출처가 정한다 — Logo는 기본 크기를 갖지 않는다 */}
-            <Logo variant="symbol" className="h-[35px]" />
-          </span>
-        </div>
+          pr-2는 활성 pill의 좌우 여백(inset 8)과 같은 값이다. 다만 pill은 스크롤바가 6px을
+          먹는 nav 안에 있어, 헤더도 같은 자리를 비워 둬야 우측 끝이 한 줄에 선다. */}
+      <div
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
+        className="flex h-23 shrink-0 [scrollbar-gutter:stable] items-center overflow-hidden pt-[33px] pr-2 pb-6"
+      >
+        <span className="flex w-22.5 shrink-0 justify-center">
+          {/* 높이는 호출처가 정한다 — Logo는 기본 크기를 갖지 않는다 */}
+          <Logo variant="symbol" className="h-[35px]" />
+        </span>
+        <Logo className={cn('h-[19px] shrink-0 text-white', labelClass)} />
+        {expanded && (
+          <Tooltip label={toggleLabel}>
+            <button
+              type="button"
+              onClick={handleToggle}
+              aria-label={toggleLabel}
+              aria-expanded={expanded}
+              aria-controls={NAV_ID}
+              className="focus-visible:ring-secondary-400 ml-auto flex size-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-100 focus-visible:ring-2 focus-visible:outline-none"
+            >
+              <ChevronLeftIcon className="size-5" />
+            </button>
+          </Tooltip>
+        )}
+      </div>
 
-        {/* 메인 메뉴 */}
-        {/* 짧은 화면에서는 이 칸만 스크롤해 하단 메뉴(내 정보 수정·더보기)를 항상 남긴다.
-            aside가 h-screen이라 콘텐츠 합(펼침 547px)이 뷰포트보다 크면 하단이 화면 밖으로
-            밀려 닿을 수 없었다 — 오버레이 전환 이전부터 있던 문제다.
-            min-h-0이 없으면 세로 flex 자식의 min-height: auto가 콘텐츠 높이 아래로 줄어드는 걸
-            막아 overflow-y-auto가 걸릴 일이 없다. 주축이 세로라 여기선 min-h-0이 필요하다.
-            overflow-x-hidden은 세로 스크롤바가 생겼을 때 90px 아이콘 칸이 6px 넘치며
-            가로 스크롤이 따라 생기는 걸 막는다(한 축이 visible이 아니면 다른 축은 auto가 된다). */}
-        <nav className="scrollbar-dark flex min-h-0 flex-1 flex-col gap-1 overflow-x-hidden overflow-y-auto overscroll-contain">
-          <SidebarItem
-            icon={<HomeNavIcon active={isActive('/home')} />}
-            label="홈"
-            href="/home"
-            active={isActive('/home')}
-            expanded={expanded}
-          />
-          {/* isActive는 prefix 매칭이라 강의 상세(/projects/1)에서도 활성으로 남는다 */}
-          <SidebarItem
-            icon={<BookNavIcon active={isActive('/projects')} />}
-            label="학습 하기"
-            href="/projects"
-            active={isActive('/projects')}
-            expanded={expanded}
-          />
-          <RecentList expanded={expanded} onExpand={() => setExpanded(true)} />
-        </nav>
+      {/* 접힘 전용 — 우측 경계를 통째로 클릭 영역으로 쓴다. 상시 버튼을 두지 않는 대신이다. */}
+      {!expanded && (
+        <>
+          <div
+            aria-hidden
+            tabIndex={-1}
+            onClick={handleToggle}
+            onMouseEnter={() => setHovering(true)}
+            onMouseLeave={() => setHovering(false)}
+            className="group/edge absolute inset-y-0 -right-1 w-2 cursor-pointer"
+          >
+            <span className="absolute inset-y-0 left-1 w-px bg-gray-700 opacity-0 transition-opacity duration-150 ease-out group-hover/edge:opacity-100" />
+          </div>
+          <Tooltip label={toggleLabel}>
+            <button
+              type="button"
+              onClick={handleToggle}
+              aria-label={toggleLabel}
+              aria-expanded={expanded}
+              aria-controls={NAV_ID}
+              onMouseEnter={() => setHovering(true)}
+              onMouseLeave={() => setHovering(false)}
+              // 세로 중심은 로고 행 중앙(헤더 92의 절반=46). 가로는 경계에 걸친다.
+              className={cn(
+                'focus-visible:ring-secondary-400 absolute top-11.5 right-0 flex size-6 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-gray-700 bg-gray-800 text-gray-100 transition-opacity duration-150 ease-out hover:bg-gray-700 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:outline-none',
+                // hover가 없는 입력(터치)에서는 hover 상태를 만들 수 없다. 그러면 8px 엣지
+                // 스트립만으로 펼쳐야 해서 사실상 못 편다 — 그 환경에서는 상시로 띄운다.
+                '[@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100',
+                hovering || justCollapsed
+                  ? 'opacity-100'
+                  : 'pointer-events-none opacity-0',
+              )}
+            >
+              <ChevronRightIcon className="size-4" />
+            </button>
+          </Tooltip>
+        </>
+      )}
 
-        {/* 하단 메뉴 */}
-        <div className="flex flex-col gap-1 pt-2 pb-6">
-          {/* 라벨이 "내 정보 수정"이었는데 열리는 건 알림 설정·요금제·계정 설정이 있는
-              설정 페이지다. 게다가 그 페이지 안에 진짜 프로필 편집으로 가는
-              "내 정보 수정" 버튼이 또 있어, 같은 이름이 두 계층에서 다른 것을 가리켰다.
-              여기를 "설정"으로 바꿔 이름과 목적지를 맞춘다(페이지 안 버튼은 그대로 둔다). */}
-          <SidebarItem
-            icon={<UserNavIcon />}
-            label="설정"
+      {/* 메인 메뉴 */}
+      {/* 짧은 화면에서는 이 칸만 스크롤해 하단 메뉴(강의 관리·프로필)를 항상 남긴다.
+          min-h-0이 없으면 세로 flex 자식의 min-height: auto가 콘텐츠 높이 아래로 줄어드는 걸
+          막아 overflow-y-auto가 걸릴 일이 없다. 주축이 세로라 여기선 min-h-0이 필요하다.
+          overflow-x-hidden은 세로 스크롤바가 생겼을 때 90px 아이콘 칸이 6px 넘치며
+          가로 스크롤이 따라 생기는 걸 막는다(한 축이 visible이 아니면 다른 축은 auto가 된다). */}
+      <nav
+        id={NAV_ID}
+        className="scrollbar-dark fade-bottom flex min-h-0 flex-1 [scrollbar-gutter:stable] flex-col gap-1 overflow-x-hidden overflow-y-auto overscroll-contain"
+      >
+        <SidebarItem
+          icon={<HouseIcon className="size-6" />}
+          label="홈"
+          href="/home"
+          active={isActive('/home')}
+          expanded={expanded}
+        />
+        <CourseNav expanded={expanded} />
+      </nav>
+
+      {/* 하단 메뉴 — 과목 수와 무관하게 늘 같은 자리에 있어야 하는 것들 */}
+      <div className="flex shrink-0 [scrollbar-gutter:stable] flex-col gap-1 overflow-hidden pt-2 pb-6">
+        {/* 강의 등록·삭제·학기 정리. 진입은 대부분 위 목록에서 하므로 여기는 관리 자리다.
+            prefix 매칭을 쓰면 과목 상세(/projects/1)에서도 활성으로 남아 위 목록과 둘 다
+            켜진다 — 목록이 그 자리를 맡으므로 여기는 정확히 일치할 때만 켠다. */}
+        <SidebarItem
+          icon={<ListIcon className="size-6" />}
+          label="강의 관리"
+          href="/projects"
+          active={pathname === '/projects'}
+          expanded={expanded}
+        />
+        {/* "설정" 라벨을 프로필이 대신한다 — 목적지가 프로필 화면이라 아바타와 이름이
+            어디로 가는지를 라벨보다 잘 말한다. 아바타 칸은 과목 배지와 같은 열이다. */}
+        <Tooltip label={profileName} disabled={expanded}>
+          <Link
             href="/settings/profile"
-            active={isActive('/settings/profile')}
-            expanded={expanded}
-          />
-          {/* TODO(기능): 더보기 — 담을 내용이 아직 없다. 로그아웃·회원탈퇴·알림·요금제는
-              모두 위의 설정 페이지에 이미 있어서, 지금 넣을 만한 것이 남아 있지 않다.
-              예전에는 onClick={() => {}}이라 눌러도 아무 일이 없었다 — 고장난 것처럼 보인다.
-              동작이 정해질 때까지 비활성으로 두어 "지금은 쓸 수 없다"를 드러낸다. */}
-          <SidebarItem
-            icon={<MoreNavIcon />}
-            label="더보기"
-            expanded={expanded}
-            disabled
-          />
-        </div>
-      </aside>
-    </>
+            aria-label={expanded ? undefined : profileName}
+            className={cn(
+              'focus-visible:ring-secondary-400 relative flex items-center py-3 transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
+              profileActive
+                ? 'text-primary-400'
+                : 'text-gray-200 hover:text-white',
+            )}
+          >
+            {profileActive && (
+              <span className="absolute inset-y-0 right-2 left-2 rounded-lg bg-gray-800" />
+            )}
+            <span className="relative flex w-22.5 shrink-0 justify-center">
+              <span
+                className={cn(
+                  'text-label flex size-8 items-center justify-center overflow-hidden rounded-full font-medium',
+                  profileActive
+                    ? 'bg-primary-400 text-gray-950'
+                    : 'border border-gray-700 text-gray-300',
+                )}
+              >
+                {profile?.profileImage ? (
+                  <Image
+                    src={profile.profileImage}
+                    alt=""
+                    width={32}
+                    height={32}
+                    className="size-full object-cover"
+                  />
+                ) : (
+                  (profile?.nickname?.trim().charAt(0) ?? '')
+                )}
+              </span>
+            </span>
+            <span
+              className={cn(
+                'text-body-sm relative truncate pr-5 font-normal',
+                labelClass,
+              )}
+            >
+              {profileName}
+            </span>
+          </Link>
+        </Tooltip>
+      </div>
+    </aside>
   );
 }

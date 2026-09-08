@@ -16,9 +16,7 @@ import { SharedBoardPlaceholder } from './SharedBoardPlaceholder';
 function PageShell({ children }: { children: ReactNode }) {
   return (
     <div className="px-4 pt-12 pb-12 md:px-8 lg:px-0">
-      <div className="mx-auto w-full lg:w-[82.57%] lg:max-w-[1511px]">
-        {children}
-      </div>
+      <div className="lg:content-col mx-auto w-full">{children}</div>
     </div>
   );
 }
