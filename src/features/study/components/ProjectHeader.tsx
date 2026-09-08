@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
-import { NewChapterUploadModal } from '@/features/project/components/NewChapterUploadModal';
 import { LectureFormModal } from '@/features/project/components/LectureFormModal';
 import { ShareProjectModal } from '@/features/share/components/ShareProjectModal';
 import { Tag } from './Tag';
@@ -23,7 +22,6 @@ const HEADER_ACTION =
 export function ProjectHeader({ project }: { project: ProjectDetail }) {
   const router = useRouter();
   const dday = getDday(project.examName, project.examDate);
-  const [uploadOpen, setUploadOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
@@ -92,7 +90,11 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
         {!project.sharedBy && (
           <button
             type="button"
-            onClick={() => setUploadOpen(true)}
+            // 모달을 띄우지 않고 학습 화면 자리로 바로 들어간다 — 수업을 들으면서
+            // 쓰는 동선이라 모달에 갇히지 않는 게 중요하다(#107).
+            onClick={() =>
+              router.push(`/projects/${project.projectId}/chapters/new`)
+            }
             className={cn(
               HEADER_ACTION,
               'bg-gray-800 text-white hover:bg-gray-700',
@@ -104,14 +106,6 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
         )}
       </div>
 
-      {/* 닫을 때 통째로 언마운트해 입력값·고른 파일이 다음 열기까지 남지 않게 한다. */}
-      {uploadOpen && (
-        <NewChapterUploadModal
-          projectId={project.projectId}
-          projectTitle={project.title}
-          onClose={() => setUploadOpen(false)}
-        />
-      )}
       {shareOpen && (
         <ShareProjectModal
           projectId={project.projectId}

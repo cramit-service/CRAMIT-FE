@@ -20,6 +20,10 @@ export function useUpdateChapter(originProjectId: string) {
       const projectIds = new Set([originProjectId, req.projectId]);
       projectIds.forEach((projectId) => {
         queryClient.invalidateQueries({ queryKey: ['chapters', projectId] });
+        // 뷰어 헤더가 읽는 단일 챕터. 이게 없으면 제목을 고쳐도 그 화면만 옛 값으로 남는다.
+        queryClient.invalidateQueries({
+          queryKey: ['chapter', projectId, req.chapterId],
+        });
         queryClient.invalidateQueries({
           queryKey: ['project-detail', projectId],
         });
