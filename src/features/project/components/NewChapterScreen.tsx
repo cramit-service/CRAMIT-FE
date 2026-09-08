@@ -12,7 +12,6 @@ import { useCreateChapter } from '@/features/project/hooks/useCreateChapter';
 import { ChevronLeftIcon } from '@/features/study/components/icons';
 import { Tag } from '@/features/study/components/Tag';
 import { ViewerTabs } from '@/features/study/components/viewer/ViewerTabs';
-import { formatChapterDay } from '@/features/study/lib/format';
 import { FileDropzone } from './FileDropzone';
 import { RecordingSlot } from './RecordingSlot';
 import { ChapterUploadOverlay } from './ChapterUploadOverlay';
@@ -104,10 +103,24 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
     return <div className={`${PAGE_SHELL} text-gray-500`}>불러오는 중…</div>;
   }
 
-  if (projectQuery.isError || !projectQuery.data) {
+  // 목록 조회가 실패하면 chapters가 빈 배열이 되어 주차 번호를 1부터 다시 매긴다.
+  // 이미 6주차까지 있는 강의에 Chapter 1을 또 만들게 되므로 오류로 다룬다.
+  if (projectQuery.isError || chaptersQuery.isError || !projectQuery.data) {
     return (
-      <div className={`${PAGE_SHELL} text-gray-500`}>
-        강의를 불러오지 못했습니다.
+      <div className={cn(PAGE_SHELL, 'flex flex-col items-start gap-4')}>
+        <p className="text-gray-700">
+          강의 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            void projectQuery.refetch();
+            void chaptersQuery.refetch();
+          }}
+        >
+          다시 시도
+        </Button>
       </div>
     );
   }
@@ -140,9 +153,9 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
             {projectQuery.data.professor && (
               <Tag tone="dark">{projectQuery.data.professor} 교수님</Tag>
             )}
-            <Tag tone="outline">
-              {formatChapterDay(new Date().toISOString())}
-            </Tag>
+            {/* 실제 날짜를 렌더에서 만들면 서버·브라우저 시각이 갈릴 때 하이드레이션이
+                어긋난다. 아직 만들지 않은 주차라 "오늘"이 더 정확하기도 하다. */}
+            <Tag tone="outline">오늘</Tag>
           </div>
         </div>
       </header>
