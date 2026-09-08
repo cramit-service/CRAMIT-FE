@@ -147,3 +147,6 @@ vite.config.ts.timestamp-*
 
 # CLAUDE
 CLAUDE.local.md
+
+# pdf.js 런타임 에셋 (scripts/copy-pdfjs-assets.mjs가 node_modules에서 복사한다)
+public/pdfjs

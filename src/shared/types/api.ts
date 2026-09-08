@@ -156,9 +156,12 @@ export type ViewerTab = 'PDF' | 'SUMMARY' | 'SCRIPT' | 'TODO';
 // TODO: 백엔드 스펙 확정 후 필드명/타입 재확인 필요.
 export interface LectureMaterial {
   chapterId: string;
+  // 렌더할 PDF 위치. 아직 없는 자료(업로드 전)면 null.
+  // 페이지 수는 문서를 열면 알 수 있으므로 pdfPageCount는 로딩 중 자리를 잡는 데만 쓴다.
+  pdfUrl: string | null;
   pdfPageCount: number; // PDF 총 페이지 수
   audioDuration: number; // 녹음 길이(초). 예: 3662 = 61:02
-  // TODO: pdfUrl / audioUrl(실제 렌더·재생용), 페이지↔오디오 구간 매핑은
+  // TODO: audioUrl(실제 재생용)과 페이지↔오디오 구간 매핑은
   //       백엔드에서 내려주는 형태가 확정되면 여기에 추가한다.
 }
 

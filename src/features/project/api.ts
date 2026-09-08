@@ -14,6 +14,7 @@ import {
   apiClient,
   type UploadOptions,
 } from '@/shared/lib/apiClient';
+import { saveMaterialFile } from '@/mocks/materialStore';
 import {
   addMockProjectSummary,
   findMockProjectSummary,
@@ -147,6 +148,10 @@ export async function createChapter(
       materialFileName: req.materialFile?.name ?? null,
       audioFileName: req.audioFile?.name ?? null,
     };
+    // 백엔드가 파일을 보관하기 전까지는 브라우저가 들고 있다가 뷰어에 그대로 넘긴다.
+    // 파일을 먼저 넣는 이유는, 저장이 실패했는데 주차만 생겨 "올렸는데 자료가 없다"가
+    // 되는 걸 막기 위해서다.
+    await saveMaterialFile(chapter.chapterId, req.materialFile);
     addMockChapter(chapter);
     return chapter;
   }
@@ -186,6 +191,7 @@ export async function updateChapter(
       materialFileName: req.materialFile?.name ?? current.materialFileName,
       audioFileName: req.audioFile?.name ?? current.audioFileName,
     };
+    await saveMaterialFile(chapter.chapterId, req.materialFile);
     updateMockChapter(chapter);
     return chapter;
   }

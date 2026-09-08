@@ -125,6 +125,9 @@ export const mockProjectDetail: ProjectDetail = {
 // 학습 뷰어(PDF 강의 자료 탭) mock — Figma 시안값 그대로 12페이지 / 61:02.
 export const mockLectureMaterial: LectureMaterial = {
   chapterId: 'c4',
+  // 백엔드가 pdfUrl을 내려주기 전까지 쓰는 샘플 12장짜리 자료(public/sample-lecture.pdf).
+  // 백엔드가 붙으면 이 줄만 지우면 된다.
+  pdfUrl: '/sample-lecture.pdf',
   pdfPageCount: 12,
   audioDuration: 3662, // 61분 2초
 };
