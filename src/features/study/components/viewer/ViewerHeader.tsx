@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Tag } from '@/features/study/components/Tag';
 import { ChevronLeftIcon } from '@/features/study/components/icons';
 import { ViewerTabs } from '@/features/study/components/viewer/ViewerTabs';
+import { EditableChapterTitle } from '@/features/study/components/viewer/EditableChapterTitle';
 import {
   CollapseIcon,
   ExpandIcon,
@@ -84,9 +85,7 @@ export function ViewerHeader({
           <ChevronLeftIcon className="size-5" />
           <span className="text-label font-medium">이전으로</span>
         </button>
-        <h1 className="text-heading-sm min-w-0 truncate text-right font-semibold text-gray-950">
-          Chapter {chapter.chapterNumber} - {chapter.title}
-        </h1>
+        <EditableChapterTitle chapter={chapter} />
       </div>
 
       {/* 2단: 좌측 탭 4개 + 우측 강의명·교수 태그·날짜 태그 */}

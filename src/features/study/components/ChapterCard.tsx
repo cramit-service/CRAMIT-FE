@@ -69,8 +69,14 @@ export function ChapterCard({ chapter, onLongPress }: ChapterCardProps) {
           <p className="text-body-sm text-gray-950">
             Chapter {chapter.chapterNumber}
           </p>
-          <p className="text-label font-medium text-gray-700">
-            {chapter.title}
+          {/* 제목은 등록 때 받지 않는다 — 붙이기 전까지는 빈 줄 대신 자리를 보여준다 */}
+          <p
+            className={cn(
+              'text-label font-medium',
+              chapter.title === '' ? 'text-gray-500' : 'text-gray-700',
+            )}
+          >
+            {chapter.title === '' ? '제목 없음' : chapter.title}
           </p>
         </div>
         <p className="text-button-sm flex items-center gap-1 font-medium text-gray-500">
