@@ -40,3 +40,31 @@ export function setSidebarExpanded(next: boolean) {
   }
   listeners.forEach((listener) => listener());
 }
+
+// 사이드바를 통째로 감추는 상태(학습 뷰어의 집중 모드).
+// 접힘/펼침과는 다른 축이다 — 집중 모드를 끄면 원래 폭으로 돌아와야 하므로
+// 저장하지 않고, 화면을 떠날 때 호출한 쪽이 되돌린다.
+const hiddenListeners = new Set<() => void>();
+let hidden = false;
+
+export function subscribeSidebarHidden(listener: () => void) {
+  hiddenListeners.add(listener);
+  return () => {
+    hiddenListeners.delete(listener);
+  };
+}
+
+export function getSidebarHidden() {
+  return hidden;
+}
+
+// 서버에는 집중 모드가 없다 — 늘 보이는 상태로 그린다.
+export function getSidebarHiddenOnServer() {
+  return false;
+}
+
+export function setSidebarHidden(next: boolean) {
+  if (hidden === next) return;
+  hidden = next;
+  hiddenListeners.forEach((listener) => listener());
+}

@@ -71,3 +71,38 @@ export function ArrowUpIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+// 집중 모드 들어가기 / 나가기 — 네 귀퉁이 화살표가 밖으로 / 안으로.
+export function ExpandIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      className={className}
+    >
+      <path d="M9 4H4v5M20 9V4h-5M15 20h5v-5M4 15v5h5" />
+    </svg>
+  );
+}
+
+export function CollapseIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      className={className}
+    >
+      <path d="M4 9h5V4M20 9h-5V4M20 15h-5v5M4 15h5v5" />
+    </svg>
+  );
+}

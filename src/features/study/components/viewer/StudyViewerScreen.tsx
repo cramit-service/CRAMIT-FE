@@ -1,6 +1,6 @@
 'use client';
 // src/features/study/components/viewer/StudyViewerScreen.tsx
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useProjectDetail } from '@/features/study/hooks/useProjectDetail';
 import {
   useChapter,
@@ -15,10 +15,16 @@ import { ScriptTab } from '@/features/study/components/viewer/ScriptTab';
 import { TabPlaceholder } from '@/features/study/components/viewer/TabPlaceholder';
 import { Resizer } from '@/features/study/components/viewer/Resizer';
 import { Button } from '@/shared/ui/Button';
+import { cn } from '@/shared/lib/cn';
+import { setSidebarHidden } from '@/shared/ui/Sidebar/sidebarState';
 import type { ViewerTab } from '@/shared/types/api';
 
 // 로딩·에러 문구도 본문과 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
-const PAGE_SHELL = 'w-full px-6 pt-10 pb-8';
+// 일반 모드는 다른 화면과 같은 콘텐츠 열(content-col)을 쓴다. 바깥 여백은 px-*가 아니라
+// 남는 폭이 갖는다(CLAUDE.md 4-4).
+const PAGE_SHELL = 'w-full px-6 pt-10 pb-8 lg:content-col lg:px-0';
+// 집중 모드 — 위 16 + 탭줄 32 + 간격 12 = 60, 아래 16. 일반 모드의 188에서 76으로 줄어든다.
+const FOCUS_SHELL = 'w-full px-6 pt-4 pb-4';
 
 interface StudyViewerScreenProps {
   projectId: string;
@@ -41,6 +47,8 @@ export function StudyViewerScreen({
 }: StudyViewerScreenProps) {
   // 켜져 있는 탭 목록. 1개면 단일, 2개면 이분할이고 배열 순서가 곧 좌→우 순서다.
   const [activeTabs, setActiveTabs] = useState<ViewerTab[]>(['PDF']);
+  // 집중 모드 — 사이드바와 상단 헤더를 접고 패널이 화면을 다 쓴다
+  const [focus, setFocus] = useState(false);
   // 좌측 패널이 차지하는 비율(%)
   const [leftRatio, setLeftRatio] = useState(50);
   // 드래그 이동량(px)을 비율(%)로 바꾸고, 분할이 가능한 폭인지 판단하는 데 쓴다.
@@ -59,6 +67,63 @@ export function StudyViewerScreen({
     observer.observe(node);
     observerRef.current = observer;
   }, []);
+
+  // 사이드바는 (main) 레이아웃에 있어 이 화면이 직접 못 지운다. 공유 상태로 알린다.
+  // 화면을 떠날 때 반드시 되돌린다 — 안 그러면 다른 화면에서 사이드바가 사라진 채로 남는다.
+  useEffect(() => {
+    setSidebarHidden(focus);
+    return () => setSidebarHidden(false);
+  }, [focus]);
+
+  // 전체화면 요청은 비동기다. 켜자마자 Esc를 누르면 요청이 끝나기 전이라
+  // fullscreenElement가 아직 없어 종료를 못 하고, 뒤늦게 요청이 완료되면
+  // "레이아웃은 일반인데 전체화면만 남은" 상태가 된다. 의도를 ref로 들고 있다가
+  // 요청이 끝난 뒤에 의도가 풀려 있으면 그때 닫는다.
+  const focusIntent = useRef(false);
+
+  // 나가는 길이 셋(버튼·Esc·브라우저)이라 한곳에 모은다. 레이아웃과 전체화면이
+  // 따로 놀면 "주소창은 돌아왔는데 사이드바만 없는" 어중간한 상태가 남는다.
+  const exitFocus = useCallback(() => {
+    focusIntent.current = false;
+    setFocus(false);
+    if (document.fullscreenElement) void document.exitFullscreen();
+  }, []);
+
+  // 사용자가 F11이나 Esc로 전체화면을 직접 풀면 집중 모드도 같이 풀어야 한다.
+  // 그러지 않으면 주소창은 돌아왔는데 사이드바만 사라진 상태로 남는다.
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      if (document.fullscreenElement) return;
+      focusIntent.current = false;
+      setFocus(false);
+    };
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    return () =>
+      document.removeEventListener('fullscreenchange', onFullscreenChange);
+  }, []);
+
+  // 화면을 떠날 때 전체화면도 같이 푼다 — 다른 화면이 전체화면으로 남으면 안 된다.
+  // 아직 요청이 도는 중일 수 있어 의도부터 내린다(완료 콜백이 그걸 보고 닫는다).
+  useEffect(
+    () => () => {
+      focusIntent.current = false;
+      if (document.fullscreenElement) void document.exitFullscreen();
+    },
+    [],
+  );
+
+  // Esc로 나간다. 모달이 열려 있으면 Esc는 모달 것이다(Sidebar와 같은 판단).
+  // 전체화면일 때는 브라우저가 Esc를 먼저 먹고 fullscreenchange가 대신 처리한다.
+  useEffect(() => {
+    if (!focus) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (document.querySelector('[aria-modal="true"]')) return;
+      exitFocus();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [focus, exitFocus]);
 
   const projectQuery = useProjectDetail(projectId);
   const chapterQuery = useChapter(projectId, chapterId);
@@ -82,6 +147,30 @@ export function StudyViewerScreen({
   // 창 크기가 바뀌면 저장된 비율이 범위 밖으로 나갈 수 있다.
   // 상태를 되돌리지 않고 읽는 시점에 자른다(currentPage·재생 위치와 같은 방식).
   const ratio = Math.min(maxRatio, Math.max(minRatio, leftRatio));
+
+  // 브라우저 크롬(주소창)까지 접으려면 전체화면 API가 필요한데, 이건 클릭 같은
+  // 사용자 동작 안에서만 허용된다 — 이펙트로 미루면 거부된다.
+  // 막히는 환경(권한 정책 등)에서도 레이아웃 집중 모드는 그대로 동작한다.
+  const toggleFocus = () => {
+    if (focus) {
+      exitFocus();
+      return;
+    }
+    focusIntent.current = true;
+    setFocus(true);
+
+    const root = document.documentElement;
+    // 오래된 WebView에는 이 메서드가 아예 없다. 부르면 catch 전에 TypeError가 난다.
+    if (typeof root.requestFullscreen !== 'function') return;
+    root.requestFullscreen().then(
+      () => {
+        // 요청이 도는 동안 이미 나갔다면 지금 닫는다
+        if (!focusIntent.current) void document.exitFullscreen();
+      },
+      // 권한 정책 등으로 막히면 레이아웃 집중 모드만 남는다
+      () => {},
+    );
+  };
 
   // 탭은 고르는 게 아니라 켜고 끄는 것이다(시안의 이분할 화면에서 둘이 동시에 켜져 있다).
   const toggleTab = (tab: ViewerTab) =>
@@ -158,19 +247,26 @@ export function StudyViewerScreen({
   };
 
   return (
-    // 이 화면만 시안 폭(1920 기준 콘텐츠 1152 = 0.72배)을 따르지 않는다.
-    // 시안대로 두면 1920 화면에서 좌우 512px이 통째로 비고, 이분할일 때 PDF가
-    // 338px까지 줄어 자료를 읽을 수 없다. 여기는 "읽는" 화면이 아니라 "보는" 화면이라
-    // 폭·높이가 곧 기능이라서, 남는 공간을 끝까지 쓴다(h-dvh + 패널이 남은 높이를 채움).
-    <div className={`${PAGE_SHELL} flex h-dvh flex-col`}>
+    // 일반 모드는 다른 화면과 같은 콘텐츠 열을 쓰고, 남는 공간을 끝까지 쓰는 건
+    // 집중 모드가 맡는다.
+    // 높이는 h-dvh여야 한다 — min-h-dvh로 두면 높이가 확정되지 않아 패널 안의
+    // h-full(페이지 목록)이 auto가 되고, 썸네일이 전부 펼쳐져 화면이 통째로 늘어난다.
+    <div
+      className={cn(focus ? FOCUS_SHELL : PAGE_SHELL, 'flex h-dvh flex-col')}
+    >
       <ViewerHeader
         chapter={chapter}
         project={project}
         activeTabs={activeTabs}
         onTabToggle={toggleTab}
+        focus={focus}
+        onToggleFocus={toggleFocus}
       />
 
-      <div ref={areaRef} className="mt-5 flex min-h-0 flex-1 flex-col">
+      <div
+        ref={areaRef}
+        className={cn('flex min-h-0 flex-1 flex-col', focus ? 'mt-3' : 'mt-5')}
+      >
         {isSplit ? (
           // 이분할 — 좌우 패널 사이 핸들을 끌어 폭을 나눈다.
           // 핸들이 간격을 겸하므로 flex gap은 주지 않는다(주면 간격이 두 번 생긴다).
