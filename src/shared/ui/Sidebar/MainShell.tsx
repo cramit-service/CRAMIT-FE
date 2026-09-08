@@ -5,8 +5,11 @@ import { Sidebar } from './Sidebar';
 import {
   getSidebarExpanded,
   getSidebarExpandedOnServer,
+  getSidebarHidden,
+  getSidebarHiddenOnServer,
   setSidebarExpanded,
   subscribeSidebar,
+  subscribeSidebarHidden,
 } from './sidebarState';
 
 // 사이드바 + 콘텐츠 골격. 폭 상태가 여기 있는 이유는 사이드바가 콘텐츠를 밀어내기
@@ -22,20 +25,27 @@ export function MainShell({ children }: { children: React.ReactNode }) {
     getSidebarExpandedOnServer,
   );
 
+  // 학습 뷰어의 집중 모드가 켜지면 사이드바를 통째로 비운다.
+  const hidden = useSyncExternalStore(
+    subscribeSidebarHidden,
+    getSidebarHidden,
+    getSidebarHiddenOnServer,
+  );
+
   const toggle = useCallback(() => {
     setSidebarExpanded(!getSidebarExpanded());
   }, []);
+
+  const railWidth = hidden ? '0px' : expanded ? '256px' : '90px';
 
   return (
     <div
       className="bg-primary-100 group/shell min-h-screen"
       // 콘텐츠 열 바깥에 거는 요소(outdent-left)가 여백이 남는지 알아야 한다
-      data-sidebar={expanded ? 'wide' : 'rail'}
-      style={
-        { '--sidebar-w': expanded ? '256px' : '90px' } as React.CSSProperties
-      }
+      data-sidebar={hidden ? 'hidden' : expanded ? 'wide' : 'rail'}
+      style={{ '--sidebar-w': railWidth } as React.CSSProperties}
     >
-      <Sidebar expanded={expanded} onToggle={toggle} />
+      {!hidden && <Sidebar expanded={expanded} onToggle={toggle} />}
       {/* 사이드바 폭 전환과 같은 200ms로 밀려야 둘이 따로 놀지 않는다 */}
       <main className="pl-[var(--sidebar-w)] transition-[padding] duration-200 ease-out">
         {children}
