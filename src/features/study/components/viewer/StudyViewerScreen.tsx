@@ -75,9 +75,16 @@ export function StudyViewerScreen({
     return () => setSidebarHidden(false);
   }, [focus]);
 
+  // 전체화면 요청은 비동기다. 켜자마자 Esc를 누르면 요청이 끝나기 전이라
+  // fullscreenElement가 아직 없어 종료를 못 하고, 뒤늦게 요청이 완료되면
+  // "레이아웃은 일반인데 전체화면만 남은" 상태가 된다. 의도를 ref로 들고 있다가
+  // 요청이 끝난 뒤에 의도가 풀려 있으면 그때 닫는다.
+  const focusIntent = useRef(false);
+
   // 나가는 길이 셋(버튼·Esc·브라우저)이라 한곳에 모은다. 레이아웃과 전체화면이
   // 따로 놀면 "주소창은 돌아왔는데 사이드바만 없는" 어중간한 상태가 남는다.
   const exitFocus = useCallback(() => {
+    focusIntent.current = false;
     setFocus(false);
     if (document.fullscreenElement) void document.exitFullscreen();
   }, []);
@@ -86,16 +93,20 @@ export function StudyViewerScreen({
   // 그러지 않으면 주소창은 돌아왔는데 사이드바만 사라진 상태로 남는다.
   useEffect(() => {
     const onFullscreenChange = () => {
-      if (!document.fullscreenElement) setFocus(false);
+      if (document.fullscreenElement) return;
+      focusIntent.current = false;
+      setFocus(false);
     };
     document.addEventListener('fullscreenchange', onFullscreenChange);
     return () =>
       document.removeEventListener('fullscreenchange', onFullscreenChange);
   }, []);
 
-  // 화면을 떠날 때 전체화면도 같이 푼다 — 다른 화면이 전체화면으로 남으면 안 된다
+  // 화면을 떠날 때 전체화면도 같이 푼다 — 다른 화면이 전체화면으로 남으면 안 된다.
+  // 아직 요청이 도는 중일 수 있어 의도부터 내린다(완료 콜백이 그걸 보고 닫는다).
   useEffect(
     () => () => {
+      focusIntent.current = false;
       if (document.fullscreenElement) void document.exitFullscreen();
     },
     [],
@@ -145,8 +156,20 @@ export function StudyViewerScreen({
       exitFocus();
       return;
     }
+    focusIntent.current = true;
     setFocus(true);
-    document.documentElement.requestFullscreen().catch(() => {});
+
+    const root = document.documentElement;
+    // 오래된 WebView에는 이 메서드가 아예 없다. 부르면 catch 전에 TypeError가 난다.
+    if (typeof root.requestFullscreen !== 'function') return;
+    root.requestFullscreen().then(
+      () => {
+        // 요청이 도는 동안 이미 나갔다면 지금 닫는다
+        if (!focusIntent.current) void document.exitFullscreen();
+      },
+      // 권한 정책 등으로 막히면 레이아웃 집중 모드만 남는다
+      () => {},
+    );
   };
 
   // 탭은 고르는 게 아니라 켜고 끄는 것이다(시안의 이분할 화면에서 둘이 동시에 켜져 있다).
