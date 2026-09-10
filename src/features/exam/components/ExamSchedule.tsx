@@ -3,18 +3,17 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import type { Exam } from '@/shared/types/api';
-import { Button } from '@/shared/ui/Button';
 import { Icon } from '@/shared/ui/Icon';
-import { cn } from '@/shared/lib/cn';
-import { formatKoreanDate } from '@/shared/lib/date';
-import { daysUntil, ddayLabel, ddayBadgeClass } from '@/features/exam/lib/dday';
+import { formatShortDate } from '@/shared/lib/date';
+import { daysUntil } from '@/features/exam/lib/dday';
+import { DdayBadge } from '@/features/exam/components/DdayBadge';
 import { examName } from '@/features/exam/lib/examName';
 import { useExams } from '@/features/exam/hooks/useExams';
 import { ExamFormModal } from './ExamFormModal';
 
 function StatusMessage({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-body flex h-full items-center justify-center text-center text-gray-500">
+    <p className="flex h-full items-center justify-center text-center text-[14px] leading-5 text-gray-600">
       {children}
     </p>
   );
@@ -28,31 +27,32 @@ export function ExamSchedule() {
   const [editing, setEditing] = useState<Exam | 'new' | null>(null);
 
   return (
-    <section>
-      <div className="mb-1.5 flex items-center justify-between">
-        <h2 className="text-body font-medium text-gray-950">
+    <section className="flex min-h-0 flex-col">
+      <div className="mb-1.5 flex min-h-10 items-center justify-between">
+        <h2 className="text-heading-sm leading-8 font-semibold text-gray-950">
           다가오는 시험 일정
         </h2>
-        <Button
-          variant="dark"
-          size="xs"
-          className="gap-0.5"
+        {/* 텍스트 버튼이라 좌우 패딩만큼 라벨이 안으로 들어간다. 음수 마진으로 그만큼
+            빼내 "추가"의 오른쪽 끝이 아래 카드의 오른쪽 끝과 한 선에 선다. */}
+        <button
+          type="button"
           onClick={() => setEditing('new')}
+          className="focus-visible:ring-secondary-400 -mr-2.5 flex items-center gap-1 rounded-md px-2.5 py-2 text-[14px] leading-5 text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-900 focus-visible:ring-2 focus-visible:outline-none"
         >
-          추가하기
-          <PlusIcon className="size-3" />
-        </Button>
+          <PlusIcon className="size-3.5 shrink-0" />
+          추가
+        </button>
       </div>
 
       {/* 카드는 데이터 유무와 무관하게 항상 렌더 — 크기는 여기(div)에 준다. 비어도 안 줄어든다.
-          스크롤은 안쪽 div가 맡는다. 카드가 직접 스크롤하면 스크롤바가 카드 가장자리에 붙어
-          시안(우측 6px·상하 9px 안쪽)처럼 띄울 수 없다. 그 여백을 카드의 py/pr이 만든다. */}
-      {/* 높이 129 = py-2.5(20) + 행 54 × 2 + 구분선 1. 항목 2개가 잘리지 않고 딱 들어가는 값이다.
-          예전 h-29(116)는 안쪽이 96뿐이라 두 번째 행이 13px 잘렸다. 행 여백(py-2)은 시안값이라
-          그쪽을 줄이면 시험 행만 TODO 행보다 촘촘해진다 — 그래서 카드를 키웠다.
-          이 높이는 1행 전체 높이를 정하므로 home/page.tsx의 세로 합 주석과 함께 움직인다. */}
-      <div className="h-[129px] rounded-md bg-white py-2.5 pr-1.5 pl-6">
-        <div className="scrollbar-slim h-full overflow-y-auto overscroll-none pr-4">
+          스크롤은 안쪽 div가 맡는다. 카드가 직접 스크롤하면 스크롤바가 카드 모서리에 붙는다.
+          안쪽의 -mr-3/pr-3은 스크롤바를 카드 우패딩 자리로 빼되 글자는 그대로 두려는 것이다. */}
+      {/* 높이는 1행(배너가 정하는 202)에서 제목 블록 46을 뺀 값이다. 배너와 하단이 맞는다 —
+          2행에서 TODO 카드가 캘린더와 맞는 것과 같은 규칙이다.
+          안쪽 140에 세 행이 들어가야 한다: 행 46 × 3 + 구분선 1 × 2 = 140.
+          행 46 = 뱃지 32 + py-1.75(14). 이 셋 중 하나를 바꾸면 세 행이 깨진다. */}
+      <div className="flex h-[156px] flex-col rounded-lg border border-gray-300 bg-white px-6 py-2">
+        <div className="scrollbar-bare -mr-3 min-h-0 flex-1 overflow-y-auto overscroll-none pr-3">
           {isLoading ? (
             <StatusMessage>불러오는 중…</StatusMessage>
           ) : isError || !exams ? (
@@ -62,45 +62,35 @@ export function ExamSchedule() {
           ) : exams.length === 0 ? (
             <StatusMessage>다가오는 시험이 없어요.</StatusMessage>
           ) : (
-            <ul className="divide-y divide-gray-200">
+            // 행 사이 선은 둘째 행부터의 위쪽 테두리다. divide-y를 안 쓰는 이유는
+            // v4에서 그게 아래쪽 선으로 바뀌어 "첫 행 제외 상단"과 걸리는 요소가 달라서다.
+            <ul className="[&>li+li]:border-t [&>li+li]:border-gray-200">
               {exams.map((exam) => {
                 const days = daysUntil(exam.examDate);
                 // 행을 누르면 그 시험의 강의로 이동한다. 홈에서 학습으로 들어가는 길이
                 // 배너 하나뿐이라, 가장 자연스러운 진입점인 이 행을 열어 준다.
-                // 행 끝 셰브론은 앱의 다른 곳(배너 CTA·최근 학습)에서도 이동을 뜻하므로
-                // 이제야 모양과 동작이 맞는다. 수정은 옆 연필 버튼으로 옮겼다.
                 // relative 필수 — 아래 Link의 after가 이 행을 기준으로 펼쳐진다(CLAUDE.md 4-5).
                 // 기준이 없으면 문서 최상위가 되어 카드 바깥까지 덮는다.
                 return (
                   <li
                     key={exam.examId}
-                    className="group relative flex items-center gap-2.5 py-2"
+                    className="group relative flex items-center gap-4 py-1.75"
                   >
-                    {/* 뱃지는 자연 크기 유지. 고정폭 슬롯에 왼쪽 정렬해 뒤 제목의 시작 x를 통일한다.
-                        슬롯 폭은 가장 긴 "D-DAY"의 자연 폭(61px)에 맞춘다 — 좁으면 두 줄로 접힌다. */}
-                    <div className="w-16 shrink-0">
-                      <span
-                        className={cn(
-                          'text-label inline-block rounded-md border-[0.5px] px-2.5 py-0.5 font-medium',
-                          ddayBadgeClass(days),
-                        )}
-                      >
-                        {ddayLabel(days)}
-                      </span>
-                    </div>
+                    <DdayBadge days={days} />
                     {/* after로 행 전체를 덮어 뱃지·여백을 눌러도 이동하게 한다.
                         빈 오버레이 링크가 아니라 글자를 감싸는 이유: 링크 이름이
                         "시험명 + 날짜"로 저절로 잡힌다(빈 링크면 aria-label을 따로 붙여야 한다). */}
+                    {/* 제목과 날짜가 한 줄에 선다. 2줄로 쌓으면 글자만 44라 행이 46에 안 들어간다. */}
                     <Link
                       href={`/projects/${exam.projectId}`}
-                      className="focus-visible:ring-secondary-400 min-w-0 flex-1 rounded-sm after:absolute after:inset-0 focus-visible:ring-2 focus-visible:outline-none"
+                      className="focus-visible:ring-secondary-400 flex min-w-0 flex-1 items-baseline gap-3 rounded-sm after:absolute after:inset-0 focus-visible:ring-2 focus-visible:outline-none"
                     >
-                      <p className="text-label truncate font-medium text-gray-950">
+                      <span className="truncate text-[17px] leading-6 font-medium text-gray-900 transition-colors group-hover:text-gray-950">
                         {examName(exam)}
-                      </p>
-                      <p className="text-label text-gray-600">
-                        {formatKoreanDate(exam.examDate)}
-                      </p>
+                      </span>
+                      <span className="ml-auto shrink-0 text-[14px] leading-5 text-gray-600">
+                        {formatShortDate(exam.examDate)}
+                      </span>
                     </Link>
                     {/* 수정 — 이동 링크의 after가 행을 덮으므로 z-10으로 그 위에 올린다.
                         행에 마우스를 올리거나 행 안에 포커스가 들어왔을 때만 드러낸다.
@@ -110,7 +100,7 @@ export function ExamSchedule() {
                         group-focus-within이라 Tab으로 행에 들어오면 같이 보인다 —
                         키보드로는 호버가 없으니 이게 없으면 보이지 않는 채로 포커스만 간다.
                         보이는 크기는 28로 두고 before로 히트 영역만 44로 넓힌다(28+8*2).
-                        늘린 8px은 옆 셰브론과의 간격(10) 안쪽이라 서로 겹치지 않는다. */}
+                        늘린 8px은 옆 셰브론과의 간격(16) 안쪽이라 서로 겹치지 않는다. */}
                     <button
                       type="button"
                       aria-label={`${examName(exam)} 수정`}
@@ -119,7 +109,7 @@ export function ExamSchedule() {
                     >
                       <Icon name="edit" size={16} />
                     </button>
-                    <ChevronRightIcon className="size-4 shrink-0 text-gray-400 transition-colors group-hover:text-gray-600" />
+                    <ChevronRightIcon className="size-4 shrink-0 text-gray-500" />
                   </li>
                 );
               })}

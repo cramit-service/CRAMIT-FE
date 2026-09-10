@@ -4,9 +4,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
 import { cn } from '@/shared/lib/cn';
-import { daysUntil, ddayLabel, ddayBadgeClass } from '@/features/exam/lib/dday';
+import { daysUntil } from '@/features/exam/lib/dday';
+import { DdayBadge } from '@/features/exam/components/DdayBadge';
 import { examName } from '@/features/exam/lib/examName';
 import { useExams } from '@/features/exam/hooks/useExams';
+
+// 뱃지 오른쪽 한 마디. 급할 때만 붙이고 여유가 있으면 재촉하지 않는다.
+function urgencyNote(days: number): string | null {
+  if (days === 0) return '오늘 시험';
+  if (days >= 1 && days <= 3) return '시험이 곧이에요';
+  return null;
+}
 
 // 학습 배너. 가장 임박한 시험(exams[0])의 강의를 "이어서 학습" 대상으로 보여준다.
 // 데이터는 시험 일정과 함께 내려온다(useExams 재사용). 배경은 랜딩과 동일한 GradientBackground.
@@ -16,6 +24,9 @@ export function StudyBanner() {
   const featured = exams?.[0];
   // 로딩·실패 중에는 featured가 없다. 아래 뱃지는 featured가 있을 때만 그린다.
   const days = featured ? daysUntil(featured.examDate) : 0;
+  // 백엔드가 붙기 전이라 progress가 빠져 올 수 있다 — 없으면 진행 바를 통째로 접는다.
+  const progress: number | null = featured?.progress ?? null;
+  const note = urgencyNote(days);
 
   // 조회가 끝났고 정말로 일정이 없을 때만 빈 배너를 보여준다.
   // 로딩 중이나 실패했을 때 띄우면 "일정이 없다"고 단정하는 셈이 된다.
@@ -29,7 +40,7 @@ export function StudyBanner() {
       // 호버 그림자는 featured가 있을 때만 — 로딩·에러 때는 안쪽 Link가 없어서
       // 눌리지 않는데 그림자만 뜨면 눌리는 것처럼 보인다.
       className={cn(
-        'has-[a:focus-visible]:ring-secondary-400 flex min-h-35.5 flex-col justify-center rounded-md border border-gray-800 px-12 py-6 transition-shadow has-[a:focus-visible]:ring-2',
+        'has-[a:focus-visible]:ring-secondary-400 flex min-h-35.5 flex-col justify-start rounded-md border border-gray-800 px-12 py-5 transition-shadow has-[a:focus-visible]:ring-2',
         featured && 'hover:shadow-md',
       )}
     >
@@ -62,32 +73,43 @@ export function StudyBanner() {
         // 기준이 배너가 아니라 링크 박스가 된다. 쌓임 기준은 대신 안쪽 세 줄에 준다.
         <Link
           href={`/projects/${featured.projectId}`}
-          className="flex flex-col after:absolute after:inset-0 focus-visible:outline-none"
+          className="group flex flex-col after:absolute after:inset-0 focus-visible:outline-none"
         >
-          {/* 시안 24:10161. 뱃지 크기는 옆 시험 일정 카드와 맞춘다 — 같은 D-DAY가 좌우에서 다르면 안 된다. */}
           <div className="relative flex flex-wrap items-center gap-2.5">
-            <span
-              className={cn(
-                'text-label inline-flex items-center rounded-md border-[0.5px] px-2.5 py-0.5 font-medium',
-                ddayBadgeClass(days),
-              )}
-            >
-              {ddayLabel(days)}
-            </span>
-            <span className="text-label inline-flex items-center rounded-md border-[0.5px] border-gray-800 bg-white px-2.5 py-0.5 font-medium text-gray-800">
-              학습 진행률 {featured.progress}%
-            </span>
+            <DdayBadge days={days} onGradient />
+            {note && <span className="text-label text-gray-600">{note}</span>}
           </div>
           {/* 고양이(폭 132 + right-3)가 콘텐츠 상자를 96px 파고든다. 그만큼 비우고,
               긴 이름은 줄바꿈 대신 자른다 — 배너가 세로로 늘면 옆 시험 일정 열이 따라 늘어난다. */}
-          <h3 className="text-heading-md relative mt-2.25 truncate pr-24 font-semibold text-gray-800">
+          <h3 className="text-heading-md relative mt-2 truncate pr-24 font-semibold text-gray-800">
             {examName(featured)}
           </h3>
-          {/* 시안 24:10507은 18/30에 아이콘 22. 굵기·색은 #94에서 정한 대로 둔다 —
-              배너 전체가 링크라 이게 유일한 진입 신호다. */}
-          <span className="text-body relative mt-1.75 flex w-fit items-center gap-1 font-semibold text-gray-800">
+          {progress !== null && (
+            // 고양이 왼쪽까지가 96px인데 딱 붙어 보여서 32px을 더 뗀다(mr-32 = 128).
+            // 폭을 w-full로 못 박으면 이 여백이 상자를 못 밀어내 바가 고양이 밑으로 들어간다 —
+            // 늘어나는 건 flex stretch에 맡기고 상한만 준다.
+            <div className="relative mt-3.5 mr-32 max-w-110">
+              <div className="text-label flex items-center justify-between leading-4">
+                <span className="text-gray-600">학습 진행률</span>
+                <span className="font-semibold text-gray-950">{progress}%</span>
+              </div>
+              <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-gray-300">
+                <span
+                  className="block h-full rounded-full bg-gray-900 transition-[width] duration-300"
+                  style={{ width: `${progress}%` }}
+                />
+              </span>
+            </div>
+          )}
+          {/* 배너 전체가 링크라 이게 유일한 진입 신호다. */}
+          <span
+            className={cn(
+              'text-body relative flex w-fit items-center gap-1 leading-6.5 font-medium text-gray-900 transition-colors group-hover:text-gray-950',
+              progress !== null ? 'mt-3' : 'mt-3.5',
+            )}
+          >
             학습하러 가기
-            <ChevronRightIcon className="size-5.5" />
+            <ChevronRightIcon className="size-4" />
           </span>
         </Link>
       )}
