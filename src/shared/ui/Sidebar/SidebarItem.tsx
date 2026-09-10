@@ -32,7 +32,7 @@ export function SidebarItem({
   // text-* 색이 먹지 않는다. 그래서 색이 아니라 항목 전체의 opacity로 낮춘다.
   // 낮춘 대비(약 4:1)는 WCAG 1.4.3의 비활성 컨트롤 예외에 해당해 문제가 되지 않는다.
   const className = cn(
-    'focus-visible:ring-secondary-400 focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none relative flex items-center py-3 transition-colors',
+    'focus-visible:ring-secondary-400 focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none relative flex items-center py-4.5 transition-colors',
     // 활성: 연두 강조 / 비활성: 라벨은 밝게 (덮어쓰기 금지 → 삼항 분기)
     disabled
       ? 'cursor-not-allowed text-gray-200 opacity-50'
@@ -64,7 +64,7 @@ export function SidebarItem({
           200ms 동안 라벨이 먼저 사라져 아이콘이 제자리에 있다는 느낌이 깨진다. */}
       <span
         className={cn(
-          'text-body-sm relative truncate pr-5 font-normal',
+          'text-label relative truncate pr-5 font-normal',
           'transition-opacity duration-150 ease-out',
           expanded ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}

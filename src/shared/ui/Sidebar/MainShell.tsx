@@ -40,7 +40,7 @@ export function MainShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div
-      className="bg-primary-100 group/shell min-h-screen"
+      className="bg-canvas group/shell min-h-screen"
       // 콘텐츠 열 바깥에 거는 요소(outdent-left)가 여백이 남는지 알아야 한다
       data-sidebar={hidden ? 'hidden' : expanded ? 'wide' : 'rail'}
       style={{ '--sidebar-w': railWidth } as React.CSSProperties}
