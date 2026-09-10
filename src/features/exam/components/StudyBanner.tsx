@@ -25,7 +25,11 @@ export function StudyBanner() {
   // 로딩·실패 중에는 featured가 없다. 아래 뱃지는 featured가 있을 때만 그린다.
   const days = featured ? daysUntil(featured.examDate) : 0;
   // 백엔드가 붙기 전이라 progress가 빠져 올 수 있다 — 없으면 진행 바를 통째로 접는다.
-  const progress: number | null = featured?.progress ?? null;
+  // 범위 밖 값이 오면 라벨(101%)과 바 길이가 어긋나므로 0~100으로 자른다.
+  const rawProgress = featured?.progress;
+  const progress: number | null = Number.isFinite(rawProgress)
+    ? Math.min(100, Math.max(0, rawProgress as number))
+    : null;
   const note = urgencyNote(days);
 
   // 조회가 끝났고 정말로 일정이 없을 때만 빈 배너를 보여준다.

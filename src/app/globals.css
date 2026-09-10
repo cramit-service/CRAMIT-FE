@@ -134,6 +134,7 @@
   --color-level-02: #ffde65;
 
   /* ===== Radius ===== */
+  --radius-xs: 3px;
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 10px;
@@ -247,7 +248,7 @@
 @utility todo-marker {
   margin: 0 -2px;
   padding: 1px 2px 2px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: transparent;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
