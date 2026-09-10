@@ -145,7 +145,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
                 <CloudDownloadIcon className="h-[11px] w-[17px]" />
               </SummaryToolbarButton>
               <SummaryToolbarButton
-                tone="point"
+                tone="success"
                 onClick={() => {
                   setDraft(markdown);
                   setMode('edit');
@@ -160,7 +160,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
                  시안 그대로 두었다. 취소 경로가 필요하면 디자인 확인 후 추가한다. */
           isDirty ? (
             <SummaryToolbarButton
-              tone="point"
+              tone="success"
               onClick={handleSave}
               disabled={updateMutation.isPending}
             >

@@ -89,7 +89,8 @@ src/
 
 새로 만들지 말고 `shared/ui`의 것을 재사용한다.
 
-- `Button`: `variant`(primary/danger/point/outline) + `size`(sm/md/lg) + `disabled`
+- `Button`: `variant`(confirm/success/danger/outline/dark) + `size`(xs/sm/md/lg) + `disabled`
+  — 이름은 색이 아니라 역할이다. 기본값은 `confirm`(하늘).
 - `Input`: `label` / `error`
 - `Card`: `clickable`
 - `Modal`: `open` / `onClose`
@@ -158,15 +159,15 @@ Figma 캔버스는 **1920**이지만 실제 브라우저 뷰포트는 그보다 
 
 화면 전체에서 겹치는 `fixed`·`sticky` 요소는 `globals.css`의 유틸리티를 쓴다.
 
-| 유틸리티   | 값  | 쓰는 곳                                |
-| ---------- | --- | -------------------------------------- |
-| `z-dim`    | 20  | 사이드바 펼침 딤                       |
-| `z-nav`    | 30  | 사이드바, 챗독 패널                    |
-| `z-float`  | 40  | 떠 있는 보조 컨트롤 (맨 위로, 챗독 탭) |
-| `z-header` | 50  | 랜딩 sticky 헤더                       |
-| `z-modal`  | 60  | 모달                                   |
-| `z-tooltip`| 70  | 툴팁 (모달 안에서도 떠야 한다)         |
-| `z-splash` | 100 | 랜딩 스플래시                          |
+| 유틸리티    | 값  | 쓰는 곳                                |
+| ----------- | --- | -------------------------------------- |
+| `z-dim`     | 20  | 사이드바 펼침 딤                       |
+| `z-nav`     | 30  | 사이드바, 챗독 패널                    |
+| `z-float`   | 40  | 떠 있는 보조 컨트롤 (맨 위로, 챗독 탭) |
+| `z-header`  | 50  | 랜딩 sticky 헤더                       |
+| `z-modal`   | 60  | 모달                                   |
+| `z-tooltip` | 70  | 툴팁 (모달 안에서도 떠야 한다)         |
+| `z-splash`  | 100 | 랜딩 스플래시                          |
 
 **부모 안에서만 겹치는 것은 지역 `z-10`을 그대로 쓴다** — 드롭다운, 모달 닫기 버튼 등.
 새 층이 필요하면 숫자를 새로 쓰지 말고 이 표에 추가한다.

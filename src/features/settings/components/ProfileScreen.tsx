@@ -102,11 +102,12 @@ export function ProfileScreen() {
       <h1 className="text-heading-md mt-2 font-semibold text-gray-950">
         {profile.nickname}
       </h1>
-      {/* 시안은 gray-400 바탕에 밝은 글자다(비활성 버튼과 같은 색). 눌리는 버튼이라는 게
-          드러나도록 hover만 더했다. */}
+      {/* 시안은 gray-400 바탕에 밝은 글자인데, 그 조합이 1.56:1이라 글자가 안 읽히고
+          비활성 버튼과 구분도 안 됐다. 바탕은 시안대로 두고 글자만 어둡게 한다(10.5:1).
+          눌리는 버튼이라는 게 드러나도록 hover도 더했다. */}
       <Link
         href="/settings/profile/edit"
-        className="text-primary-100 text-body-sm mt-6 flex h-[44px] w-25 items-center justify-center rounded-md bg-gray-400 font-medium transition-colors hover:bg-gray-500"
+        className="text-body-sm mt-6 flex h-[44px] w-25 items-center justify-center rounded-md bg-gray-400 font-medium text-gray-900 transition-colors hover:bg-gray-500"
       >
         내 정보 수정
       </Link>

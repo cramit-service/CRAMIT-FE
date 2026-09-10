@@ -92,8 +92,9 @@ export function PageList({
                 className={cn(
                   'text-button-sm flex h-[34px] w-full items-center justify-center rounded-sm font-medium text-gray-900 transition-colors',
                   page === currentPage
-                    ? 'border-secondary-600 bg-secondary-400 border-2'
-                    : 'bg-secondary-100 hover:bg-secondary-200 border-2 border-transparent',
+                    ? // 현재 페이지만 연두. 나머지는 중립이라 지금 위치가 더 또렷하다.
+                      'border-primary-500 bg-primary-400 border-2'
+                    : 'border-2 border-transparent bg-gray-200 hover:bg-gray-300',
                 )}
               >
                 {page}
@@ -108,7 +109,7 @@ export function PageList({
                 className={cn(
                   'relative block w-full overflow-hidden rounded-md transition-colors',
                   page === currentPage
-                    ? 'border-secondary-600 border-2'
+                    ? 'border-primary-500 border-2'
                     : 'hover:border-secondary-300 border-2 border-transparent',
                 )}
                 style={{ ...thumbnailBackground, height: thumbnailHeight }}
@@ -117,8 +118,11 @@ export function PageList({
                 {/* 페이지 번호 배지 (Figma: 썸네일 좌상단에 겹쳐 놓임) */}
                 <span
                   className={cn(
-                    'text-label absolute top-1.5 left-1 rounded-sm px-1.5 py-px text-white',
-                    page === currentPage ? 'bg-secondary-400' : 'bg-gray-800',
+                    'text-label absolute top-1.5 left-1 rounded-sm px-1.5 py-px',
+                    // 연두 위에 흰 글자를 얹으면 1.13:1이라 글자색도 상태별로 갈린다
+                    page === currentPage
+                      ? 'bg-primary-400 text-gray-950'
+                      : 'bg-gray-800 text-white',
                   )}
                 >
                   P.{String(page).padStart(2, '0')}

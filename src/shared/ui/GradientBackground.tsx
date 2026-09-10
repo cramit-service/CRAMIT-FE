@@ -70,9 +70,9 @@ export function GradientBackground({
     <div
       className={cn(
         'isolate overflow-hidden',
-        // 배너 시안은 바탕이 순백이다. 랜딩의 따뜻한 흰색(primary-100)을 쓰면
+        // 배너 시안은 바탕이 순백이다. 랜딩의 따뜻한 흰색(canvas)을 쓰면
         // 흰색이어야 할 좌측 60%까지 누렇게 뜬다.
-        isWide ? 'bg-white' : 'bg-primary-100',
+        isWide ? 'bg-white' : 'bg-canvas',
         layer ? 'absolute inset-0' : 'relative',
         className,
       )}

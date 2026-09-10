@@ -63,7 +63,7 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
         <button
           type="button"
           onClick={() => setEditOpen(true)}
-          className="text-button-sm inline-flex items-center gap-1 text-gray-400 transition-colors hover:text-gray-600"
+          className="text-button-sm inline-flex items-center gap-1 text-gray-700 transition-colors hover:text-gray-900"
         >
           <PencilIcon className="size-3" />
           수정하기
@@ -78,7 +78,7 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
           onClick={() => setShareOpen(true)}
           className={cn(
             HEADER_ACTION,
-            'border-[0.5px] border-gray-500 text-gray-600 hover:bg-gray-200',
+            'border-[0.5px] border-gray-500 text-gray-700 hover:bg-gray-200',
           )}
         >
           공유하기

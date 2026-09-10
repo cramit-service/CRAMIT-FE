@@ -103,12 +103,12 @@ export function ChatPanel({
         className="scrollbar-slim relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-10 pt-[50px] pb-6"
       >
         {chatQuery.isPending ? (
-          <p className="text-body pt-10 text-center text-gray-500">
+          <p className="text-body text-gray-650 pt-10 text-center">
             대화를 불러오는 중…
           </p>
         ) : chatQuery.isError ? (
           <div className="flex flex-col items-center gap-3 pt-10">
-            <p className="text-body text-center text-gray-600">
+            <p className="text-body text-center text-gray-700">
               대화를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
             </p>
             <Button
@@ -123,7 +123,7 @@ export function ChatPanel({
         ) : messages.length === 0 ? (
           // mock은 인사말을 항상 포함하지만, 백엔드가 빈 배열을 주면 아무 안내도 없이
           // 빈 화면만 남는다. 로딩·에러와 마찬가지로 빈 상태도 말해 준다.
-          <p className="text-body pt-10 text-center text-gray-500">
+          <p className="text-body text-gray-650 pt-10 text-center">
             아직 주고받은 대화가 없어요. 궁금한 내용을 물어보세요.
           </p>
         ) : (
@@ -133,7 +133,7 @@ export function ChatPanel({
             ))}
             {sending && (
               <li className="flex justify-start">
-                <p className="text-body-md rounded-sm border-[0.5px] border-gray-300 bg-white px-5 py-3 text-gray-500">
+                <p className="text-body-md rounded-sm border-[0.5px] border-gray-300 bg-white px-5 py-3 text-gray-700">
                   답변을 준비하고 있어요…
                 </p>
               </li>

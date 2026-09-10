@@ -6,7 +6,7 @@ export function LearningProgress({ percent }: { percent: number }) {
   return (
     <div className="w-full">
       {/* #aeb1b6(gray-500), 진행바 왼쪽 끝에 맞춰 좌측 정렬 */}
-      <div className="text-label mb-1.5 text-gray-500">
+      <div className="text-label text-gray-650 mb-1.5">
         학습 진행률 {clamped}%
       </div>
       {/* 트랙 #f0f1f1(gray-200) / 채움 #aeb1b6(gray-500).
@@ -20,7 +20,7 @@ export function LearningProgress({ percent }: { percent: number }) {
         className="h-1 w-full overflow-hidden rounded-full bg-gray-200"
       >
         <div
-          className="h-full rounded-full bg-gray-500 transition-[width] duration-300"
+          className="bg-secondary-600 h-full rounded-full transition-[width] duration-300"
           style={{ width: `${clamped}%` }}
         />
       </div>

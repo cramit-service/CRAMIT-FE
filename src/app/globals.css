@@ -47,8 +47,11 @@
   --text-label--line-height: 22px;
   --text-label--letter-spacing: -0.02em;
 
+  /* 페이지 바탕. Primary 램프에 있던 값인데 연두가 아니라 따뜻한 크림이라,
+     "primary"라는 이름이 중성색처럼 읽히게 만들고 있었다. 역할 이름으로 떼어 낸다. */
+  --color-canvas: #fcfaf7;
+
   /* ===== Primary (형광 연두 - 아이덴티티/성공/주목) ===== */
-  --color-primary-100: #fcfaf7; /* background */
   --color-primary-200: #f1ff89;
   --color-primary-300: #e9fc47;
   --color-primary-400: #e3ff00; /* ★ 메인 */
@@ -57,6 +60,10 @@
   --color-primary-700: #739823;
   --color-primary-800: #4e762f;
   --color-primary-900: #29543b;
+  /* 넓은 표면에 까는 연두 워시(홈 TODO 카드). 400을 페이지 배경 위에 14%로 얹은 값을 굳혔다 —
+     투명도로 두면 뒤에 깔린 배경이 바뀔 때 카드 색이 같이 흔들린다.
+     램프 번호를 안 붙인 건 200보다 옅어서 100 자리인데, 그 자리를 크림(배경)이 이미 쓰고 있어서다. */
+  --color-primary-wash: #fbffdf;
 
   /* ===== Secondary (하늘색 - 행동/AI/버튼) ===== */
   --color-secondary-100: #e7f7fa;
@@ -69,26 +76,62 @@
   --color-secondary-800: #024e75;
   --color-secondary-900: #083645;
 
-  /* ===== Gray Scale ===== */
+  /* ===== Gray Scale =====
+     밝은 배경(흰색·canvas) 위에서 500은 2.15:1, 600은 3.41:1로 둘 다 본문 기준에 못 미친다.
+     그렇다고 전부 700으로 올리면 날짜·안내문까지 본문만큼 진해져 화면이 가라앉는다 —
+     한 번 그렇게 해 보고 되돌렸다. 그래서 4.5:1을 갓 넘는 650을 두어
+     "읽히되 물러나 있어야 하는" 글자(날짜·마감·빈 상태·안내)를 맡긴다.
+     700은 눌러야 하는 것(탭·트리거·링크), 800 이상은 본문·제목.
+     400·500은 아이콘·구분선·비활성에만. 어두운 표면 위에서는 반대로 500·600이 맞다. */
   --color-gray-100: #ffffff;
+  --color-gray-150: #fafafa; /* 흰 표면 위 hover */
   --color-gray-200: #f0f1f1;
   --color-gray-300: #e7e7e8; /* text 연함 */
   --color-gray-400: #cecfd1; /* icon */
   --color-gray-500: #aeb1b6;
   --color-gray-600: #868a91;
+  --color-gray-650: #6e727a; /* 밝은 배경에서 4.6~4.8:1 — 물러난 글자용 */
   --color-gray-700: #55585e;
   --color-gray-800: #2b2e36;
   --color-gray-900: #1b1e27;
   --color-gray-950: #0b0f19;
 
-  /* ===== Status ===== */
+  /* ===== Status =====
+     이 색들은 글자로 쓰지 않는다 — 채도가 높아 밝은 배경에서 1.7~3.0:1이고,
+     어둡게 낮춘 단계를 만들어 봤더니 노랑이 올리브가 되는 등 색 자체가 죽었다.
+     대신 색을 '채움'으로 쓰고 글자를 gray-950으로 얹는다. 그러면 원래의 선명한 색이
+     화면에 그대로 남으면서 대비가 6~11:1로 오히려 올라간다. */
   --color-warning: #ffb914;
   --color-error: #ff5d6b;
+  /* D-DAY 뱃지용 옅은 단계. error/10·/20으로 근사하면 #ffeff0이라 시안값과 1~2 어긋난다 */
+  --color-error-50: #fff0f1; /* 긴급 뱃지 배경 */
+  --color-error-200: #ffd6da; /* 배너 뱃지 테두리 */
 
-  /* ===== etc (입문/중급/전공 단계) ===== */
+  /* ===== 과목 색 =====
+     과목(강의)을 색으로 가르는 자리. 캘린더 점과 사이드바 점이 생성 순서대로 이 열하나를 쓴다.
+     11에서 멈춘 건 그 이상 늘리면 서로 헷갈리기 시작해서다 — Lab 거리로 재면 11색까지는
+     가장 가까운 쌍이 ΔE 26이지만, 12색이 되면 20.8(코랄↔로즈)로 떨어진다.
+     12번째 과목부터는 색이 한 바퀴 돌아 겹친다.
+     2·3은 secondary-400·primary-500과 같은 값이지만 별도로 둔다 —
+     과목 팔레트는 브랜드 색과 따로 움직여야 해서 한쪽을 바꿀 때 다른 쪽이 끌려가면 안 된다. */
+  --color-subject-1: #f2c94c;
+  --color-subject-2: #4dd8ff;
+  --color-subject-3: #bedd0c;
+  --color-subject-4: #7fd8c4;
+  --color-subject-5: #b9a7f5;
+  --color-subject-6: #ffa7a0;
+  --color-subject-7: #5cc98a;
+  --color-subject-8: #6b8afd;
+  --color-subject-9: #f58fd0;
+  --color-subject-10: #ff9f5a;
+  --color-subject-11: #a8b84a;
+
+  /* ===== etc (입문/중급/전공 단계) =====
+     level-03(#e3ff00)은 primary-400과 같은 값이었다. 같은 색에 이름이 둘이면
+     시그니처 색이 등급 색이기도 하게 되어 뜻이 흐려진다. 쓰는 곳이 없어 지웠다 —
+     연두가 필요하면 primary-400을 직접 쓴다. */
   --color-level-01: #f0abff;
   --color-level-02: #ffde65;
-  --color-level-03: #e3ff00;
 
   /* ===== Radius ===== */
   --radius-sm: 4px;
@@ -198,6 +241,30 @@
   margin-inline: auto;
 }
 
+/* 완료한 할 일 제목에 긋는 형광펜. 취소선 대신 쓴다 — 글자를 지우지 않고 "끝났다"만 말한다.
+   미완료도 같은 padding/margin을 써서 토글할 때 글자가 밀리지 않는다.
+   clone은 줄바꿈된 각 줄에 상자를 따로 그린다(없으면 두 번째 줄에 왼쪽 여백이 안 생긴다). */
+@utility todo-marker {
+  margin: 0 -2px;
+  padding: 1px 2px 2px;
+  border-radius: 3px;
+  background: transparent;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition: background 150ms;
+}
+
+/* 손으로 그은 것처럼 양 끝이 옅다. 색은 primary-400을 알파만 바꿔 쓴다. */
+@utility todo-marker-on {
+  background: linear-gradient(
+    104deg,
+    color-mix(in srgb, var(--color-primary-400) 0%, transparent) 0.5%,
+    color-mix(in srgb, var(--color-primary-400) 75%, transparent) 2.5%,
+    color-mix(in srgb, var(--color-primary-400) 65%, transparent) 96%,
+    color-mix(in srgb, var(--color-primary-400) 0%, transparent) 99%
+  );
+}
+
 /* 스크롤 영역이 항목을 반쯤 자른 채 끝나지 않게 아래쪽을 페이드로 닫는다.
    내용이 짧아 바닥에 닿지 않으면 빈 자리를 덮어 아무것도 안 보인다 —
    그래서 스크롤이 실제로 생겼을 때만 눈에 띈다. */
@@ -279,6 +346,24 @@
 /* 카드 안쪽 목록처럼 트랙까지 보이는 자리(시안의 홈 카드).
    스크롤바는 요소의 padding 영역을 파고들어 항상 가장자리에 붙는다. 시안처럼 안쪽에
    띄우려면 이 유틸리티를 쓰는 요소를 카드 안쪽에 한 겹 더 두고 여백은 카드가 갖는다. */
+/* 트랙 없는 6px 스크롤바. 홈 시험 일정 카드 전용 — 트랙이 있는 scrollbar-slim은
+   TODO·캘린더가 그대로 쓴다. */
+@utility scrollbar-bare {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: var(--radius-full);
+    background-color: var(--color-gray-400);
+  }
+  &::-webkit-scrollbar-button {
+    display: none;
+  }
+}
+
 @utility scrollbar-slim {
   /* scrollbar-width/color를 두면 Blink가 아래 규칙을 무시한다 (전역 블록 주석 참고) */
   &::-webkit-scrollbar {
@@ -381,7 +466,7 @@
 
 /* 기본 배경/텍스트 */
 body {
-  background-color: var(--color-primary-100);
+  background-color: var(--color-canvas);
   color: var(--color-gray-900);
 }
 

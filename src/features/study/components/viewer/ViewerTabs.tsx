@@ -21,7 +21,10 @@ interface ViewerTabsProps {
 }
 
 // 학습 뷰어 상단 pill 탭.
-// Figma: 활성 = secondary-400 채움 + 흰 글자 / 비활성 = 0.5px gray-500 테두리 + gray-600 글자.
+// 비활성은 Figma대로 0.5px gray-500 테두리 + gray-600 글자.
+// 활성은 시안(secondary-400 + 흰 글자)에서 벗어나 primary-400 + gray-950을 쓴다 —
+// 시안 조합은 대비가 1.67:1이고, "현재 선택"은 사이드바·드롭다운·재생 구간이 이미 연두라
+// 탭만 예외였다. 시안에도 반영 필요.
 // 시안의 이분할 화면에선 탭 두 개가 동시에 활성이라, 하나만 고르는 게 아니라
 // 켜고 끄는(toggle) 버튼이다. 그래서 aria-current가 아니라 aria-pressed를 쓴다.
 // cn은 merge가 없으므로 활성/비활성 클래스 세트를 삼항으로 통째로 분기한다.
@@ -50,8 +53,8 @@ export function ViewerTabs({
               'text-label flex h-8 items-center justify-center rounded-full px-4 font-medium whitespace-nowrap transition-colors',
               locked && 'cursor-default opacity-45',
               active
-                ? 'bg-secondary-400 text-white'
-                : 'border-[0.5px] border-gray-500 text-gray-600 hover:border-gray-600 hover:text-gray-700',
+                ? 'bg-primary-400 text-gray-950'
+                : 'border-[0.5px] border-gray-500 text-gray-700 hover:border-gray-600 hover:text-gray-900',
             )}
           >
             {tab.label}

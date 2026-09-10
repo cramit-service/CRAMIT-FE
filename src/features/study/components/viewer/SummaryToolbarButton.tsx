@@ -4,7 +4,7 @@ import { cn } from '@/shared/lib/cn';
 
 // 요약 탭 상단 바 버튼. 어두운 패널 위에 올라가서 shared/ui의 Button variant와 색 역할이 달라
 // (예: 배경 없는 흰 글자 버튼) 이 탭 전용으로 둔다.
-type Tone = 'ghost' | 'gradient' | 'point' | 'muted';
+type Tone = 'ghost' | 'gradient' | 'success' | 'muted';
 
 // cn은 merge가 없으므로 tone별로 서로 겹치지 않는 '완성된' 색 세트를 고른다.
 const toneStyles: Record<Tone, string> = {
@@ -17,7 +17,7 @@ const toneStyles: Record<Tone, string> = {
   gradient:
     'border-[0.5px] border-gray-700 from-level-01/15 via-white to-level-02/20 bg-white bg-linear-to-r text-gray-900 hover:from-level-01/25 hover:to-level-02/30',
   // 수정하기 / 수정완료 — 시그니처 연두 (핵심 CTA)
-  point: 'bg-primary-400 text-gray-900 hover:bg-primary-500',
+  success: 'bg-primary-400 text-gray-900 hover:bg-primary-500',
   // 수정취소 — 중립 회색
   muted: 'bg-gray-400 text-gray-900 hover:bg-gray-500',
 };
