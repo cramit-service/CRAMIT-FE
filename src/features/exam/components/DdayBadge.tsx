@@ -9,7 +9,7 @@ import { ddayLabel } from '@/features/exam/lib/dday';
 interface DdayBadgeProps {
   /** 시험까지 남은 일수. 0이면 D-DAY, 음수면 이미 지난 시험. */
   days: number;
-  /** 홈 배너용. 색 규칙은 목록과 같고 크기만 한 단계 작다. */
+  /** 홈 배너용. 색·글자는 목록과 같고 세로 여백만 작다(시안 61×26). */
   onGradient?: boolean;
   className?: string;
 }
@@ -18,24 +18,27 @@ interface DdayBadgeProps {
 const BASE =
   'inline-flex items-center justify-center rounded-md px-2.5 text-center font-semibold whitespace-nowrap';
 
+// 가까울수록 진해진다. 상태 색은 채움으로만 쓴다 — error 글자는 밝은 바탕에서 2.7:1이다.
+// 지난 시험(음수)은 가장 진한 단계에 둔다.
+function toneFor(days: number) {
+  if (days <= 1) return 'bg-error text-gray-950';
+  if (days === 2) return 'bg-error-300 text-gray-950';
+  if (days === 3) return 'bg-error-200 text-gray-950';
+  return 'bg-gray-200 text-gray-700';
+}
+
 export function DdayBadge({
   days,
   onGradient = false,
   className,
 }: DdayBadgeProps) {
-  // 색은 두 단계뿐이다 — D-3 이하가 긴급, D-4부터는 일반.
-  // 지난 시험(음수)도 긴급 쪽에 둔다(이전 구간 분기와 같은 처리).
-  const urgent = days <= 3;
-
   return (
     <span
       className={cn(
         BASE,
-        onGradient
-          ? 'min-w-14.5 py-1.25 text-[13px] leading-4'
-          : 'min-w-16 py-1.5 text-[14px] leading-5',
-        // 색은 배너·목록이 같은 2단계를 탄다.
-        urgent ? 'bg-error-50 text-error' : 'bg-gray-200 text-gray-700',
+        'text-label',
+        onGradient ? 'min-w-14.5 py-0.5' : 'min-w-16 py-1.25',
+        toneFor(days),
         className,
       )}
     >

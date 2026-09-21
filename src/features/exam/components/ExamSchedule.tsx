@@ -13,7 +13,7 @@ import { ExamFormModal } from './ExamFormModal';
 
 function StatusMessage({ children }: { children: React.ReactNode }) {
   return (
-    <p className="flex h-full items-center justify-center text-center text-[14px] leading-5 text-gray-600">
+    <p className="text-label text-gray-650 flex h-full items-center justify-center text-center">
       {children}
     </p>
   );
@@ -37,7 +37,7 @@ export function ExamSchedule() {
         <button
           type="button"
           onClick={() => setEditing('new')}
-          className="focus-visible:ring-secondary-400 -mr-2.5 flex items-center gap-1 rounded-md px-2.5 py-2 text-[14px] leading-5 text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-900 focus-visible:ring-2 focus-visible:outline-none"
+          className="focus-visible:ring-secondary-400 text-label -mr-2.5 flex items-center gap-1 rounded-md px-2.5 py-2 text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-900 focus-visible:ring-2 focus-visible:outline-none"
         >
           <PlusIcon className="size-3.5 shrink-0" />
           추가
@@ -85,10 +85,10 @@ export function ExamSchedule() {
                       href={`/projects/${exam.projectId}`}
                       className="focus-visible:ring-secondary-400 flex min-w-0 flex-1 items-baseline gap-3 rounded-sm after:absolute after:inset-0 focus-visible:ring-2 focus-visible:outline-none"
                     >
-                      <span className="truncate text-[17px] leading-6 font-medium text-gray-900 transition-colors group-hover:text-gray-950">
+                      <span className="text-body-sm truncate font-medium text-gray-900 transition-colors group-hover:text-gray-950">
                         {examName(exam)}
                       </span>
-                      <span className="ml-auto shrink-0 text-[14px] leading-5 text-gray-600">
+                      <span className="text-label text-gray-650 ml-auto shrink-0">
                         {formatShortDate(exam.examDate)}
                       </span>
                     </Link>

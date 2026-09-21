@@ -103,9 +103,9 @@
      화면에 그대로 남으면서 대비가 6~11:1로 오히려 올라간다. */
   --color-warning: #ffb914;
   --color-error: #ff5d6b;
-  /* D-DAY 뱃지용 옅은 단계. error/10·/20으로 근사하면 #ffeff0이라 시안값과 1~2 어긋난다 */
-  --color-error-50: #fff0f1; /* 긴급 뱃지 배경 */
-  --color-error-200: #ffd6da; /* 배너 뱃지 테두리 */
+  /* D-day 뱃지 단계 — 시험이 가까울수록 진해진다(D-3 → D-2 → D-1·D-DAY는 error) */
+  --color-error-200: #ffd6da;
+  --color-error-300: #ff9aa2;
 
   /* ===== 과목 색 =====
      과목(강의)을 색으로 가르는 자리. 캘린더 점과 사이드바 점이 생성 순서대로 이 열하나를 쓴다.
