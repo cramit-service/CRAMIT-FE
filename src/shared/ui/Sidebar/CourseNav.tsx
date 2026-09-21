@@ -149,10 +149,10 @@ function CourseSection({
             [0, 1, 2].map((i) => (
               <li key={i} className="flex items-center py-2.5">
                 <span className="flex w-22.5 shrink-0 justify-center">
-                  <span className="size-1.5 animate-pulse rounded-full bg-gray-700" />
+                  <span className="size-1.5 motion-safe:animate-pulse rounded-full bg-gray-700" />
                 </span>
                 {expanded && (
-                  <span className="mr-5 h-3 flex-1 animate-pulse rounded-full bg-gray-800" />
+                  <span className="mr-5 h-3 flex-1 motion-safe:animate-pulse rounded-full bg-gray-800" />
                 )}
               </li>
             ))}
