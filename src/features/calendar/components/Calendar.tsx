@@ -127,8 +127,8 @@ function NavButton({
   onClick: () => void;
   direction: 'left' | 'right';
 }) {
-  // 버튼 21px·radius 6px은 시안값 그대로다. 옆의 "YYYY년 M월"(18px)도 시안 크기를
-  // 그대로 쓰므로 버튼만 0.72로 줄이면 글자보다 작아져 시안과 어긋난다.
+  // 버튼 21px·radius 6px은 시안값 그대로다. 옆의 "YYYY년 M월"이 18px이라
+  // 버튼을 그보다 줄이면 글자보다 작아진다.
   return (
     <button
       type="button"

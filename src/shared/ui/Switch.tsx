@@ -13,7 +13,7 @@ interface SwitchProps {
 }
 
 // 알림 설정 같은 즉시 반영 토글. 체크박스와 달리 "저장"을 누르지 않아도 값이 바뀐다.
-// Figma 56×32 → 화면과 같은 0.72배로 40×23. 손잡이 19에 좌우 2px 여백 → 이동 거리 17px.
+// 트랙 40×23, 손잡이 19에 좌우 2px 여백 → 이동 거리 17px.
 export function Switch({
   checked,
   onChange,
