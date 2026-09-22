@@ -128,16 +128,17 @@ a reason behind it.
 
 #### Icon size
 
-> **Undecided.** Icon size is bound to the size of the text beside it, so it is
-> settled with typography (§3).
+Settled in typography (§3): an icon takes the nearest 4px step to the size of
+the text beside it. Beside body text that yields 16, 20 and 24, all of them on
+the 4px base.
 
-#### Open: line height against the 4px grid
+#### Line height against the 4px grid
 
-Four of the ten type tokens carry line heights off the 4px grid — `heading-lg`
-(74), `body-md` and `body` (30), `label` (22). Vertical distance from a line of
-text to the next element therefore lands 2px off the grid in those cases.
-Whether to correct it belongs to typography (§3). It does not change the spacing
-list.
+Settled in typography (§3): the grid does not govern line height. Three of the
+eight type steps land off it — `label` (14/22), `body-md` (20/30) and
+`heading-lg` (52/74) — and all three stay. Correcting either moves its ratio further from the 1.5 the body ramp is
+built on, and a reader notices a line that is too tight long before anyone
+notices two pixels of drift. It does not change the spacing list.
 
 ### Motion & Easing
 
@@ -149,12 +150,118 @@ list.
 
 ### Typography Rules
 
-> **Undecided.** Sizes and line heights are already tokens in
-> `src/app/globals.css`; whether they survive as-is is not yet settled.
+Eight steps. Sizes come from the design file; line heights and tracking are
+settled here. Weight is never part of a token — it is set separately, and
+**Weight** below says with what.
 
-| Role | Token | Size | Line height | Tracking |
-| ---- | ----- | ---: | ----------: | -------: |
-|      |       |      |             |          |
+| Role      | Token               | Size | Line height | Ratio |
+| --------- | ------------------- | ---: | ----------: | ----: |
+| Label     | `--text-label`      |   14 |          22 |  1.57 |
+| Body S    | `--text-body-sm`    |   16 |          24 |  1.50 |
+| Body      | `--text-body`       |   18 |          28 |  1.56 |
+| Body M    | `--text-body-md`    |   20 |          30 |  1.50 |
+| Body L    | `--text-body-lg`    |   22 |          32 |  1.45 |
+| Heading S | `--text-heading-sm` |   24 |          36 |  1.50 |
+| Heading M | `--text-heading-md` |   32 |          44 |  1.38 |
+| Heading L | `--text-heading-lg` |   52 |          74 |  1.42 |
+
+#### Line height
+
+Body steps (14–24) sit at roughly 1.5. The large headings run tighter — 32 at
+1.38 and 52 at 1.42 — because a large line needs proportionally less space
+beneath it to still read as one line rather than as a paragraph.
+
+The 4px grid does not govern line height. The grid governs the space between
+things, which §2 settles. A line box is not space between things; it is the text
+itself. Where the two disagree, reading wins.
+
+16/24 was settled first, against the summary panel — the long-form reading
+surface §1 is built around. At 24 a wrapped paragraph holds together as one
+block; at 28 its lines drift apart. The air that 28 would have bought belongs in
+the gap between items instead, where it is a spacing decision (§2) and can be
+tuned without touching the text.
+
+`body` then moved 30 → 28. At 30 it was 1.67 — the only body step away from the
+1.5 the rest of the ramp sits on. Nothing else moved. That 28 also lands on the
+4px grid is a consequence, not the reason; reversing the two would make the next
+reader think the grid decides.
+
+**Known cost.** `label` (1.57) and `body-lg` (1.45) are not 1.5, and three of
+the eight steps sit off the 4px grid — `label` (22), `body-md` (30) and
+`heading-lg` (74). Each available correction is worse: 14/20 is 1.43, 22/33
+leaves the grid anyway, and 20/28 is 1.40 — further from 1.5 than the value it
+would replace.
+
+#### One line height and one tracking per size
+
+A size carries one line height and one tracking. Weight does not change either,
+because weight is not part of the token.
+
+The design file splits some sizes in two — 16 into 24 and 28, 20 into 30 and 28,
+32 into 42 at weight 400 and 44 at weight 600. Those splits do not survive here.
+A second line height on the same size has to be chosen every time that size is
+used, and the thing it was usually encoding — the height of a button — is
+settled by control height in §2 instead.
+
+Where a split had to be resolved: 32 takes 44, and 24 takes −0.02em rather than
+the −0.025em one of its two styles carries. At 24px that tracking difference is
+0.12px.
+
+#### Weight
+
+Three weights. 400 carries text read as sentences; 500 carries the fragments —
+labels, metadata, button text; 600 is headings and emphasis.
+
+What separates 400 from 500 is not whether something can be pressed. Fill,
+cursor and shape carry that, and they carry it for links, tabs and triggers as
+well; weight put to the same job spreads across the screen until it signals
+nothing, and it would make a typography rule depend on §4, which is undecided.
+The split is between reading and scanning. A fragment at 400 goes thin and
+drifts off its row; a sentence at 500 is heavy to stay with for an hour, and §1
+says an hour is the case to design for.
+
+The design file reaches the same three weights and assigns them the same way:
+every `Button/*` style is 500, `Body/Regular2` and `Body/Medium` are 400, and
+the `*B` headings are 600.
+
+#### The ramp stops at 14
+
+There is no 12px step. A step exists when a role needs it, and no role needs to
+be smaller than a label. Text set at 12px is there because a box is narrow, and
+a narrow box is a layout problem — the layout solves it, not the text.
+
+This is not free. Anything that relies on 12px today has to be redrawn rather
+than reclassed. That is a migration cost, not an argument for keeping the step.
+
+#### Icon size
+
+An icon takes the nearest 4px step to the size of the text beside it. Beside
+body text that is 16, 20 or 24; beside a heading it is the heading's own size.
+
+The size is bound to the text, then rounded onto the same 4px base the rest of
+§2 uses. The ramp's 16, 20, 24 and 32 already sit on it, so only 14, 18 and 52
+round up.
+Matching the text exactly was the alternative and is worse: a stroke icon drawn
+on a 24-unit grid and rendered at 18 puts its strokes on half pixels and reads
+blurred.
+
+#### Removed tokens
+
+| Token       | Was   | Why                                                                                                   |
+| ----------- | ----- | ----------------------------------------------------------------------------------------------------- |
+| `button-lg` | 20/28 | Same size as `body-md`. Every use is a fixed-height button, where line height changes nothing.        |
+| `button-sm` | 16/28 | Same size as `body-sm`. Named for buttons, but most uses were paragraphs, headings, hints and badges. |
+
+A token named after a component starts lying the moment that component stops
+being its only user. Size and line height belong to the ramp; a button's height
+comes from control height (§2).
+
+#### The landing page is outside the ramp
+
+> **Undecided.** The landing page is pre-login marketing, it opens on phones,
+> and it scales its headings with the viewport — which this ramp deliberately
+> does not do. It is governed by its own scale. That scale is not settled: the
+> current design is a placeholder, and a placeholder is not a source (§7).
 
 ---
 
