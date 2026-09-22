@@ -10,7 +10,7 @@ interface LectureSectionProps {
   title: string;
   description?: string;
   lectures: ProjectSummary[];
-  subjectDots: Map<string, string>;
+  subjectDots: Map<string, number>;
   sort: SortKey;
   onSortChange: (value: SortKey) => void;
   // 검색 중이면 "결과 없음", 아니면 "아직 강의 없음"으로 빈 상태 문구가 갈린다.

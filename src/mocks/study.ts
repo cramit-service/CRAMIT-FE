@@ -120,6 +120,7 @@ export const mockProjectDetail: ProjectDetail = {
   examDate: '2026-07-20',
   isShared: false,
   sharedBy: null,
+  colorIndex: 1,
 };
 
 // 학습 뷰어(PDF 강의 자료 탭) mock — Figma 시안값 그대로 12페이지 / 61:02.

@@ -80,6 +80,9 @@ export interface Project {
   projectId: string;
   title: string;
   createdAt: string; // ISO 날짜 문자열
+  // 과목 색 — 팔레트 번호(1부터). 없으면 화면이 생성 순으로 채운다(공유 강의 등).
+  // TODO: 백엔드 필드명 확정 시 맞춘다. 공유 강의도 내 색으로 보여야 해서 사용자-강의 쌍 저장을 요청했다.
+  colorIndex: number | null;
 }
 
 // 학습하기(강의 목록) 카드 한 장에 필요한 메타.
@@ -295,6 +298,7 @@ export interface CreateProjectRequest {
   title: string; // 강의명 (예: "운영체제")
   examDate: string | null; // 시험 날짜 (YYYY-MM-DD)
   professor: string | null; // 교수명 (선택)
+  colorIndex: number; // 과목 색 팔레트 번호(1부터)
 }
 
 // 강의 수정 (강의 상세 헤더의 연필 버튼). 시안에 전용 프레임이 없어 생성 모달의 수정 모드로 쓴다.

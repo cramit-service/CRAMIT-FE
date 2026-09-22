@@ -26,6 +26,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     examName: '중간고사',
     examDate: daysFromNow(0), // D-DAY (임박)
     sharedBy: null,
+    colorIndex: 1,
   },
   {
     projectId: '2',
@@ -36,6 +37,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     examName: null,
     examDate: null,
     sharedBy: null,
+    colorIndex: 2,
   },
   {
     projectId: '3',
@@ -46,6 +48,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     examName: '중간고사',
     examDate: daysFromNow(3), // D-3 (임박)
     sharedBy: null,
+    colorIndex: 3,
   },
   {
     projectId: '4',
@@ -56,6 +59,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     examName: '기말고사',
     examDate: daysFromNow(13), // D-13 (여유)
     sharedBy: null,
+    colorIndex: 4,
   },
   {
     projectId: '5',
@@ -66,6 +70,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     examName: '중간고사',
     examDate: daysFromNow(5), // D-5 (주의)
     sharedBy: null,
+    colorIndex: 5,
   },
   {
     projectId: '6',
@@ -76,6 +81,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     examName: null,
     examDate: null,
     sharedBy: null,
+    colorIndex: 6,
   },
   {
     projectId: '7',
@@ -86,6 +92,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     examName: null,
     examDate: null,
     sharedBy: '김한양',
+    colorIndex: null,
   },
   {
     projectId: '8',
@@ -96,6 +103,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     examName: null,
     examDate: null,
     sharedBy: '김한양',
+    colorIndex: null,
   },
   {
     projectId: '9',
@@ -106,6 +114,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     examName: '중간고사',
     examDate: daysFromNow(4), // D-4 (주의)
     sharedBy: '김한양',
+    colorIndex: null,
   },
   {
     projectId: '10',
@@ -116,6 +125,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     examName: null,
     examDate: null,
     sharedBy: '오지훈',
+    colorIndex: null,
   },
   {
     projectId: '11',
@@ -126,17 +136,21 @@ export const mockProjectSummaries: ProjectSummary[] = [
     examName: null,
     examDate: null,
     sharedBy: '오지훈',
+    colorIndex: null,
   },
 ];
 
 // 간단 목록(Project)은 요약 목록에서 깎아 만든다. 두 배열을 따로 들고 있었더니
 // 같은 projectId가 서로 다른 강의를 가리키게 됐다 — 파생시키면 어긋날 수가 없다.
 export function mockProjectsFromSummaries(): Project[] {
-  return mockProjectSummaries.map(({ projectId, title, createdAt }) => ({
-    projectId,
-    title,
-    createdAt,
-  }));
+  return mockProjectSummaries.map(
+    ({ projectId, title, createdAt, colorIndex }) => ({
+      projectId,
+      title,
+      createdAt,
+      colorIndex,
+    }),
+  );
 }
 
 // mock 전용: 생성한 강의를 목록 맨 앞에 밀어 넣는다. 새로고침하면 사라진다.
