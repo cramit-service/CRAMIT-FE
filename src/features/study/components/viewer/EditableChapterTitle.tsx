@@ -48,7 +48,7 @@ export function EditableChapterTitle({ chapter }: { chapter: Chapter }) {
     <h1 className="text-heading-sm relative flex min-w-0 items-center justify-end gap-2 font-semibold text-gray-950">
       <span className="shrink-0">Chapter {chapter.chapterNumber}</span>
       {(chapter.title !== '' || editing) && (
-        <span className="shrink-0 text-gray-500">-</span>
+        <span className="shrink-0 text-gray-600">-</span>
       )}
       {editing ? (
         <>
@@ -96,7 +96,7 @@ export function EditableChapterTitle({ chapter }: { chapter: Chapter }) {
             'focus-visible:ring-secondary-400 min-w-0 truncate rounded-sm border-b border-transparent text-right transition-colors',
             'hover:border-gray-500 focus-visible:ring-2 focus-visible:outline-none',
             // 아직 이름이 없으면 눌러야 할 자리라는 걸 드러낸다
-            chapter.title === '' && 'font-normal text-gray-500',
+            chapter.title === '' && 'font-normal text-gray-700',
           )}
         >
           {chapter.title === '' ? '제목 추가' : chapter.title}

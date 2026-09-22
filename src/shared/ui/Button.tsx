@@ -5,7 +5,9 @@
 //  삭제 error, 비활성 gray-400. 타이포는 Pretendard, 자간 -2% = -0.02em.)
 import { cn } from '@/shared/lib/cn';
 
-type Variant = 'primary' | 'danger' | 'point' | 'outline' | 'dark';
+// 이름은 색이 아니라 역할이다. 예전엔 primary가 하늘을, point가 연두를 칠해서
+// 토큰 이름(primary-400 = 연두)과 정면으로 어긋났고, 규칙을 아는 사람일수록 반대로 집었다.
+type Variant = 'confirm' | 'success' | 'danger' | 'outline' | 'dark';
 type Size = 'xs' | 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -14,14 +16,14 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 // variant별 색상 스타일 (Figma 버튼 역할 매핑)
-// - primary : 하늘색, 일반 확정 액션 (다음/생성/업로드/확인)
-// - point   : 연두, 시그니처 강조 (수정완료/전송 등 완료·성공)
+// - confirm : 하늘색, 일반 확정 액션 (다음/생성/업로드/확인) — 기본값
+// - success : 연두, 시그니처 강조 (수정완료/전송 등 완료·성공)
 // - danger  : 삭제/위험 액션
 // - outline : 밝은 표면 위 보조 액션 (이전/취소/공유)
 // - dark    : 어두운 강조 버튼 (크래밋 시작하기/회원가입/추가하기)
 const variantStyles: Record<Variant, string> = {
-  primary: 'bg-secondary-400 text-gray-950 hover:bg-secondary-500',
-  point: 'bg-primary-400 text-gray-950 hover:bg-primary-500',
+  confirm: 'bg-secondary-400 text-gray-950 hover:bg-secondary-500',
+  success: 'bg-primary-400 text-gray-950 hover:bg-primary-500',
   danger: 'bg-error text-gray-100 hover:brightness-95',
   outline: 'border border-gray-400 bg-gray-100 text-gray-900 hover:bg-gray-200',
   dark: 'bg-gray-900 text-gray-100 hover:bg-gray-800',
@@ -41,7 +43,7 @@ const sizeStyles: Record<Size, string> = {
 };
 
 export function Button({
-  variant = 'primary',
+  variant = 'confirm',
   size = 'md',
   // 기본은 'button'. HTML 기본값 'submit'이면 form 안에서 의도치 않게 제출되므로,
   // 제출 버튼만 호출처에서 type="submit"을 명시한다.
@@ -59,7 +61,7 @@ export function Button({
         sizeStyles[size],
         // 비활성이면 회색 채움에 밝은 글자, 아니면 variant 색상 적용
         disabled
-          ? 'text-primary-100 cursor-not-allowed bg-gray-400'
+          ? 'cursor-not-allowed bg-gray-400 text-gray-100'
           : variantStyles[variant],
         className,
       )}

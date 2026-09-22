@@ -37,22 +37,26 @@ function CheckIcon({ className }: { className?: string }) {
 export function CheckboxBox({
   checked,
   className,
+  iconClassName,
 }: {
   checked: boolean;
   className?: string;
+  /** 상자 크기를 className으로 바꿀 때 체크 표시도 같이 맞추라고 열어 둔 자리. */
+  iconClassName?: string;
 }) {
   return (
     <span
       className={cn(
         'flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border transition-colors',
-        // 체크 시 색을 채우고, 아니면 아이콘을 투명하게 두어 크기 변화를 막는다
+        // 체크 시 색을 채우고, 아니면 아이콘을 투명하게 두어 크기 변화를 막는다.
+        // 채움이 연두라 체크 표시는 어두워야 한다 — 흰색이면 1.13:1로 사라진다.
         checked
-          ? 'border-secondary-400 bg-secondary-400 text-gray-100'
+          ? 'border-primary-400 bg-primary-400 text-gray-950'
           : 'border-gray-400 bg-gray-100 text-transparent',
         className,
       )}
     >
-      <CheckIcon className="h-3.5 w-3.5" />
+      <CheckIcon className={cn('h-3.5 w-3.5', iconClassName)} />
     </span>
   );
 }

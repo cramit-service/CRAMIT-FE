@@ -1,16 +1,6 @@
 // src/mocks/project.ts — 프로젝트 목록 mock
 import type { Project, ProjectSummary } from '@/shared/types/api';
 
-export const mockProjects: Project[] = [
-  { projectId: '1', title: '운영체제', createdAt: '2026-03-02T09:00:00Z' },
-  { projectId: '2', title: '자료구조', createdAt: '2026-03-05T09:00:00Z' },
-  {
-    projectId: '3',
-    title: '컴퓨터네트워크',
-    createdAt: '2026-03-10T09:00:00Z',
-  },
-];
-
 // 시험일을 오늘 기준 상대값으로 만든다.
 // 날짜를 하드코딩하면 며칠만 지나도 전부 "종료" 태그로 굳어버려서
 // D-DAY 색 분기(임박/주의/여유)를 화면에서 확인할 수 없다.
@@ -139,16 +129,20 @@ export const mockProjectSummaries: ProjectSummary[] = [
   },
 ];
 
+// 간단 목록(Project)은 요약 목록에서 깎아 만든다. 두 배열을 따로 들고 있었더니
+// 같은 projectId가 서로 다른 강의를 가리키게 됐다 — 파생시키면 어긋날 수가 없다.
+export function mockProjectsFromSummaries(): Project[] {
+  return mockProjectSummaries.map(({ projectId, title, createdAt }) => ({
+    projectId,
+    title,
+    createdAt,
+  }));
+}
+
 // mock 전용: 생성한 강의를 목록 맨 앞에 밀어 넣는다. 새로고침하면 사라진다.
 // 목록의 기본 정렬이 "등록순"이라 맨 앞에 넣어야 방금 만든 게 눈에 보인다.
-// mockProjects(간단 목록)에도 같이 넣어 두 응답이 어긋나지 않게 한다.
 export function addMockProjectSummary(summary: ProjectSummary): void {
   mockProjectSummaries.unshift(summary);
-  mockProjects.unshift({
-    projectId: summary.projectId,
-    title: summary.title,
-    createdAt: summary.createdAt,
-  });
 }
 
 export function updateMockProjectSummary(summary: ProjectSummary): void {
@@ -157,14 +151,6 @@ export function updateMockProjectSummary(summary: ProjectSummary): void {
   );
   if (index === -1) throw new Error('수정할 강의를 찾지 못했어요.');
   mockProjectSummaries[index] = summary;
-
-  // 간단 목록에도 제목이 남아 있어 같이 맞춰야 두 응답이 어긋나지 않는다.
-  const plain = mockProjects.findIndex(
-    (p) => p.projectId === summary.projectId,
-  );
-  if (plain !== -1) {
-    mockProjects[plain] = { ...mockProjects[plain], title: summary.title };
-  }
 }
 
 export function findMockProjectSummary(

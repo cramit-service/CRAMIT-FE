@@ -1,12 +1,11 @@
 'use client';
 // src/features/todo/components/TodoChecklist.tsx
-import Image from 'next/image';
 import { useMemo, useRef, useState } from 'react';
 import type { Todo } from '@/shared/types/api';
 import { Button } from '@/shared/ui/Button';
 import { CheckboxBox } from '@/shared/ui/Checkbox';
 import { cn } from '@/shared/lib/cn';
-import { formatKoreanDate, toLocalDateString } from '@/shared/lib/date';
+import { toLocalDateString } from '@/shared/lib/date';
 import { useTodos } from '@/features/todo/hooks/useTodos';
 import { todoName } from '@/features/todo/lib/todoName';
 import { useLongPress } from '@/features/todo/hooks/useLongPress';
@@ -17,10 +16,12 @@ import {
 import { TodoViewSelect } from './TodoViewSelect';
 import { TodoFormModal } from './TodoFormModal';
 
-// 마감 표시 — "| 마감일시 2026. 07. 10. (금요일) 13:30". 시간은 있을 때만 붙인다.
+// 마감 표시 — "9/10 (목) 13:30". 제목과 한 줄에 놓이므로 짧게 간다.
+const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토'];
 function dueLabel(todo: Todo): string {
-  const date = formatKoreanDate(todo.dueDate);
-  return `| 마감일시 ${date}${todo.dueTime ? ` ${todo.dueTime}` : ''}`;
+  const [year, month, day] = todo.dueDate.split('-').map(Number);
+  const weekday = WEEKDAY[new Date(year, month - 1, day).getDay()];
+  return `${month}/${day} (${weekday})${todo.dueTime ? ` ${todo.dueTime}` : ''}`;
 }
 
 // 목록이 비었을 때의 안내. 보기마다 비는 이유가 달라 문구도 다르다.
@@ -41,7 +42,7 @@ function isTodoDone(todo: Todo, overrides: Record<string, boolean>): boolean {
 // 배경·라운드는 바깥 카드가 갖고, 여긴 메시지만.
 function StatusMessage({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-body flex h-full items-center justify-center text-center text-gray-500">
+    <p className="text-body text-gray-650 flex h-full items-center justify-center text-center">
       {children}
     </p>
   );
@@ -114,13 +115,13 @@ export function TodoChecklist() {
       </div>
 
       {/* 카드는 데이터 유무와 무관하게 항상 렌더 — 크기는 여기(div)에 준다. 비어도 안 줄어든다.
-          스크롤은 안쪽 div가 맡는다. 카드가 직접 스크롤하면 스크롤바가 카드 가장자리에 붙어
-          시안(우측 6px·상하 12px 안쪽)처럼 띄울 수 없다. 그 여백을 카드의 py/pr이 만든다. */}
+          스크롤은 안쪽 div가 맡는다. 카드가 직접 스크롤하면 스크롤바가 카드 모서리에 붙는다.
+          안쪽의 -mr-3/pr-3은 스크롤바를 카드 우패딩 자리로 빼되 글자는 그대로 두려는 것이다. */}
       {/* lg 높이는 옆의 캘린더 카드와 하단이 맞아야 한다. 제목 행 규칙이 두 열에서 같으므로
           카드 높이도 캘린더와 같은 654다 — 한쪽을 바꾸면 다른 쪽도 같이 바꿔야 한다.
           예전에는 flex-1로 남는 높이를 채워 뷰포트마다 높이가 달라졌다. */}
-      <div className="bg-secondary-100 flex h-124 flex-col rounded-md py-3 pr-1.5 pl-5 lg:h-[654px]">
-        <div className="scrollbar-slim min-h-0 flex-1 overflow-y-auto overscroll-none pr-4">
+      <div className="flex h-124 flex-col rounded-lg border border-gray-300 bg-white px-6 py-2 lg:h-[654px]">
+        <div className="scrollbar-slim -mr-3 min-h-0 flex-1 overflow-y-auto overscroll-none pr-3">
           {isLoading ? (
             <StatusMessage>불러오는 중…</StatusMessage>
           ) : isError || !todos ? (
@@ -130,7 +131,9 @@ export function TodoChecklist() {
           ) : visible.length === 0 ? (
             <StatusMessage>{emptyMessage}</StatusMessage>
           ) : (
-            <ul>
+            // 행 사이 선은 둘째 행부터의 위쪽 테두리다. divide-y를 안 쓰는 이유는
+            // v4에서 그게 아래쪽 선으로 바뀌어 "첫 행 제외 상단"과 걸리는 요소가 달라서다.
+            <ul className="[&>li+li]:border-t [&>li+li]:border-gray-200">
               {visible.map((todo) => (
                 <TodoRow
                   key={todo.todoId}
@@ -147,7 +150,8 @@ export function TodoChecklist() {
 
       {/* 길게 눌러야 수정된다는 걸 화면만 봐서는 알 수 없어 시안(1:1166)의 안내 문구를 카드 아래에 둔다.
           오른쪽 끝을 카드 오른쪽 끝에 맞추고, 옆 캘린더의 범례 줄과 같은 자리(mt-2)에 놓는다. */}
-      <p className="text-button-sm mt-2 text-right text-gray-500">
+      {/* 실제로 알려줘야 하는 문구다. gray-500은 2.06:1이라 안내가 안내로 안 읽혔다. */}
+      <p className="text-button-sm text-gray-650 mt-2 text-right">
         *꾹 눌러서 TODO를 수정할 수 있어요!
       </p>
 
@@ -167,8 +171,7 @@ export function TodoChecklist() {
 // 길게 누르기는 키보드에 없으므로 수정은 contextmenu로도 연다 — 메뉴 키(Shift+F10)가
 // 같은 이벤트를 쏘기 때문이다.
 //
-// 폭을 calc로 명시하는 이유: <button>은 display:flex를 줘도 블록처럼 늘어나지 않는다.
-// -mx-2로 넘긴 16px을 더해 줘야 누르는 중 배경이 좌우로 고르게 깔린다.
+// <button>은 display:flex를 줘도 블록처럼 늘어나지 않아 w-full을 명시한다.
 function TodoRow({
   todo,
   done,
@@ -207,48 +210,61 @@ function TodoRow({
         }}
         {...handlers}
         className={cn(
-          '-mx-2 flex w-[calc(100%+16px)] cursor-pointer gap-3 rounded-sm px-2 py-2 text-left transition-colors select-none',
+          'flex w-full cursor-pointer items-start gap-3.5 py-4 text-left transition-colors select-none',
           'focus-visible:ring-secondary-400 focus-visible:ring-2 focus-visible:outline-none',
-          pressing && 'bg-secondary-200/40',
+          pressing && 'bg-primary-300/40',
         )}
       >
-        <CheckboxBox checked={done} />
+        <CheckboxBox
+          checked={done}
+          className="mt-px size-5.5 rounded-sm"
+          iconClassName="size-3.25"
+        />
         {/* min-w-0 — 메모에 띄어쓰기 없는 아주 긴 문자열이 들어오면 flex 자동 최소폭(min-content)이
             이 칸을 밀어 넓힌다. 글자가 넘치는 건 어차피 못 막지만 행 상자는 카드 폭에 묶어 둔다. */}
         <span className="flex min-w-0 flex-1 flex-col gap-1">
-          <span
-            className={cn(
-              'text-label font-medium',
-              done ? 'text-gray-600 line-through' : 'text-gray-800',
-            )}
-          >
-            {todoName(todo)}
-          </span>
-          <span className="flex flex-col gap-0.5">
-            <span className="text-button-sm text-gray-600">
+          <span className="flex items-baseline justify-between gap-3">
+            <span className="truncate text-[17px] leading-6 font-medium text-gray-900">
+              {/* 완료해도 글자를 지우지 않는다 — 취소선 대신 형광펜을 긋는다. */}
+              <span className={cn('todo-marker', done && 'todo-marker-on')}>
+                {todoName(todo)}
+              </span>
+            </span>
+            <span
+              className={cn(
+                'flex-none text-[14px] leading-5',
+                done ? 'text-gray-400' : 'text-gray-600',
+              )}
+            >
               {dueLabel(todo)}
             </span>
-            {todo.memo && (
-              <span className="flex items-start gap-1">
-                {/* 메모 아이콘. SVG라 next/image 최적화 경로를 피하려 unoptimized. */}
-                <Image
-                  src="/icons/todo_memo.svg"
-                  alt=""
-                  aria-hidden
-                  width={11}
-                  height={11}
-                  unoptimized
-                  className="mt-0.5 size-3 shrink-0"
-                />
-                <span className="text-level-01 text-button-sm">
-                  {todo.memo}
-                </span>
-              </span>
-            )}
           </span>
+          {todo.memo && (
+            <span className="flex min-w-0 items-center gap-1.5 text-gray-600">
+              <MemoIcon className="size-3.25 shrink-0" />
+              <span className="truncate text-[14px] leading-5">
+                {todo.memo}
+              </span>
+            </span>
+          )}
         </span>
       </button>
     </li>
+  );
+}
+
+// 메모(전구). public/icons/todo_memo.svg의 path 그대로다 —
+// 에셋은 fill이 분홍으로 박혀 있어 <Image>로는 색을 물려받지 못한다.
+function MemoIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 11 11"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M6.0506 9.63477C6.17385 9.63524 6.27408 9.73508 6.27424 9.8584C6.27424 9.98185 6.17394 10.0816 6.0506 10.082H4.25764C4.13389 10.082 4.034 9.98215 4.034 9.8584C4.03416 9.73479 4.13399 9.63477 4.25764 9.63477H6.0506ZM6.49787 8.73926C6.62146 8.73944 6.72248 8.83926 6.72248 8.96289C6.72223 9.08631 6.62131 9.18634 6.49787 9.18652H3.80939C3.6858 9.18652 3.58601 9.08643 3.58576 8.96289C3.58576 8.83914 3.68564 8.73926 3.80939 8.73926H6.49787ZM5.15314 0.448242C7.09352 0.448242 8.49764 2.13621 8.51447 4.03125C8.52056 4.73532 8.10901 5.45333 7.67853 6.01758C7.24103 6.59102 6.74957 7.04996 6.53303 7.24219C6.50976 7.26291 6.4979 7.28995 6.49787 7.31738V8.06641C6.49769 8.19 6.39689 8.29004 6.27326 8.29004C6.14989 8.28972 6.04981 8.1898 6.04963 8.06641V7.31738C6.04966 7.15807 6.11883 7.00953 6.23517 6.90625C6.4418 6.72282 6.90956 6.28583 7.32209 5.74512C7.74138 5.19546 8.07094 4.58093 8.06623 4.03516C8.05116 2.33958 6.80354 0.895508 5.15314 0.895508C3.50292 0.895723 2.25512 2.33971 2.24006 4.03516C2.23535 4.58103 2.56578 5.19636 2.98517 5.74609C3.39737 6.28626 3.86436 6.72268 4.07111 6.90625C4.18745 7.00952 4.25662 7.15808 4.25666 7.31738L4.25764 8.06641C4.25745 8.18999 4.15666 8.29003 4.03303 8.29004C3.90946 8.28996 3.80958 8.18995 3.80939 8.06641V7.31738C3.80936 7.29005 3.79733 7.26288 3.77424 7.24219C3.55767 7.04993 3.06613 6.59085 2.62873 6.01758C2.19826 5.45333 1.7867 4.7353 1.79279 4.03125C1.80962 2.13633 3.21297 0.448457 5.15314 0.448242ZM4.0506 4.84277C4.09846 4.72878 4.23047 4.67492 4.34455 4.72266V4.72363C4.34537 4.72381 4.34716 4.72408 4.34846 4.72461C4.35187 4.72605 4.3575 4.72882 4.36408 4.73145C4.37814 4.73705 4.39967 4.74512 4.4256 4.75488C4.47846 4.77476 4.55326 4.80175 4.63752 4.82812C4.81277 4.88294 5.00996 4.92969 5.15412 4.92969C5.29842 4.92954 5.49556 4.88295 5.67072 4.82812C5.75493 4.80175 5.82889 4.77473 5.88166 4.75488C5.90777 4.74506 5.92913 4.73706 5.94318 4.73145C5.94994 4.72873 5.9554 4.726 5.95881 4.72461C5.96025 4.72408 5.96199 4.72393 5.96271 4.72363L5.96369 4.72266L6.00666 4.70996C6.1088 4.68979 6.21472 4.74313 6.25666 4.84277C6.29812 4.94257 6.26263 5.05667 6.17658 5.11523L6.13654 5.13672L6.13459 5.1377C6.13334 5.13821 6.13094 5.13877 6.12873 5.13965C6.12421 5.1415 6.11727 5.14424 6.1092 5.14746C6.09267 5.15406 6.06903 5.16383 6.03986 5.1748C5.98117 5.19688 5.89873 5.22636 5.80451 5.25586C5.68216 5.29415 5.52789 5.33304 5.37482 5.35645C5.37545 5.36324 5.37676 5.37 5.37678 5.37695V8.06543C5.37678 8.18918 5.27689 8.29004 5.15314 8.29004C5.02954 8.28987 4.92951 8.18908 4.92951 8.06543V5.37695C4.92952 5.37002 4.93084 5.36322 4.93146 5.35645C4.77898 5.33305 4.62573 5.29402 4.50373 5.25586C4.40982 5.22647 4.3271 5.19688 4.26838 5.1748C4.23924 5.16384 4.21464 5.15408 4.19806 5.14746L4.17365 5.1377L4.1717 5.13672C4.05762 5.08898 4.003 4.95688 4.0506 4.84277Z" />
+    </svg>
   );
 }
 

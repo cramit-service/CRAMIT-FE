@@ -21,7 +21,7 @@ export function LandingHeader() {
     <header
       className={cn(
         'z-header sticky top-0 transition-colors',
-        scrolled ? 'bg-primary-100/80 backdrop-blur-md' : 'bg-transparent',
+        scrolled ? 'bg-canvas/80 backdrop-blur-md' : 'bg-transparent',
       )}
     >
       {/* 시안(1:4986 Top)에는 가운데 로고뿐이고 로그인·회원가입 버튼이 없어 맞출 값이 없다.

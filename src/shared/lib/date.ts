@@ -33,3 +33,12 @@ export function formatKoreanDate(dateStr: string): string {
   const dd = String(day).padStart(2, '0');
   return `${year}. ${mm}. ${dd}. (${weekday}요일)`;
 }
+
+// 'YYYY-MM-DD' → "9. 10 (목)". 목록처럼 폭이 좁은 자리용 —
+// 연도와 "요일" 글자를 빼고 월·일의 0 채움도 하지 않는다.
+export function formatShortDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const d = new Date(year, month - 1, day);
+  const weekday = ['일', '월', '화', '수', '목', '금', '토'][d.getDay()];
+  return `${month}. ${day} (${weekday})`;
+}

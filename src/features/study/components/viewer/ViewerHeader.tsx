@@ -47,7 +47,7 @@ export function ViewerHeader({
       // py로 높이를 만들면 줄높이(22)에 얹혀 36이 되어 탭보다 4px 커진다.
       className={cn(
         'text-label focus-visible:ring-secondary-400 flex h-8 shrink-0 items-center gap-1.5 rounded-full px-4 font-medium whitespace-nowrap transition-colors',
-        'border-[0.5px] border-gray-500 text-gray-600 hover:border-gray-600 hover:text-gray-700',
+        'border-[0.5px] border-gray-500 text-gray-700 hover:border-gray-600 hover:text-gray-900',
         'focus-visible:ring-2 focus-visible:outline-none',
       )}
     >

@@ -40,7 +40,7 @@ export function LectureSection({
             {title}
           </h2>
           {description && (
-            <p className="text-button-sm text-gray-600">{description}</p>
+            <p className="text-button-sm text-gray-650">{description}</p>
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -54,7 +54,7 @@ export function LectureSection({
       </header>
 
       {lectures.length === 0 ? (
-        <p className="text-body rounded-md bg-white px-6 py-12 text-center text-gray-500">
+        <p className="text-body text-gray-650 rounded-md bg-white px-6 py-12 text-center">
           {searching ? '검색 결과가 없어요.' : emptyMessage}
         </p>
       ) : (

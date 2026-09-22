@@ -9,10 +9,10 @@ import { todoName } from '@/features/todo/lib/todoName';
 import { useTodoFilter } from '@/features/todo/hooks/useTodoFilter';
 import { buildMonthGrid } from '@/features/calendar/lib/month';
 import {
-  SCHEDULE_TAG_BASE,
-  scheduleTagClass,
-  type ScheduleType,
-} from '@/features/calendar/lib/scheduleTag';
+  buildSubjectDotMap,
+  subjectIdsInCreationOrder,
+} from '@/shared/lib/subjectColor';
+import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
 import { useCalendarMonth } from '@/features/calendar/hooks/useCalendarMonth';
 import { CalendarCell, type ScheduleItem } from './CalendarCell';
 
@@ -24,9 +24,16 @@ export function Calendar() {
   const { year, month, goPrev, goNext } = useCalendarMonth();
   const { data: exams } = useAllExams();
   const { data: todos } = useTodos();
+  const { data: projects } = useProjectSummaries();
   const { filter, toggleDate } = useTodoFilter();
 
   const cells = useMemo(() => buildMonthGrid(year, month), [year, month]);
+
+  // 사이드바 강의 점과 같은 색이어야 하므로 배정 규칙을 공용 함수에 맡긴다.
+  const subjectDots = useMemo(
+    () => buildSubjectDotMap(subjectIdsInCreationOrder(projects)),
+    [projects],
+  );
 
   // 날짜를 키로 Map을 만들어 42개 칸이 각각 O(1)로 꺼내 쓴다.
   // 한 칸에서 시험이 투두보다 위에 오도록 시험을 먼저 넣는다.
@@ -41,6 +48,7 @@ export function Calendar() {
       push(exam.examDate, {
         id: `exam-${exam.examId}`,
         type: 'exam',
+        subjectId: exam.projectId,
         label: examName(exam),
       }),
     );
@@ -48,6 +56,7 @@ export function Calendar() {
       push(todo.dueDate, {
         id: `todo-${todo.todoId}`,
         type: 'todo',
+        subjectId: todo.projectId,
         label: todoName(todo),
       }),
     );
@@ -72,33 +81,24 @@ export function Calendar() {
         </div>
       </div>
 
-      {/* 카드 높이를 고정한다. 예전에는 flex-1로 남는 높이를 채웠는데, 그러면 행 높이가
-          뷰포트에 따라 소수점(111.33px)이 되고 그 값이 디바이스 픽셀로 반올림되면서
-          격자선이 111/112px로 번갈아 찍혀 행이 들쭉날쭉해 보였다.
-          654 = 테두리 2 + 요일행 27 + 분리선 2 + 날짜 그리드 623.
-          이 합이 어긋나면 넘친 만큼을 날짜 그리드가 줄여 먹어(유일하게 shrink 가능한 자식)
-          623이 깨지고 격자선이 다시 들쭉날쭉해진다. 셋 중 하나를 바꾸면 높이도 같이 바꾼다.
-          옆 TODO 카드도 하단을 맞추려면 같은 높이여야 한다. */}
-      <div className="flex flex-col overflow-hidden rounded-md border border-gray-300 lg:h-[654px]">
-        {/* 요일 행과 날짜 그리드를 같은 grid-cols-7로 두어 열을 정렬한다.
-            gap-px + 배경 gray-300으로 칸 사이 격자선을 만든다. */}
-        {/* 요일행 27px = 시안 28.55. leading을 명시하지 않으면 부모에서 상속된
-            24px 줄높이(strut)가 행을 32px로 부풀린다. */}
-        {/* 아래 분리선만 2px — 요일 머리글과 날짜 격자를 구분한다(칸 사이 격자선은 1px 그대로). */}
-        <div className="grid shrink-0 grid-cols-7 gap-px border-b-2 border-gray-300 bg-gray-300">
+      {/* 카드 높이 654는 옆 TODO 카드와 하단을 맞추기 위한 값이라 그대로 둔다.
+          안쪽 배분: 테두리 2 + 패딩 16/12 + 요일행 16 + 그 아래 10 = 56, 남는 598이 날짜 격자다.
+          598을 고정해야 6행이 98px로 정확히 떨어진다 — 비워 두면 행 높이가 소수점이 되고
+          셀 상단 선이 디바이스 픽셀에서 반올림되며 들쭉날쭉해 보인다. */}
+      <div className="rounded-lg border border-gray-300 bg-white px-5 pt-4 pb-3 lg:h-[654px]">
+        {/* 요일 머리글. 배경·구분선 없이 글자만 둔다 — 격자선은 셀이 각자 위에 긋는다. */}
+        <div className="mb-2.5 grid grid-cols-7 gap-x-1">
           {WEEKDAYS.map((label) => (
-            <div key={label} className="bg-white px-2 py-[7.5px]">
-              <span className="text-label block font-medium text-gray-900">
-                {label}
-              </span>
-            </div>
+            <span
+              key={label}
+              className="px-1.5 text-[12px] leading-4 font-medium text-gray-500"
+            >
+              {label}
+            </span>
           ))}
         </div>
-        {/* 6주 그리드. 높이를 623으로 고정해 repeat(6,1fr)이 정확히 103px씩 떨어지게 한다
-            (623 = 6 × 103 + 5 × gap-px). 소수점 행 높이가 사라져 격자선이 균등해진다.
-            모바일은 기존 고정 높이(h-115)를 그대로 쓴다.
-            내용이 줄 높이를 넘으면 셀의 overflow-hidden으로 잘린다(→ 태그는 셀에서 +N으로 접음). */}
-        <div className="grid h-115 grid-cols-7 grid-rows-6 gap-px bg-gray-300 lg:h-[623px]">
+        {/* 6주 격자. 세로 구분선을 걷어내고 셀마다 위쪽 선만 그어 가볍게 만든다. */}
+        <div className="grid grid-cols-7 grid-rows-6 gap-x-1 gap-y-0.5 lg:h-[598px]">
           {cells.map((cell) => (
             <CalendarCell
               key={cell.dateStr}
@@ -109,14 +109,10 @@ export function Calendar() {
                 filter.kind === 'date' && filter.date === cell.dateStr
               }
               onSelect={() => toggleDate(cell.dateStr)}
+              subjectDots={subjectDots}
             />
           ))}
         </div>
-      </div>
-
-      <div className="mt-2 flex items-center gap-1.5">
-        <LegendTag type="todo">할 일 (TODO)</LegendTag>
-        <LegendTag type="exam">시험 일정</LegendTag>
       </div>
     </section>
   );
@@ -144,23 +140,6 @@ function NavButton({
         className={direction === 'left' ? 'size-5 rotate-180' : 'size-5'}
       />
     </button>
-  );
-}
-
-// 범례 한 칸. 셀 안 태그와 똑같이 생겨야 해서 같은 것(scheduleTag.ts)을 쓴다.
-// 예전에는 여기가 9px·medium으로 셀 태그(12px·normal)보다 작아, 범례가 가리키는 물건과
-// 다르게 생겨 있었다. 시안 수치(57×15·9px)를 따르던 흔적인데 셀 태그 쪽이 커지면서 어긋났다.
-function LegendTag({
-  type,
-  children,
-}: {
-  type: ScheduleType;
-  children: React.ReactNode;
-}) {
-  return (
-    <span className={`${SCHEDULE_TAG_BASE} ${scheduleTagClass(type)}`}>
-      {children}
-    </span>
   );
 }
 

@@ -1,11 +1,16 @@
 'use client';
 // src/shared/ui/Sidebar/CourseNav.tsx
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
 import { Tooltip } from '@/shared/ui/Tooltip';
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
+import {
+  buildSubjectDotMap,
+  subjectDotClass,
+  subjectIdsInCreationOrder,
+} from '@/shared/lib/subjectColor';
 import type { ProjectSummary } from '@/shared/types/api';
 import { BookNavIcon } from './navIcons';
 import { ChevronRightIcon, UsersIcon } from './icons';
@@ -13,10 +18,10 @@ import { ChevronRightIcon, UsersIcon } from './icons';
 // 목록이 이보다 길어지면 묶음 안에서 스크롤한다. 안 그러면 내 강의가 길 때
 // 공유 강의와 하단 메뉴가 화면 밖으로 밀린다.
 const MAX_ROWS = 7;
-const ROW_H = 44;
+const ROW_H = 42;
 
 interface CourseNavProps {
-  // 사이드바 펼침 여부. 접힘이면 배지만 남고 강의명이 사라진다.
+  // 사이드바 펼침 여부. 접힘이면 점만 남고 강의명이 사라진다.
   expanded: boolean;
 }
 
@@ -30,6 +35,12 @@ export function CourseNav({ expanded }: CourseNavProps) {
   const courses = data ?? [];
   const mine = courses.filter((p) => !p.sharedBy);
   const shared = courses.filter((p) => p.sharedBy);
+  // 색 배정은 걸러 보여주기 전의 전체 목록을 본다 — 내 강의/공유 강의로 나눈 뒤
+  // 각자 배정하면 같은 과목이 캘린더와 다른 색이 된다.
+  const subjectDots = useMemo(
+    () => buildSubjectDotMap(subjectIdsInCreationOrder(data)),
+    [data],
+  );
 
   return (
     <>
@@ -37,6 +48,7 @@ export function CourseNav({ expanded }: CourseNavProps) {
         icon={<BookNavIcon />}
         label="내 강의"
         courses={mine}
+        subjectDots={subjectDots}
         open={openMine}
         onToggle={() => setOpenMine((v) => !v)}
         expanded={expanded}
@@ -50,7 +62,7 @@ export function CourseNav({ expanded }: CourseNavProps) {
           icon={<UsersIcon className="size-6" />}
           label="공유 강의"
           courses={shared}
-          ringBadge
+          subjectDots={subjectDots}
           open={openShared}
           onToggle={() => setOpenShared((v) => !v)}
           expanded={expanded}
@@ -64,8 +76,8 @@ interface CourseSectionProps {
   icon: React.ReactNode;
   label: string;
   courses: ProjectSummary[];
-  // 공유 강의 배지는 테두리만 — 내 강의와 이니셜이 겹쳐도 종류로 갈린다
-  ringBadge?: boolean;
+  /** 과목 id -> 점 색 클래스. 캘린더와 같은 규칙으로 만든 것을 위에서 내려준다. */
+  subjectDots: Map<string, string>;
   open: boolean;
   onToggle: () => void;
   expanded: boolean;
@@ -77,7 +89,7 @@ function CourseSection({
   icon,
   label,
   courses,
-  ringBadge = false,
+  subjectDots,
   open,
   onToggle,
   expanded,
@@ -89,7 +101,7 @@ function CourseSection({
   return (
     <div>
       {/* 묶음 제목 = 토글. 열림은 chevron 방향으로만 알린다 — 연두는 "지금 여기" 전용이라
-          여기까지 칠하면 한 화면에 신호가 셋으로 갈린다. 접힘에서는 아래 배지의 유무가 곧 표시다.
+          여기까지 칠하면 한 화면에 신호가 셋으로 갈린다. 접힘에서는 아래 점의 유무가 곧 표시다.
           아이콘 칸 폭은 접힘 레일(90)과 같아 폭이 바뀌는 동안 아이콘이 제자리에 머문다. */}
       <Tooltip label={label} disabled={expanded}>
         <button
@@ -97,14 +109,14 @@ function CourseSection({
           onClick={onToggle}
           aria-expanded={open}
           aria-label={expanded ? undefined : label}
-          className="focus-visible:ring-secondary-400 flex w-full items-center py-3 text-gray-200 transition-colors hover:text-white focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
+          className="focus-visible:ring-secondary-400 flex w-full items-center py-4.5 text-gray-200 transition-colors hover:text-white focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
         >
           <span className="flex w-22.5 shrink-0 justify-center text-gray-400">
             {icon}
           </span>
           <span
             className={cn(
-              'text-body-sm truncate font-normal',
+              'text-label truncate font-normal',
               'transition-opacity duration-150 ease-out',
               expanded ? 'opacity-100' : 'pointer-events-none opacity-0',
             )}
@@ -135,12 +147,12 @@ function CourseSection({
         >
           {pending &&
             [0, 1, 2].map((i) => (
-              <li key={i} className="flex items-center py-1">
+              <li key={i} className="flex items-center py-2.5">
                 <span className="flex w-22.5 shrink-0 justify-center">
-                  <span className="size-7 animate-pulse rounded-lg bg-gray-800" />
+                  <span className="size-1.5 motion-safe:animate-pulse rounded-full bg-gray-700" />
                 </span>
                 {expanded && (
-                  <span className="mr-5 h-3 flex-1 animate-pulse rounded-full bg-gray-800" />
+                  <span className="mr-5 h-3 flex-1 motion-safe:animate-pulse rounded-full bg-gray-800" />
                 )}
               </li>
             ))}
@@ -166,15 +178,15 @@ function CourseSection({
             const active = pathname === href || pathname.startsWith(`${href}/`);
             return (
               <li key={course.projectId}>
-                {/* 배지는 상위 아이콘과 같은 열, 강의명은 상위 라벨과 같은 열에 선다.
-                    접힘은 강의명만 사라지는 상태라 배지가 제자리에 그대로 남는다.
+                {/* 점은 상위 아이콘과 같은 열, 강의명은 상위 라벨과 같은 열에 선다.
+                    접힘은 강의명만 사라지는 상태라 점이 제자리에 그대로 남는다.
                     툴팁은 접힘에서만 — 펼침에서는 강의명이 이미 옆에 있다. */}
                 <Tooltip label={course.title} disabled={expanded}>
                   <Link
                     href={href}
                     aria-label={expanded ? undefined : course.title}
                     className={cn(
-                      'focus-visible:ring-secondary-400 relative flex items-center py-1 transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
+                      'focus-visible:ring-secondary-400 relative flex items-center py-2.5 transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
                       active
                         ? 'text-primary-400'
                         : 'text-gray-300 hover:text-white',
@@ -184,24 +196,21 @@ function CourseSection({
                     {active && (
                       <span className="absolute inset-y-0 right-2 left-2 rounded-lg bg-gray-800" />
                     )}
-                    {/* 상위 아이콘(24)보다 한 단계 작은 28 컨테이너로 자식임을 드러낸다 */}
+                    {/* 캘린더 일정 점과 같은 과목 색. 접힘에서는 이것만 남으므로
+                        6px으로는 레일에서 안 보여 10px로 키운다. */}
                     <span className="relative flex w-22.5 shrink-0 justify-center">
                       <span
+                        aria-hidden
                         className={cn(
-                          'text-label flex size-7 items-center justify-center rounded-lg font-medium',
-                          active
-                            ? 'bg-primary-400 text-gray-950'
-                            : ringBadge
-                              ? 'border border-gray-700 text-gray-300'
-                              : 'bg-gray-800 text-gray-300',
+                          'shrink-0 rounded-full transition-[width,height] duration-150 ease-out',
+                          expanded ? 'size-1.5' : 'size-2.5',
+                          subjectDotClass(subjectDots, course.projectId),
                         )}
-                      >
-                        {course.title.trim().charAt(0)}
-                      </span>
+                      />
                     </span>
                     <span
                       className={cn(
-                        'text-body-sm relative min-w-0 flex-1 truncate pr-5 text-left font-normal',
+                        'text-label relative min-w-0 flex-1 truncate pr-5 text-left font-normal',
                         'transition-opacity duration-150 ease-out',
                         expanded
                           ? 'opacity-100'

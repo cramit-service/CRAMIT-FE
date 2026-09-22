@@ -18,7 +18,7 @@ import { saveMaterialFile } from '@/mocks/materialStore';
 import {
   addMockProjectSummary,
   findMockProjectSummary,
-  mockProjects,
+  mockProjectsFromSummaries,
   updateMockProjectSummary,
 } from '@/mocks/project';
 import {
@@ -55,8 +55,7 @@ async function mockUpload(
 export async function getProjects(): Promise<Project[]> {
   if (USE_MOCK) {
     await delay(300); // 로딩 상태 확인용
-    // 강의 생성이 이 배열을 직접 고치므로 복사본을 준다 (getProjectSummaries와 같은 이유)
-    return [...mockProjects];
+    return mockProjectsFromSummaries();
   }
   return apiClient.get<Project[]>('/projects');
 }

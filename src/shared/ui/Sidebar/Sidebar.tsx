@@ -268,7 +268,7 @@ export function Sidebar({ expanded, onToggle }: SidebarProps) {
             </span>
             <span
               className={cn(
-                'text-body-sm relative truncate pr-5 font-normal',
+                'text-label relative truncate pr-5 font-normal',
                 labelClass,
               )}
             >
