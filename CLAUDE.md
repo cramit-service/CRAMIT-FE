@@ -31,12 +31,19 @@
 
 ## 2. 기술 스택
 
-- Next.js (App Router) / TypeScript
+- **Next.js 16** (App Router) / TypeScript / React 19
 - Tailwind CSS **v4** (설정은 `tailwind.config`가 아니라 `globals.css`의 `@theme`)
 - 데이터: Fetch 래퍼 + TanStack Query
 - 패키지 매니저: **npm**
 - 배포: Vercel
 - 백엔드 준비 전에는 `src/mocks`의 가짜 응답으로 개발
+
+> **이 Next.js는 AI 도구의 학습 데이터와 다르다.** 16에서 깨지는 변경이 많다 —
+> `middleware` → `proxy` 파일명 변경, Request API의 async화, `next/image` 기본값 변경,
+> Turbopack 기본 적용 등. 코드를 쓰기 전에 `node_modules/next/dist/docs/`의 해당 문서를
+> 먼저 읽는다. 특히 기억에 의존한 설명은 추측이라고 밝힌다.
+>
+> 파일명이 틀리면 에러가 아니라 **조용히 실행되지 않는다** — `middleware.ts`가 그 예다.
 
 ---
 
