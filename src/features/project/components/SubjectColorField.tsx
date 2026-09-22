@@ -169,14 +169,8 @@ export function SubjectColorField({
                       'focus-visible:ring-secondary-400 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-700',
                   )}
                 >
-                  {selected ? (
-                    <CheckIcon className="size-4 text-gray-950" />
-                  ) : isTaken ? (
-                    <span
-                      aria-hidden
-                      className="size-1.5 rounded-full bg-gray-900/55"
-                    />
-                  ) : null}
+                  {/* ✓는 "이미 골라진 색". 고른 색은 링만으로 알린다 — 둘 다 ✓면 구분이 안 된다. */}
+                  {isTaken && <CheckIcon className="size-4 text-gray-950" />}
                 </button>
               );
             })}
