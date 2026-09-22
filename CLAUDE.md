@@ -133,23 +133,18 @@ Figma 캔버스는 **1920**이지만 실제 브라우저 뷰포트는 그보다 
 
 #### 타이포는 토큰으로만
 
-`text-[14px] leading-[22px] tracking-[-0.28px]` 같은 임의값을 새로 쓰지 않는다. 자간은 토큰에 −0.02em이 들어 있고, **굵기는 `font-medium`·`font-semibold`로 따로 준다.**
+`text-[14px] leading-[22px] tracking-[-0.28px]` 같은 임의값을 새로 쓰지 않는다.
 
-| 토큰              | size / line-height | Figma 변수                     |
-| ----------------- | ------------------ | ------------------------------ |
-| `text-heading-lg` | 52 / 74            | Heading/Large                  |
-| `text-heading-md` | 32 / 44            | Heading/Medium B               |
-| `text-heading-sm` | 24 / 36            | Heading/Small B·M              |
-| `text-body-lg`    | 22 / 32            | Body/Large M                   |
-| `text-body-md`    | 20 / 30            | Body/Medium, Button/Large2     |
-| `text-body`       | 18 / 30            | Body/Regular1·2, Button/Medium |
-| `text-body-sm`    | 16 / 24            | Body/Small                     |
-| `text-button-lg`  | 20 / 28            | Button/Large1                  |
-| `text-button-sm`  | 16 / 28            | Button/Small                   |
-| `text-label`      | 14 / 22            | Button/Label2                  |
+**토큰 목록과 줄높이·굵기 규칙은 `DESIGN.md` §3에 있다.** 값을 여기 옮겨 적지 않는다 — 두 군데
+적으면 한쪽이 반드시 먼저 낡고, 낡은 쪽이 먼저 읽힌다.
 
-토큰을 추가하면 `shared/lib/cn.ts`의 목록에도 넣는다. tailwind-merge는 모르는 `text-*`를 색으로
-오해해 같은 `cn()` 안의 `text-<색>`에 밀린다고 판단하고 지워 버린다.
+굵기는 토큰에 들어 있지 않다. §3의 Weight가 정한 대로 따로 준다.
+
+**토큰을 새로 만들지 않는다.** 램프에 없는 크기가 필요해 보이면 멈추고 협의한다 — 지금 램프는
+크기마다 쓰임이 정해져 있고, 하나 늘리면 "이건 어느 쪽이지"를 매번 판단해야 한다.
+
+토큰을 바꾸거나 늘릴 일이 생기면 `shared/lib/cn.ts`의 목록도 같이 고친다. tailwind-merge는 모르는
+`text-*`를 색으로 오해해 같은 `cn()` 안의 `text-<색>`에 밀린다고 판단하고 지워 버린다.
 
 ### 4-5. 절대 위치 요소는 `relative` 부모를 반드시 둔다
 
