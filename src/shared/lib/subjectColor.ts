@@ -6,7 +6,7 @@
 import type { ProjectSummary } from '@/shared/types/api';
 
 // Tailwind는 소스에 그대로 적힌 클래스만 만든다. 조합하지 말고 문자열로 박아 둔다.
-// 11에서 멈춘 건 그 이상은 서로 헷갈려서다 — globals.css의 과목 색 주석 참고.
+// 개수는 globals.css의 과목 색과 같아야 한다.
 export const SUBJECT_DOT_CLASSES = [
   'bg-subject-1',
   'bg-subject-2',
@@ -17,8 +17,6 @@ export const SUBJECT_DOT_CLASSES = [
   'bg-subject-7',
   'bg-subject-8',
   'bg-subject-9',
-  'bg-subject-10',
-  'bg-subject-11',
 ] as const;
 
 // 강의를 안 고른 TODO 등 과목이 없는 일정.
