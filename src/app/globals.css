@@ -242,30 +242,6 @@
   margin-inline: auto;
 }
 
-/* 완료한 할 일 제목에 긋는 형광펜. 취소선 대신 쓴다 — 글자를 지우지 않고 "끝났다"만 말한다.
-   미완료도 같은 padding/margin을 써서 토글할 때 글자가 밀리지 않는다.
-   clone은 줄바꿈된 각 줄에 상자를 따로 그린다(없으면 두 번째 줄에 왼쪽 여백이 안 생긴다). */
-@utility todo-marker {
-  margin: 0 -2px;
-  padding: 1px 2px 2px;
-  border-radius: var(--radius-xs);
-  background: transparent;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-  transition: background 150ms;
-}
-
-/* 손으로 그은 것처럼 양 끝이 옅다. 색은 primary-400을 알파만 바꿔 쓴다. */
-@utility todo-marker-on {
-  background: linear-gradient(
-    104deg,
-    color-mix(in srgb, var(--color-primary-400) 0%, transparent) 0.5%,
-    color-mix(in srgb, var(--color-primary-400) 75%, transparent) 2.5%,
-    color-mix(in srgb, var(--color-primary-400) 65%, transparent) 96%,
-    color-mix(in srgb, var(--color-primary-400) 0%, transparent) 99%
-  );
-}
-
 /* 스크롤 영역이 항목을 반쯤 자른 채 끝나지 않게 아래쪽을 페이드로 닫는다.
    내용이 짧아 바닥에 닿지 않으면 빈 자리를 덮어 아무것도 안 보인다 —
    그래서 스크롤이 실제로 생겼을 때만 눈에 띈다. */
