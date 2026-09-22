@@ -55,8 +55,8 @@ export function toPlayDuration(value: number | undefined): number {
 // D-DAY 계산 결과 (태그 텍스트 + 긴급도)
 export interface Dday {
   label: string; // 예: "중간고사 D-3", "중간고사 D-DAY", "중간고사 종료"
-  // 색 강도: 임박(빨강) / 주의(노랑) / 여유(하늘) / 지남(회색)
-  tone: 'urgent' | 'warning' | 'normal' | 'past';
+  // 가까울수록 진하게 — 홈 DdayBadge와 같은 단계. D-DAY·D-1 / D-2 / D-3 / 여유 / 지남
+  tone: 'urgent' | 'soon' | 'near' | 'normal' | 'past';
 }
 
 // examDate는 "YYYY-MM-DD"로 내려오는 값이다.
@@ -86,7 +86,8 @@ export function getDday(
   if (diffDays === 0) return { label: `${examName} D-DAY`, tone: 'urgent' };
 
   const label = `${examName} D-${diffDays}`;
-  if (diffDays <= 3) return { label, tone: 'urgent' };
-  if (diffDays <= 7) return { label, tone: 'warning' };
+  if (diffDays <= 1) return { label, tone: 'urgent' };
+  if (diffDays === 2) return { label, tone: 'soon' };
+  if (diffDays === 3) return { label, tone: 'near' };
   return { label, tone: 'normal' };
 }

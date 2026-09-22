@@ -1,7 +1,8 @@
 'use client';
 // src/features/study/components/LectureSection.tsx
 import { SortSelect } from './SortSelect';
-import { LectureCard, type LectureTone } from './LectureCard';
+import { LectureCard } from './LectureCard';
+import { subjectDotClass } from '@/shared/lib/subjectColor';
 import type { SortKey } from '@/features/study/lib/lectureList';
 import type { ProjectSummary } from '@/shared/types/api';
 
@@ -9,7 +10,7 @@ interface LectureSectionProps {
   title: string;
   description?: string;
   lectures: ProjectSummary[];
-  tone: LectureTone;
+  subjectDots: Map<string, string>;
   sort: SortKey;
   onSortChange: (value: SortKey) => void;
   // 검색 중이면 "결과 없음", 아니면 "아직 강의 없음"으로 빈 상태 문구가 갈린다.
@@ -19,12 +20,12 @@ interface LectureSectionProps {
   action?: React.ReactNode;
 }
 
-// 내 강의 / 공유 강의가 같은 골격이라 하나로 쓰고 색·문구·액션만 받는다.
+// 내 강의 / 공유 강의가 같은 골격이라 하나로 쓰고 문구·액션만 받는다.
 export function LectureSection({
   title,
   description,
   lectures,
-  tone,
+  subjectDots,
   sort,
   onSortChange,
   searching,
@@ -66,7 +67,7 @@ export function LectureSection({
               <LectureCard
                 key={lecture.projectId}
                 lecture={lecture}
-                tone={tone}
+                dotClass={subjectDotClass(subjectDots, lecture.projectId)}
               />
             ))}
           </div>
