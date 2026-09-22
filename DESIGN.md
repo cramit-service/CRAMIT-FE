@@ -70,8 +70,83 @@ fill as the single mechanism.
 
 ### Color Palette & Roles
 
-> **Undecided.** The ramps exist in `src/app/globals.css`; their roles are not
-> yet written down here.
+Two colors carry the brand: a fluorescent lime and a blue. What separates them
+is not how important the thing is — it is whether the thing can be pressed.
+
+| Color | Token                   | Value     | Role                                                        |
+| ----- | ----------------------- | --------- | ----------------------------------------------------------- |
+| Lime  | `--color-primary-400`   | `#e3ff00` | Anything that takes a click: buttons, tabs, checkboxes      |
+| Blue  | `--color-secondary-400` | `#4dd8ff` | Anything that reports: state, progress, completion, results |
+
+Where an element is both — an active tab, a checked box, a highlight that
+opens a note — **lime wins.** The first question is whether the element itself
+takes a click, and where the answer is yes the second question is never asked.
+
+#### Importance is not the criterion
+
+The rule this replaces read _lime for the key CTA, blue for ordinary confirm
+actions_. It cannot hold, because **key** is a judgment and every author's own
+screen has the key button on it. A rule that needs taste returns a different
+answer per author and per week, which is how a palette drifts while every
+individual choice looks defensible.
+
+_Does this take a click_ has one answer. It is the same move §3 makes for
+weight, where the split is reading against scanning rather than something that
+has to be weighed.
+
+#### Lime is a fill, never text
+
+On the canvas lime is 1.09:1 — not faint, absent. With black text on it lime
+is 16.9:1, the strongest pair in the system.
+
+So lime is not a color that fails as text; it is a color whose place is the
+fill. Text, icons and links are never lime. An interactive label with no fill
+behind it takes no color at all — position, cursor and shape carry that, the
+same division §3 relies on for weight.
+
+Blue does both. `#4dd8ff` is a fill with black text on it (11.5:1), and
+`#0475b9` is 4.74:1 on the canvas, so state that is only text — a due date, a
+count, a status — can be blue with nothing behind it.
+
+#### A ramp is as long as the color's job list
+
+Nine steps per color is a framework default, not a decision. Length follows
+from how many jobs the color has, and the two do not have the same number,
+because they do not darken the same way.
+
+| Step | Lime hue | Blue hue |
+| ---- | -------: | -------: |
+| 400  |       67 |      193 |
+| 600  |       72 |      199 |
+| 800  |       94 |      200 |
+| 900  |      145 |      195 |
+
+Blue is blue all the way down. **Lime stops being lime.** By 600 it reads as
+olive and 900 is green — a different color wearing the signature's name, which
+is worse than no step at all, because the name invites use. Those steps leave
+the ramp.
+
+Lime therefore needs three: a pale fill, the fill, and the pressed state
+(`#bedd0c`, hue 69, still lime). Blue needs five, the extra one being the text
+step.
+
+> **Undecided.** The value at each step — which pale lime, and which five of
+> blue's nine — is not settled. Nor are `error`, `warning`, the eleven subject
+> colors and the level colors, which are roles rather than brand.
+
+#### Known cost
+
+**Completed and pressable share a color.** A checked box is lime and so is the
+button beneath it, so the difference between what is done and what is left
+cannot be carried by color. Strikethrough and a receded gray carry it instead.
+
+**Lime is common now.** Every button has it, so ranking two buttons on one
+screen cannot use color either; fill against outline, size and position have
+to do that, and §4 settles them. The signature is a constant rather than an
+accent, which is the price of a rule nobody has to interpret.
+
+**Nothing the product reports is lime.** A screen that only shows results has
+no signature color on it at all.
 
 ### Depth & Elevation
 
