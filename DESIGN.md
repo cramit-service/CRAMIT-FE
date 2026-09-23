@@ -592,9 +592,58 @@ sentence people read once, and this codebase already ran that experiment:
 `CLAUDE.md` asked screens to reuse `shared/ui`, and 66 buttons were drawn by
 hand anyway.
 
-> **Undecided.** Which components exist, and what each one looks like. The
-> boundary above says what belongs in `shared/ui`; the catalogue itself is not
-> drawn yet.
+### Catalogue
+
+> **Undecided.** Fields, cards, badges, selects and modals. What follows settles
+> the button family only.
+
+#### The button family is three components
+
+**`Button`, `IconButton`, `Toggle`.** Forty-seven of the sixty-six buttons drawn
+by hand are one of the three.
+
+| Component    | What it is                                  | Contract              | Today |
+| ------------ | ------------------------------------------- | --------------------- | ----: |
+| `Button`     | Carries a label; pressing it does something | `children` required   |    28 |
+| `IconButton` | The same, with no label                     | `aria-label` required |    13 |
+| `Toggle`     | Carries a pressed state of its own          | `pressed` required    |     6 |
+
+The line between them is not size and not appearance. It is what each one owes
+the screen reader: a control with no text needs a name given to it, and a
+control that stays pressed needs `aria-pressed` or its state is never read at
+all.
+
+Both could be props on a single component, and props are exactly what gets left
+out. All thirteen unlabelled buttons in the codebase happen to carry an
+`aria-label` today, which is luck rather than a rule — the rule has never been
+checked by anything. Putting it in the type signature is how it stops depending
+on who wrote the screen.
+
+`Toggle` knows only whether it is pressed. Whether pressing one releases its
+neighbors — a tab strip, a page number — is arrangement, and arrangement belongs
+to the screen. One component therefore serves the viewer's tabs, where several
+are open at once, and pagination, where exactly one is.
+
+#### Nineteen of the sixty-six are not buttons
+
+| Drawn by hand today          | Count | Where it goes                                |
+| ---------------------------- | ----: | -------------------------------------------- |
+| A card or row, pressed whole |     9 | `Card`, inside the feature's own component   |
+| A dropdown trigger or option |     5 | The select family — not settled here         |
+| Back, and other navigation   |     3 | A destination makes it a link, not a button  |
+| Social sign-in               |     1 | Kakao yellow and Google white sit outside §2 |
+| The audio scrubber           |     1 | It takes a value: `input type="range"`       |
+
+These are `<button>` because `<button>` is what takes a click, not because they
+are buttons. Keeping them out is what keeps the three above small — a component
+that has to serve a card, a select and a scrubber has no shape left of its own.
+
+#### What this removes
+
+`FormModal` exports two class strings, `PRIMARY_ACTION` and `DANGER_ACTION`, and
+three modals import them onto a hand-drawn `<button>`. Both go. A shared class
+string is a component's appearance with none of its behavior: every caller still
+writes `type`, `disabled` and focus handling again, and they already disagree.
 
 ### States
 
