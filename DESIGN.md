@@ -90,6 +90,15 @@ An element that is both — an active tab, a checked box, a highlight that opens
 a note — is lime. The first question is whether the element itself takes a
 click, and where the answer is yes the second question is never asked.
 
+These seven are the whole of the brand palette. The gray scale stands beside
+them and is named below; every other color the product uses is out of scope
+here.
+
+> **Undecided.** What governs the gray scale's roles, `error`, `warning`, the
+> eleven subject colors and the two level colors. Their values are in
+> `src/app/globals.css` with the reasoning that produced them, and that
+> reasoning has not been reviewed against this document yet.
+
 #### The name carries the hue and the job
 
 **A number is only honest where there is a scale behind it.**
