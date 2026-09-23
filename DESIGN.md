@@ -546,8 +546,55 @@ comes from control height (§2).
 
 ### Component Stylings
 
-> **Undecided.** Which components are shared primitives — and which stay local
-> to one screen — is not yet settled.
+**A screen arranges components. What a component looks like is the component's
+own business.**
+
+The line is the same question §2 asks of color: **can it be pressed, or does it
+take a value?** If either, it is a component and comes from `shared/ui`.
+Everything else — the boxes, the columns, the gaps between them — is the
+screen's, because arrangement is what a screen is.
+
+| The screen draws                         | The component provides                                          |
+| ---------------------------------------- | --------------------------------------------------------------- |
+| Arrangement — `div`, flex and grid, gaps | Anything pressable — button, tab, checkbox                      |
+| Meaning — `h1`–`h6`, `p`, `ul`           | Anything that takes a value — field, select, date               |
+| —                                        | Anything with a shape of its own — card, badge, progress, modal |
+
+#### A caller does not restyle a component
+
+**No `className`, no `style`, on anything from `shared/ui`.**
+
+A component that accepts arbitrary classes has no settled appearance; it has a
+default that any screen may disagree with, and the disagreements do not meet
+each other. What a caller genuinely needs becomes a prop, which means it is
+named, reviewed once, and available to every other screen with the same need.
+
+The alternative — allow the override but guarantee the caller wins — keeps the
+door open, and a rule with a door is the state this document was written to
+leave.
+
+**The cost is deliberate.** A layout need that has no prop stops the work until
+a prop exists. That pause is the mechanism, not a side effect: `shared/ui`
+changes travel as their own reviewed change, so the pause is where the
+conversation happens rather than where it is skipped.
+
+Counting what callers override today shows what the props actually have to be,
+and it is a short list. Of the overrides in place, most are not requests at all
+— a button asking not to shrink, a checkbox asking for a weight §3 already
+settles. Those are the component's own bugs, being patched from outside. The
+ban surfaces them.
+
+#### Rules that are not enforced are comments
+
+Every rule above is checked by `eslint.config.mjs`, alongside the removal of
+the framework's default palette (§2). A rule the build does not check is a
+sentence people read once, and this codebase already ran that experiment:
+`CLAUDE.md` asked screens to reuse `shared/ui`, and 66 buttons were drawn by
+hand anyway.
+
+> **Undecided.** Which components exist, and what each one looks like. The
+> boundary above says what belongs in `shared/ui`; the catalogue itself is not
+> drawn yet.
 
 ### States
 
