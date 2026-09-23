@@ -309,8 +309,51 @@ making the change loud, and a control under a cursor has its cursor as well.
 
 ### Depth & Elevation
 
-> **Undecided.** Surfaces §2 settles _when_ shadow is used (floating surfaces
-> only). The shadow values themselves are not settled.
+**Two shadows, because a thing can float at most twice.**
+
+| Token           | Value                                                        | What floats this way                          |
+| --------------- | ------------------------------------------------------------ | --------------------------------------------- |
+| `--shadow-far`  | `0 2px 6px rgb(0 0 0 / 0.05), 0 18px 40px rgb(0 0 0 / 0.12)` | Over the page: modal, chat dock               |
+| `--shadow-near` | `0 1px 2px rgb(0 0 0 / 0.05), 0 4px 10px rgb(0 0 0 / 0.07)`  | Over one of those: dropdown, popover, tooltip |
+
+The count is not a matter of taste. **The number of shadows equals the number
+of times something can be stacked.** One thing floats over the page, and one
+small thing floats over that; nothing floats over a third time. The deepest a
+screen goes is page → modal → dropdown, so two shadows describe every case
+that can occur.
+
+A tooltip is not a third level. It is small and anchored like a dropdown, so
+it takes `near` and may overlap one without adding depth.
+
+**When a third layer seems necessary, the modal becomes a page.** A flow deep
+enough to need one is a flow, and a flow has a URL. This keeps the rule from
+being the thing that bends.
+
+#### Shadow is the only thing that separates white from white
+
+A dropdown opened inside a modal is white on white. Fill cannot separate them —
+Surfaces (§2) has one value for a raised surface, not two — so the shadow is
+carrying the whole difference there. That case sets the floor for how light
+`near` may go.
+
+There is a lot of room above that floor. A plain `rgb(0 0 0 / 0.03)` already
+reads as ΔE 2.80 against the canvas, past the 2.35 that separates canvas from
+surface. `near` peaks at ΔE 10.2 and `far` at 14.4 — several times the surface
+step. If the screen ever feels heavy, these come down before anything else
+does.
+
+#### Shadow does not encode stacking order
+
+`z-index` order and the dim behind a modal already say what is on top, and an
+occluded thing is visibly occluded. A shadow that repeated that would be a
+second channel for a message already delivered — the same reason §3 keeps
+weight away from pressability. `far` and `near` say how far a thing is from
+the page, not which is in front.
+
+> **Undecided.** What a shadow does on a dark surface. `FormModal` is drawn
+> dark (`gray-900`) while `Modal` is white, and §2's surfaces are all light, so
+> the dark modal has no level here and `far` may mean nothing on it. Settled
+> with the modal itself in §4.
 
 ### Spacing & Sizing
 
