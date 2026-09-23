@@ -52,11 +52,11 @@ brightness band as the paper.
 Depth cannot be built from brightness here: white is the ceiling. Cramit
 separates surfaces by **fill**, and reserves shadow for things that float.
 
-| Level   | Token              | Value     | Use                                    |
-| ------- | ------------------ | --------- | -------------------------------------- |
-| Canvas  | `--color-canvas`   | `#fcfaf7` | Page background                        |
-| Surface | `--color-gray-100` | `#ffffff` | Cards, panels, modals, menus           |
-| Well    | `--color-gray-200` | `#f0f1f1` | Recessed areas: search field, viewport |
+| Level   | Token             | Value     | Use                                    |
+| ------- | ----------------- | --------- | -------------------------------------- |
+| Canvas  | `--color-canvas`  | `#fcfaf7` | Page background                        |
+| Surface | `--color-surface` | `#ffffff` | Cards, panels, modals, menus           |
+| Well    | `--color-well`    | `#f0f1f1` | Recessed areas: search field, viewport |
 
 Borders are not the default separator. Shadow is used **only** on surfaces that
 float above the page — modal, dropdown, tooltip — never on cards in a list.
@@ -94,8 +94,7 @@ These seven are the whole of the brand palette. The gray scale stands beside
 them and is named below; every other color the product uses is out of scope
 here.
 
-> **Undecided.** What governs the gray scale's roles, the eleven subject
-> colors and the two level colors. The subject colors are held back
+> **Undecided.** The eleven subject colors and the two level colors. The subject colors are held back
 > deliberately: whether a subject is told apart by color at all is still
 > being decided, and settling a palette first would answer that question by
 > accident.
@@ -236,6 +235,56 @@ not pass, which is what the delete button carries today.
 border of a field that failed validation — the same division blue makes
 between `sky-status` and `sky-ink`.
 
+#### Gray is ink, and surfaces are not gray
+
+**The gray scale colors text, icons and lines. The three surfaces have their
+own names.**
+
+Two of the surfaces used to be the two lightest gray steps, which gave those
+values two rules at once — a step in a scale and a level in §2's surface
+system — and the two do not move together. Surfaces are now `--color-canvas`,
+`--color-surface` and `--color-well`, and gray means ink.
+
+| Token              | Value     | L\* | Job                          |
+| ------------------ | --------- | --: | ---------------------------- |
+| `--color-gray-100` | `#dfe0df` |  89 | Dividers and borders         |
+| `--color-gray-200` | `#c1c1c1` |  78 | Disabled text, decoration    |
+| `--color-gray-300` | `#a3a3a3` |  67 | —                            |
+| `--color-gray-400` | `#868686` |  56 | An icon that carries meaning |
+| `--color-gray-500` | `#6a6a6a` |  45 | Text that recedes            |
+| `--color-gray-600` | `#505050` |  34 | —                            |
+| `--color-gray-700` | `#373737` |  23 | Body                         |
+| `--color-gray-800` | `#1f1f1f` |  12 | Headings and emphasis        |
+
+Eight steps, 11 apart in L\*. The spacing is not arbitrary: it is the distance
+between the two thresholds the scale has to hit, so both land on a step rather
+than between two. `400` is the lightest step that clears 3:1 for a meaningful
+icon on all three surfaces, and `500` is the lightest that clears 4.5:1 for
+text on all three.
+
+**One receded step, not two.** The 4.5:1 line sits at L\* 46.6 on the well,
+48.6 on the canvas and 49.8 on white — within three of each other. A step
+below all three clears all three, so the pair the scale used to carry for this
+one job collapses into `500`.
+
+`300` and `600` have no job. They are positions on the ladder, kept because a
+ladder missing its middle stops being one; reaching for either needs a reason.
+
+#### Gray has no tint
+
+**Every step is a pure neutral.**
+
+Warm ink was the alternative and it had an argument: the canvas is warm (Lab
+b +1.66) and a warmer gray would tie the page together. Neutral wins because
+the warmth belongs to the paper rather than the writing. The canvas and the
+highlight carry it; ink that stays neutral does not shift when the surface
+behind it changes, and it never competes with lime, which is a warm yellow.
+
+The tint is fixed across every step, which is the part that is not optional.
+Today it drifts — b is −0.01 at the lightest step and −6.60 at the darkest —
+so the scale reads as one color at the top and another at the bottom, the same
+failure the old lime ramp had.
+
 #### Known cost
 
 **Completed and pressable share a color.** A checked box is lime and so is the
@@ -249,6 +298,10 @@ accent, which is the price of a rule nobody has to interpret.
 
 **Nothing the product reports is lime.** A screen that only shows results has
 no signature color on it at all.
+
+**Every gray in the product changes.** None of the twelve old steps survives:
+the spacing was uneven, two of them were surfaces under another name, and the
+tint drifted. The values here replace all of them at once.
 
 **The pressed state is quiet.** 8% and 16% black are ΔL\* 6.7 and 7.0 apart,
 about half the jump the old ramp made. Keeping the hue was worth more than
