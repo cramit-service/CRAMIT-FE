@@ -716,13 +716,31 @@ list at all.
 
 ### Layout Principles
 
-> **Undecided.**
+**The product is drawn for the desktop.** Every screen assumes a wide viewport
+and a pointer.
+
+The study screen is why that holds rather than being a convenience. It sets the
+lecture material beside its summary, and the material is a PDF — a document of
+fixed proportions, which does not reflow as its column narrows, only shrinks. A
+screen built on that pairing does not become a narrow version of itself; it
+becomes a different screen, with different decisions behind it. The design file
+agrees by omission: of its 62 top-level frames, 51 are 1920 wide and none is a
+phone.
+
+This is a decision about the phase, not a claim about the product.
+
+> **Undecided.** The landing page gets a phone version later. It is the one
+> screen read before anyone signs in, and §3 already sets it outside the type
+> ramp for the same reason.
 
 ### Responsive Behavior
 
-> **Undecided.** The current rule lives in `CLAUDE.md` §4-4 — typography keeps
-> its design px at any width, while viewport-proportional containers use the
-> ratio measured from the design. Whether that rule survives is not yet settled.
+> **Undecided.** How the desktop range divides. A content column can follow the
+> viewport at the ratio measured from the design, or hold a width and let the
+> margins take what is left. `CLAUDE.md` §4-4 holds the first answer today —
+> typography keeps its design px at any width while viewport-proportional
+> containers scale by ratio — and whether that survives is the next thing to
+> settle.
 
 ---
 
