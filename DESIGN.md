@@ -76,23 +76,41 @@ is both, lime wins.**
 Two colors carry the brand. What separates them is not how important the thing
 is — it is whether the thing can be pressed.
 
-| Role          | Value     | Where                                               |
-| ------------- | --------- | --------------------------------------------------- |
-| Lime, pale    | `#f1ff89` | Lime over a large area — the study highlight        |
-| Lime          | `#e3ff00` | The fill of anything pressable                      |
-| Lime, hover   | `#d1eb00` | The fill under a cursor                             |
-| Lime, pressed | `#bfd600` | The fill while held                                 |
-| Blue, pale    | `#e7f7fa` | A state surface carrying no text — a progress track |
-| Blue          | `#4dd8ff` | A state fill, with near-black text on it            |
-| Blue, text    | `#0475b9` | State that is text alone, on canvas or a card       |
+| Token                  | Value     | Where                                               |
+| ---------------------- | --------- | --------------------------------------------------- |
+| `--color-lime-pale`    | `#f1ff89` | Lime over a large area — the study highlight        |
+| `--color-lime-action`  | `#e3ff00` | The fill of anything pressable                      |
+| `--color-lime-hover`   | `#d1eb00` | The fill under a cursor                             |
+| `--color-lime-pressed` | `#bfd600` | The fill while held                                 |
+| `--color-sky-pale`     | `#e7f7fa` | A state surface carrying no text — a progress track |
+| `--color-sky-status`   | `#4dd8ff` | A state fill, with near-black text on it            |
+| `--color-sky-ink`      | `#0475b9` | State that is text alone, on canvas or a card       |
 
 An element that is both — an active tab, a checked box, a highlight that opens
 a note — is lime. The first question is whether the element itself takes a
 click, and where the answer is yes the second question is never asked.
 
-> **Undecided.** What these seven are called in `@theme`. The values are
-> settled; the names are not, and naming them by ramp number would say where
-> they sit rather than what they do.
+#### The name carries the hue and the job
+
+**A number is only honest where there is a scale behind it.**
+
+Brand tokens are named `<hue>-<job>`. The hue comes first so that typing
+`bg-lime` offers everything lime is allowed to do, which is the same list this
+section defines. A new color arriving later takes the same shape, so an
+exception does not break the pattern.
+
+Ramp numbers are not used for the brand colors. Of lime's four values three
+are computed from the fourth, and none of the four sit at even intervals, so a
+number would report a position that does not exist. The gray scale keeps its
+numbers, because there the lightness really does step from 100 to 950 and the
+number is the position. The single rule is **numbers where there is a scale,
+jobs where there is not.**
+
+The framework's own palette is removed rather than left underneath
+(`--color-*: initial`). Unused default colors are not neutral: while
+`bg-red-500` still resolves, nothing in the build objects to a color that this
+document never granted. With the default palette gone, a color outside this
+section produces no style at all.
 
 #### Importance is not the criterion
 
