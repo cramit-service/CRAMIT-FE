@@ -683,6 +683,27 @@ prevent.
 near-black fill is a second signature nobody chose. The landing page keeps its
 own, because §3 already puts the landing outside the ramp.
 
+#### Height waits for the screen
+
+> **Undecided.** How many heights a button has, and what they are.
+
+A button's height is not the button's own. It is read against the field beside
+it and the row it stands in, which is why §2 puts buttons, fields and tabs on
+one list instead of giving each its own. That list is a pool of legal heights,
+not a ramp any single control has to walk — nothing in it says a button has
+five sizes.
+
+The design file offers two clusters: 60, across six different widths, and 44,
+across six more. 40, 46 and 52 drift between them, and 76 and 80 appear on the
+auth screens alone. Two sizes is the plausible answer, and plausible is exactly
+what §7 says not to write down. What would settle it is balance — how a button
+sits against the field above it — and balance is a property of the screen, which
+§5 has not drawn.
+
+**The pool itself is owed a second look.** Of its five steps only 44 carries a
+reason here, and the design file's most common button height, 60, is not on the
+list at all.
+
 ### States
 
 > **Undecided.** Loading, empty, error and disabled are required, not optional:
