@@ -735,12 +735,40 @@ This is a decision about the phase, not a claim about the product.
 
 ### Responsive Behavior
 
-> **Undecided.** How the desktop range divides. A content column can follow the
-> viewport at the ratio measured from the design, or hold a width and let the
-> margins take what is left. `CLAUDE.md` §4-4 holds the first answer today —
-> typography keeps its design px at any width while viewport-proportional
-> containers scale by ratio — and whether that survives is the next thing to
-> settle.
+**Text and controls hold one size across the whole desktop range. Containers
+that belong to the viewport follow it.**
+
+| What                                     | How                                                         |
+| ---------------------------------------- | ----------------------------------------------------------- |
+| Type, control heights, component insides | The design px, at every width                               |
+| Content column, modal, side panel        | The ratio measured from the design, capped at the design px |
+
+A laptop is not a narrow desktop. Between 1280 and 1920 the reader has not
+changed and neither has the reading distance, so 18px that was right at one
+width is right at the other. What changes is how much room the page has, and
+room is what a container is for.
+
+**A step was considered and dropped.** Shrinking type below a threshold is the
+obvious way to keep the design's proportions at a narrow width, and it fails on
+cost: every step of §3's ramp would carry a second value, chosen every time the
+first one is. §3 is built on one value per size, and it says so about the
+landing page for the same reason.
+
+**The cost is that proportions drift.** A column narrows while the button and
+the label inside it do not, so at 1280 a component takes a larger share of its
+column than the design file shows. That is the price of not shrinking text, and
+it is the right way round: text that stays legible beats a layout that matches
+a screenshot.
+
+**This does not govern composition.** A column narrow enough to fold — dropping
+a scrubber, truncating a label — is a layout change, not a size change, and it
+is measured against the column rather than the window. The viewer already works
+this way, because a panel inside a split screen can be 340px wide while the
+window is 1920 and a media query cannot see the difference.
+
+> **Undecided.** The narrow end of the range. It is the width at which the study
+> screen's split stops working, and that is a number to take off a screen rather
+> than pick.
 
 ---
 
