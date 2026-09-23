@@ -94,10 +94,11 @@ These seven are the whole of the brand palette. The gray scale stands beside
 them and is named below; every other color the product uses is out of scope
 here.
 
-> **Undecided.** What governs the gray scale's roles, `error`, `warning`, the
-> eleven subject colors and the two level colors. Their values are in
-> `src/app/globals.css` with the reasoning that produced them, and that
-> reasoning has not been reviewed against this document yet.
+> **Undecided.** What governs the gray scale's roles, the eleven subject
+> colors and the two level colors. The subject colors are held back
+> deliberately: whether a subject is told apart by color at all is still
+> being decided, and settling a palette first would answer that question by
+> accident.
 
 #### The name carries the hue and the job
 
@@ -195,6 +196,45 @@ the ramp.
 Where the design file and the repository disagree on pale lime — `#f1f89a`
 against `#f1ff89` — the value above settles it, and the design file is
 corrected (§7).
+
+#### Danger and time are two colors, not one
+
+**Red is what went wrong or what will be lost. Amber is what is running out of
+time.**
+
+| Token                | Value     | Where                                      |
+| -------------------- | --------- | ------------------------------------------ |
+| `--color-red-danger` | `#ff5d6b` | The fill of a destructive action           |
+| `--color-red-ink`    | `#c9182b` | Error text, the border of an invalid field |
+| `--color-amber-100`  | `#ffebbd` | Three days out                             |
+| `--color-amber-200`  | `#ffd572` | Two days out                               |
+| `--color-amber-300`  | `#ffb914` | The day itself                             |
+
+An exam tool shows _time is short_ constantly and _this cannot be undone_
+rarely. One color for both means the rare one is read as the constant one, and
+the rare one is the one that matters.
+
+Amber is numbered because it really is a scale: the three steps are `#ffb914`
+with white mixed in at 72%, 40% and none, so hue holds at 42 and lightness is
+the only thing that moves. Red is not a scale — it has two jobs — so it is
+named by them, which is the same rule the brand colors follow.
+
+#### Danger overrides the lime rule
+
+**A destructive action is red, not lime, and this is the only place the rule
+bends.**
+
+Pressing the wrong thing here cannot be undone, and that outranks a consistent
+palette. The exception is written down so the next one has to be argued
+instead of assumed.
+
+Near-black text goes on the red fill (6.4:1). White on it is 3.0:1 and does
+not pass, which is what the delete button carries today.
+
+**The fill color is never the text color.** `#ff5d6b` as text on white is
+2.99:1. Error messages take `--color-red-ink` at 5.75:1, and so does the
+border of a field that failed validation — the same division blue makes
+between `sky-status` and `sky-ink`.
 
 #### Known cost
 
