@@ -645,6 +645,44 @@ three modals import them onto a hand-drawn `<button>`. Both go. A shared class
 string is a component's appearance with none of its behavior: every caller still
 writes `type`, `disabled` and focus handling again, and they already disagree.
 
+#### A second action is a border, not a fill
+
+**Primary is a lime fill. Second gives up the fill and takes a border. The gray
+fill belongs to disabled, and to nothing else.**
+
+| Rank        | Fill       | Border     | Label      |
+| ----------- | ---------- | ---------- | ---------- |
+| `primary`   | lime       | —          | `gray-800` |
+| `secondary` | `surface`  | `gray-100` | `gray-700` |
+| `danger`    | red        | —          | `gray-800` |
+| disabled    | `gray-100` | —          | `gray-400` |
+
+§2 leaves rank only one color to work with. Lime is the fill of anything
+pressable, and an interactive label with no fill behind it takes no color at
+all — so a second action can be neither a paler lime nor blue. Gray is what is
+left, and disabled already holds it.
+
+Handing gray to both is what the design file does. A form modal's footer then
+carries a cancel and a disabled save on the same gray surface, ΔE 0 apart, the
+disabled label at 1.36:1. One of the two can be pressed and nothing on the
+screen says which.
+
+So gray stays with disabled, and second rank gives up the fill rather than the
+color. The border then carries the whole signal, and it is thin — `gray-100` on
+`surface` is ΔE 10.9. That thinness is the cost, taken over the alternative of
+dropping the border as well: a second action with neither fill nor border has
+the same shape as the sentence beside it, and only its position would say it
+can be pressed at all.
+
+Disabled labels sit at 2.75:1, below the 4.5:1 the rest of the system holds to.
+A disabled control is exempt, and buying the contrast back would mean darkening
+its label toward the enabled one, which is the collision this rule exists to
+prevent.
+
+**`dark` goes.** Five buttons are filled near-black today. Pressable is lime; a
+near-black fill is a second signature nobody chose. The landing page keeps its
+own, because §3 already puts the landing outside the ramp.
+
 ### States
 
 > **Undecided.** Loading, empty, error and disabled are required, not optional:
