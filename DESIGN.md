@@ -915,8 +915,23 @@ at 12 and the smallest button is 40, which stands taller than the text it sits
 beside in a row. Half the glyph keeps the proportion constant, so a large icon
 button and a small one read as the same object at two sizes.
 
-> **Undecided.** Which glyph a button with no label takes. §3 sizes an icon
-> against the text beside it, and here there is none — the rule has no input.
+**Where there is no text, position chooses the glyph.** §3 sizes an icon against
+the text beside it, and a button with no label has none, so the rule has no
+input. The substitute is the button's place:
+
+| Where it stands                                     | Glyph | Button |
+| --------------------------------------------------- | ----: | -----: |
+| Inside a row — a toolbar, a pagination, an input    |    16 |     32 |
+| Alone — back to top, close, an overlay on an avatar |    24 |     48 |
+
+Fewer of these are truly text-less than it first appears. A pagination arrow
+stands beside "2 / 12", so §3's rule still runs and needs no substitute. What is
+genuinely without a reference is the floating kind, and a floating control has
+nothing around it to be measured against — it is measured against the hand.
+
+**This is the one rule in §4 decided without a screen to check it on.** Every
+other measure here was settled against something drawn. This one is a reasoned
+guess at a gap in §3, and it is expected back when screens are built.
 
 ### States
 
