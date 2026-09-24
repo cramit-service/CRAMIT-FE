@@ -414,10 +414,17 @@ Buttons, fields, tabs and other controls take their height from this list.
 | xl   |  48 |
 | 2xl  |  56 |
 
-Control height is not drawn from the spacing list. The clearest reason is 44px:
-it is the minimum touch target, it is a multiple of 4, and the spacing list steps
-40 → 48 straight past it. One shared list would mean discarding a value that has
-a reason behind it.
+Control height is not drawn from the spacing list, because the two are read
+differently. Spacing is read as a ratio — the steps above skip 28, 36, 44, 56 and
+72 for that reason — while a control's height is read against the text inside it
+and the control beside it, which is an absolute. Two of the five steps here, 44
+and 56, are values the spacing list deliberately leaves out. One shared list
+would have to drop both.
+
+The minimum target size does not pick any of these. WCAG 2.5.8 sets 24×24, and
+the smallest step here is 32, so the standard is a floor this list already stands
+above rather than a reason for a step on it. 44 is not here because it is safe to
+tap; what it is for is settled in §4.
 
 #### Corner radius
 
@@ -732,8 +739,8 @@ each its own. That list is a pool of legal heights, not a ramp any single
 control walks — nothing said a button has five sizes.
 
 The design file offers two clusters, 60 and 44, with 40, 46 and 52 drifting
-between them. 44 needs no argument: §2 already keeps it for being the minimum
-touch target. **60 does not survive.** Where a field and a button meet on one
+between them. 44 costs nothing to keep — it is already a step on §2's list, and
+this is the job it is there for. **60 does not survive.** Where a field and a button meet on one
 row — a field with an invite button at its right — four pixels leave the button
 standing proud at the top and the bottom of the row, and closing that gap the
 other way means adding 60 to §2's control heights. A step added to a list is not
@@ -748,9 +755,10 @@ overruled anyway because the cost of keeping it lands on the system — a sixth
 step everyone has to choose against forever — while the cost of dropping it
 lands on one row, four pixels deep.
 
-> **Undecided.** What `IconButton` and `Toggle` are sized in. Both are square or
-> near it, so their height and width move together, and neither is read against
-> a field.
+`IconButton` and `Toggle` take neither of these two heights. Both are square or
+near it, so height and width move together and neither is read against a field.
+They are settled below instead: an icon button by the glyph it holds, a toggle by
+the row it stands in.
 
 #### A field has no border until it has something to say
 
