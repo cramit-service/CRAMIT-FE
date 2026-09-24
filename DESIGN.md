@@ -329,6 +329,24 @@ it takes `near` and may overlap one without adding depth.
 enough to need one is a flow, and a flow has a URL. This keeps the rule from
 being the thing that bends.
 
+#### One dim, at 45%
+
+**`--color-dim` is `rgb(0 0 0 / 0.45)`.** It is the layer between the page and
+whatever floats over it, and it has one value because it has one job.
+
+It is set against the panel it stands behind rather than picked for darkness.
+Black at 45% puts the canvas at L\* 57.5, which is 3.45:1 against a `surface`
+panel — the lightest step that clears 3:1, since 40% lands at 2.96. Below that
+line the panel's edge is carried by `far` alone, which is a job the shadow
+already has; at 45% the dim says it as well, so a screen that cannot draw the
+shadow still shows where the modal begins.
+
+The value this replaces is 50%, and it was chosen when the modal was `gray-900`.
+A dark panel separates itself and the dim only had to darken the page behind it.
+With the panel light the dim carries the separation — but not more than that. At
+60% the page falls to L\* 42.4 and every open and close swings the whole screen,
+which is felt in a flow that opens the same modal again and again.
+
 #### Shadow is the only thing that separates white from white
 
 A dropdown opened inside a modal is white on white. Fill cannot separate them —
@@ -815,10 +833,10 @@ There is also a second copy of the shell. `NewChapterUploadModal` does not use
 `FormModal`; it redraws the same panel by hand, down to an identical `className`
 string. Two components mean one shell, so the copy goes with them.
 
-> **Undecided.** Two values. The dim behind a modal — §2 relies on it to say
-> what is on top but never gives it a value. And the width of `ConfirmModal`:
-> `FormModal` is 50% of the viewport capped at the design's 960 (§5), and the
-> confirming one has no width in the design file to measure.
+> **Undecided.** The width of `ConfirmModal`. `FormModal` is 50% of the viewport
+> capped at the design's 960 (§5); the confirming one has no width in the design
+> file to measure, and the 448 it uses today is a framework default rather than a
+> value anyone chose.
 
 #### A field has no border until it has something to say
 
