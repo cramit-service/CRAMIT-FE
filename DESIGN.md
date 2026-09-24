@@ -829,14 +829,51 @@ screens paste onto their own elements. None of them survive as exports:
 | Inside `FormModal` | `SECTION_DIVIDER`, `SECTION_GAP`                                                  |
 | Gone               | `CloseIcon`                                                                       |
 
-There is also a second copy of the shell. `NewChapterUploadModal` does not use
-`FormModal`; it redraws the same panel by hand, down to an identical `className`
-string. Two components mean one shell, so the copy goes with them.
+There is also a second copy of the shell, and it goes for a different reason.
+`NewChapterUploadModal` redraws the same panel by hand, down to an identical
+`className` string, and it is the modal for editing a chapter — **which stops
+existing.** A chapter is made on a screen rather than in a modal (that was
+settled in #107: the flow is used during a lecture, and a modal traps it), and
+once made, the only thing about it that changes is its title, which the viewer
+edits in place. Nothing is left for that modal to do.
 
-> **Undecided.** The width of `ConfirmModal`. `FormModal` is 50% of the viewport
-> capped at the design's 960 (§5); the confirming one has no width in the design
-> file to measure, and the 448 it uses today is a framework default rather than a
-> value anyone chose.
+The cost is that a file, a date or the wrong lecture cannot be corrected — the
+chapter is deleted and made again, and for a 200MB recording that is the whole
+upload a second time. It is accepted because all three are the same mistake,
+made and noticed in the same minute, on the screen that just did it. **Deleting
+a chapter becomes the only way back, so deleting one has to ask first** — which
+is what `ConfirmModal` is for, and it opens from the list, where no modal is in
+the way.
+
+Three form modals are left: the exam, the todo and the lecture.
+
+#### Both modals are 655 wide, and neither scales
+
+**655px, fixed, at every window width.** The confirming modal takes it from the
+design file; the form modal takes it from the confirming one, because a panel
+that turns from a form into a question should not change size while doing it.
+
+Fixed rather than proportional is a change to §5, which had the modal follow the
+viewport. A modal that scales takes everything inside it along — a field at full
+width, a two-column row, the space a label has to wrap in — while §5 holds type
+and control heights at one size. Fixing the width is what makes the inside one
+set of numbers instead of a range.
+
+The design file's 960 was the alternative and it is a 1920 figure. Under the
+proportional rule a 1440 laptop already draws that modal at 720, so the number
+in the file was never the number on the screen; 655 is 65 less than what is
+there now, and it is the same on every machine.
+
+**Height is the content's, capped at 80% of the window.** On an 803-tall laptop
+that is 642. Of the three form modals only the exam's reaches it — four stacked
+fields and a memo come to about 708 — so one modal scrolls inside itself and the
+others stand at their own height.
+
+Spacing inside a modal comes from §2's list like everywhere else. Six values in
+the current shell are not on it — 84, 60, 89, 47, 15 and 18 — and they become 48
+for the padding, 16 for a grid gap, 24 between blocks and 32 above the footer.
+The lint rule does not catch these: it guards color and type, and leaves width,
+height and spacing to be read.
 
 #### A field has no border until it has something to say
 
@@ -1184,15 +1221,22 @@ roughly 1830 the content column stops growing and the margins take what is left.
 **Text and controls hold one size across the whole desktop range. Containers
 that belong to the viewport follow it.**
 
-| What                                     | How                                                         |
-| ---------------------------------------- | ----------------------------------------------------------- |
-| Type, control heights, component insides | The design px, at every width                               |
-| Content column, modal, side panel        | The ratio measured from the design, capped at the design px |
+| What                                             | How                                                         |
+| ------------------------------------------------ | ----------------------------------------------------------- |
+| Type, control heights, component insides, modals | The design px, at every width                               |
+| Content column, side panel                       | The ratio measured from the design, capped at the design px |
 
 A laptop is not a narrow desktop. Between 1280 and 1920 the reader has not
 changed and neither has the reading distance, so 18px that was right at one
 width is right at the other. What changes is how much room the page has, and
 room is what a container is for.
+
+**A modal moved to the first row.** It looked like a container and it behaves
+like a component: it holds fields at full width and rows in two columns, and
+letting it follow the viewport resized all of them while §3's type and §2's
+control heights stayed put. §4 fixes it at 655 and settles the widths inside
+against that one number. It still needs a floor — a fixed width can outgrow a
+narrow window — so it keeps a guard at the viewport less a margin.
 
 **A step was considered and dropped.** Shrinking type below a threshold is the
 obvious way to keep the design's proportions at a narrow width, and it fails on
