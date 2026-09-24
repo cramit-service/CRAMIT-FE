@@ -808,10 +808,6 @@ is measured against the column rather than the window. The viewer already works
 this way, because a panel inside a split screen can be 340px wide while the
 window is 1920 and a media query cannot see the difference.
 
-> **Undecided.** The narrow end of the range. It is the width at which the study
-> screen's split stops working, and that is a number to take off a screen rather
-> than pick.
-
 ---
 
 ## 6. Content & Locales
