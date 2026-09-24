@@ -935,9 +935,89 @@ guess at a gap in §3, and it is expected back when screens are built.
 
 ### States
 
-> **Undecided.** Loading, empty, error and disabled are required, not optional:
-> transcription and AI summarization are asynchronous and the UI polls
-> `READY`/`PROCESSING`. Their appearance is not yet settled.
+#### Processing is one pulsing bolt
+
+**A chapter that is still being made says so in its own row, and the row stays
+usable.** Transcription and summarization take minutes, so a screen that blocks
+for them takes the product away for minutes. The list keeps working; only the
+row that is waiting changes.
+
+| Part   | Value                                         |
+| ------ | --------------------------------------------- |
+| Label  | `처리 중`, where the status word already sits |
+| Glyph  | The bolt, 16 tall, beside the label           |
+| Color  | `sky-status`                                  |
+| Motion | Opacity, pulsing                              |
+
+The glyph is 16 because §3 sizes an icon against the text beside it and the
+status word is `label` (14). Nothing here needs a size that does not exist.
+
+A ring was the alternative — the bolt standing still inside a track that turns.
+It reads well, and it costs a rule: the bolt only fits inside a ring at a
+diameter of 24, which is not what §3 gives a glyph beside 14. A pulsing bolt
+needs no exception.
+
+#### The card does not count stages
+
+**The card cannot show a percentage, and the stages it could count are not worth
+counting.**
+
+Upload already has a screen of its own — a full-screen overlay where ten bolts
+fill from the left — and it is the only part of the job with a real number
+behind it, because the browser reports bytes sent. What follows it does not:
+`ProcessStatus` answers `READY` or `PROCESSING` and nothing else, so a
+percentage on the card would be a number the product invented. An invented
+percentage is found out. One that sits still for three minutes reads as a fault,
+because a percentage is a value that is supposed to move.
+
+That leaves counting stages, and the card is the wrong place for it. The card
+does not exist until the upload has finished, so the stages left are two —
+transcription and summarization. A fraction of two spends its whole life at one
+of two values, and the second of them, `2 / 2`, says finished while the work is
+still running.
+
+**So the bolt says one thing: this is still alive.** Where it is, the word beside
+it says.
+
+#### The bolt has two jobs and they are told apart by count
+
+| Where          | How many | What it means |
+| -------------- | -------- | ------------- |
+| Upload overlay | Ten      | How far along |
+| Chapter row    | One      | Still working |
+
+Ten bolts filling is a measurement. One bolt breathing is a pulse. They are the
+same glyph because they are the same product, and nothing else has to change to
+keep them apart.
+
+The bolt is not the logo. The logo's symbol is the pill; the bolt is a separate
+mark that until now appeared on the upload screen alone. Giving it a second job
+does not put the brand mark on every wait.
+
+#### Known cost: the bolt is under 3:1
+
+`sky-status` on a white card is 1.67:1, and the pulse takes it lower still. The
+signature cyan cannot clear 3:1 without dropping L\* by about twenty, and at that
+point it is a second cyan standing beside the first rather than the same one.
+
+It is permitted, because the status word sits right next to it and carries the
+state on its own — the glyph is not required in order to understand the row. It
+is accepted rather than defended: the contrast formula measures luminance and
+ignores hue, and a saturated cyan is easier to find than 1.67:1 predicts, but
+only on a bright screen and only for a reader whose color vision is unimpaired.
+
+**The bolt is never the only thing saying `처리 중`.** That is the condition this
+rests on, and it has to hold everywhere the rule is applied.
+
+The depth and period of the pulse are not set here. They belong to Motion (§2),
+which is not settled, and the choice matters: at an opacity floor of 0.22 the
+glyph reaches 1.13:1, which is not a pulse but a disappearance.
+
+> **Undecided.** Empty and error are not settled. Error has nothing to design
+> against yet: `ProcessStatus` is `READY | PROCESSING` with no failure value, so
+> a job that dies polls forever. Adding one is a request to the backend,
+> collected and not yet sent (§7). Disabled is settled per component rather than
+> here — the button and the field each name their own.
 
 ---
 
