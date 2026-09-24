@@ -419,6 +419,19 @@ it is the minimum touch target, it is a multiple of 4, and the spacing list step
 40 → 48 straight past it. One shared list would mean discarding a value that has
 a reason behind it.
 
+#### Corner radius
+
+| Step   |  px | Where                                    |
+| ------ | --: | ---------------------------------------- |
+| `sm`   |   4 | Small marks — a tag, an inline code span |
+| `md`   |   6 | Controls — buttons, fields, menu rows    |
+| `lg`   |  10 | Cards, panels, modals                    |
+| `full` | 999 | Anything read as a pill or a circle      |
+
+Four steps, taken from the design file as drawn. A fifth, `xs` at 3px, exists in
+the stylesheet, is in no design and is used nowhere — it goes, for the reason §3
+removed its own two: a step nobody needs is a step everyone has to rule out.
+
 #### Icon size
 
 Settled in typography (§3): an icon takes the nearest 4px step to the size of
@@ -804,6 +817,41 @@ the one part that was not text is the countdown, which already exists elsewhere.
 
 The countdown's colors move from red to amber, which §2 settled: red is what
 went wrong, amber is what is running out.
+
+#### A card takes the press rule unchanged
+
+**Hover and pressed are the fill with 8% and 16% black over it — §2's rule, on a
+white card, with nothing added.**
+
+| State    | Fill        | From its base |
+| -------- | ----------- | ------------: |
+| Resting  | `surface`   |             — |
+| Hover    | 8% black    |       ΔE 6.95 |
+| Pressed  | 16% black   |      ΔE 14.55 |
+| Selected | `lime-pale` |      ΔE 58.53 |
+
+White is the ceiling, so hover can only go down, and down is what `well` means
+in this system — which was the argument for giving cards a rule of their own.
+Drawn out, the darkening reads as _this one_ rather than _this is sunken_: a
+change that lives under the cursor is read as pointing. The alternatives each
+cost a rule — a border only cards use, a shadow §2 forbids on lists, or no
+feedback at all on a target the size of a card.
+
+**Pressed is drawn only where the screen stays.** A button does its work in
+place, so the 16% fill is visible for as long as the finger is down. A card
+usually navigates, and the pressed fill would be drawn and then thrown away with
+the page. A card that navigates takes hover and stops there. A card that cannot
+be pressed takes neither.
+
+**Staying pressed is not pressed — it is selected.** A calendar cell that holds
+its state until another is chosen is not a card mid-press; it is a `Toggle`, and
+§2 gives it lime, at the pale step kept for lime over a large area. At ΔE 58.53
+from white it cannot be read as a hover at 6.95.
+
+**And the rule composes, which is the point of computing it.** 8% black over
+`lime-pale` is `#deeb7e` — ΔE 7.66 from the selected fill, near-black text still
+at 12.79:1. Hovering a cell that is already selected works without anyone
+choosing a value for it.
 
 ### States
 
