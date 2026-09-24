@@ -892,9 +892,31 @@ owns the group — a calendar, a pagination — because only the group knows whi
 one is current. The ARIA divides on the same line: `aria-pressed` against
 `aria-selected` or `aria-current`.
 
-> **Undecided.** The size of a toggle with no label, and of `IconButton`. Both
-> are square, so height and width move together, and neither is read against a
-> field.
+#### An icon button is twice its glyph
+
+**The padding is half the glyph on every side, so the button is the glyph
+doubled.** This covers `IconButton` and a toggle drawn without a label — both
+are square, so one number settles them.
+
+| Glyph | Padding | Button |
+| ----: | ------: | -----: |
+|    16 |       8 |     32 |
+|    20 |      10 |     40 |
+|    24 |      12 |     48 |
+
+The ladder is not chosen, it is produced: §3's icon ramp is 16, 20 and 24, so
+these are the only three buttons the rule can make, and all three are already on
+§2's control heights. Nothing is added anywhere.
+
+A fixed padding was the alternative and it fails at both ends. Hold the padding
+at 8 and a 24 glyph nearly touches the edge, and the middle step lands on 36,
+which is on no list — a ladder that needs a new control height to exist. Hold it
+at 12 and the smallest button is 40, which stands taller than the text it sits
+beside in a row. Half the glyph keeps the proportion constant, so a large icon
+button and a small one read as the same object at two sizes.
+
+> **Undecided.** Which glyph a button with no label takes. §3 sizes an icon
+> against the text beside it, and here there is none — the rule has no input.
 
 ### States
 
