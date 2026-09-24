@@ -774,6 +774,37 @@ a mouse: `:focus-visible` leaves that to the browser, which gives the ring to
 keyboard navigation — and to text fields always, since a caret has to be
 findable.
 
+#### A badge is a place a color lands
+
+**A value gets a badge when it comes from a finite set. Everything else is
+text.**
+
+A badge is a fill, and a fill is a color, and a color has to mean one of
+something. A value with no set behind it — a professor's name, a count of
+chapters — has no color to be given, so a badge around it borrows the form
+without the function: a box that draws the eye and then says nothing.
+
+| Value                        | A set?                                 | Then      |
+| ---------------------------- | -------------------------------------- | --------- |
+| Days until the exam          | four bands, and §2 colors them         | **Badge** |
+| The professor's name         | free text                              | Text      |
+| "3 lectures"                 | a number                               | Text      |
+| Not started · reading · done | three, but blue reads as text (4.94:1) | Text      |
+
+Four badges in a row is the failure this replaces. When everything is a badge
+nothing is emphasized, and the amber §2 reserved for time gets read as one more
+gray pill.
+
+**So there is no shared badge component.** With sharing out of the first
+release, one value in the product passes the test: the exam countdown. It has a
+component already, in `features/exam`, placed there because both of its callers
+live in that feature — and that reasoning has not changed. `Tag`, whose seven
+tones drew names, counts and deadlines alike, goes: its work becomes text, and
+the one part that was not text is the countdown, which already exists elsewhere.
+
+The countdown's colors move from red to amber, which §2 settled: red is what
+went wrong, amber is what is running out.
+
 ### States
 
 > **Undecided.** Loading, empty, error and disabled are required, not optional:
