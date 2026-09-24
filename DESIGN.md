@@ -760,6 +760,66 @@ near it, so height and width move together and neither is read against a field.
 They are settled below instead: an icon button by the glyph it holds, a toggle by
 the row it stands in.
 
+#### There are two modals, and neither has a close button
+
+**A modal is either asking for input or asking a question.**
+
+| Component      | What it is                         | Heading             | Footer                       |
+| -------------- | ---------------------------------- | ------------------- | ---------------------------- |
+| `FormModal`    | Fields to fill and a thing to save | A title above them  | Cancel and the saving action |
+| `ConfirmModal` | One question about one action      | The question itself | Cancel and the action        |
+
+`Modal` stays underneath both — focus trap, Escape, scroll lock, dim — and
+screens do not call it. Two is the whole list a screen can reach for.
+
+**There is no ×.** The footer always carries cancel, so a close button would be
+a second way out sitting in a corner, and the corner is the one a person finds
+last. Escape and the dim still close a modal; they are not what the screen is
+counting on.
+
+**Cancel is what makes that safe, so cancel is not optional.** Today not one of
+the four form modals has it — the footers hold a saving action and, when editing,
+a delete — and removing the × from those as they stand would leave a person who
+has filled half a form with nothing on screen to press. Cancel is a second-rank
+action and takes the border treatment §4 already defines.
+
+Delete stands at the other end of the footer, away from the pair. Two filled
+buttons in one row would otherwise be lime and red side by side, each claiming
+the row; the gap is what ranks them.
+
+#### A modal says out loud what it says to a reader
+
+**No modal has a title that is only announced.** `FormModal` draws its title.
+`ConfirmModal` has no separate title at all — the question is the heading, marked
+up as one and read as a sentence.
+
+The design file draws some form modals with no visible title, which the code met
+by keeping the title and hiding it in `sr-only`. That is a string with one
+audience, and a string with one audience is a string nobody notices going stale.
+Where a modal needs a name, it shows it.
+
+#### What two modals remove
+
+`FormModal` exports seventeen names today, eleven of them class strings that
+screens paste onto their own elements. None of them survive as exports:
+
+| Where it goes      | What                                                                              |
+| ------------------ | --------------------------------------------------------------------------------- |
+| `Button`           | `PRIMARY_ACTION`, `DANGER_ACTION`                                                 |
+| `Input`            | `FIELD_BASE`, `FIELD_FILLED`, `FIELD_OUTLINED`, `FIELD_WIDTH`, `LABEL`, `HINT`    |
+| The select         | `OPTION_LIST`, `OPTION_ROW`, `optionStateClass`, `ChevronDownIcon`, `ModalSelect` |
+| Inside `FormModal` | `SECTION_DIVIDER`, `SECTION_GAP`                                                  |
+| Gone               | `CloseIcon`                                                                       |
+
+There is also a second copy of the shell. `NewChapterUploadModal` does not use
+`FormModal`; it redraws the same panel by hand, down to an identical `className`
+string. Two components mean one shell, so the copy goes with them.
+
+> **Undecided.** Two values. The dim behind a modal — §2 relies on it to say
+> what is on top but never gives it a value. And the width of `ConfirmModal`:
+> `FormModal` is 50% of the viewport capped at the design's 960 (§5), and the
+> confirming one has no width in the design file to measure.
+
 #### A field has no border until it has something to say
 
 **The fill is the field. A border appears only for focus and for failure.**
