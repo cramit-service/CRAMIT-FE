@@ -734,6 +734,46 @@ lands on one row, four pixels deep.
 > near it, so their height and width move together, and neither is read against
 > a field.
 
+#### A field has no border until it has something to say
+
+**The fill is the field. A border appears only for focus and for failure.**
+
+| Part        | Value                        | On `well` |
+| ----------- | ---------------------------- | --------: |
+| Fill        | `well`                       |         — |
+| Value       | `gray-700`                   |   10.52:1 |
+| Placeholder | `gray-500`                   |    4.78:1 |
+| Label       | `gray-700`, above the fill   |   10.52:1 |
+| Focused     | `sky-ink` border             |    4.37:1 |
+| Invalid     | `red-ink` border and message |    5.09:1 |
+| Disabled    | `gray-400` value             |    3.22:1 |
+
+§2 hands most of this over already: `well` is named for recessed areas, borders
+are not the default separator, and the border of an invalid field is `red-ink`.
+Only focus was open.
+
+**Lime cannot do it.** `#e3ff00` on `well` is 1.00:1 — not faint, absent. The
+signature color is not available for the one state the system is obliged to
+show.
+
+**Ink cannot do it either, and the reason is the interesting one.** A
+`gray-800` border reads at 14.57:1, nearly three times the invalid border's
+5.09:1. Focus happens on every field a person touches; failure happens rarely
+and matters when it does. A focus ring louder than an error is the same
+inversion §2 refused between red and amber — the constant signal drowning the
+rare one.
+
+So the border carries state and nothing else: absent is resting, blue is here,
+red is wrong. `sky-ink` at 4.37:1 sits just under the error at 5.09:1 and on the
+opposite side of the wheel, and `*-ink` steps already carry borders — this is
+the second use of that rule, not a new one.
+
+**Focus is not optional.** It is the one thing in this document that is a
+requirement rather than a choice (WCAG 2.4.7). What is optional is showing it to
+a mouse: `:focus-visible` leaves that to the browser, which gives the ring to
+keyboard navigation — and to text fields always, since a caret has to be
+findable.
+
 ### States
 
 > **Undecided.** Loading, empty, error and disabled are required, not optional:
