@@ -765,9 +765,9 @@ other way means adding 60 to §2's control heights. A step added to a list is no
 one more line; it is one more judgement every time a height is picked. §3 turned
 down a 12px step on exactly that ground.
 
-**This is the third place the design file is not followed**, after the dark
-panels of §2 and the 18px line height of §3, and it is the least comfortable of
-the three. The other two overruled values with nothing behind them. 60 appears
+**Of the places where the design file is not followed, this is the least
+comfortable.** The dark panels of §2 and the 18px line height of §3 overruled
+values with nothing behind them. 60 appears
 at six different widths here, which reads as intent rather than drift. It is
 overruled anyway because the cost of keeping it lands on the system — a sixth
 step everyone has to choose against forever — while the cost of dropping it
@@ -874,6 +874,22 @@ the current shell are not on it — 84, 60, 89, 47, 15 and 18 — and they becom
 for the padding, 16 for a grid gap, 24 between blocks and 32 above the footer.
 The lint rule does not catch these: it guards color and type, and leaves width,
 height and spacing to be read.
+
+#### A question is asked at the page's own size
+
+**`ConfirmModal` asks in `heading-sm`, and the sentence under it is `body-sm`.**
+
+The design file asks in `heading-md`, which is larger than the heading of the
+page it interrupts. The dim and the shadow already say the modal is on top; a
+heading that outranks the page's own says it a second time, and that is the
+doubling §2 refused when it kept stacking order out of the shadow. At 24 the
+question stands level with the page it came from and reads as a question inside
+it rather than an event over it.
+
+Below that it stops working. The size the code uses today, `body`, is two steps
+from the card titles sitting behind the dim, and inside a 655 panel it leaves
+the panel looking empty. **The question has to be the largest thing in its own
+panel; it does not have to be the largest thing on the screen.**
 
 #### A field has no border until it has something to say
 
