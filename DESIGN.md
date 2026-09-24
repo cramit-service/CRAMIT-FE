@@ -699,26 +699,40 @@ prevent.
 near-black fill is a second signature nobody chose. The landing page keeps its
 own, because §3 already puts the landing outside the ramp.
 
-#### Height waits for the screen
+#### Two heights, and the field shares one
 
-> **Undecided.** How many heights a button has, and what they are.
+**A button is 56 or 44. A field is 56.**
 
-A button's height is not the button's own. It is read against the field beside
-it and the row it stands in, which is why §2 puts buttons, fields and tabs on
-one list instead of giving each its own. That list is a pool of legal heights,
-not a ramp any single control has to walk — nothing in it says a button has
-five sizes.
+| Height | Where                                                 |
+| -----: | ----------------------------------------------------- |
+|     56 | The confirming action, and the field it stands beside |
+|     44 | An action inside a row — a header, a toolbar, a list  |
 
-The design file offers two clusters: 60, across six different widths, and 44,
-across six more. 40, 46 and 52 drift between them, and 76 and 80 appear on the
-auth screens alone. Two sizes is the plausible answer, and plausible is exactly
-what §7 says not to write down. What would settle it is balance — how a button
-sits against the field above it — and balance is a property of the screen, which
-§5 has not drawn.
+A button's height is not the button's own. It is read against the field next to
+it, which is why §2 puts buttons, fields and tabs on one list rather than giving
+each its own. That list is a pool of legal heights, not a ramp any single
+control walks — nothing said a button has five sizes.
 
-**The pool itself is owed a second look.** Of its five steps only 44 carries a
-reason here, and the design file's most common button height, 60, is not on the
-list at all.
+The design file offers two clusters, 60 and 44, with 40, 46 and 52 drifting
+between them. 44 needs no argument: §2 already keeps it for being the minimum
+touch target. **60 does not survive.** Where a field and a button meet on one
+row — a field with an invite button at its right — four pixels leave the button
+standing proud at the top and the bottom of the row, and closing that gap the
+other way means adding 60 to §2's control heights. A step added to a list is not
+one more line; it is one more judgement every time a height is picked. §3 turned
+down a 12px step on exactly that ground.
+
+**This is the third place the design file is not followed**, after the dark
+panels of §2 and the 18px line height of §3, and it is the least comfortable of
+the three. The other two overruled values with nothing behind them. 60 appears
+at six different widths here, which reads as intent rather than drift. It is
+overruled anyway because the cost of keeping it lands on the system — a sixth
+step everyone has to choose against forever — while the cost of dropping it
+lands on one row, four pixels deep.
+
+> **Undecided.** What `IconButton` and `Toggle` are sized in. Both are square or
+> near it, so their height and width move together, and neither is read against
+> a field.
 
 ### States
 
