@@ -426,7 +426,12 @@ a reason behind it.
 | `sm`   |   4 | Small marks — a tag, an inline code span |
 | `md`   |   6 | Controls — buttons, fields, menu rows    |
 | `lg`   |  10 | Cards, panels, modals                    |
-| `full` | 999 | Anything read as a pill or a circle      |
+| `full` | 999 | Pills and circles — see below            |
+
+`full` makes two different shapes and only one of them carries meaning. **A pill
+is a control that holds a state**, which is what separates a lit toggle from a
+button in the same color (§4). A circle is the shape of a thing that is already
+round — an avatar, an icon with no label — and says nothing about state.
 
 Four steps, taken from the design file as drawn. A fifth, `xs` at 3px, exists in
 the stylesheet, is in no design and is used nowhere — it goes, for the reason §3
@@ -852,6 +857,44 @@ from white it cannot be read as a hover at 6.95.
 `lime-pale` is `#deeb7e` — ΔE 7.66 from the selected fill, near-black text still
 at 12.79:1. Hovering a cell that is already selected works without anyone
 choosing a value for it.
+
+#### A toggle is a pill, and it borrows its height
+
+**`Toggle` is what a person switches on and off by itself.**
+
+| State | Fill          | Border     | Label      |
+| ----- | ------------- | ---------- | ---------- |
+| On    | `lime-action` | —          | `gray-800` |
+| Off   | `surface`     | `gray-100` | `gray-700` |
+
+Off is the same as a second-rank button, and that is right rather than
+unfortunate: both are things that can be pressed and have no color of their own,
+so they speak the same way. Hover is §2's 8% black over whichever fill is
+present, as everywhere else.
+
+**The shape is what separates it from a button.** A lit toggle and a confirming
+button are the same `#e3ff00`, and they have to be, because §2 gives one color
+to everything that can be pressed. What tells them apart is the corner: a pill
+holds a state, a 6px corner does a job. That is the meaning §2's radius table
+now carries for `full`.
+
+**A toggle has no height of its own.** It takes the height of the row it stands
+in, which is the height of the controls beside it. Giving it a step of its own
+would set a toggle and the button next to it at different heights for a reason
+nobody could state — and a row's height is a property of the screen, settled
+when the screen is drawn.
+
+**What is a toggle and what is not.** The state has to belong to the control. A
+tab strip with several tabs open at once is a set of toggles; a page number, a
+chosen date, a current step is a _selection_, where picking one releases another
+and the state belongs to the group. Selections are drawn by the component that
+owns the group — a calendar, a pagination — because only the group knows which
+one is current. The ARIA divides on the same line: `aria-pressed` against
+`aria-selected` or `aria-current`.
+
+> **Undecided.** The size of a toggle with no label, and of `IconButton`. Both
+> are square, so height and width move together, and neither is read against a
+> field.
 
 ### States
 
