@@ -350,10 +350,26 @@ second channel for a message already delivered — the same reason §3 keeps
 weight away from pressability. `far` and `near` say how far a thing is from
 the page, not which is in front.
 
-> **Undecided.** What a shadow does on a dark surface. `FormModal` is drawn
-> dark (`gray-900`) while `Modal` is white, and §2's surfaces are all light, so
-> the dark modal has no level here and `far` may mean nothing on it. Settled
-> with the modal itself in §4.
+#### There is no dark surface
+
+**A modal is `surface`, like every other floating panel.** The design file draws
+the form modal dark, and it becomes light.
+
+The same question was already answered for the screen with more riding on it:
+the design draws the study view as two dark panels, and §2 took the light canvas
+instead, because the PDF beside them is white paper and students read the pair
+for hours. A modal is looked at for less time, but it belongs to the same three
+surfaces, and a fourth would arrive carrying its own shadow levels and its own
+gray scale — every contrast figure in this section assumes ink on a light
+ground.
+
+So `far` and `near` never land on a dark ground, and the level a dark modal
+would have needed does not have to exist.
+
+**The cost is a redraw, not a reclass.** The form modal is dark throughout:
+`gray-900` panel, `gray-800` fields, `gray-700` popovers, light text on all
+three. Every one of those inverts, and the fields land on `well` — which is what
+the rest of the system already does with a recessed area.
 
 ### Spacing & Sizing
 
