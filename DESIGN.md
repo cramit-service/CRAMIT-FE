@@ -733,6 +733,48 @@ This is a decision about the phase, not a claim about the product.
 > screen read before anyone signs in, and §3 already sets it outside the type
 > ramp for the same reason.
 
+#### The page scrolls
+
+**A screen is held to the viewport only when two panes have to be read against
+each other. Otherwise the page grows.**
+
+Today that is one screen. The study view sets the lecture material beside its
+summary and scrolls each on its own — the design gives both their own
+back-to-top control. A scrolling page would slide the pair out of step, which is
+the one thing that screen exists to prevent.
+
+Everywhere else the page grows, and the reason is not preference: **viewport
+height is not a number this design can hold.** The design file draws 37 screens
+exactly 1080 tall. The measured viewport on the laptop this is built on is 803 —
+browser chrome takes the difference, and it moves with the browser, the toolbars
+and the zoom. A layout pinned to 1080 is pinned to whoever measured it.
+
+The home screen shows the cost. Its calendar is one panel that has to be read
+whole, so pinning the page makes the cell height fall out of the viewport, and
+the cells stop holding the entries they exist to show.
+
+**A region with its own scrollbar is a different thing.** The shared board, the
+TODO list, the page thumbnails — each decides how much of itself to show, and
+that works whether or not the page behind it scrolls. The shared-lecture screen
+already does both: the board scrolls inside a page that is itself 1945 tall.
+
+#### The frame
+
+A dark rail on the left, about 90 wide, holding icons; the canvas beside it; a
+chat tab pinned to the right edge. The rail opens to 289, wider than the space
+between the content column and the window, so it covers rather than pushes.
+
+#### The wide end is 2560
+
+Nothing new is needed for it. Containers already cap at their design px, so past
+roughly 1830 the content column stops growing and the margins take what is left.
+2560 is a width to check, not a rule to write.
+
+> **Undecided.** The narrow end. It is the width at which the study screen's
+> split stops working — the one screen with a floor — and it is measured off that
+> screen rather than picked. No other screen needs one, because a page that
+> grows does not break at a width; it only gets taller.
+
 ### Responsive Behavior
 
 **Text and controls hold one size across the whole desktop range. Containers
