@@ -733,27 +733,36 @@ This is a decision about the phase, not a claim about the product.
 > screen read before anyone signs in, and §3 already sets it outside the type
 > ramp for the same reason.
 
-#### The page scrolls
+#### No screen forbids scrolling
 
-**A screen is held to the viewport only when two panes have to be read against
-each other. Otherwise the page grows.**
+**No page clips its own overflow.** If a screen turns out taller than the
+window, it scrolls.
 
-Today that is one screen. The study view sets the lecture material beside its
-summary and scrolls each on its own — the design gives both their own
-back-to-top control. A scrolling page would slide the pair out of step, which is
-the one thing that screen exists to prevent.
+The reason is not preference: **viewport height is not a number this design can
+hold.** The design file draws 37 screens exactly 1080 tall, and the measured
+viewport on the laptop this is built on is 803 — browser chrome takes the
+difference, and it moves with the browser, the toolbars and the zoom. There is
+no width at which the height is known, so a layout built to fit one is built for
+whoever measured it.
 
-Everywhere else the page grows, and the reason is not preference: **viewport
-height is not a number this design can hold.** The design file draws 37 screens
-exactly 1080 tall. The measured viewport on the laptop this is built on is 803 —
-browser chrome takes the difference, and it moves with the browser, the toolbars
-and the zoom. A layout pinned to 1080 is pinned to whoever measured it.
+The home screen shows what fitting costs. Its calendar is one panel that has to
+be read whole; make the page fit and the cell height falls out of the viewport,
+and the cells stop holding the entries they exist to show.
 
-The home screen shows the cost. Its calendar is one panel that has to be read
-whole, so pinning the page makes the cell height fall out of the viewport, and
-the cells stop holding the entries they exist to show.
+**A region may still stand to the window's height.** The study view is the case:
+two panels side by side, each sized against the viewport and scrolling on its
+own, which is what lets the material and its summary stay level with each other.
+That is the region deciding its own height, not the page refusing to grow — and
+so the study screen usually shows no scrollbar, while anything that does
+overflow still scrolls rather than disappearing.
 
-**A region with its own scrollbar is a different thing.** The shared board, the
+That difference is the whole reason to write the rule this way. A page that
+clips loses what overflows in silence: this codebase has already spent a day on
+43 pixels of it, where a hidden `sr-only` input escaped the clipping chain and
+every container measured clean. A page that scrolls shows the same bug on the
+first look.
+
+**A region with its own scrollbar is a separate matter.** The shared board, the
 TODO list, the page thumbnails — each decides how much of itself to show, and
 that works whether or not the page behind it scrolls. The shared-lecture screen
 already does both: the board scrolls inside a page that is itself 1945 tall.
@@ -771,9 +780,9 @@ roughly 1830 the content column stops growing and the margins take what is left.
 2560 is a width to check, not a rule to write.
 
 > **Undecided.** The narrow end. It is the width at which the study screen's
-> split stops working — the one screen with a floor — and it is measured off that
-> screen rather than picked. No other screen needs one, because a page that
-> grows does not break at a width; it only gets taller.
+> split stops working, and it is measured off that screen rather than picked —
+> the split is what breaks first, because a page that scrolls does not break at a
+> width, it only gets taller.
 
 ### Responsive Behavior
 
