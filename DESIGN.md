@@ -1509,23 +1509,65 @@ window is 1920 and a media query cannot see the difference.
 
 ### Voice & Tone
 
-> **Undecided.** This document is written in English; the product's interface
-> copy is Korean. Rules here govern Korean UI text.
+This document is written in English; the product's interface copy is Korean.
+The rules here govern Korean UI text.
 
-What is already known to be split, found while settling §4's buttons. None of
-these is decided here; they are recorded so the section starts from evidence
-rather than from taste.
+#### The product speaks in 해요체, and the landing page is outside this rule
 
-| Where                    | Split                                                                                                      |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| One label, two spellings | `수정완료` (3) against `수정 완료` (3)                                                                     |
-| Confirming buttons       | `~하기` for six labels, `~완료` for one                                                                    |
-| Work in progress         | noun + `중…` (`저장 중…`, `삭제 중…`) against verb + `는 중…` (`불러오는 중…`, `만드는 중…`, `보내는 중…`) |
-| Empty screens            | `~없어요` (16) against `~없습니다` (5)                                                                     |
-| Instructions             | `~주세요` (22) against `~합니다` (5)                                                                       |
+**Every sentence inside the product ends in `~요`.** `아직 만든 강의가 없어요`,
+`강의 명을 입력해 주세요`, `저장에 실패했어요. 잠시 후 다시 시도해 주세요`. There is
+one register and it covers every kind of sentence the product writes.
 
-The first is not a style question — it is the same string written two ways in
-two files, and one of them is wrong whichever way the section goes.
+The alternative was 합니다체, and it fails on a point of grammar rather than of
+taste. **합니다체 can state, but it cannot instruct.** Its imperative is
+`~하십시오`, which no app of this kind uses; soften it to `~하세요` and the
+sentence is already 해요체. The product instructs in **47 places** — every
+field hint, every empty form, every error that asks for a retry. A register
+that cannot do the thing this product does most often is not the register.
+해요체 does both halves: `~없어요` states and `~해 주세요` instructs, with no
+seam between them.
+
+Who reads these sentences settles the rest. They are read by a student in the
+middle of a lecture, or the night before an exam, on a tool they are holding.
+합니다체 is an institution addressing a person. This is not that.
+
+**The landing page is not covered by this rule.** Its copy addresses someone
+who is not a user yet, and it does so in paragraphs rather than in lines —
+and for paragraph prose Korean's default is 합니다체
+(`크래밋이 당신의 학습을 연결합니다`). Rather than write a second register into
+this section and then have to decide, sentence by sentence, which side each new
+string falls on, **the landing is treated as a separate surface and left out.**
+It keeps what it has.
+
+| Where                         | Register                  |
+| ----------------------------- | ------------------------- |
+| Everything inside the product | 해요체, without exception |
+| The landing page              | Outside this document     |
+
+**What this costs.** Nineteen live strings are in 합니다체 and have to be
+rewritten; four more die on their own (two developer placeholders, and two in
+the modal §4 removes). Eight of them are the same empty-state pattern
+(`~없습니다`), and **four of those eight sit in one folder** —
+`features/study/components/viewer/`. That is not a register anyone chose; it is
+a trace of who wrote the files. It is also the exact thing a voice rule exists
+to prevent, which is the argument for having one at all.
+
+#### Undecided: what the register does not settle
+
+> **Undecided.** Four splits survive the decision above, because none of them is
+> a question of formality. They are recorded here so the next decision starts
+> from evidence rather than from taste.
+
+| What               | Split                                                                                            |
+| ------------------ | ------------------------------------------------------------------------------------------------ |
+| Work in progress   | noun + `중…` (`저장 중…`, `삭제 중…`) against verb + `는 중…` (`불러오는 중…`, `만드는 중…`)     |
+| Confirming buttons | `~하기` for six labels, `~완료` for one                                                          |
+| Spacing            | `수정완료` against `수정 완료`; `해주세요` (4) against `해 주세요` (47)                          |
+| One act, two verbs | `닉네임을 작성해주세요` (3) against `닉네임을 입력해 주세요` (2); `회독` against `복습 n번` (§4) |
+
+The spacing row is not a style question in one case — `수정완료` and `수정 완료`
+are the same label written two ways in two files, and one of them is wrong
+whichever way this goes.
 
 **Button labels are the ones §4 is waiting on.** Their evenness is what lets a
 button take its label's width with no minimum; a two-character confirming label
