@@ -85,9 +85,13 @@ export function AudioPlayer({
           className="max-w-[276px] min-w-[80px] flex-1 basis-0 py-2 @max-[380px]:hidden"
         >
           <span className="block h-[3px] w-full rounded-full bg-gray-100">
-            {/* 진행분은 연두(primary) — 시그니처 강조 역할 */}
+            {/* 진행분은 하늘이다. §2의 역할 분담대로 — 연두는 누르는 것이고, 얼마나
+                왔는지 알려 주는 일은 하늘이 맡는다. 재생 버튼이 연두인데 진행분까지
+                연두면 한 줄 안에서 그 둘이 구분되지 않는다.
+                트랙은 sky-pale이 아니라 gray-100이다. §2가 진행 트랙을 sky-pale로
+                이름 댄 건 흰 판 기준이고, 파인 판(well) 위에서는 ΔL* 1.1이라 녹는다. */}
             <span
-              className="bg-lime-action block h-full rounded-full"
+              className="bg-sky-status block h-full rounded-full"
               style={{ width: `${percent}%` }}
             />
           </span>
