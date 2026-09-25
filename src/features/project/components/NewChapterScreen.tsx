@@ -112,8 +112,8 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
           강의 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
         </p>
         <Button
-          variant="outline"
-          size="sm"
+          rank="secondary"
+          height={44}
           onClick={() => {
             void projectQuery.refetch();
             void chaptersQuery.refetch();
@@ -207,7 +207,7 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
 
         {formError && <p className="text-label text-error">{formError}</p>}
 
-        <Button type="submit" size="lg" disabled={!canSubmit}>
+        <Button type="submit" disabled={!canSubmit}>
           업로드하기
         </Button>
       </section>

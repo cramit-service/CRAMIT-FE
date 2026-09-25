@@ -199,8 +199,8 @@ export function StudyViewerScreen({
           학습 자료를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
         </p>
         <Button
-          variant="outline"
-          size="sm"
+          rank="secondary"
+          height={44}
           onClick={() => queries.forEach((q) => q.refetch())}
         >
           다시 시도

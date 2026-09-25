@@ -1,8 +1,6 @@
 'use client';
 // src/features/study/components/ChapterDetailScreen.tsx
 import { useState, type ReactNode } from 'react';
-import { NewChapterUploadModal } from '@/features/project/components/NewChapterUploadModal';
-import type { Chapter } from '@/shared/types/api';
 import { useProjectDetail } from '@/features/study/hooks/useProjectDetail';
 import { useChapters } from '@/features/study/hooks/useChapters';
 import { ProjectHeader } from './ProjectHeader';
@@ -27,7 +25,6 @@ const PAGE_SIZE = 4;
 export function ChapterDetailScreen({ projectId }: { projectId: string }) {
   const [page, setPage] = useState(1);
   // 꾹 눌러 연 "주차 정보 수정하기" 대상. 닫을 때 통째로 언마운트해 입력값이 남지 않게 한다.
-  const [editingChapter, setEditingChapter] = useState<Chapter | null>(null);
   const {
     data: project,
     isLoading: projectLoading,
@@ -98,12 +95,7 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
             </p>
           ) : (
             visible.map((chapter) => (
-              <ChapterCard
-                key={chapter.chapterId}
-                chapter={chapter}
-                // 공유받은 강의의 주차는 내가 고칠 수 없다 (헤더의 업로드 버튼과 같은 기준).
-                onLongPress={project.sharedBy ? undefined : setEditingChapter}
-              />
+              <ChapterCard key={chapter.chapterId} chapter={chapter} />
             ))
           )}
         </div>
@@ -119,15 +111,6 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
 
       {/* 공유 강의일 때만 공유 게시판 자리 노출 (내 강의면 없음) */}
       {project.isShared && <SharedBoardPlaceholder />}
-
-      {editingChapter && (
-        <NewChapterUploadModal
-          projectId={projectId}
-          projectTitle={project.title}
-          chapter={editingChapter}
-          onClose={() => setEditingChapter(null)}
-        />
-      )}
     </PageShell>
   );
 }

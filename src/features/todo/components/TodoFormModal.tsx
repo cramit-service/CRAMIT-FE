@@ -3,19 +3,13 @@
 import { useId, useMemo, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { toLocalDateString, toLocalTimeString } from '@/shared/lib/date';
-import {
-  DANGER_ACTION,
-  FIELD_FILLED,
-  FormModal,
-  HINT,
-  LABEL,
-  PRIMARY_ACTION,
-  SECTION_DIVIDER,
-  SECTION_GAP,
-} from '@/shared/ui/FormModal';
-import { ModalCombobox } from '@/shared/ui/ModalCombobox';
-import { ModalDateField } from '@/shared/ui/ModalDateField';
-import { ModalTimeField } from '@/shared/ui/ModalTimeField';
+import { Combobox } from '@/shared/ui/Combobox';
+import { TEXT_CONTROL } from '@/shared/ui/control';
+import { DateField } from '@/shared/ui/DateField';
+import { FIELD_ERROR, FIELD_LABEL } from '@/shared/ui/fieldStyle';
+import { FormModal } from '@/shared/ui/FormModal';
+import { Input } from '@/shared/ui/Input';
+import { TimeField } from '@/shared/ui/TimeField';
 // 강의·주차 목록은 study가 이미 조회한다. 같은 요청을 두 번 정의하지 않고 그 훅을 그대로 쓴다
 // — 쿼리 키도 공유돼 캐시가 한 벌로 유지된다. (새 주차 업로드 모달과 동일)
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
@@ -177,75 +171,42 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
 
   return (
     <FormModal
+      open
       title={isEdit ? 'TODO 수정' : 'TODO 추가'}
-      titleVisible
+      submitLabel={isEdit ? '수정완료' : '생성하기'}
+      onDelete={isEdit ? handleDelete : undefined}
+      deleteLabel={deleteMutation.isPending ? '삭제 중…' : '삭제하기'}
+      submitDisabled={!canSubmit}
+      busy={busy}
       onClose={onClose}
       onSubmit={handleSubmit}
-      busy={busy}
-      footer={
-        <>
-          {isEdit && (
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={busy}
-              className={DANGER_ACTION}
-            >
-              {deleteMutation.isPending ? '삭제 중…' : '삭제하기'}
-            </button>
-          )}
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            className={PRIMARY_ACTION}
-          >
-            {isEdit ? '수정완료' : '생성하기'}
-          </button>
-        </>
-      }
     >
-      {/* 제목 */}
-      <div className={cn('flex flex-col gap-2 pb-8.5', SECTION_DIVIDER)}>
-        <label htmlFor={`${fieldId}-title`} className={LABEL}>
-          제목
-        </label>
-        <input
-          id={`${fieldId}-title`}
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="제목을 입력해 주세요."
-          required
-          disabled={busy}
-          className={FIELD_FILLED}
-        />
-      </div>
+      <Input
+        id={`${fieldId}-title`}
+        label="제목"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="제목을 입력해 주세요."
+        required
+        disabled={busy}
+      />
 
-      {/* 마감 일시 — 날짜와 시간이 한 라벨 아래 두 칸으로 나뉜다 (시안 2열) */}
-      <div className={cn('flex flex-col gap-2', SECTION_GAP, SECTION_DIVIDER)}>
-        <div className="flex items-baseline justify-between gap-4">
-          <label htmlFor={`${fieldId}-due-date`} className={LABEL}>
-            마감 일시
-          </label>
-          {dueTimeError && (
-            <p
-              id={`${fieldId}-due-time-error`}
-              role="alert"
-              className={cn(HINT, 'text-error')}
-            >
-              {dueTimeError}
-            </p>
-          )}
-        </div>
-        <div className="grid grid-cols-2">
+      {/* 마감 일시 — 날짜와 시간이 한 라벨 아래 두 칸으로 나뉜다.
+          두 반쪽이 한 칸 전체와 정확히 같은 폭을 채운다 (§4: 콤보박스의 두 폭). */}
+      <div className="flex flex-col gap-2">
+        <label htmlFor={`${fieldId}-due-date`} className={FIELD_LABEL}>
+          마감 일시
+        </label>
+        <div className="grid grid-cols-2 gap-4">
           {/* 라벨이 "마감 일시" 하나뿐이라 시간 칸이 무엇인지는 aria-label로 알린다. */}
-          <ModalDateField
+          <DateField
             id={`${fieldId}-due-date`}
             value={dueDate}
             onChange={handleDueDateChange}
             min={minDueDate}
             disabled={busy}
           />
-          <ModalTimeField
+          <TimeField
             id={`${fieldId}-due-time`}
             ariaLabel="마감 시간 (선택)"
             value={dueTime}
@@ -254,92 +215,81 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
             describedBy={dueTimeError ? `${fieldId}-due-time-error` : undefined}
           />
         </div>
+        {dueTimeError && (
+          <p
+            id={`${fieldId}-due-time-error`}
+            role="alert"
+            className={FIELD_ERROR}
+          >
+            {dueTimeError}
+          </p>
+        )}
       </div>
 
-      {/* 강의 (선택) + 연결된 주차 (선택).
-          두 콤보박스는 기본이 w-full이라 열을 꽉 채워 서로 맞닿는다. 폭을 잡고
-          열 사이 간격(시안 15)을 줘서 떨어뜨린다. */}
-      <div
-        className={cn(
-          'grid grid-cols-2 gap-x-[15px]',
-          SECTION_GAP,
-          SECTION_DIVIDER,
-        )}
-      >
+      <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor={`${fieldId}-project`} className={LABEL}>
+          <label htmlFor={`${fieldId}-project`} className={FIELD_LABEL}>
             강의 (선택)
           </label>
-          <ModalCombobox
+          <Combobox
             id={`${fieldId}-project`}
             value={projectId}
             onChange={handleProjectChange}
             options={lectureOptions}
             disabled={busy}
             // 로딩은 칸 아래 문구가 아니라 placeholder로 알린다. 문구는 로딩이 끝나면
-            // 사라지면서 한 줄(18) + gap-2(8) = 26px 만큼 모달 높이를 줄여 화면이 출렁였다.
-            // 로딩 중에는 options가 비어 있어 고른 항목의 라벨도 못 찾으므로,
-            // 수정으로 열어 강의가 이미 선택돼 있어도 이 placeholder가 보인다.
+            // 사라지면서 모달 높이를 줄여 화면이 출렁였다.
             placeholder={isLecturesPending ? '불러오는 중이에요' : '선택 없음'}
             clearable
-            width="w-[240px]"
           />
           {isLecturesError && (
-            <p role="alert" className={cn(HINT, 'text-error')}>
+            <p role="alert" className={FIELD_ERROR}>
               강의 목록을 불러오지 못했어요.
             </p>
           )}
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor={`${fieldId}-lecture`} className={LABEL}>
+          <label htmlFor={`${fieldId}-lecture`} className={FIELD_LABEL}>
             연결된 주차 (선택)
           </label>
           {/* 강의를 고르기 전에는 고를 주차가 없다. 비활성으로 두어 순서를 알린다. */}
-          <ModalCombobox
+          <Combobox
             id={`${fieldId}-lecture`}
             value={lectureId}
             onChange={setLectureId}
             options={chapterOptions}
             disabled={busy || projectId === NONE}
-            // 강의 칸과 같은 이유로 로딩은 placeholder에 싣는다.
             placeholder={isChaptersLoading ? '불러오는 중이에요' : '선택 없음'}
             clearable
-            width="w-[240px]"
           />
           {/* 이 문구는 강의를 고르기 전까지 계속 떠 있다(사라졌다 나타나지 않는다).
               그래서 위 로딩 문구와 달리 높이를 출렁이게 하지 않는다. */}
           {projectId === NONE && (
-            <p className={cn(HINT, 'text-gray-500')}>
+            <p className={cn(TEXT_CONTROL, 'text-gray-500')}>
               강의를 먼저 고르면 주차를 연결할 수 있어요.
             </p>
           )}
           {isChaptersError && (
-            <p role="alert" className={cn(HINT, 'text-error')}>
+            <p role="alert" className={FIELD_ERROR}>
               주차 목록을 불러오지 못했어요.
             </p>
           )}
         </div>
       </div>
 
-      {/* 메모 (선택) */}
-      <div className="flex flex-col gap-2 pt-8.5">
-        <label htmlFor={`${fieldId}-memo`} className={LABEL}>
-          메모 작성 (선택)
-        </label>
-        <input
-          id={`${fieldId}-memo`}
-          value={memo}
-          onChange={(e) => setMemo(e.target.value)}
-          placeholder="메모를 작성해 주세요."
-          disabled={busy}
-          className={FIELD_FILLED}
-        />
-      </div>
+      <Input
+        id={`${fieldId}-memo`}
+        label="메모 작성 (선택)"
+        value={memo}
+        onChange={(e) => setMemo(e.target.value)}
+        placeholder="메모를 작성해 주세요."
+        disabled={busy}
+      />
 
       {/* 제출·삭제 실패는 사용자가 방금 누른 결과라 보조기기가 바로 읽어야 한다. */}
       {formError && (
-        <p role="alert" className={cn(HINT, 'text-error mt-6 text-right')}>
+        <p role="alert" className={cn(FIELD_ERROR, 'text-right')}>
           {formError}
         </p>
       )}

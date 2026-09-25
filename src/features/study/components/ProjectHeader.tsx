@@ -4,9 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
 import { LectureFormModal } from '@/features/project/components/LectureFormModal';
-import { ShareProjectModal } from '@/features/share/components/ShareProjectModal';
 import { Tag } from './Tag';
-import { ChevronLeftIcon, PencilIcon, ShareIcon, PlusIcon } from './icons';
+import { ChevronLeftIcon, PencilIcon, PlusIcon } from './icons';
 import { getDday } from '@/features/study/lib/format';
 import type { ProjectDetail } from '@/shared/types/api';
 
@@ -22,7 +21,6 @@ const HEADER_ACTION =
 export function ProjectHeader({ project }: { project: ProjectDetail }) {
   const router = useRouter();
   const dday = getDday(project.examName, project.examDate);
-  const [shareOpen, setShareOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
   return (
@@ -72,18 +70,6 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
 
       {/* 우측: 공유 / 새 주차 업로드 (모달은 각 담당) */}
       <div className="ml-auto flex shrink-0 items-center gap-2">
-        {/* Figma: 테두리 0.5px gray-500, 글자 gray-600 */}
-        <button
-          type="button"
-          onClick={() => setShareOpen(true)}
-          className={cn(
-            HEADER_ACTION,
-            'border-[0.5px] border-gray-500 text-gray-700 hover:bg-gray-200',
-          )}
-        >
-          공유하기
-          <ShareIcon className="size-3.5" />
-        </button>
         {/* 공유받은 강의(sharedBy 있음)에는 주차를 올릴 수 없다. 버튼 자체를 감춘다.
             모달의 강의 셀렉트도 같은 기준으로 내 강의만 보여준다.
             Figma: bg #2b2e36(gray-800) */}
@@ -106,12 +92,6 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
         )}
       </div>
 
-      {shareOpen && (
-        <ShareProjectModal
-          projectId={project.projectId}
-          onClose={() => setShareOpen(false)}
-        />
-      )}
       {editOpen && (
         <LectureFormModal
           project={project}

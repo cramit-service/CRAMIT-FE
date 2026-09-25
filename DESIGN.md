@@ -811,8 +811,10 @@ hand anyway.
 
 ### Catalogue
 
-> **Undecided.** Fields, cards, badges, selects and modals. What follows settles
-> the button family only.
+The button family, the two modals, the field, the list the four pickers share,
+the badge, the card, the toggle and the icon button are settled below. What is
+still open in §4 is the failure slot inside a chapter, named where the states
+end.
 
 #### The button family is three components
 

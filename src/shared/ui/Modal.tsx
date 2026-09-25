@@ -2,40 +2,23 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { cn } from '@/shared/lib/cn';
 
 // 포커스를 받을 수 있는 요소들. Tab을 패널 안에 가두려면 첫/마지막을 알아야 한다.
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-// 패널 기본 스타일. 자주 쓰는 조합은 이름으로 고르고, 나머지는 className으로 덮는다.
-// - card : 밝은 기본 카드 (확인/삭제 등 짧은 모달)
-// - bare : 폭·배경·여백을 호출처가 전부 정한다 (시안이 따로 있는 큰 다크 모달)
-type Surface = 'card' | 'bare';
-
-const surfaceStyles: Record<Surface, string> = {
-  card: 'w-full max-w-md rounded-lg bg-white p-6 shadow-xl',
-  bare: '',
-};
-
+// 화면은 이걸 직접 부르지 않는다 (§4) — FormModal과 ConfirmModal 둘이 전부다.
+// 여기 남는 건 생김새가 아니라 장치다: 포커스 가두기, Escape, 스크롤 잠금, 딤.
+// 폭(655)과 안쪽 여백은 두 모달이 각자 갖는다.
 interface ModalProps {
   open: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  className?: string;
-  surface?: Surface;
   /** 제목 요소의 id. 스크린리더가 이 모달을 무엇이라 읽을지 결정한다. */
   labelledBy?: string;
 }
 
-export function Modal({
-  open,
-  onClose,
-  children,
-  className,
-  surface = 'card',
-  labelledBy,
-}: ModalProps) {
+export function Modal({ open, onClose, children, labelledBy }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   // onClose를 ref에 담아 아래 effect의 의존성에서 뺀다.
@@ -110,7 +93,7 @@ export function Modal({
 
   return (
     <div
-      className="z-modal fixed inset-0 flex items-center justify-center bg-black/50"
+      className="bg-dim z-modal fixed inset-0 flex items-center justify-center"
       // click은 누른 곳과 뗀 곳의 공통 조상에서 발생한다. onClick으로 닫으면
       // 패널 안 글자를 드래그하다 배경에서 손을 떼는 순간 모달이 닫혀 입력이 날아간다.
       // 배경에서 눌러 배경에서 뗀 경우만 닫는다.
@@ -124,7 +107,10 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={labelledBy}
-        className={cn(surfaceStyles[surface], className)}
+        // 높이는 내용의 것이되 창의 80%를 넘지 않는다 (§4). 넘으면 모달이 자기 안에서 구른다.
+        // 구르는 자리는 안에 든 모달이 정한다 — 제목과 푸터는 제자리에 있어야 하므로
+        // 여기서 통째로 overflow를 걸면 셋이 같이 밀려 올라간다.
+        className="shadow-far bg-surface flex max-h-[80vh] w-[655px] flex-col overflow-hidden rounded-lg"
       >
         {children}
       </div>

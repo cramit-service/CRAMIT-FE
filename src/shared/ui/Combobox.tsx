@@ -1,14 +1,14 @@
 'use client';
-// src/shared/ui/ModalCombobox.tsx
+// src/shared/ui/Combobox.tsx
 import { useEffect, useId, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
+import { Icon } from '@/shared/ui/Icon';
 import {
-  ChevronDownIcon,
-  FIELD_OUTLINED,
+  FIELD_TRIGGER,
   OPTION_LIST,
   OPTION_ROW,
   optionStateClass,
-} from '@/shared/ui/FormModal';
+} from '@/shared/ui/fieldStyle';
 
 // 강의처럼 목록이 길어질 수 있는 칸은 시안대로 검색해서 고른다.
 // 네이티브 select는 검색이 안 되고, 강의가 열 개만 넘어도 찾기 어려워진다.
@@ -18,7 +18,7 @@ export interface ComboboxOption {
   label: string;
 }
 
-interface ModalComboboxProps {
+interface ComboboxProps {
   id: string;
   /** 고른 항목의 value. 빈 문자열이면 미선택. */
   value: string;
@@ -31,7 +31,7 @@ interface ModalComboboxProps {
   width?: string;
 }
 
-export function ModalCombobox({
+export function Combobox({
   id,
   value,
   onChange,
@@ -40,7 +40,7 @@ export function ModalCombobox({
   placeholder = '검색해서 선택',
   clearable = false,
   width = 'w-full',
-}: ModalComboboxProps) {
+}: ComboboxProps) {
   const listId = useId();
   const [open, setOpen] = useState(false);
   // null이면 "고른 항목을 그대로 보여주는 중", 문자열이면 사용자가 입력한 검색어.
@@ -166,7 +166,7 @@ export function ModalCombobox({
         onBlur={closeList}
         onKeyDown={handleKeyDown}
         className={cn(
-          FIELD_OUTLINED,
+          FIELD_TRIGGER,
           'w-full cursor-text pr-9 disabled:cursor-not-allowed disabled:opacity-50',
         )}
       />
@@ -199,7 +199,9 @@ export function ModalCombobox({
           </svg>
         </button>
       ) : (
-        <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-3.5 size-3 -translate-y-1/2 text-gray-500" />
+        <span className="pointer-events-none absolute top-1/2 right-3.5 size-3 -translate-y-1/2 text-gray-500">
+          <Icon name="arrow-down" size={16} />
+        </span>
       )}
 
       {open && (

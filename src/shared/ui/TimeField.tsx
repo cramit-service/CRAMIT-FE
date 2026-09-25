@@ -1,19 +1,18 @@
 'use client';
-// src/shared/ui/ModalTimeField.tsx
+// src/shared/ui/TimeField.tsx
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
+import { Icon } from '@/shared/ui/Icon';
 import {
-  ChevronDownIcon,
-  FIELD_OUTLINED,
-  FIELD_WIDTH,
+  FIELD_TRIGGER,
   OPTION_LIST,
   OPTION_ROW,
   optionStateClass,
-} from '@/shared/ui/FormModal';
+} from '@/shared/ui/fieldStyle';
 
 // 시안의 마감 시간 칸(`00 : 00` + 화살표)은 셀렉트 모양이지 네이티브 <input type="time">이 아니다.
 // 네이티브는 브라우저마다 생김새가 다르고 시/분 세그먼트를 직접 타이핑할 수 있어,
-// 같은 모달의 날짜 칸(ModalDateField)과 조작 방식이 어긋난다.
+// 같은 모달의 날짜 칸(DateField)과 조작 방식이 어긋난다.
 // 여기서는 트리거를 button으로 두어 칸 어디를 눌러도 목록이 열리게 한다.
 
 const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
@@ -26,7 +25,7 @@ const COLUMN_MAX_HEIGHT = 203;
 
 type Column = 'hour' | 'minute';
 
-interface ModalTimeFieldProps {
+interface TimeFieldProps {
   id: string;
   /** 'HH:mm'. 비어 있으면 미선택. */
   value: string;
@@ -38,14 +37,14 @@ interface ModalTimeFieldProps {
   describedBy?: string;
 }
 
-export function ModalTimeField({
+export function TimeField({
   id,
   value,
   onChange,
   disabled,
   ariaLabel,
   describedBy,
-}: ModalTimeFieldProps) {
+}: TimeFieldProps) {
   const listId = useId();
   const [open, setOpen] = useState(false);
 
@@ -70,7 +69,7 @@ export function ModalTimeField({
   };
 
   // 바깥을 누르면 닫는다. 팝오버는 absolute라 폼이 스크롤되면 트리거를 따라 움직이므로
-  // 스크롤은 따로 들을 필요가 없다. (ModalDateField와 같다)
+  // 스크롤은 따로 들을 필요가 없다. (DateField와 같다)
   useEffect(() => {
     if (!open) return;
 
@@ -84,7 +83,7 @@ export function ModalTimeField({
       }
       setOpen(false);
     };
-    // Escape를 document 캡처 단계로 받는 이유는 ModalDateField와 같다 —
+    // Escape를 document 캡처 단계로 받는 이유는 DateField와 같다 —
     // 팝오버에 붙이면 모달이 window에서 먼저 받아 통째로 닫힌다.
     const onKeyDownCapture = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
@@ -204,7 +203,7 @@ export function ModalTimeField({
   );
 
   return (
-    <div className={cn('relative', FIELD_WIDTH)}>
+    <div className={'relative w-full'}>
       <button
         ref={triggerRef}
         id={id}
@@ -216,14 +215,16 @@ export function ModalTimeField({
         aria-label={ariaLabel}
         aria-describedby={describedBy}
         className={cn(
-          FIELD_OUTLINED,
+          FIELD_TRIGGER,
           'flex w-full items-center justify-between gap-2 text-left disabled:cursor-not-allowed disabled:opacity-50',
           value ? 'text-gray-300' : 'text-gray-500',
         )}
       >
         {/* 시안 표기는 사이를 띄운 `00 : 00`. 미선택일 때도 같은 글자를 흐리게 둔다 */}
         {value ? `${hour} : ${minute}` : '00 : 00'}
-        <ChevronDownIcon className="size-3 shrink-0 text-gray-500" />
+        <span className="size-3 shrink-0 text-gray-500">
+          <Icon name="arrow-down" size={16} />
+        </span>
       </button>
 
       {open && (

@@ -113,9 +113,7 @@ export function OnboardingFlow() {
       {/* 요금제 스텝은 카드의 '시작하기'가 완료를 맡으므로 '다음'을 두지 않는다 */}
       <div className="mx-auto flex w-full max-w-5xl shrink-0 items-center justify-between gap-4">
         <Button
-          variant="outline"
-          size="lg"
-          className="w-full max-w-xs"
+          rank="secondary"
           // 제출 중에는 스텝을 벗어나지 못하게 막는다. 나간 뒤에 등록이 성공하면
           // router.push('/home')가 사용자가 직접 한 이동을 덮어쓴다.
           disabled={isSubmitting}
@@ -125,12 +123,7 @@ export function OnboardingFlow() {
         </Button>
 
         {step !== 'plan' && (
-          <Button
-            size="lg"
-            className="w-full max-w-xs"
-            disabled={!canGoNext}
-            onClick={handleNext}
-          >
+          <Button disabled={!canGoNext} onClick={handleNext}>
             다음
           </Button>
         )}

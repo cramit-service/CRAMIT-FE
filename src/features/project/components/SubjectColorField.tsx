@@ -2,7 +2,7 @@
 // src/features/project/components/SubjectColorField.tsx
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
-import { ChevronDownIcon } from '@/shared/ui/FormModal';
+import { Icon } from '@/shared/ui/Icon';
 import { SUBJECT_COLORS, subjectDotClassOf } from '@/shared/lib/subjectColor';
 
 interface SubjectColorFieldProps {
@@ -125,7 +125,9 @@ export function SubjectColorField({
           aria-hidden
           className={cn('size-4.5 rounded-full', subjectDotClassOf(value))}
         />
-        <ChevronDownIcon className="size-3 shrink-0 text-gray-500" />
+        <span className="size-3 shrink-0 text-gray-500">
+          <Icon name="arrow-down" size={16} />
+        </span>
       </button>
 
       {open && (

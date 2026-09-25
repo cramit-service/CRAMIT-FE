@@ -1,13 +1,10 @@
 'use client';
-// src/shared/ui/ModalDateField.tsx
+// src/shared/ui/DateField.tsx
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
+import { Icon } from '@/shared/ui/Icon';
 import { toLocalDateString } from '@/shared/lib/date';
-import {
-  ChevronDownIcon,
-  FIELD_OUTLINED,
-  FIELD_WIDTH,
-} from '@/shared/ui/FormModal';
+import { FIELD_TRIGGER } from '@/shared/ui/fieldStyle';
 
 // 시안의 날짜 칸은 달력에서 고르는 것만 허용한다 — 네이티브 <input type="date">는
 // 세그먼트를 직접 타이핑할 수 있고 그 상태로 Enter를 치면 폼이 제출된다.
@@ -50,7 +47,7 @@ function parseValue(value: string): Date {
   return new Date();
 }
 
-interface ModalDateFieldProps {
+interface DateFieldProps {
   id: string;
   /** 'YYYY-MM-DD'. 비어 있으면 미선택. */
   value: string;
@@ -62,14 +59,14 @@ interface ModalDateFieldProps {
   min?: string;
 }
 
-export function ModalDateField({
+export function DateField({
   id,
   value,
   onChange,
   disabled,
   ariaLabel,
   min,
-}: ModalDateFieldProps) {
+}: DateFieldProps) {
   const gridId = useId();
   const [open, setOpen] = useState(false);
   // 보고 있는 달. 값이 있으면 그 달, 없으면 이번 달에서 시작한다.
@@ -211,7 +208,7 @@ export function ModalDateField({
       : (monthCells.find((iso) => !isBlocked(iso)) ?? monthCells[0]);
 
   return (
-    <div className={cn('relative', FIELD_WIDTH)}>
+    <div className={'relative w-full'}>
       <button
         ref={triggerRef}
         id={id}
@@ -224,13 +221,15 @@ export function ModalDateField({
         // button은 폼 검증 대상이 아니라 required를 걸 수 없다(aria-required도 role=button엔
         // 안 맞는다). 빈 날짜로 제출되는 건 각 모달의 canSubmit이 막는다.
         className={cn(
-          FIELD_OUTLINED,
+          FIELD_TRIGGER,
           'flex w-full items-center justify-between gap-2 text-left disabled:cursor-not-allowed disabled:opacity-50',
           value ? 'text-gray-300' : 'text-gray-500',
         )}
       >
         {value ? formatDisplay(value) : 'YY. MM. DD.'}
-        <ChevronDownIcon className="size-3 shrink-0 text-gray-500" />
+        <span className="size-3 shrink-0 text-gray-500">
+          <Icon name="arrow-down" size={16} />
+        </span>
       </button>
 
       {open && (
@@ -249,7 +248,9 @@ export function ModalDateField({
               aria-label="이전 달"
               className="flex size-6 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-100"
             >
-              <ChevronDownIcon className="size-3 rotate-90" />
+              <span className="size-3 rotate-90">
+                <Icon name="arrow-down" size={16} />
+              </span>
             </button>
             <span
               aria-live="polite"
@@ -263,7 +264,9 @@ export function ModalDateField({
               aria-label="다음 달"
               className="flex size-6 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-100"
             >
-              <ChevronDownIcon className="size-3 -rotate-90" />
+              <span className="size-3 -rotate-90">
+                <Icon name="arrow-down" size={16} />
+              </span>
             </button>
           </div>
 

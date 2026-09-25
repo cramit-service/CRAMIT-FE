@@ -112,8 +112,8 @@ export function ChatPanel({
               대화를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
             </p>
             <Button
-              variant="outline"
-              size="sm"
+              rank="secondary"
+              height={44}
               onClick={() => chatQuery.refetch()}
               disabled={chatQuery.isFetching}
             >
@@ -198,11 +198,10 @@ export function ChatPanel({
               </span>
             </span>
             <Button
-              variant="dark"
-              size="xs"
+              rank="secondary"
+              height={44}
               onClick={retry}
               disabled={sending}
-              className="shrink-0"
             >
               {sending ? '보내는 중…' : '다시 보내기'}
             </Button>

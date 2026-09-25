@@ -102,12 +102,7 @@ export function TodoChecklist() {
         <div className="flex items-center gap-2">
           <TodoViewSelect />
           {/* ExamSchedule 추가하기와 동일 버튼 */}
-          <Button
-            variant="dark"
-            size="xs"
-            className="gap-0.5"
-            onClick={() => setEditing('create')}
-          >
+          <Button height={44} onClick={() => setEditing('create')}>
             추가하기
             <PlusIcon className="size-3" />
           </Button>

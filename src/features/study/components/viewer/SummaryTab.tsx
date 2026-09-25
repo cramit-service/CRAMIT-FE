@@ -98,8 +98,8 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
           요약을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
         </p>
         <Button
-          variant="outline"
-          size="sm"
+          rank="secondary"
+          height={44}
           onClick={() => summaryQuery.refetch()}
         >
           다시 시도

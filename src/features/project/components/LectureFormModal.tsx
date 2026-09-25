@@ -2,15 +2,14 @@
 // src/features/project/components/LectureFormModal.tsx
 import { useId, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
+import { DateField } from '@/shared/ui/DateField';
 import {
-  FIELD_FILLED,
-  FormModal,
-  HINT,
-  LABEL,
-  PRIMARY_ACTION,
-  SECTION_DIVIDER,
-} from '@/shared/ui/FormModal';
-import { ModalDateField } from '@/shared/ui/ModalDateField';
+  FIELD_ERROR,
+  FIELD_LABEL,
+  FIELD_TRIGGER,
+} from '@/shared/ui/fieldStyle';
+import { FormModal } from '@/shared/ui/FormModal';
+import { Input } from '@/shared/ui/Input';
 import {
   buildSubjectColorMap,
   firstUnusedColorIndex,
@@ -114,37 +113,27 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
 
   return (
     <FormModal
+      open
       title={isEdit ? '강의 정보 수정하기' : '새 강의 생성하기'}
-      titleVisible
-      // 이 모달의 시안 제목은 32px SemiBold다. 기본값(22px)은 공유하기 모달 기준이라
-      // 여기서만 덮어쓴다. 아래 여백은 시안 8px.
-      titleClassName="text-heading-md mb-2 font-semibold text-gray-100"
-      // 시안(1:2686)의 강의 모달은 960×960 정사각이다. 칸이 적어 아래가 비지만
-      // 그게 시안이고, 확정 버튼은 바닥에 붙는다.
-      fixedHeight="h-[960px]"
+      submitLabel={
+        isEdit
+          ? busy
+            ? '저장 중…'
+            : '수정완료'
+          : busy
+            ? '생성 중…'
+            : '생성하기'
+      }
+      submitDisabled={!canSubmit}
+      busy={busy}
       onClose={onClose}
       onSubmit={handleSubmit}
-      busy={busy}
-      footer={
-        <button type="submit" disabled={!canSubmit} className={PRIMARY_ACTION}>
-          {isEdit
-            ? busy
-              ? '저장 중…'
-              : '수정 완료'
-            : busy
-              ? '생성 중…'
-              : '생성하기'}
-        </button>
-      }
     >
-      {/* 강의명.
-          시안(1:2686)은 칸이 적어 여백이 넉넉하다 — 섹션 위아래 48px(=34.5),
-          라벨과 입력칸 사이 24px(=17). 주차 모달(12px=8)과 값이 다르다. */}
-      <div className={cn('flex flex-col gap-[17px] py-8.5', SECTION_DIVIDER)}>
-        <label htmlFor={`${fieldId}-title`} className={LABEL}>
+      {/* 색 점이 강의명 왼쪽에 붙는다 — 이름과 색이 한 줄에 있어야 "이 과목의 색"으로 읽힌다. */}
+      <div className="flex flex-col gap-2">
+        <label htmlFor={`${fieldId}-title`} className={FIELD_LABEL}>
           강의
         </label>
-        {/* 색 점이 강의명 왼쪽에 붙는다 — 이름과 색이 한 줄에 있어야 "이 과목의 색"으로 읽힌다. */}
         <div className="flex gap-3">
           <SubjectColorField
             id={`${fieldId}-color`}
@@ -160,19 +149,19 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
             placeholder="강의 명을 입력해 주세요."
             required
             disabled={busy}
-            className={cn(FIELD_FILLED, 'min-w-0 flex-1')}
+            className={cn(FIELD_TRIGGER, 'min-w-0 flex-1')}
           />
         </div>
       </div>
 
-      {/* 시험 날짜 (선택) — 수정 시안에만 있는 칸이다. 생성 시안에는 없다. */}
+      {/* 시험 날짜 (선택) — 수정할 때만 나온다. */}
       {isEdit && (
-        <div className={cn('flex flex-col gap-[17px] py-8.5', SECTION_DIVIDER)}>
-          <label htmlFor={`${fieldId}-exam-date`} className={LABEL}>
+        <div className="flex flex-col gap-2">
+          <label htmlFor={`${fieldId}-exam-date`} className={FIELD_LABEL}>
             시험 날짜 (선택)
           </label>
           {/* 날짜는 달력에서만 고른다 (세그먼트 직접 입력·Enter 제출 차단) */}
-          <ModalDateField
+          <DateField
             id={`${fieldId}-exam-date`}
             value={examDate}
             onChange={setExamDate}
@@ -181,23 +170,17 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
         </div>
       )}
 
-      {/* 교수명 (선택) */}
-      <div className="flex flex-col gap-[17px] pt-8.5">
-        <label htmlFor={`${fieldId}-professor`} className={LABEL}>
-          교수명 선택 (선택)
-        </label>
-        <input
-          id={`${fieldId}-professor`}
-          value={professor}
-          onChange={(e) => setProfessor(e.target.value)}
-          placeholder="교수명을 작성해 주세요."
-          disabled={busy}
-          className={FIELD_FILLED}
-        />
-      </div>
+      <Input
+        id={`${fieldId}-professor`}
+        label="교수명 (선택)"
+        value={professor}
+        onChange={(e) => setProfessor(e.target.value)}
+        placeholder="교수명을 작성해 주세요."
+        disabled={busy}
+      />
 
       {formError && (
-        <p role="alert" className={cn(HINT, 'text-error mt-6 text-right')}>
+        <p role="alert" className={cn(FIELD_ERROR, 'text-right')}>
           {formError}
         </p>
       )}
