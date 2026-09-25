@@ -25,13 +25,14 @@ export function ScriptSectionItem({
     // 이 줄은 펼침이다. 머리글 전체가 눌리므로 Card가 button으로 그린다 (§4).
     <li className="@container">
       <Card
+        on="surface"
         press="in-place"
         onClick={onToggle}
         aria-expanded={open}
         aria-controls={panelId}
       >
         <span className="flex items-center gap-1.5">
-          <span className="text-label bg-well flex shrink-0 items-center justify-center rounded-full px-2 py-0.5 font-medium text-gray-700">
+          <span className="text-label flex shrink-0 items-center justify-center rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-700">
             PDF P.{String(section.page).padStart(2, '0')}
           </span>
           {/* 폭이 모자라면 시간부터 버린다. 제목이 먼저 잘리면 무슨 구간인지 알 수 없는데,
