@@ -256,8 +256,12 @@ has to be weighed.
 
 **Lime's place is behind text, not in it.**
 
+Near-black throughout this section is `gray-800`, the darkest step the scale
+has. It is named here because the figures below were first computed against a
+darker step that the scale no longer carries.
+
 On the canvas lime is 1.09:1 — not faint, absent. With near-black text on it
-lime is 16.9:1, the strongest pair in the system.
+lime is 14.6:1, the strongest pair in the system.
 
 So lime is not a color that fails as text; it is a color whose place is the
 fill. Text, icons and links are never lime. An interactive label with no fill
@@ -265,7 +269,7 @@ behind it takes no color at all — position, cursor and shape carry that, the
 same division §3 relies on for weight.
 
 Blue does both, but not at the same step. `#4dd8ff` is a fill and takes
-near-black text (11.5:1). `#0475b9` is 4.74:1 on the canvas and 4.94:1 on a
+near-black text (9.9:1). `#0475b9` is 4.74:1 on the canvas and 4.94:1 on a
 white card, so state that is only text — a due date, a count, a status — can
 be blue with nothing behind it.
 
@@ -345,7 +349,7 @@ Pressing the wrong thing here cannot be undone, and that outranks a consistent
 palette. The exception is written down so the next one has to be argued
 instead of assumed.
 
-Near-black text goes on the red fill (6.4:1). White on it is 3.0:1 and does
+Near-black text goes on the red fill (5.5:1). White on it is 3.0:1 and does
 not pass, which is what the delete button carries today.
 
 **The fill color is never the text color.** `#ff5d6b` as text on white is

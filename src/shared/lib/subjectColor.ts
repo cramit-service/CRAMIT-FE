@@ -8,15 +8,14 @@ import type { Project } from '@/shared/types/api';
 // 순서·개수는 globals.css의 과목 색과 같아야 한다. 번호(Project.colorIndex)는 1부터.
 // 이름은 색 고르기 칩을 보조기기에 읽어 주는 용도다.
 export const SUBJECT_COLORS = [
-  { dot: 'bg-subject-1', name: '노랑' },
-  { dot: 'bg-subject-2', name: '파랑' },
-  { dot: 'bg-subject-3', name: '코랄' },
+  { dot: 'bg-subject-1', name: '빨강' },
+  { dot: 'bg-subject-2', name: '주황' },
+  { dot: 'bg-subject-3', name: '올리브' },
   { dot: 'bg-subject-4', name: '초록' },
-  { dot: 'bg-subject-5', name: '라벤더' },
-  { dot: 'bg-subject-6', name: '주황' },
-  { dot: 'bg-subject-7', name: '분홍' },
-  { dot: 'bg-subject-8', name: '민트' },
-  { dot: 'bg-subject-9', name: '올리브' },
+  { dot: 'bg-subject-5', name: '청록' },
+  { dot: 'bg-subject-6', name: '파랑' },
+  { dot: 'bg-subject-7', name: '보라' },
+  { dot: 'bg-subject-8', name: '분홍' },
 ] as const;
 
 export const SUBJECT_COLOR_COUNT = SUBJECT_COLORS.length;
