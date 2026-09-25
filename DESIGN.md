@@ -744,8 +744,10 @@ comes from control height (§2).
 
 > **Undecided.** The landing page is pre-login marketing, it opens on phones,
 > and it scales its headings with the viewport — which this ramp deliberately
-> does not do. It is governed by its own scale. That scale is not settled: the
-> current design is a placeholder, and a placeholder is not a source (§7).
+> does not do. Its own scale is not settled, and the current design is a
+> placeholder rather than a source. **Nor is it settled that this document
+> governs the landing page at all** — §7's Scope holds that question, and it comes
+> first.
 
 ---
 
@@ -1554,9 +1556,10 @@ phone.
 
 This is a decision about the phase, not a claim about the product.
 
-> **Undecided.** The landing page gets a phone version later. It is the one
-> screen read before anyone signs in, and §3 already sets it outside the type
-> ramp for the same reason.
+> **Undecided.** The landing page gets a phone version later, if it gets one
+> here. It is the one screen read before anyone signs in, §3 already sets it
+> outside the type ramp for the same reason, and §7's Scope leaves open whether
+> this document reaches it.
 
 #### No screen forbids scrolling
 
@@ -1819,6 +1822,21 @@ text, the spacing, the verb for a field and the word for a pass are all above.
 Where this document and the Figma file disagree, this document wins and the
 design file is corrected later. Where this document says nothing, the Figma file
 governs.
+
+### Scope
+
+**Whether the landing page is governed by this document is itself undecided, and
+it is the prior question to every landing item here.**
+
+§6 has already put the landing's copy outside: it addresses someone who is not a
+user yet, in paragraphs rather than in lines, and it keeps the register it has.
+The same argument may hold for the rest of it. If it does, the landing is not a
+screen this system is missing values for — it is a surface this system does not
+reach, and §3's scale and §5's phone version stop being open questions and become
+questions for somewhere else.
+
+**So no landing value is filled in on the assumption that it belongs here.** The
+items marked undecided in §3 and §5 are recorded, not deferred.
 
 ### Unknowns
 
