@@ -778,6 +778,30 @@ near it, so height and width move together and neither is read against a field.
 They are settled below instead: an icon button by the glyph it holds, a toggle by
 the row it stands in.
 
+#### A button is as wide as its label
+
+**No button carries a fixed width, and none carries a minimum.** The padding is
+18 on each side; the label decides the rest.
+
+Width is the one channel a button has left, and it stays empty deliberately.
+Rank is already carried by fill against border, and by position — a destructive
+action stands at the far end of the footer, away from the pair. A minimum width
+on the confirming button would say that a second time, and once width means
+_this is the confirming one_ it can no longer mean anything else.
+
+It holds because the labels are already even. **Every confirming and destructive
+label in the product is four characters** — 생성하기, 수정완료, 삭제하기,
+탈퇴하기, 초대하기, 시작하기 — so the confirming button and the delete button
+come out at the same width, and only 취소, at two, is narrower. Nothing needs
+propping up.
+
+The design file's 346 and 192 were the alternative. They are a 960 panel's
+numbers, and at 655 with a cancel button beside them the row no longer holds
+them (192 + 12 + 120 + 12 + 346 = 682 against 559 of content).
+
+**So the thing to keep straight is the label, not the width.** That is §6's,
+and §6 has not settled it yet.
+
 #### There are two modals, and neither has a close button
 
 **A modal is either asking for input or asking a question.**
@@ -1280,6 +1304,25 @@ window is 1920 and a media query cannot see the difference.
 
 > **Undecided.** This document is written in English; the product's interface
 > copy is Korean. Rules here govern Korean UI text.
+
+What is already known to be split, found while settling §4's buttons. None of
+these is decided here; they are recorded so the section starts from evidence
+rather than from taste.
+
+| Where                    | Split                                                                                                      |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| One label, two spellings | `수정완료` (3) against `수정 완료` (3)                                                                     |
+| Confirming buttons       | `~하기` for six labels, `~완료` for one                                                                    |
+| Work in progress         | noun + `중…` (`저장 중…`, `삭제 중…`) against verb + `는 중…` (`불러오는 중…`, `만드는 중…`, `보내는 중…`) |
+| Empty screens            | `~없어요` (7) against `~없습니다` (4)                                                                      |
+| Instructions             | `~주세요` (22) against `~합니다` (5)                                                                       |
+
+The first is not a style question — it is the same string written two ways in
+two files, and one of them is wrong whichever way the section goes.
+
+**Button labels are the ones §4 is waiting on.** Their evenness is what lets a
+button take its label's width with no minimum; a two-character confirming label
+would put that rule under strain the moment it appeared.
 
 ---
 
