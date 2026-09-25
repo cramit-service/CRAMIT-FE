@@ -1,17 +1,17 @@
 // src/shared/ui/Sidebar/icons.tsx
 // 사이드바 전용 인라인 SVG 아이콘 (lucide-react 미설치라 직접 그린다).
 // 색은 currentColor로 물려받아 활성/비활성 텍스트 색을 그대로 따른다.
-// 대부분의 메뉴 아이콘은 실제 에셋(navIcons.tsx)을 쓰고, 여기엔 접기/펴기·묶음 토글용
-// chevron과, 에셋이 아직 없는 항목(강의 관리)을 둔다.
-// TODO(디자인): 홈·강의 관리 아이콘 에셋을 받으면 navIcons.tsx로 옮긴다.
+// TODO: shared/ui/Icon.tsx의 레지스트리로 합친다 — 지금 아이콘이 일곱 파일에 흩어져 있고
+//       ChevronDown만 세 곳에 따로 그려져 있다.
 
 interface IconProps {
   className?: string;
 }
 
-// 아이콘 칸에 서는 글리프의 획 굵기. PNG 에셋(book/history)을 60px 캔버스에서 재면
-// 획이 2px이고, 24 뷰박스로 환산하면 0.8이다. 1.5로 그리면 옆의 에셋보다 두 배 굵다.
-const GLYPH_STROKE = 0.8;
+// 아이콘 칸에 서는 글리프의 획 굵기. 0.8이던 건 옆에 서던 PNG 에셋의 획(60px 캔버스에서
+// 2px = 24 뷰박스의 0.8)에 맞춘 값이었는데, 그 에셋을 걷어 내면서 맞출 대상이 없어졌다.
+// 2는 잉크(gray-800)로 칠한 24px 글리프가 옆의 글자와 같은 무게로 읽히는 지점이다.
+const GLYPH_STROKE = 2;
 
 // 공통 stroke 아이콘 래퍼
 function StrokeIcon({
@@ -78,10 +78,14 @@ export function HouseIcon({ className }: IconProps) {
   );
 }
 
-export function ListIcon({ className }: IconProps) {
+// 내 강의 — 펼친 책. PNG 에셋(book-off.png)을 대신한다. 에셋은 색도 획도 CSS로
+// 못 바꿔서, 옆의 SVG들이 거기 맞춰 얇게 그려져 있었다.
+export function BookIcon({ className }: IconProps) {
   return (
     <StrokeIcon className={className} strokeWidth={GLYPH_STROKE}>
-      <path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" />
+      <path d="M12 6.5C10.5 5 8.5 4.25 6 4.25H3.5v13.5H6c2.5 0 4.5.75 6 2.25" />
+      <path d="M12 6.5c1.5-1.5 3.5-2.25 6-2.25h2.5v13.5H18c-2.5 0-4.5.75-6 2.25" />
+      <path d="M12 6.5V20" />
     </StrokeIcon>
   );
 }

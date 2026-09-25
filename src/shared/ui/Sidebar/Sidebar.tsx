@@ -16,12 +16,7 @@ import { Tooltip } from '@/shared/ui/Tooltip';
 import { SidebarItem } from './SidebarItem';
 import { CourseNav } from './CourseNav';
 import type { NavData } from './types';
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  HouseIcon,
-  ListIcon,
-} from './icons';
+import { ChevronLeftIcon, ChevronRightIcon, HouseIcon } from './icons';
 
 // 접은 직후 chevron을 잠깐 보여 주는 시간. "어디로 갔는지" 한 번 알려 주는 용도다.
 const PEEK_MS = 1500;
@@ -136,9 +131,9 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
       <div
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
-        className="flex h-23 shrink-0 [scrollbar-gutter:stable] items-center overflow-hidden pt-[33px] pr-2 pb-6"
+        className="flex h-23 shrink-0 items-center overflow-hidden pt-[33px] pr-2 pb-6"
       >
-        <span className="flex w-22.5 shrink-0 justify-center">
+        <span className="flex w-[var(--sidebar-rail)] shrink-0 justify-center">
           {/* 높이는 호출처가 정한다 — Logo는 기본 크기를 갖지 않는다 */}
           <Logo variant="symbol" className="h-[35px]" />
         </span>
@@ -151,7 +146,7 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
               aria-label={toggleLabel}
               aria-expanded={expanded}
               aria-controls={NAV_ID}
-              className="focus-visible:ring-sky-ink ml-auto flex size-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-800 focus-visible:ring-2 focus-visible:outline-none"
+              className="focus-visible:ring-sky-ink ml-auto flex size-8 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 focus-visible:ring-2 focus-visible:outline-none"
             >
               <ChevronLeftIcon className="size-5" />
             </button>
@@ -198,16 +193,9 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
         </>
       )}
 
-      {/* 메인 메뉴 */}
-      {/* 짧은 화면에서는 이 칸만 스크롤해 하단 메뉴(강의 관리·프로필)를 항상 남긴다.
-          min-h-0이 없으면 세로 flex 자식의 min-height: auto가 콘텐츠 높이 아래로 줄어드는 걸
-          막아 overflow-y-auto가 걸릴 일이 없다. 주축이 세로라 여기선 min-h-0이 필요하다.
-          overflow-x-hidden은 세로 스크롤바가 생겼을 때 90px 아이콘 칸이 6px 넘치며
-          가로 스크롤이 따라 생기는 걸 막는다(한 축이 visible이 아니면 다른 축은 auto가 된다). */}
-      <nav
-        id={NAV_ID}
-        className="scrollbar-slim fade-bottom flex min-h-0 flex-1 [scrollbar-gutter:stable] flex-col gap-1 overflow-x-hidden overflow-y-auto overscroll-contain"
-      >
+      {/* 메인 메뉴 — 홈과 "내 강의" 제목은 제자리에 고정이고, 스크롤은 그 아래
+          과목 목록 안에서만 일어난다. nav 전체를 스크롤러로 두면 홈까지 같이 밀린다. */}
+      <nav id={NAV_ID} className="flex min-h-0 flex-1 flex-col gap-1">
         <SidebarItem
           icon={<HouseIcon className="size-6" />}
           label="홈"
@@ -224,17 +212,7 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
       </nav>
 
       {/* 하단 메뉴 — 과목 수와 무관하게 늘 같은 자리에 있어야 하는 것들 */}
-      <div className="flex shrink-0 [scrollbar-gutter:stable] flex-col gap-1 overflow-hidden pt-2 pb-6">
-        {/* 강의 등록·삭제·학기 정리. 진입은 대부분 위 목록에서 하므로 여기는 관리 자리다.
-            prefix 매칭을 쓰면 과목 상세(/projects/1)에서도 활성으로 남아 위 목록과 둘 다
-            켜진다 — 목록이 그 자리를 맡으므로 여기는 정확히 일치할 때만 켠다. */}
-        <SidebarItem
-          icon={<ListIcon className="size-6" />}
-          label="강의 관리"
-          href="/projects"
-          active={pathname === '/projects'}
-          expanded={expanded}
-        />
+      <div className="flex shrink-0 flex-col gap-1 overflow-hidden pt-2 pb-6">
         {/* "설정" 라벨을 프로필이 대신한다 — 목적지가 프로필 화면이라 아바타와 이름이
             어디로 가는지를 라벨보다 잘 말한다. 아바타 칸은 과목 배지와 같은 열이다. */}
         <Tooltip label={profileName} disabled={expanded}>
@@ -251,7 +229,7 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
             {profileActive && (
               <span className="bg-lime-action absolute inset-y-0 right-2 left-2 rounded-lg" />
             )}
-            <span className="relative flex w-22.5 shrink-0 justify-center">
+            <span className="relative flex w-[var(--sidebar-rail)] shrink-0 justify-center">
               <span
                 className={cn(
                   'text-label flex size-8 items-center justify-center overflow-hidden rounded-full font-medium',

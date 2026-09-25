@@ -693,7 +693,7 @@ rail they sit in. A value chosen with no rule behind it splits a single movement
 into two times.
 
 **The rail and the content it pushes share one value because they move the same
-distance.** The rail opens from 90 to 289, so the content moves 199; two numbers
+distance.** The rail opens from 72 to 216, so the content moves 144; two numbers
 for one displacement is the 200 mistake again.
 
 **The names in the rail get no transition of their own.** They arrive with the
@@ -934,7 +934,7 @@ that has to serve a card, a select and a scrubber has no shape left of its own.
 
 **There is no back control anywhere in the product.** Three screens carried one
 — the viewer, the lecture, the new chapter — and all three pointed at somewhere
-the sidebar already points. `홈` and `강의 관리` stand in it permanently, and the
+the sidebar already points. `홈` and `내 강의` stand in it permanently, and the
 lecture a person is inside stays lit while they are in a chapter of it. This is
 the same call §4 makes for the modal's ×: where a way out already exists, a
 second one is an exit in the corner people find last. Removing it also lets a
@@ -1716,21 +1716,81 @@ first look.
 
 **A region with its own scrollbar is a separate matter.** The rail's course
 list, the TODO list, the page thumbnails — each decides how much of itself to
-show, and that works whether or not the page behind it scrolls. The rail already
-does both: its list scrolls past seven courses inside a page that scrolls on its
-own.
+show, and that works whether or not the page behind it scrolls.
+
+**What a region must not do is pick a row count.** The rail's list was capped at
+seven courses and scrolled inside that, so a taller window showed seven and a
+shorter one also showed seven. A region's height comes from the room it is given,
+and the window decides that. The count was a number nobody could defend at any
+particular viewport.
+
+**And the region is the list, not the rail.** `홈`, the `내 강의` row and the
+profile stay where they are; only the courses under them move. Scrolling the
+whole rail would take the two rows a person navigates by off the top, and it is
+the course list that is long, not the menu. So the list takes whatever is left
+between them — 596 tall in a 900 window, 376 in a 680 — and scrolls only when its
+contents exceed that.
+
+#### A scrollbar that reserves width is a layout decision
+
+**A scroll region inside a narrow column hides its scrollbar and draws its own
+indicator.** The bar appears while scrolling and fades after it stops.
+
+The reason is arithmetic rather than taste. Blink gives a classic scrollbar 6px
+of layout whenever it is shown, so a region that keeps one — even a reserved,
+invisible one — is 6px narrower than its container for everything inside it. In
+the collapsed rail that was the whole story behind a selection that looked
+crooked: the lime fill is inset 8 from its row, the row was 84 wide inside a 90
+rail, and the fill measured 8 on the left and 14 on the right.
+
+Letting the bar appear and disappear natively is worse, not better — it takes the
+6px back each time it shows, so the rail's contents shift while a person is
+reading them. So the native bar leaves the layout entirely and the indicator is
+an overlay, which costs a few lines and owes nothing to the width.
 
 #### The frame
 
-A rail on the left, 90 wide, holding icons; the canvas beside it; a chat tab
-pinned to the right edge. The rail opens to 256, and it **pushes rather than
-covers** — the content moves right by the same 166 and keeps the width it had.
+A rail on the left, 72 wide, holding icons; the canvas beside it; a chat tab
+pinned to the right edge. The rail opens to 216, and it **pushes rather than
+covers** — the content moves right by the same 144 and keeps the width it had.
 
-**Sharing is gone from the frame.** A second course group, `공유 강의`, sat
-under `내 강의`; §7 puts sharing out of scope and the rail was the last place the
-feature still showed. What went with it is listed in §4's audit — the shared tag,
-the shared board, the split on the lecture list — so the rail is the end of that
-thread rather than a change of its own.
+**The rail holds three things: `홈`, `내 강의` and the profile.** `내 강의` is
+both a link to the lecture list and the header of the course list under it, and
+those are two targets rather than one — the row navigates, the chevron beside it
+opens and closes. It used to be a toggle with a separate `강의 관리` row at the
+bottom pointing at the same screen; one row now does the job of both. Below the
+open rail the chevron has no room, so a collapsed rail navigates and does not
+toggle — the dots are all visible there anyway, so there is nothing to open.
+
+**Sharing is gone from the frame too.** A second group, `공유 강의`, sat under
+the first; §7 puts sharing out of scope and it was the last place the feature
+still showed.
+
+**72 is three icons, and 216 is three of those.** The icons in the collapsed rail
+are 24, so 72 puts one icon's width on either side of one icon — `24 + 24 + 24`.
+It was 90, which left 33 a side and made the rail read as mostly margin.
+
+The open rail is 216, and two readings land on it. It is the collapsed rail three
+times over. And what is left after the icon column and the label's own 20 is 124,
+which is 10.3 characters — Korean sets at exactly 12px a character in this row, so
+`4자` measures 48 and `알고리즘설계와분석` measures 107. The longest course name in
+the data fits with 17 to spare.
+
+**A third thing improves and it was not the reason.** §5's gutter floor takes the
+open rail out of the room the content column has, so a narrower rail delays the
+point where the floor starts cutting into the column: opening and closing the rail
+stops changing the body width at 1272 rather than 1502. The number the content column
+subtracts is still 90, and that is a different number: 0.8257 is `1511 / 1830`
+and 1830 is the design's `1920 - 90`, so the ratio and that 90 came out of the
+file together. Narrowing the rail is not a reason for the body to get wider.
+
+**The rail's icons sit one step above the 3:1 floor.** §2 puts a meaningful icon
+at `gray-400`, and against the old dark rail that measured 5.37:1 while the label
+measured 10.77:1 — icon and label about two to one. Inverting the ground left the
+label at 10.72 and dropped the icon to 3.27, which is over three to one and reads
+as a different kind of element rather than a quieter one. `gray-500` puts it at
+4.87:1 and the ratio back to 2.20. The floor is a floor, not a target, and in the
+collapsed rail the icon is the only thing naming the row.
 
 **The rail is light.** It was drawn dark and stayed dark after §2 removed dark
 surfaces, which left it the one dark plane in the product and left §4's "there is

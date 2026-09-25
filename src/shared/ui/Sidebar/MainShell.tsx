@@ -44,13 +44,13 @@ export function MainShell({
     setSidebarExpanded(!getSidebarExpanded());
   }, []);
 
-  const railWidth = hidden ? '0px' : expanded ? '256px' : '90px';
+  // 접힘 폭은 globals.css의 --sidebar-rail 하나가 정한다 — 아이콘 칸도 같은 값을 본다.
+  // 펼침 216은 그 세 배이고, 남는 자리(216 - 72 - 20)가 강의명 10.3글자다(한글 12px/자).
+  const railWidth = hidden ? '0px' : expanded ? '216px' : 'var(--sidebar-rail)';
 
   return (
     <div
-      className="bg-canvas group/shell min-h-screen"
-      // 콘텐츠 열 바깥에 거는 요소(outdent-left)가 여백이 남는지 알아야 한다
-      data-sidebar={hidden ? 'hidden' : expanded ? 'wide' : 'rail'}
+      className="bg-canvas min-h-screen"
       style={{ '--sidebar-w': railWidth } as React.CSSProperties}
     >
       {!hidden && <Sidebar expanded={expanded} onToggle={toggle} nav={nav} />}
