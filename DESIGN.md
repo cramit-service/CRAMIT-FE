@@ -955,6 +955,78 @@ a mouse: `:focus-visible` leaves that to the browser, which gives the ring to
 keyboard navigation — and to text fields always, since a caret has to be
 findable.
 
+#### Four things pick from a list, and they share one list
+
+**The trigger differs; the list does not.**
+
+| Component   | Trigger                            | Height           | Where                             |
+| ----------- | ---------------------------------- | ---------------- | --------------------------------- |
+| `Combobox`  | An input — typing narrows the list | 56, a field      | In a modal: the lecture, the week |
+| `DateField` | A button opening a calendar        | 56, a field      | In a modal                        |
+| `TimeField` | A button opening hours and minutes | 56, a field      | In a modal                        |
+| `Select`    | A button showing the current value | 44, a row action | On a page: sort, view             |
+
+The first three are fields — they carry a label, they hold a value, and the
+value is submitted — so §4's field rules apply to them unchanged. `Select` is
+not; it changes the screen the moment it is used, and it takes the height of
+an action standing in a row.
+
+Two of these replace two components each. `ModalCombobox` and `LectureCombobox`
+are the same searchable picker written twice, and `TodoViewSelect` and
+`SortSelect` are the same dropdown written twice. `ModalSelect` is exported and
+called nowhere; it replaces nothing.
+
+**The name loses `Modal`.** Once one of them serves a page the prefix is a claim
+the component cannot keep — the failure §3 named when it removed `button-lg`.
+
+#### The list is one specification
+
+| Part             | Value                                    |
+| ---------------- | ---------------------------------------- |
+| Surface, shadow  | `surface`, `near`, radius `md`           |
+| Width            | The trigger's                            |
+| Direction        | Whichever side has more room             |
+| Row height       | 40                                       |
+| Rows shown       | 5, then it scrolls                       |
+| Selected         | `lime-action`                            |
+| Hovered or keyed | 8% black over whatever fill that row has |
+
+**The list stays inside the panel it was opened in.** §2 leaves room for it to
+float free — page, modal, dropdown is three levels and `near` is the third — but
+it does not have to, and keeping it in means no position has to be computed
+against the window.
+
+**Direction is what makes that work.** In the todo modal the week picker is the
+panel's last row: 120 below it and 312 above. Opening downward shows three rows
+of fifteen; opening upward shows seven. One line of rule doubles it, and it
+costs nothing that a list opening upward does not already cost.
+
+**Five rows, not as many as fit.** A count rather than a measurement keeps the
+list the same size wherever it opens — a modal at its height cap scrolls inside
+itself, and a list sized to the room left would then show seven rows at one
+scroll position and three at another. Five of forty is 208, which is what
+`ModalCombobox` already uses; the other picker uses 160, and that split is what
+a list with no rule looks like.
+
+Selection and hover both take a fill, and they do not collide, because §2's
+press rule composes: 8% black over `lime-action` is `#d1eb00`, the value §2
+already computed for a pressed lime. So a selected row under the cursor is
+neither of the other two states and needs no value of its own.
+
+| Row state         | Fill      | Label against it |
+| ----------------- | --------- | ---------------: |
+| Resting           | `surface` |          16.48:1 |
+| Hovered           | `#ebebeb` |          13.83:1 |
+| Selected          | `#e3ff00` |          14.58:1 |
+| Selected, hovered | `#d1eb00` |          12.24:1 |
+
+**A combobox has two widths.** Full is the content column; half is that column
+less the gap, divided in two — 559 and 271.5 in a 655 modal. Two halves fill
+exactly the row one full one does, so a screen that asks for a lecture alone and
+a screen that asks for a lecture and a week keep the same grid. The widths are
+not fixed px: the current code pins the pair at 240 each with a 15 gap, which
+stops adding up the moment anything around it changes.
+
 #### A badge is a place a color lands
 
 **A value gets a badge when it comes from a finite set. Everything else is
