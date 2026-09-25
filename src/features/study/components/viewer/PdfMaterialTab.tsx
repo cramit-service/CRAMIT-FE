@@ -5,11 +5,9 @@ import type { MockAudio } from '@/features/study/hooks/useMockAudio';
 import { toPlayDuration } from '@/features/study/lib/format';
 import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
 import { AudioPlayer } from '@/features/study/components/viewer/AudioPlayer';
-import {
-  LIST_MAX_WIDTH,
-  LIST_MIN_WIDTH,
-  PageList,
-} from '@/features/study/components/viewer/PageList';
+import { checkerStyle } from '@/features/study/components/viewer/PdfPlaceholder';
+import { PdfThumbnail } from '@/features/study/components/viewer/PdfThumbnail';
+import { LIST_MAX_WIDTH, LIST_MIN_WIDTH, PageList } from '@/shared/ui/PageList';
 import { PageListToggle } from '@/features/study/components/viewer/PageListToggle';
 import { PdfPagePreview } from '@/features/study/components/viewer/PdfPlaceholder';
 import { usePdfDocument } from '@/features/study/hooks/usePdfDocument';
@@ -95,13 +93,19 @@ export function PdfMaterialTab({ material, audio }: PdfMaterialTabProps) {
       />
 
       <div className="flex min-h-0 flex-1 px-8 pb-5">
+        {/* 목록은 PDF를 모른다 — 미리보기 한 칸만 여기서 그려 넘긴다 (CLAUDE.md 3절).
+            체크무늬는 자리표시다. 페이지가 그려지면 종이 뒤로 무늬가 비쳐 보인다.
+            비율은 문서가 오면 첫 페이지 것으로 갈아탄다 — 강의자료는 A4 세로도 흔하다. */}
         <PageList
-          doc={doc}
-          ratio={ratio}
           pageCount={pageCount}
           currentPage={currentPage}
           onSelect={setSelectedPage}
           width={listWidth}
+          renderPreview={(page) => <PdfThumbnail doc={doc} page={page} />}
+          previewRatio={ratio ?? undefined}
+          previewPlaceholder={
+            doc ? { backgroundColor: 'var(--color-well)' } : checkerStyle(12)
+          }
         />
         <PageListToggle
           wide={wideList}
