@@ -80,7 +80,7 @@ export function ScriptTab({
           녹음본을 텍스트화해서 PPT 페이지별로 정리했습니다. 녹음본 재생은 ‘PDF
           강의 자료’를 이용해 주세요.
         </p>
-        <div className="text-primary-400 flex shrink-0 items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-1.5 text-gray-500">
           <Icon name="time" size={17} />
           <p className="text-label font-medium tabular-nums">
             {formatPlayTime(currentTime)} / {formatPlayTime(duration)}
@@ -97,7 +97,7 @@ export function ScriptTab({
         <div className="relative mt-6 min-h-0 flex-1">
           {/* 아래 여백은 페이드 높이와 같게 준다 — 끝까지 내렸을 때 마지막 구간이
               페이드에 덮여 흐려지지 않도록 밀어 올린다 */}
-          <ul className="flex h-full [scrollbar-width:none] flex-col gap-7 overflow-y-auto overscroll-contain pb-[73px] [&::-webkit-scrollbar]:hidden">
+          <ul className="flex h-full [scrollbar-width:none] flex-col gap-1 overflow-y-auto overscroll-contain pb-[73px] [&::-webkit-scrollbar]:hidden">
             {sections.map((section) => (
               <ScriptSectionItem
                 key={section.page}

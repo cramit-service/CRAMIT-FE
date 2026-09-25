@@ -25,6 +25,7 @@ export function ScriptSectionItem({
     // 이 줄은 펼침이다. 머리글 전체가 눌리므로 Card가 button으로 그린다 (§4).
     <li className="@container">
       <Card
+        dense
         press="in-place"
         onClick={onToggle}
         aria-expanded={open}
@@ -56,17 +57,19 @@ export function ScriptSectionItem({
         </span>
       </Card>
 
+      {/* 발화는 읽는 글이다. 줄마다 채움을 깔면 예순 줄이 예순 개의 상자가 되고,
+          §2는 연한 연두를 "넓은 면의 연두 — 학습 하이라이트"에 이미 배정해 뒀다.
+          나중에 진짜 하이라이트가 붙으면 자리가 겹친다. 구분은 글자 색이 맡는다. */}
       {open && (
-        <ul id={panelId} className="mt-4 flex flex-col gap-4">
+        <ul id={panelId} className="mt-1 mb-2 flex flex-col gap-1 pl-3">
           {section.segments.map((segment) => (
-            <li
-              key={segment.atSec}
-              className="bg-lime-pale text-label flex gap-1.5 rounded-sm p-2 text-gray-800"
-            >
-              <span className="shrink-0 tabular-nums">
+            <li key={segment.atSec} className="text-label flex gap-2">
+              <span className="shrink-0 text-gray-500 tabular-nums">
                 {formatPlayTime(segment.atSec)}
               </span>
-              <span className="min-w-0 flex-1">{segment.text}</span>
+              <span className="min-w-0 flex-1 text-gray-700">
+                {segment.text}
+              </span>
             </li>
           ))}
         </ul>
