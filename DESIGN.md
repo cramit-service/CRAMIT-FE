@@ -1273,10 +1273,38 @@ needs `retryable`. Without it every failure gets the same button, and half of
 them — a recording with no speech in it, a file that will not open — can never
 succeed however often it is pressed.
 
-> **Undecided.** The empty screen, and what the chapter shows in place of a
-> stage that failed. The second waits on the chapter screen itself, which is not
-> designed yet; this section settles only what the list says. Disabled is settled
-> per component rather than here — the button and the field each name their own.
+#### An empty place says one sentence and nothing else
+
+**Wherever nothing is there, a sentence says so. No illustration, no button, at
+any size.**
+
+The places differ enormously — a dropdown list is 272 by 208, a viewer tab is
+about 440 wide, a home screen is the window — and one sentence fits all of them.
+A rule that changed with the size would need a line somewhere in the middle, and
+the viewer tab is exactly the width that line would have to be drawn through.
+
+**The button is already beside it.** The lecture list, the todo list and the
+exam list each put a create button in their own header, as a sibling of the
+message rather than inside it. Repeating it in the empty area would give one
+path two doors on one screen, and unlike §4's button widths this channel is not
+empty — the door is already drawn. The current copy even points at it: _아직 만든
+강의가 없어요. 생성하기로 첫 강의를 시작해보세요._
+
+Illustration was the alternative, for the empty home a new account opens first.
+It is the one screen where the argument holds, and it holds only there; it buys
+a warmer first minute and costs a third rule and a judgment about which places
+count as a page.
+
+**Not every empty place is waiting for something.** Of the twenty-one messages
+in the product, fourteen say _nothing made yet_, three say _nothing matched_ —
+a search, a date — and three say _nothing left_, which is good news. A door
+belongs to the first kind only, which is another reason not to put one in the
+empty area: the area does not know which kind it is, and the header does.
+
+> **Undecided.** What the chapter shows in place of a stage that failed. It
+> waits on the chapter screen itself, which is not designed yet; §4 settles only
+> what the list says. Disabled is settled per component rather than here — the
+> button and the field each name their own.
 
 ---
 
@@ -1410,7 +1438,7 @@ rather than from taste.
 | One label, two spellings | `수정완료` (3) against `수정 완료` (3)                                                                     |
 | Confirming buttons       | `~하기` for six labels, `~완료` for one                                                                    |
 | Work in progress         | noun + `중…` (`저장 중…`, `삭제 중…`) against verb + `는 중…` (`불러오는 중…`, `만드는 중…`, `보내는 중…`) |
-| Empty screens            | `~없어요` (7) against `~없습니다` (4)                                                                      |
+| Empty screens            | `~없어요` (16) against `~없습니다` (5)                                                                     |
 | Instructions             | `~주세요` (22) against `~합니다` (5)                                                                       |
 
 The first is not a style question — it is the same string written two ways in
