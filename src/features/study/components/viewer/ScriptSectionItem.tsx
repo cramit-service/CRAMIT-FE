@@ -37,7 +37,9 @@ export function ScriptSectionItem({
           {/* 폭이 모자라면 시간부터 버린다. 제목이 먼저 잘리면 무슨 구간인지 알 수 없는데,
             시간은 펼치면 세그먼트마다 다시 나오므로 여기서 빠져도 잃는 게 없다. */}
           <span className="flex shrink-0 items-center gap-1.5 @max-[340px]:hidden">
-            <Icon name="time" size={16} className="text-gray-400" />
+            <span className="text-gray-400">
+              <Icon name="time" size={16} />
+            </span>
             <span className="text-body-sm font-medium text-gray-500 tabular-nums">
               {formatPlayTime(section.startSec)} –{' '}
               {formatPlayTime(section.endSec)}
@@ -48,11 +50,9 @@ export function ScriptSectionItem({
           <span className="text-body-sm min-w-0 flex-1 truncate font-medium text-gray-800">
             • {section.title}
           </span>
-          <Icon
-            name={open ? 'arrow-up' : 'arrow-down'}
-            size={16}
-            className="shrink-0 text-gray-400"
-          />
+          <span className="shrink-0 text-gray-400">
+            <Icon name={open ? 'arrow-up' : 'arrow-down'} size={16} />
+          </span>
         </span>
       </Card>
 

@@ -65,8 +65,9 @@ export function ViewerHeader({
 
   return (
     <header>
-      {/* 1단: 이전으로(챕터 상세로) + 우측 Chapter 제목 */}
-      <div className="flex items-center justify-between gap-4">
+      {/* 1단: 이전으로 + 제목. 제목이 왼쪽에 선다 — 다른 화면(주차 리스트)이
+          나중에 이쪽에 맞춘다. */}
+      <div className="relative flex flex-wrap items-center gap-x-4 gap-y-3">
         {/* 목적지가 있으면 버튼이 아니라 링크다 (§4).
             router.back()은 새 탭·직접 URL 진입 시 프로젝트 밖으로 나가버리므로
             항상 챕터 목록(프로젝트 상세)을 가리킨다. */}
