@@ -9,7 +9,8 @@
     "lint": "eslint",
     "postinstall": "node scripts/copy-pdfjs-assets.mjs",
     "predev": "node scripts/copy-pdfjs-assets.mjs",
-    "prebuild": "node scripts/copy-pdfjs-assets.mjs"
+    "prebuild": "node scripts/copy-pdfjs-assets.mjs",
+    "check:cn": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-cn.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",
