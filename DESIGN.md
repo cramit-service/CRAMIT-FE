@@ -1552,6 +1552,34 @@ the modal §4 removes). Eight of them are the same empty-state pattern
 a trace of who wrote the files. It is also the exact thing a voice rule exists
 to prevent, which is the argument for having one at all.
 
+#### A button names the action, not the state after it
+
+**Every confirming and destructive button ends in `~하기`.** 생성하기, 수정하기,
+삭제하기, 탈퇴하기, 초대하기, 시작하기.
+
+`완료` is what becomes true _after_ the press, not what the press does. No one
+writes `삭제완료` on the button that deletes, and `수정완료` is the same mistake
+with the mistake hidden — it reads as a label for the state the screen is about
+to leave. **A button is read in the instant before it is pressed, so it says
+what pressing it does.**
+
+The five labels measure **109px each**, at `18px / 600` with 24px of side
+padding. That is not a coincidence to be grateful for; it is what this rule
+produces. §4 gives a button its label's width with no minimum, and that rule
+only holds while the labels are even — **this is the rule that keeps them
+even.** A confirming action and a destructive one standing in the same footer
+come out the same width.
+
+The alternative considered and rejected was the bare noun — `생성`, `수정`,
+`삭제`. It measures **78px**, and `취소` also measures 78px, so the confirming
+action and the way out of the modal would carry identical width. §4 built that
+hierarchy out of a border rather than a fill; matching their widths spends it
+back.
+
+**What this costs.** One word, in six places. It also **removes a split rather
+than settling it**: `수정완료` and `수정 완료` were the same label written two
+ways in two files, and the string ceases to exist.
+
 #### Undecided: what the register does not settle
 
 > **Undecided.** Four splits survive the decision above, because none of them is
