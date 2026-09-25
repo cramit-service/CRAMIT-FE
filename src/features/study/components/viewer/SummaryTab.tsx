@@ -97,11 +97,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
         <p className="text-label text-gray-400">
           요약을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
         </p>
-        <Button
-          rank="secondary"
-          height={44}
-          onClick={() => summaryQuery.refetch()}
-        >
+        <Button rank="secondary" onClick={() => summaryQuery.refetch()}>
           다시 시도
         </Button>
       </section>

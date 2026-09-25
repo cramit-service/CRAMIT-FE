@@ -4,7 +4,6 @@ import { useId, useMemo, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { toLocalDateString, toLocalTimeString } from '@/shared/lib/date';
 import { Combobox } from '@/shared/ui/Combobox';
-import { TEXT_CONTROL } from '@/shared/ui/control';
 import { DateField } from '@/shared/ui/DateField';
 import { FIELD_ERROR, FIELD_LABEL } from '@/shared/ui/fieldStyle';
 import { FormModal } from '@/shared/ui/FormModal';
@@ -266,7 +265,7 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
           {/* 이 문구는 강의를 고르기 전까지 계속 떠 있다(사라졌다 나타나지 않는다).
               그래서 위 로딩 문구와 달리 높이를 출렁이게 하지 않는다. */}
           {projectId === NONE && (
-            <p className={cn(TEXT_CONTROL, 'text-gray-500')}>
+            <p className={'text-body-sm text-gray-500'}>
               강의를 먼저 고르면 주차를 연결할 수 있어요.
             </p>
           )}

@@ -3,7 +3,7 @@
 // DESIGN.md §4 "A field has no border until it has something to say".
 import { useId } from 'react';
 import { cn } from '@/shared/lib/cn';
-import { H_CONFIRM, TEXT_CONTROL } from '@/shared/ui/control';
+import { control } from '@/shared/ui/control';
 
 interface InputProps extends Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
@@ -24,7 +24,7 @@ export function Input({ label, error, id, disabled, ...props }: InputProps) {
       {label && (
         <label
           htmlFor={inputId}
-          className={cn(TEXT_CONTROL, 'font-medium text-gray-700')}
+          className={cn('text-body-sm font-medium text-gray-700')}
         >
           {label}
         </label>
@@ -41,8 +41,7 @@ export function Input({ label, error, id, disabled, ...props }: InputProps) {
         // 테두리는 자리를 차지하므로 쉬는 상태에도 투명한 테두리를 둔다.
         // 없으면 포커스가 들어오는 순간 필드가 1px 커지면서 옆의 것들이 밀린다.
         className={cn(
-          H_CONFIRM,
-          TEXT_CONTROL,
+          control(),
           'bg-well w-full rounded-md border border-transparent px-4.5',
           'text-gray-700 placeholder:text-gray-500',
           'transition-colors duration-150 ease-out outline-none',
@@ -55,7 +54,7 @@ export function Input({ label, error, id, disabled, ...props }: InputProps) {
       />
 
       {error && (
-        <p id={errorId} className={cn(TEXT_CONTROL, 'text-red-ink')}>
+        <p id={errorId} className={'text-body-sm text-red-ink'}>
           {error}
         </p>
       )}

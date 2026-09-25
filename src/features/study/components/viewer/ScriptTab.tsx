@@ -61,7 +61,6 @@ export function ScriptTab({
         {/* 재시도 중에 버튼이 그대로면 눌린 줄 모르고 계속 누르게 된다 */}
         <Button
           rank="secondary"
-          height={44}
           onClick={() => scriptQuery.refetch()}
           disabled={scriptQuery.isFetching}
         >

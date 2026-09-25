@@ -113,7 +113,6 @@ export function ChatPanel({
             </p>
             <Button
               rank="secondary"
-              height={44}
               onClick={() => chatQuery.refetch()}
               disabled={chatQuery.isFetching}
             >
@@ -197,12 +196,7 @@ export function ChatPanel({
                 {failedLabel}
               </span>
             </span>
-            <Button
-              rank="secondary"
-              height={44}
-              onClick={retry}
-              disabled={sending}
-            >
+            <Button rank="secondary" onClick={retry} disabled={sending}>
               {sending ? '보내는 중…' : '다시 보내기'}
             </Button>
             <button

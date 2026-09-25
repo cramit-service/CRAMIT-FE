@@ -53,7 +53,7 @@ export function ProfileScreen() {
         <p className="text-gray-700">
           내 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
-        <Button rank="secondary" height={44} onClick={() => refetch()}>
+        <Button rank="secondary" onClick={() => refetch()}>
           다시 시도
         </Button>
       </div>

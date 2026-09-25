@@ -200,7 +200,6 @@ export function StudyViewerScreen({
         </p>
         <Button
           rank="secondary"
-          height={44}
           onClick={() => queries.forEach((q) => q.refetch())}
         >
           다시 시도

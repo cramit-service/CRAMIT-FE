@@ -113,7 +113,6 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
         </p>
         <Button
           rank="secondary"
-          height={44}
           onClick={() => {
             void projectQuery.refetch();
             void chaptersQuery.refetch();
