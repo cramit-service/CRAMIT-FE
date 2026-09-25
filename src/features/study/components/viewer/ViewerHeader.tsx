@@ -1,6 +1,5 @@
 'use client';
 // src/features/study/components/viewer/ViewerHeader.tsx
-import Link from 'next/link';
 import { ViewerTabs } from '@/features/study/components/viewer/ViewerTabs';
 import { EditableChapterTitle } from '@/features/study/components/viewer/EditableChapterTitle';
 import { ReviewStepper } from '@/features/study/components/viewer/ReviewStepper';
@@ -8,7 +7,6 @@ import {
   CollapseIcon,
   ExpandIcon,
 } from '@/features/study/components/viewer/icons';
-import { Icon } from '@/shared/ui/Icon';
 import { Toggle } from '@/shared/ui/Toggle';
 import { formatChapterDay } from '@/features/study/lib/format';
 import type { Chapter, ViewerTab } from '@/shared/types/api';
@@ -63,19 +61,11 @@ export function ViewerHeader({
 
   return (
     <header>
-      {/* 1단: 이전으로 + 제목. 제목이 왼쪽에 선다 — 다른 화면(주차 리스트)이
-          나중에 이쪽에 맞춘다. */}
+      {/* 1단: 제목과 회독.
+          뒤로가기를 두지 않는다. 사이드바가 늘 그 강의를 켜 두고 있어서 나가는 길이
+          이미 있고, §4가 모달의 ×를 뺀 것과 같은 이유다 — 길이 있는데 출구를 하나 더
+          두면 사람이 가장 늦게 찾는 구석에 두 번째 출구가 생긴다. */}
       <div className="relative flex flex-wrap items-center gap-x-4 gap-y-3">
-        {/* 목적지가 있으면 버튼이 아니라 링크다 (§4).
-            router.back()은 새 탭·직접 URL 진입 시 프로젝트 밖으로 나가버리므로
-            항상 챕터 목록(프로젝트 상세)을 가리킨다. */}
-        <Link
-          href={`/projects/${chapter.projectId}`}
-          className="text-label inline-flex shrink-0 items-center gap-1.5 font-medium text-gray-800 transition-colors hover:text-gray-500"
-        >
-          <Icon name="arrow-left" size={16} />
-          이전으로
-        </Link>
         <EditableChapterTitle chapter={chapter} />
         {/* 회독. 제목 반대편 끝에 선다 — 제목은 무엇을 보는지고, 이건 몇 번 봤는지다. */}
         <div className="ml-auto">

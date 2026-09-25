@@ -1,11 +1,11 @@
 'use client';
 // src/features/study/components/ProjectHeader.tsx
+import Link from 'next/link';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
 import { LectureFormModal } from '@/features/project/components/LectureFormModal';
 import { Tag } from './Tag';
-import { ChevronLeftIcon, PencilIcon, PlusIcon } from './icons';
+import { PencilIcon, PlusIcon } from './icons';
 import { getDday } from '@/features/study/lib/format';
 import type { ProjectDetail } from '@/shared/types/api';
 
@@ -19,30 +19,11 @@ const HEADER_ACTION =
 
 // 챕터 상세 상단 헤더: 뒤로가기 + 과목명/태그 + 우측 액션(공유/업로드)을 한 줄로 배치.
 export function ProjectHeader({ project }: { project: ProjectDetail }) {
-  const router = useRouter();
   const dday = getDday(project.examName, project.examDate);
   const [editOpen, setEditOpen] = useState(false);
 
   return (
     <header className="relative flex flex-wrap items-center gap-x-4 gap-y-3">
-      {/* 강의 목록으로 뒤로가기.
-          Figma: 콘텐츠 열(과목명/섹션/카드) 왼쪽 바깥으로 걸어(outdent)
-          제목·섹션·카드가 같은 정렬선을 갖게 한다.
-          다만 걸 자리(좌측 여백)는 콘텐츠 열이 82.57%로 자리잡은 뒤 남는 8.7%다. 이 폭이
-          버튼(약 110px)보다 좁아지면 사이드바 밑으로 들어가 잘리므로 흐름 안으로 내린다.
-          사이드바를 펼치면 그 여백을 사이드바가 가져가므로 접힘(rail)일 때만 건다. */}
-      <button
-        type="button"
-        // router.back()을 쓰면 방금 나온 학습 뷰어로 되돌아간다.
-        // 뷰어의 '이전으로'가 push라 /projects/{id}가 히스토리에 중복으로 쌓이기 때문이다.
-        // 뷰어(ViewerHeader)와 같은 규칙으로 상위 경로를 고정해 항상 강의 목록으로 나간다.
-        onClick={() => router.push('/projects')}
-        className="group-data-[sidebar=rail]/shell:min-[1410px]:outdent-left mb-3 inline-flex items-center gap-1.5 whitespace-nowrap text-gray-950 transition-colors hover:text-gray-700"
-      >
-        <ChevronLeftIcon className="size-5" />
-        <span className="text-label font-medium">이전으로</span>
-      </button>
-
       {/* 과목명 + 정보 태그들 */}
       <h1 className="text-heading-sm font-semibold text-gray-950">
         {project.title}
@@ -74,21 +55,19 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
             모달의 강의 셀렉트도 같은 기준으로 내 강의만 보여준다.
             Figma: bg #2b2e36(gray-800) */}
         {!project.sharedBy && (
-          <button
-            type="button"
-            // 모달을 띄우지 않고 학습 화면 자리로 바로 들어간다 — 수업을 들으면서
-            // 쓰는 동선이라 모달에 갇히지 않는 게 중요하다(#107).
-            onClick={() =>
-              router.push(`/projects/${project.projectId}/chapters/new`)
-            }
+          // 모달을 띄우지 않고 학습 화면 자리로 바로 들어간다 — 수업을 들으면서
+          // 쓰는 동선이라 모달에 갇히지 않는 게 중요하다(#107).
+          // 목적지가 있으므로 버튼이 아니라 링크다 (§4).
+          <Link
+            href={`/projects/${project.projectId}/chapters/new`}
             className={cn(
               HEADER_ACTION,
-              'bg-gray-800 text-white hover:bg-gray-700',
+              'bg-lime-action hover:bg-lime-hover text-gray-800',
             )}
           >
             새 주차 업로드
             <PlusIcon className="size-4" />
-          </button>
+          </Link>
         )}
       </div>
 

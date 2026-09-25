@@ -9,7 +9,7 @@ import { Button } from '@/shared/ui/Button';
 import { useProjectDetail } from '@/features/study/hooks/useProjectDetail';
 import { useChapters } from '@/features/study/hooks/useChapters';
 import { useCreateChapter } from '@/features/project/hooks/useCreateChapter';
-import { ChevronLeftIcon } from '@/features/study/components/icons';
+
 import { Tag } from '@/features/study/components/Tag';
 import { ViewerTabs } from '@/features/study/components/viewer/ViewerTabs';
 import { FileDropzone } from './FileDropzone';
@@ -130,14 +130,6 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
           탭은 아직 열 게 없어 잠가 두지만, 무엇이 생길지는 미리 보여준다. */}
       <header>
         <div className="flex items-center justify-between gap-4">
-          <button
-            type="button"
-            onClick={() => router.push(`/projects/${projectId}`)}
-            className="inline-flex shrink-0 items-center gap-1.5 text-gray-950 transition-colors hover:text-gray-700"
-          >
-            <ChevronLeftIcon className="size-5" />
-            <span className="text-label font-medium">이전으로</span>
-          </button>
           <h1 className="text-heading-sm min-w-0 truncate text-right font-semibold text-gray-950">
             Chapter {nextNumber}
           </h1>

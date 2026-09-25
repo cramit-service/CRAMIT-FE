@@ -28,7 +28,12 @@ export function formatChapterDay(iso: string): string {
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
-  return `${yyyy}. ${mm}. ${dd}. (${WEEKDAYS[d.getDay()]})`;
+  // 시·분까지 보여준다. 이 값은 사람이 고른 날짜가 아니라 주차를 만든 시각이라,
+  // 같은 날 여러 주차를 올렸을 때 날짜만으로는 어느 것이 먼저인지 알 수 없다.
+  // 모달에서 받는 값이면 분까지 물을 이유가 없지만, 이건 물어본 적 없는 값이다.
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mi = String(d.getMinutes()).padStart(2, '0');
+  return `${yyyy}. ${mm}. ${dd}. (${WEEKDAYS[d.getDay()]}) ${hh}:${mi}`;
 }
 
 // 오디오 재생 시간 표시: 725 → "12:05", 3662 → "61:02", 0 → "00:00"
