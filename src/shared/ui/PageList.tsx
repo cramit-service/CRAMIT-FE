@@ -9,13 +9,8 @@
 import { useEffect, useRef } from 'react';
 import { cn } from '@/shared/lib/cn';
 
-/** 목록 폭 한계. 이보다 좁으면 미리보기가 무엇인지 알아볼 수 없고,
- *  넓으면 옆의 본 화면이 좁아진다. */
-export const LIST_MIN_WIDTH = 36;
-export const LIST_MAX_WIDTH = 160;
-
-// 이 폭 아래로 줄이면 미리보기 대신 번호만 보여준다.
-const NUMBER_MODE_WIDTH = 72;
+/** 목록 폭. 이보다 좁으면 미리보기가 무엇인지 알아볼 수 없고, 넓으면 본 화면이 좁아진다. */
+export const LIST_WIDTH = 160;
 
 interface PageListProps {
   pageCount: number;
@@ -59,7 +54,6 @@ export function PageList({
   }, [currentPage]);
 
   const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
-  const isNumberMode = width < NUMBER_MODE_WIDTH || !renderPreview;
   const previewHeight = Math.round(width * previewRatio);
 
   return (
@@ -71,7 +65,7 @@ export function PageList({
           'relative',
           // 60~80장짜리 강의자료는 목록을 끌어 한 번에 훑어야 한다.
           'scrollbar-slim fade-bottom h-full overflow-y-auto pr-1',
-          isNumberMode ? 'space-y-1.5' : 'space-y-3.5',
+          'space-y-3.5',
         )}
       >
         {pages.map((page) => {
@@ -83,50 +77,31 @@ export function PageList({
                 onClick={() => onSelect(page)}
                 aria-current={current ? 'true' : undefined}
                 className={cn(
-                  'text-label block w-full overflow-hidden font-medium transition-colors duration-150 ease-out',
+                  'text-label relative block w-full overflow-hidden rounded-md font-medium',
+                  'transition-colors duration-150 ease-out',
                   'focus-visible:ring-sky-ink focus-visible:ring-2 focus-visible:outline-none',
-                  isNumberMode
-                    ? 'flex h-8 items-center justify-center rounded-sm'
-                    : 'relative rounded-md',
-                  // 고른 것만 연두다. 나머지가 중립이라 지금 자리가 또렷하다.
-                  // 미리보기 모드에서는 그림이 채움을 덮으므로 연두가 테두리로 나온다 —
+                  // 고른 것만 연두다. 그림이 채움을 덮으므로 연두가 테두리로 나온다 —
                   // 채울 자리가 없을 때 연두가 설 수 있는 유일한 자리다.
-                  isNumberMode
-                    ? current
-                      ? 'bg-lime-action text-gray-800'
-                      : 'bg-surface hover:bg-well text-gray-700'
-                    : current
-                      ? 'outline-lime-action outline-2'
-                      : 'outline-1 outline-transparent hover:outline-gray-100',
+                  current
+                    ? 'outline-lime-action outline-2'
+                    : 'outline-1 outline-transparent hover:outline-gray-100',
                 )}
-                style={
-                  isNumberMode
-                    ? undefined
-                    : { ...previewPlaceholder, height: previewHeight }
-                }
+                style={{ ...previewPlaceholder, height: previewHeight }}
               >
-                {isNumberMode ? (
-                  page
-                ) : (
-                  <>
-                    {renderPreview?.(page)}
-                    {/* 번호 배지. 미리보기 위에 겹치므로 자기 채움을 갖는다. */}
-                    <span
-                      className={cn(
-                        'text-label absolute top-1.5 left-1 rounded-sm px-1.5 py-px',
-                        // 미리보기는 대개 흰 종이라, 쉬는 배지가 흰색이면 안 보인다.
-                        // 잉크로 채우고 글자를 밝게 뒤집는다(§2에 흰색이라는 역할은 없고,
-                        // 흰 표면이 surface다).
-                        current
-                          ? 'bg-lime-action text-gray-800'
-                          : 'text-surface bg-gray-800',
-                      )}
-                    >
-                      P.{String(page).padStart(2, '0')}
-                    </span>
-                    <span className="sr-only">{page}페이지 미리보기</span>
-                  </>
-                )}
+                {renderPreview?.(page)}
+                {/* 번호 배지. 미리보기 위에 겹치므로 자기 채움을 갖는다.
+                    미리보기는 대개 흰 종이라, 쉬는 배지가 흰색이면 보이지 않는다. */}
+                <span
+                  className={cn(
+                    'text-label absolute top-1.5 left-1 rounded-sm px-1.5 py-px',
+                    current
+                      ? 'bg-lime-action text-gray-800'
+                      : 'text-surface bg-gray-800',
+                  )}
+                >
+                  P.{String(page).padStart(2, '0')}
+                </span>
+                <span className="sr-only">{page}페이지 미리보기</span>
               </button>
             </li>
           );

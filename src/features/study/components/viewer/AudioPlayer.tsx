@@ -2,10 +2,14 @@
 // src/features/study/components/viewer/AudioPlayer.tsx
 import { formatPlayTime } from '@/features/study/lib/format';
 import { IconButton } from '@/shared/ui/IconButton';
+import { Toggle } from '@/shared/ui/Toggle';
 
 interface AudioPlayerProps {
   currentPage: number;
   pageCount: number;
+  /** 옆의 페이지 목록이 열려 있는지. 몇 쪽인지를 말하는 자리가 곧 그 스위치다. */
+  listOpen: boolean;
+  onToggleList: () => void;
   isPlaying: boolean;
   onTogglePlay: () => void;
   currentTime: number; // 초
@@ -19,6 +23,8 @@ interface AudioPlayerProps {
 export function AudioPlayer({
   currentPage,
   pageCount,
+  listOpen,
+  onToggleList,
   isPlaying,
   onTogglePlay,
   currentTime,
@@ -38,12 +44,19 @@ export function AudioPlayer({
     // 이분할에서 이 줄이 가장 먼저 좁아진다. 창이 아니라 줄 자체의 폭을 봐야 해서
     // @container를 건다(스크립트 구간 머리글과 같은 방식).
     <div className="@container flex h-[70px] shrink-0 items-center justify-between gap-4 pr-11 pl-8">
-      {/* 어느 자료의 몇 페이지인지가 이 줄에서 가장 중요하다. 웬만하면 줄이지 않는다.
-          다만 재생 버튼·시간까지 합쳐도 안 들어가는 폭(280 미만)에서는 이쪽이 양보한다.
-          끝까지 안 줄이면 컨트롤이 밖으로 밀려나 결국 라벨 위를 덮는다. */}
-      <p className="text-label shrink-0 font-medium whitespace-nowrap text-white @max-[280px]:min-w-0 @max-[280px]:shrink @max-[280px]:truncate">
-        PDF 강의자료 ({currentPage}/{pageCount})
-      </p>
+      {/* 몇 쪽인지 말하는 자리를 그대로 스위치로 쓴다. 무슨 자료인지는 위의 탭이
+          이미 말하고 있어서 "PDF 강의자료"는 같은 말을 두 번 하는 것이었다.
+          목록의 배지와 같은 말(P.01)을 써서 둘이 같은 것을 가리킨다는 게 드러난다. */}
+      <span className="shrink-0">
+        <Toggle
+          pressed={listOpen}
+          size="sm"
+          onClick={onToggleList}
+          aria-label={listOpen ? '페이지 목록 닫기' : '페이지 목록 열기'}
+        >
+          P.{String(currentPage).padStart(2, '0')} / {pageCount}
+        </Toggle>
+      </span>
 
       {/* 우측: 재생/일시정지 + 진행바 + 시간. 폭이 모자라면 이쪽이 진행바를 줄여 양보한다.
           flex-1(basis 0)이면 남는 폭을 다 가져가 라벨이 대신 눌리고,
