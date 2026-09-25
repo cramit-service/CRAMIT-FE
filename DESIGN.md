@@ -1580,6 +1580,45 @@ back.
 than settling it**: `수정완료` and `수정 완료` were the same label written two
 ways in two files, and the string ceases to exist.
 
+#### A pressed button drops `하기` and takes `중…`
+
+**While a button is working it says its own word plus `중…`.** `생성하기`
+becomes `생성 중…`, `삭제하기` becomes `삭제 중…`, `수정하기` becomes
+`수정 중…`.
+
+There is nothing to decide per button, which is the point. §6's label rule made
+every confirming label `<word>하기`, so the progress text is that label with
+`하기` removed and `중…` put in its place. **No new word enters the product to
+say that something is happening.**
+
+Two mismatches today show what the absence of this rule produced. Pressing
+`수정완료` displays `저장 중…` — two different words for one action, in one
+button. And `생성하기` displays `생성 중…` in one file and `만드는 중…` in
+another, for the same action.
+
+**The progress text lives inside the button, so this is a width rule too.** The
+label is replaced, not accompanied, and §4 gives the button its label's width.
+From the 109px idle label, `생성 중…` measures 113 — four pixels. The two
+alternatives cost more: keeping the label and adding §4's pulsing bolt beside it
+measures 128, and so does `만드는 중…`. **The cheapest thing to say is the
+button's own word.**
+
+`불러오는 중…` is outside this rule. Nothing was pressed — it is a load that
+began by itself, so there is no label to take a word from, and the verb form
+stays.
+
+#### Two smaller rules
+
+**Spacing follows the standard's principal form.** `해 주세요`, not
+`해주세요` — the auxiliary `주다` is written apart as the rule, and joining it
+is a permission rather than the default. The product is already mostly there,
+47 against 4. §6's label rule removed the other half of this question by
+retiring `수정완료` / `수정 완료`.
+
+**What goes into a field is `입력`.** `닉네임을 입력해 주세요`. `작성` is what
+is done to a document; a single-line field takes input. Three strings say
+`작성해주세요` today and are wrong on both counts at once.
+
 #### Undecided: what the register does not settle
 
 > **Undecided.** Four splits survive the decision above, because none of them is
