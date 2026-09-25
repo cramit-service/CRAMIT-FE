@@ -9,10 +9,7 @@ import {
   sortLectures,
   type SortKey,
 } from '@/features/study/lib/lectureList';
-import {
-  buildSubjectDotMap,
-  subjectIdsInCreationOrder,
-} from '@/shared/lib/subjectColor';
+import { buildSubjectColorMap } from '@/shared/lib/subjectColor';
 import { LectureSearchBar } from './LectureSearchBar';
 import { LectureSection } from './LectureSection';
 
@@ -69,7 +66,7 @@ export function LectureListScreen() {
   );
   const searching = keyword.trim().length > 0;
   // 검색으로 거르기 전 전체 목록으로 배정해야 사이드바·캘린더와 같은 색이 나온다.
-  const subjectDots = buildSubjectDotMap(subjectIdsInCreationOrder(lectures));
+  const subjectDots = buildSubjectColorMap(lectures);
 
   return (
     // TODO(타이포): 이 화면 글자는 시안이 아니라 홈 스케일을 따랐다 — 폭이 1512로 돌아왔으니

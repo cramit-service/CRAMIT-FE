@@ -23,7 +23,7 @@ interface CalendarCellProps {
   isSelected: boolean;
   onSelect: () => void;
   /** 과목 id → 점 색 클래스. Calendar가 과목 생성 순서로 만들어 내려준다. */
-  subjectDots: Map<string, string>;
+  subjectDots: Map<string, number>;
 }
 
 // 선택 표시가 테두리가 아니라 outline인 이유: 테두리는 자리를 차지해 칸 안쪽 폭을 바꾸고,
