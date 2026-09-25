@@ -8,6 +8,7 @@
 // 그래서 크기·굵기·색을 자기가 정하지 않고 감싼 쪽(제목이면 제목)에서 물려받는다.
 import { useState } from 'react';
 import { cn } from '@/shared/lib/cn';
+import { IconButton } from '@/shared/ui/IconButton';
 
 interface EditableTextProps {
   value: string;
@@ -54,19 +55,23 @@ export function EditableText({
 
   if (!editing) {
     return (
-      <button
-        type="button"
-        onClick={start}
-        title={label}
-        className={cn(
-          'focus-visible:ring-sky-ink min-w-0 truncate rounded-sm border-b border-transparent text-left transition-colors',
-          'hover:border-gray-100 focus-visible:ring-2 focus-visible:outline-none',
-          // 아직 이름이 없으면 눌러야 할 자리라는 걸 드러낸다
-          value === '' && 'font-normal text-gray-500',
-        )}
-      >
-        {value === '' ? placeholder : value}
-      </button>
+      <>
+        {/* 글자 자체는 누르는 것이 아니다. 읽는 자리를 누르면 고쳐지는 화면은
+            무엇이 눌리는지 알 수 없다 — 고치는 일은 옆의 아이콘이 맡는다. */}
+        <span
+          className={cn('min-w-0 truncate', value === '' && 'text-gray-500')}
+        >
+          {value === '' ? placeholder : value}
+        </span>
+        <span className="shrink-0">
+          <IconButton
+            name="edit"
+            glyph={16}
+            aria-label={label}
+            onClick={start}
+          />
+        </span>
+      </>
     );
   }
 

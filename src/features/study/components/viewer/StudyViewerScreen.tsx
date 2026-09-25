@@ -255,7 +255,6 @@ export function StudyViewerScreen({
     >
       <ViewerHeader
         chapter={chapter}
-        project={project}
         activeTabs={activeTabs}
         onTabToggle={toggleTab}
         focus={focus}

@@ -12,10 +12,6 @@ export function EditableChapterTitle({ chapter }: { chapter: Chapter }) {
 
   return (
     <h1 className="text-heading-sm relative flex min-w-0 items-center gap-2 font-semibold text-gray-800">
-      <span className="shrink-0">Chapter {chapter.chapterNumber}</span>
-      {chapter.title !== '' && (
-        <span className="shrink-0 text-gray-500">-</span>
-      )}
       <EditableText
         value={chapter.title}
         placeholder="제목 추가"

@@ -11,11 +11,10 @@ import {
 import { Icon } from '@/shared/ui/Icon';
 import { Toggle } from '@/shared/ui/Toggle';
 import { formatChapterDay } from '@/features/study/lib/format';
-import type { Chapter, ProjectDetail, ViewerTab } from '@/shared/types/api';
+import type { Chapter, ViewerTab } from '@/shared/types/api';
 
 interface ViewerHeaderProps {
   chapter: Chapter;
-  project: ProjectDetail;
   activeTabs: ViewerTab[];
   onTabToggle: (tab: ViewerTab) => void;
   // 집중 모드에서는 이전으로·제목·태그를 접고 탭줄만 남긴다
@@ -27,7 +26,6 @@ interface ViewerHeaderProps {
 // Figma 2단 구성: 위 = 뒤로가기 / Chapter 제목, 아래 = 탭 / 강의명·교수·날짜.
 export function ViewerHeader({
   chapter,
-  project,
   activeTabs,
   onTabToggle,
   focus,
@@ -81,13 +79,11 @@ export function ViewerHeader({
         <EditableChapterTitle chapter={chapter} />
       </div>
 
-      {/* 2단: 좌측 탭 4개 + 우측 강의명·교수 태그·날짜 태그 */}
+      {/* 2단: 좌측 탭 4개 + 우측 집중 모드·날짜 */}
       <div className="mt-7 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         <ViewerTabs activeTabs={activeTabs} onToggle={onTabToggle} />
         <div className="flex flex-wrap items-center gap-2">
           {focusButton}
-          <p className="text-label text-gray-950">{project.title}</p>
-          <Tag tone="dark">{project.professor} 교수님</Tag>
           <Tag tone="outline">{formatChapterDay(chapter.createdAt)}</Tag>
         </div>
       </div>
