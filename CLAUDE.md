@@ -74,8 +74,33 @@ src/
 │ └── types/ # 전역 API 타입 (api.ts)
 └── mocks/ # 백엔드 대기용 가짜 데이터
 
-- 기능 전용 코드는 `features/<기능>/`에, 공유 코드는 `shared/`에 둔다.
-- `app/`의 `page.tsx`는 `features`에서 만든 걸 import해 조립만 한다.
+### 세 층과 그 사이의 화살표
+
+**무엇이 어디 가는지는 "도메인을 아는가"가 정한다.** 폴더가 아니라 그게 기준이다.
+
+| 층                           | 무엇                                                       | 도메인     |
+| ---------------------------- | ---------------------------------------------------------- | ---------- |
+| `app/`                       | 화면. `features`에서 만든 걸 조립만 한다                   | —          |
+| `features/<기능>/`           | 도메인을 아는 조합. 시험·TODO·강의를 알고, 부품을 배치한다 | 안다       |
+| `shared/ui/`                 | **부품. 도메인을 모른다**                                  | **모른다** |
+| `shared/lib`·`types`·`hooks` | 도메인 타입은 알아도 된다 (`apiClient`, `api.ts`)          | 알아도 됨  |
+
+**화살표는 `app → features → shared` 한 방향이다.** `shared`가 `features`를 부르면
+순환이 생기고, 그 부품은 그 기능 없이는 못 쓴다.
+
+**`shared/ui`는 `features/**`도 `shared/types/api`도 import하지 않는다.** 둘 다
+`eslint.config.mjs`가 막는다. 도메인을 아는 부품은 그 도메인 밖에서 쓸 수 없고,
+그러면 `shared`에 둘 이유가 없다.
+
+**그래서 도메인을 아는 화면 부품은 둘로 갈린다.** 예를 들어 캘린더는 격자·셀·월 이동이
+`shared/ui`에 있고(일정을 `{id, label, colorClass, marks}`로만 안다), 시험과 TODO를
+그 모양으로 옮기는 일은 `features/calendar`가 한다. 시험이 링을 두른다는 것도
+`marks: true`를 붙이는 쪽이 정한다 — 부품은 "표시하라고 한 날"만 안다.
+
+**층을 넷으로 늘리지 않는다.** `types/api.ts`는 아무것도 import하지 않는 잎이라
+`shared`에 있어도 나쁜 의존을 만들지 않는다. `shared/lib`에 도메인 함수가 계속
+쌓이면 그때 `entities`를 떼면 된다 — 지금은 `subjectColor` 하나다.
+
 - import 경로는 `@/` alias 사용 (`@/shared/ui/Button`).
 
 ---

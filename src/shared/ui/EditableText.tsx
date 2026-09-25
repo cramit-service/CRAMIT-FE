@@ -93,7 +93,9 @@ export function EditableText({
         aria-invalid={error ? true : undefined}
         // 크기·굵기·색은 감싼 쪽에서 물려받는다. 여기서 정하면 제목이 아니게 된다.
         className={cn(
-          'min-w-0 flex-1 border-b bg-transparent font-[inherit] outline-none',
+          // 크기·굵기·색은 감싼 쪽에서 물려받는다. font 속성은 input이 기본값을 새로
+          // 들고 오므로 inherit으로 되돌려야 하는데, 임의값 대신 base 레이어에서 준다.
+          'min-w-0 flex-1 border-b bg-transparent outline-none',
           error
             ? 'border-red-ink'
             : 'focus-visible:border-sky-ink border-gray-100',

@@ -13,9 +13,9 @@ import { usePathname } from 'next/navigation';
 import { Logo } from '@/shared/ui/Logo';
 import { cn } from '@/shared/lib/cn';
 import { Tooltip } from '@/shared/ui/Tooltip';
-import { useMyProfile } from '@/features/settings/hooks/useMyProfile';
 import { SidebarItem } from './SidebarItem';
 import { CourseNav } from './CourseNav';
+import type { NavData } from './types';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -34,13 +34,15 @@ interface SidebarProps {
   // 폭 상태는 MainShell이 갖는다 — main의 좌패딩이 같은 값을 따라가야 해서다.
   expanded: boolean;
   onToggle: () => void;
+  /** 강의 목록과 프로필. 가져오는 일은 features가 한다 (CLAUDE.md 3절). */
+  nav: NavData;
 }
 
 // 로그인 후 모든 화면이 공유하는 좌측 사이드바 골격.
 // 접힘(아이콘만) / 펼침(아이콘+라벨+과목 목록) 두 상태를 토글로 전환한다.
-export function Sidebar({ expanded, onToggle }: SidebarProps) {
+export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
   const pathname = usePathname();
-  const { data: profile } = useMyProfile();
+  const { profile } = nav;
   // 접힘에서 chevron을 띄우는 조건 — 엣지/헤더 hover, 그리고 접은 직후 잠깐
   const [hovering, setHovering] = useState(false);
   const [justCollapsed, setJustCollapsed] = useState(false);
@@ -98,7 +100,7 @@ export function Sidebar({ expanded, onToggle }: SidebarProps) {
     href !== '#' && (pathname === href || pathname.startsWith(`${href}/`));
 
   const profileActive = isActive('/settings/profile');
-  const profileName = profile?.nickname ?? '내 프로필';
+  const profileName = profile?.name ?? '내 프로필';
   const chord = isMac ? '⌘B' : 'Ctrl+B';
   const toggleLabel = expanded
     ? `사이드바 접기 (${chord})`
@@ -213,7 +215,13 @@ export function Sidebar({ expanded, onToggle }: SidebarProps) {
           active={isActive('/home')}
           expanded={expanded}
         />
-        <CourseNav expanded={expanded} />
+        <CourseNav
+          expanded={expanded}
+          mine={nav.mine}
+          shared={nav.shared}
+          pending={nav.pending}
+          error={nav.error}
+        />
       </nav>
 
       {/* 하단 메뉴 — 과목 수와 무관하게 늘 같은 자리에 있어야 하는 것들 */}
@@ -253,16 +261,16 @@ export function Sidebar({ expanded, onToggle }: SidebarProps) {
                     : 'border border-gray-700 text-gray-300',
                 )}
               >
-                {profile?.profileImage ? (
+                {profile?.imageUrl ? (
                   <Image
-                    src={profile.profileImage}
+                    src={profile.imageUrl}
                     alt=""
                     width={32}
                     height={32}
                     className="size-full object-cover"
                   />
                 ) : (
-                  (profile?.nickname?.trim().charAt(0) ?? '')
+                  (profile?.name?.trim().charAt(0) ?? '')
                 )}
               </span>
             </span>

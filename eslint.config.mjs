@@ -76,6 +76,33 @@ const eslintConfig = defineConfig([
     },
   },
   {
+    // shared/ui의 부품은 도메인을 모른다 (CLAUDE.md 3절).
+    // 화살표는 app → features → shared 한 방향이다. shared가 features를 부르면
+    // 순환이 생기고, 그 부품은 그 기능 없이는 못 쓴다 — shared에 둘 이유가 없어진다.
+    // 도메인 타입도 같은 이유로 막는다. 필요하면 도메인 없는 모양으로 props를 받고,
+    // 그 모양으로 옮기는 일은 features가 한다.
+    files: ['src/shared/ui/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/features/*', '@/features/**'],
+              message:
+                'shared/ui는 features를 부르지 않습니다. 필요한 값은 props로 받고, 가져오는 일은 features가 하세요 (CLAUDE.md 3절).',
+            },
+            {
+              group: ['@/shared/types/api'],
+              message:
+                'shared/ui는 도메인 타입을 모릅니다. 도메인 없는 모양으로 props를 정의하고, 옮기는 일은 features가 하세요 (CLAUDE.md 3절).',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     // 화면(features·app)은 부품을 조립만 한다.
     // 누를 수 있거나 값을 받는 것은 shared/ui에서 가져오고, 배치만 직접 그린다.
     // 이 규칙이 없으니 버튼이 66곳에서 날것으로 그려졌다 — 문서로는 안 막혔다.

@@ -2,6 +2,7 @@
 // src/shared/ui/Sidebar/MainShell.tsx
 import { useCallback, useSyncExternalStore } from 'react';
 import { Sidebar } from './Sidebar';
+import type { NavData } from './types';
 import {
   getSidebarExpanded,
   getSidebarExpandedOnServer,
@@ -18,7 +19,14 @@ import {
 //
 // 펼침이 기본이다. 과목 목록이 주 동선이라 늘 보여야 한다 — 시안이 접힌 레일(90) 기준으로
 // 그려진 건 그대로여서, 접으면 콘텐츠 열·여백이 시안과 정확히 같아진다.
-export function MainShell({ children }: { children: React.ReactNode }) {
+export function MainShell({
+  nav,
+  children,
+}: {
+  /** 강의 목록과 프로필. 가져오는 일은 features가 한다 (CLAUDE.md 3절). */
+  nav: NavData;
+  children: React.ReactNode;
+}) {
   const expanded = useSyncExternalStore(
     subscribeSidebar,
     getSidebarExpanded,
@@ -45,7 +53,7 @@ export function MainShell({ children }: { children: React.ReactNode }) {
       data-sidebar={hidden ? 'hidden' : expanded ? 'wide' : 'rail'}
       style={{ '--sidebar-w': railWidth } as React.CSSProperties}
     >
-      {!hidden && <Sidebar expanded={expanded} onToggle={toggle} />}
+      {!hidden && <Sidebar expanded={expanded} onToggle={toggle} nav={nav} />}
       {/* 사이드바 폭 전환과 같은 200ms로 밀려야 둘이 따로 놀지 않는다 */}
       <main className="pl-[var(--sidebar-w)] transition-[padding] duration-200 ease-out">
         {children}

@@ -1,16 +1,11 @@
 'use client';
 // src/shared/ui/Sidebar/CourseNav.tsx
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
 import { Tooltip } from '@/shared/ui/Tooltip';
-import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
-import {
-  buildSubjectColorMap,
-  subjectDotClass,
-} from '@/shared/lib/subjectColor';
-import type { ProjectSummary } from '@/shared/types/api';
+import type { NavCourse } from './types';
 import { BookNavIcon } from './navIcons';
 import { ChevronRightIcon, UsersIcon } from './icons';
 
@@ -22,21 +17,24 @@ const ROW_H = 42;
 interface CourseNavProps {
   // 사이드바 펼침 여부. 접힘이면 점만 남고 강의명이 사라진다.
   expanded: boolean;
+  /** 이미 나뉘어 들어온다. 무엇이 "내 것"인지는 넣는 쪽이 판단한다. */
+  mine: NavCourse[];
+  shared: NavCourse[];
+  pending: boolean;
+  error: boolean;
 }
 
 // 사이드바 과목 목록 — 내 강의 / 공유 강의 두 묶음이 각자 접힌다.
 // 한 토글로 묶으면 내 강의를 보려고 열 때 공유 강의까지 따라 열린다.
-export function CourseNav({ expanded }: CourseNavProps) {
-  const { data, isPending, isError } = useProjectSummaries();
+export function CourseNav({
+  expanded,
+  mine,
+  shared,
+  pending,
+  error,
+}: CourseNavProps) {
   const [openMine, setOpenMine] = useState(true);
   const [openShared, setOpenShared] = useState(true);
-
-  const courses = data ?? [];
-  const mine = courses.filter((p) => !p.sharedBy);
-  const shared = courses.filter((p) => p.sharedBy);
-  // 색 배정은 걸러 보여주기 전의 전체 목록을 본다 — 내 강의/공유 강의로 나눈 뒤
-  // 각자 배정하면 같은 과목이 캘린더와 다른 색이 된다.
-  const subjectDots = useMemo(() => buildSubjectColorMap(data), [data]);
 
   return (
     <>
@@ -44,12 +42,11 @@ export function CourseNav({ expanded }: CourseNavProps) {
         icon={<BookNavIcon />}
         label="내 강의"
         courses={mine}
-        subjectDots={subjectDots}
         open={openMine}
         onToggle={() => setOpenMine((v) => !v)}
         expanded={expanded}
-        pending={isPending}
-        error={isError}
+        pending={pending}
+        error={error}
       />
       {/* 공유받은 게 없으면 묶음째로 안 그린다 — 빈 소제목만 남으면 고장으로 읽힌다.
           로딩 중에도 아직 모르므로 그리지 않는다(내 강의 쪽에 스켈레톤이 이미 있다). */}
@@ -58,7 +55,6 @@ export function CourseNav({ expanded }: CourseNavProps) {
           icon={<UsersIcon className="size-6" />}
           label="공유 강의"
           courses={shared}
-          subjectDots={subjectDots}
           open={openShared}
           onToggle={() => setOpenShared((v) => !v)}
           expanded={expanded}
@@ -71,9 +67,8 @@ export function CourseNav({ expanded }: CourseNavProps) {
 interface CourseSectionProps {
   icon: React.ReactNode;
   label: string;
-  courses: ProjectSummary[];
+  courses: NavCourse[];
   /** 과목 id -> 점 색 클래스. 캘린더와 같은 규칙으로 만든 것을 위에서 내려준다. */
-  subjectDots: Map<string, number>;
   open: boolean;
   onToggle: () => void;
   expanded: boolean;
@@ -85,7 +80,6 @@ function CourseSection({
   icon,
   label,
   courses,
-  subjectDots,
   open,
   onToggle,
   expanded,
@@ -170,17 +164,17 @@ function CourseSection({
             </li>
           )}
           {courses.map((course) => {
-            const href = `/projects/${course.projectId}`;
+            const href = `/projects/${course.id}`;
             const active = pathname === href || pathname.startsWith(`${href}/`);
             return (
-              <li key={course.projectId}>
+              <li key={course.id}>
                 {/* 점은 상위 아이콘과 같은 열, 강의명은 상위 라벨과 같은 열에 선다.
                     접힘은 강의명만 사라지는 상태라 점이 제자리에 그대로 남는다.
                     툴팁은 접힘에서만 — 펼침에서는 강의명이 이미 옆에 있다. */}
-                <Tooltip label={course.title} disabled={expanded}>
+                <Tooltip label={course.label} disabled={expanded}>
                   <Link
                     href={href}
-                    aria-label={expanded ? undefined : course.title}
+                    aria-label={expanded ? undefined : course.label}
                     className={cn(
                       'focus-visible:ring-secondary-400 relative flex items-center py-2.5 transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
                       active
@@ -200,7 +194,7 @@ function CourseSection({
                         className={cn(
                           'shrink-0 rounded-full transition-[width,height] duration-150 ease-out',
                           expanded ? 'size-1.5' : 'size-2.5',
-                          subjectDotClass(subjectDots, course.projectId),
+                          course.colorClass,
                         )}
                       />
                     </span>
@@ -213,7 +207,7 @@ function CourseSection({
                           : 'pointer-events-none opacity-0',
                       )}
                     >
-                      {course.title}
+                      {course.label}
                     </span>
                   </Link>
                 </Tooltip>
