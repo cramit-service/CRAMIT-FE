@@ -139,6 +139,43 @@ the message; the calendar is what the palette exists for.
 
 > **Undecided.** The two level colors.
 
+#### A subject's color is a bar beside a name and a circle standing alone
+
+**In the calendar the color is a bar, 3 wide and as tall as the line of text it
+sits beside. In the sidebar it is a circle, 10 across, in both the open rail and
+the collapsed one.**
+
+The shape is not chosen per screen. It follows one question: **does the color
+have a name beside it, or is it the only thing there?**
+
+A sidebar item collapses to the color alone — the rail is 90 wide and the name
+fades out. A 3px bar with nothing next to it is a sliver with nothing to align
+to; a circle is a complete shape that reads as a deliberate mark at a glance
+down a list. And because the same item has to survive the rail opening and
+closing, it keeps that circle when the name comes back rather than changing
+shape on a toggle.
+
+A calendar event always has its name with it and never collapses, so the color
+can be a bar — and in that cell a bar is better than a dot on both counts at
+once. **It is larger and it costs less width.** At a 1440 viewport the cell is
+78.6 wide (content column 1114.7, calendar column 616.4, then the card's padding
+and the grid's gaps), leaving 66.6 inside it. A 6px dot with its 6px gap takes 12
+of that and covers 28px²; a 3px bar with the same gap takes 9 and covers 48px².
+The name gains three pixels and the color gains twenty square ones.
+
+**A filled chip was rejected by §2's own palette.** Small text needs 4.5:1, and
+on these eight colors white clears it on 1, 3, 5, 7 only while near-black clears
+it on 2, 4, 6, 8 only — so a chip would carry two text colors, decided per
+subject. The lightness alternation that makes the palette survive a color vision
+deficiency is the thing that breaks the chip. Colored text fails for the same
+reason and in the same halves.
+
+**Both values are off every ramp in this document, and that is correct.** A
+color marker is neither type nor spacing nor an icon, so §2's and §3's lists do
+not reach it. What fixes them is the two states: the bar's height is the text's
+line box, and the circle's 10 is the smallest that is still findable when it is
+the only thing in the rail.
+
 #### The name carries the hue and the job
 
 **A number is only honest where there is a scale behind it.**
