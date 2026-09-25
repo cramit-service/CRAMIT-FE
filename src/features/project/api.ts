@@ -145,6 +145,7 @@ export async function createChapter(
       // STT·요약이 끝나기 전이라 아직 아무도 학습하지 않은 상태다.
       createdAt: new Date().toISOString(),
       status: 'BEFORE',
+      reviewCount: 0, // 새로 만든 주차는 아직 아무도 안 읽었다
       lectureDate: req.lectureDate,
       professor: req.professor,
       materialFileName: req.materialFile?.name ?? null,

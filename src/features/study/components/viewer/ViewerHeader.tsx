@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ViewerTabs } from '@/features/study/components/viewer/ViewerTabs';
 import { EditableChapterTitle } from '@/features/study/components/viewer/EditableChapterTitle';
+import { ReviewStepper } from '@/features/study/components/viewer/ReviewStepper';
 import {
   CollapseIcon,
   ExpandIcon,
@@ -76,6 +77,14 @@ export function ViewerHeader({
           이전으로
         </Link>
         <EditableChapterTitle chapter={chapter} />
+        {/* 회독. 제목 반대편 끝에 선다 — 제목은 무엇을 보는지고, 이건 몇 번 봤는지다. */}
+        <div className="ml-auto">
+          <ReviewStepper
+            projectId={chapter.projectId}
+            chapterId={chapter.chapterId}
+            reviewCount={chapter.reviewCount}
+          />
+        </div>
       </div>
 
       {/* 날짜. 태그였는데 글자로 내린다 — §4가 Tag를 폐기했고, 유한한 집합에서 온 값이

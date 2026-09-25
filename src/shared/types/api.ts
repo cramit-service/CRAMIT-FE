@@ -108,6 +108,11 @@ export interface Chapter {
   title: string; // 카드 본문 한 줄 (예: "알고리즘 기초 알아보기")
   createdAt: string; // ISO 날짜 문자열
   status: ChapterStatus;
+  // 이 주차를 몇 번 읽었는지. 뷰어의 스테퍼가 올리고 내린다.
+  // 올라가기만 하는 값이 아니라는 게 중요하다 — 한 번 잘못 누른 것이 학기 내내 남으면
+  // 기록이 아니라 오기가 된다. 백엔드는 증가 전용이 아니라 값을 세팅하는 엔드포인트를
+  // 내야 한다 (DESIGN.md §4 "A 회독 is raised by a stepper, and lowered by the same one").
+  reviewCount: number;
   // 아래 둘은 "주차 정보 수정하기" 모달이 기존 값을 채우는 데 쓴다.
   // TODO(백엔드): 챕터 조회 응답에 lectureDate·professor를 포함해 달라고 요청해야 한다.
   //   없으면 수정 모달이 빈 날짜를 저장해 기존 값을 덮어쓴다.

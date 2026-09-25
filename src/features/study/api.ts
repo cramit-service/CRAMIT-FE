@@ -238,3 +238,33 @@ export async function updateLectureSummary(
     { signal },
   );
 }
+
+// 회독 수를 세팅한다. 올리고 내리는 두 엔드포인트가 아니라 값을 하나 넣는 쪽이다 —
+// 증가 전용으로 두면 한 번 잘못 누른 것을 되돌릴 수 없고, DESIGN.md §4가 그걸
+// "기록이 아니라 오기"라고 부른다.
+// TODO(백엔드): 경로 확정 필요. PATCH /chapters/{id} 의 부분 수정으로 갈 수도 있다.
+export async function setChapterReviewCount(
+  chapterId: string,
+  reviewCount: number,
+  signal?: AbortSignal,
+): Promise<Chapter> {
+  if (USE_MOCK) {
+    await delay(200, signal);
+    const found = mockChapters.find((c) => c.chapterId === chapterId);
+    if (!found) {
+      throw new ApiRequestError(
+        'CHAPTER_NOT_FOUND',
+        '챕터를 찾을 수 없습니다.',
+        404,
+      );
+    }
+    // 목에서도 실제로 값을 바꿔 둔다. 안 그러면 무효화 뒤 옛 값이 돌아와 화면이 튄다.
+    found.reviewCount = reviewCount;
+    return { ...found };
+  }
+  return apiClient.patch<Chapter>(
+    `/chapters/${chapterId}/review-count`,
+    { reviewCount },
+    { signal },
+  );
+}
