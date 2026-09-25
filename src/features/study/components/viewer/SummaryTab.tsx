@@ -5,16 +5,12 @@ import {
   useLectureSummary,
   useUpdateLectureSummary,
 } from '@/features/study/hooks/useLectureSummary';
-import { PencilIcon } from '@/features/study/components/icons';
-import {
-  ArrowUpIcon,
-  CloudDownloadIcon,
-} from '@/features/study/components/viewer/icons';
 import { MarkdownContent } from '@/features/study/components/viewer/MarkdownContent';
-import { SummaryToolbarButton } from '@/features/study/components/viewer/SummaryToolbarButton';
 import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
+import { IconButton } from '@/shared/ui/IconButton';
+import { Textarea } from '@/shared/ui/Textarea';
 
 // PDF 탭·placeholder와 같은 패널 높이. 탭을 바꿔도 화면이 출렁이지 않게 맞춘다.
 const PANEL = cn(VIEWER_PANEL, 'flex flex-col');
@@ -126,46 +122,45 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
         </div>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <SummaryToolbarButton tone="ghost" onClick={handleCopy}>
+          <Button rank="secondary" size="sm" onClick={handleCopy}>
             Markdown 복사하기
-          </SummaryToolbarButton>
+          </Button>
 
           {mode === 'view' ? (
             <>
-              <SummaryToolbarButton
-                tone="gradient"
+              <Button
+                rank="secondary"
+                size="sm"
                 // TODO(백엔드/라이브러리): 실제 PDF 생성이 필요해 아직 동작하지 않는다.
                 onClick={() => setNotice('PDF 다운로드는 준비 중입니다')}
               >
                 PDF로 다운로드
-                <CloudDownloadIcon className="h-[11px] w-[17px]" />
-              </SummaryToolbarButton>
-              <SummaryToolbarButton
-                tone="success"
+              </Button>
+              <Button
+                size="sm"
                 onClick={() => {
                   setDraft(markdown);
                   setMode('edit');
                 }}
               >
                 수정하기
-                <PencilIcon className="size-[15px]" />
-              </SummaryToolbarButton>
+              </Button>
             </>
           ) : /* Figma 대조 결과: 변경이 생기면 "수정취소"가 사라지고 "수정완료"로 '교체'된다
                  (두 버튼이 함께 있는 시안은 없음). 그래서 한 번 고치면 되돌릴 버튼이 없는데,
                  시안 그대로 두었다. 취소 경로가 필요하면 디자인 확인 후 추가한다. */
           isDirty ? (
-            <SummaryToolbarButton
-              tone="success"
+            <Button
+              size="sm"
               onClick={handleSave}
               disabled={updateMutation.isPending}
             >
               {updateMutation.isPending ? '저장 중…' : '수정완료'}
-            </SummaryToolbarButton>
+            </Button>
           ) : (
-            <SummaryToolbarButton tone="muted" onClick={() => setMode('view')}>
+            <Button rank="secondary" size="sm" onClick={() => setMode('view')}>
               수정취소
-            </SummaryToolbarButton>
+            </Button>
           )}
         </div>
       </div>
@@ -184,8 +179,9 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
             )}
           </div>
         ) : (
-          <textarea
+          <Textarea
             ref={editRef}
+            grow
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             // 저장 요청 뒤 입력한 내용은 성공과 함께 view로 넘어가며 조용히 사라진다
@@ -193,20 +189,18 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
             aria-busy={updateMutation.isPending}
             spellCheck={false}
             aria-label="요약 Markdown 원문 편집"
-            // 기본 outline은 지우되 키보드 포커스는 링으로 남긴다 (마우스 클릭 시엔 안 보인다)
-            className="focus-visible:ring-secondary-400 text-body h-full w-full resize-none rounded-md px-8 py-7 font-mono text-gray-800 outline-none focus-visible:ring-2 focus-visible:ring-inset"
           />
         )}
 
-        {/* 맨 위로 (Figma: 흰 영역 우하단 원형 버튼) */}
-        <button
-          type="button"
-          onClick={handleScrollTop}
-          aria-label="맨 위로"
-          className="absolute right-[22px] bottom-[22px] flex size-9 items-center justify-center rounded-full border-2 border-gray-950 bg-white text-gray-950 transition-colors hover:bg-gray-200"
-        >
-          <ArrowUpIcon className="h-[17px] w-[14px]" />
-        </button>
+        {/* 맨 위로. 혼자 서 있어 옆에 잴 글자가 없다 — §4가 그 경우를 글리프 24로 정한다. */}
+        <div className="absolute right-6 bottom-6">
+          <IconButton
+            name="arrow-up"
+            glyph={24}
+            aria-label="맨 위로"
+            onClick={handleScrollTop}
+          />
+        </div>
       </div>
     </section>
   );

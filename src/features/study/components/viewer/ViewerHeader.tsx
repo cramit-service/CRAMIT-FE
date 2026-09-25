@@ -1,15 +1,11 @@
 'use client';
 // src/features/study/components/viewer/ViewerHeader.tsx
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Tag } from '@/features/study/components/Tag';
-import { ChevronLeftIcon } from '@/features/study/components/icons';
 import { ViewerTabs } from '@/features/study/components/viewer/ViewerTabs';
 import { EditableChapterTitle } from '@/features/study/components/viewer/EditableChapterTitle';
-import {
-  CollapseIcon,
-  ExpandIcon,
-} from '@/features/study/components/viewer/icons';
-import { cn } from '@/shared/lib/cn';
+import { Icon } from '@/shared/ui/Icon';
+import { Toggle } from '@/shared/ui/Toggle';
 import { formatChapterDay } from '@/features/study/lib/format';
 import type { Chapter, ProjectDetail, ViewerTab } from '@/shared/types/api';
 
@@ -33,31 +29,19 @@ export function ViewerHeader({
   focus,
   onToggleFocus,
 }: ViewerHeaderProps) {
-  const router = useRouter();
-
   // 두 모드가 같은 자리(탭줄 오른쪽 끝)에서 켜고 끈다
   const focusButton = (
-    <button
-      type="button"
+    // 탭과 같은 줄에 서므로 같은 칸을 쓴다. aria-pressed를 들고 있으니 토글이다.
+    <Toggle
+      pressed={focus}
+      size="sm"
       onClick={onToggleFocus}
-      aria-pressed={focus}
       title={focus ? '집중 모드 끄기 (Esc)' : '집중 모드'}
       aria-label={focus ? '집중 모드 끄기' : '집중 모드'}
-      // 탭과 같은 줄에 서므로 높이·모양·테두리 굵기를 탭(ViewerTabs)에 맞춘다.
-      // py로 높이를 만들면 줄높이(22)에 얹혀 36이 되어 탭보다 4px 커진다.
-      className={cn(
-        'text-label focus-visible:ring-secondary-400 flex h-8 shrink-0 items-center gap-1.5 rounded-full px-4 font-medium whitespace-nowrap transition-colors',
-        'border-[0.5px] border-gray-500 text-gray-700 hover:border-gray-600 hover:text-gray-900',
-        'focus-visible:ring-2 focus-visible:outline-none',
-      )}
     >
-      {focus ? (
-        <CollapseIcon className="size-4" />
-      ) : (
-        <ExpandIcon className="size-4" />
-      )}
+      <Icon name={focus ? 'option' : 'scroll'} size={16} />
       {focus ? '나가기' : '집중 모드'}
-    </button>
+    </Toggle>
   );
 
   // 집중 모드 — 탭줄 한 줄만 남긴다. 제목·태그는 지금 보고 있는 걸 다시 말해 줄 뿐이라
@@ -75,16 +59,16 @@ export function ViewerHeader({
     <header>
       {/* 1단: 이전으로(챕터 상세로) + 우측 Chapter 제목 */}
       <div className="flex items-center justify-between gap-4">
-        <button
-          type="button"
-          // router.back()은 새 탭·직접 URL 진입 시 프로젝트 밖으로 나가버린다.
-          // 항상 챕터 목록(프로젝트 상세)으로 되돌아가도록 경로를 고정한다.
-          onClick={() => router.push(`/projects/${chapter.projectId}`)}
-          className="inline-flex shrink-0 items-center gap-1.5 text-gray-950 transition-colors hover:text-gray-700"
+        {/* 목적지가 있으면 버튼이 아니라 링크다 (§4).
+            router.back()은 새 탭·직접 URL 진입 시 프로젝트 밖으로 나가버리므로
+            항상 챕터 목록(프로젝트 상세)을 가리킨다. */}
+        <Link
+          href={`/projects/${chapter.projectId}`}
+          className="text-label inline-flex shrink-0 items-center gap-1.5 font-medium text-gray-800 transition-colors hover:text-gray-500"
         >
-          <ChevronLeftIcon className="size-5" />
-          <span className="text-label font-medium">이전으로</span>
-        </button>
+          <Icon name="arrow-left" size={16} />
+          이전으로
+        </Link>
         <EditableChapterTitle chapter={chapter} />
       </div>
 

@@ -2,6 +2,7 @@
 // src/shared/ui/Toggle.tsx
 // DESIGN.md §4 "A toggle is a pill, and it borrows its height".
 import { cn } from '@/shared/lib/cn';
+import { control, type ControlSize } from '@/shared/ui/control';
 
 interface ToggleProps extends Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -10,11 +11,14 @@ interface ToggleProps extends Omit<
   /** 눌린 상태는 이 컨트롤 자신의 것이다. 하나를 누르면 옆이 풀리는 건 '선택'이고,
    *  그건 무리를 아는 쪽(달력·페이지네이션)이 그린다. */
   pressed: boolean;
+  /** 높이는 토글 자신의 것이 아니라 줄의 것이다. 줄을 아는 화면이 칸을 고른다. */
+  size?: ControlSize;
   children: React.ReactNode;
 }
 
 export function Toggle({
   pressed,
+  size,
   type = 'button',
   disabled,
   children,
@@ -30,8 +34,9 @@ export function Toggle({
       // 자기 단계를 가지면 이유를 댈 수 없는 차이가 생긴다.
       // 모서리가 버튼과 가른다. 알약은 상태를 들고, 6px 모서리는 일을 한다.
       className={cn(
+        control(size),
         'inline-flex items-center justify-center gap-1 rounded-full px-4.5',
-        'text-body-sm font-medium whitespace-nowrap',
+        'font-medium whitespace-nowrap',
         'transition-colors duration-150 ease-out',
         'focus-visible:ring-sky-ink focus-visible:ring-2 focus-visible:outline-none',
         disabled
