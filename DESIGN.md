@@ -1288,6 +1288,49 @@ The depth and period of the pulse are not set here. They belong to Motion (§2),
 which is not settled, and the choice matters: at an opacity floor of 0.22 the
 glyph reaches 1.13:1, which is not a pulse but a disappearance.
 
+#### A chapter row has one slot, and no button
+
+**The row itself is the target. Where a button used to sit, one word says where
+the chapter is.**
+
+| Slot             | When                    |
+| ---------------- | ----------------------- |
+| `처리 중` + bolt | The AI is still working |
+| `실패`           | It stopped              |
+| `학습 전`        | Read zero times         |
+| `1회독`, `2회독` | Read that many times    |
+
+A button inside the row was the alternative, and it was three buttons: `학습하기`
+on sky, `이어서 학습` on yellow, `복습하기` on gray. Every one of them collides
+with something settled — §2 gives lime to anything pressable, amber to what is
+running out of time, and §4 makes a gray fill mean disabled. Taking the button
+out removes all three collisions at once, and §4 has already given the card a
+press rule (8% black on hover), so the row loses nothing by becoming the target.
+
+**Study is counted, not staged.** A chapter is read once, then again before the
+exam, then again the night before; `학습 전 / 학습 중 / 완료` cannot hold that and
+the third state is wrong the moment someone opens a finished chapter again. A
+count has no such ceiling.
+
+This also closes one of §2's known costs. _Completed and pressable share a
+color_ was a problem because completion was a state a fill had to carry; when
+completion is a number, nothing has to carry it but the number.
+
+**Zero is a word and the rest are numbers.** `학습 전`, then `1회독`. The product
+already writes zero this way — the exam badge counts `D-3`, `D-2`, `D-1` and then
+`D-DAY` — so this is the same rule twice, not two rules. `0회독` was the
+alternative and it is not how the language counts; writing a thing nobody has
+done yet as a zero also reads as a nudge, which the exam badge avoids for the
+same reason.
+
+The two labels are the same width — 학습 전 and 1회독 are both three characters —
+which the D-day badge had to solve with a fixed width because `D-DAY` and `D-1`
+are not.
+
+**What the backend has to change.** This one is a replacement, not a field:
+`ChapterStatus` stops being `BEFORE | IN_PROGRESS | DONE` and becomes a count,
+with an endpoint the chapter screen calls to add one.
+
 #### A failure is one word in the list and the whole account inside
 
 **The row says `실패` in `red-ink`. It does not dim, and it still opens.**
