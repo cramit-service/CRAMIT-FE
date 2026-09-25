@@ -25,7 +25,6 @@ export function ScriptSectionItem({
     // 이 줄은 펼침이다. 머리글 전체가 눌리므로 Card가 button으로 그린다 (§4).
     <li className="@container">
       <Card
-        on="surface"
         press="in-place"
         onClick={onToggle}
         aria-expanded={open}
