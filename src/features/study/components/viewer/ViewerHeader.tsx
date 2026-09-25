@@ -1,7 +1,6 @@
 'use client';
 // src/features/study/components/viewer/ViewerHeader.tsx
 import Link from 'next/link';
-import { Tag } from '@/features/study/components/Tag';
 import { ViewerTabs } from '@/features/study/components/viewer/ViewerTabs';
 import { EditableChapterTitle } from '@/features/study/components/viewer/EditableChapterTitle';
 import {
@@ -79,13 +78,16 @@ export function ViewerHeader({
         <EditableChapterTitle chapter={chapter} />
       </div>
 
-      {/* 2단: 좌측 탭 4개 + 우측 집중 모드·날짜 */}
-      <div className="mt-7 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+      {/* 날짜. 태그였는데 글자로 내린다 — §4가 Tag를 폐기했고, 유한한 집합에서 온 값이
+          아니면 배지가 형식만 빌려 오고 아무 말도 하지 않는다. */}
+      <p className="text-label mt-2 text-gray-500">
+        {formatChapterDay(chapter.createdAt)}
+      </p>
+
+      {/* 2단: 좌측 탭 4개 + 우측 집중 모드 */}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         <ViewerTabs activeTabs={activeTabs} onToggle={onTabToggle} />
-        <div className="flex flex-wrap items-center gap-2">
-          {focusButton}
-          <Tag tone="outline">{formatChapterDay(chapter.createdAt)}</Tag>
-        </div>
+        {focusButton}
       </div>
     </header>
   );
