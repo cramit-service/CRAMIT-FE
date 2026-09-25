@@ -94,10 +94,50 @@ These seven are the whole of the brand palette. The gray scale stands beside
 them and is named below; every other color the product uses is out of scope
 here.
 
-> **Undecided.** The eleven subject colors and the two level colors. The subject colors are held back
-> deliberately: whether a subject is told apart by color at all is still
-> being decided, and settling a palette first would answer that question by
-> accident.
+#### A subject keeps one color, and there are eight of them
+
+**A subject is told apart by color, and the color belongs to the subject.**
+
+| Token               | Value     |  L\* | On white |
+| ------------------- | --------- | ---: | -------: |
+| `--color-subject-1` | `#b04852` | 44.9 |   5.39:1 |
+| `--color-subject-2` | `#be7d42` | 58.0 |   3.39:1 |
+| `--color-subject-3` | `#66701b` | 44.9 |   5.39:1 |
+| `--color-subject-4` | `#399d68` | 58.0 |   3.39:1 |
+| `--color-subject-5` | `#007d84` | 47.4 |   4.92:1 |
+| `--color-subject-6` | `#0099d4` | 59.5 |   3.23:1 |
+| `--color-subject-7` | `#5466b3` | 45.1 |   5.35:1 |
+| `--color-subject-8` | `#c26fae` | 57.9 |   3.40:1 |
+
+The set is built, not picked: hue steps by 45° around the circle and lightness
+alternates between two steps. Both moves are load-bearing.
+
+**Hue alone would fail the people it matters most to.** Eight colors at one
+lightness are eight greys to anyone who cannot separate the hues; simulated for
+deuteranopia the closest pair falls to ΔE 9.6 with the lightness split and would
+be far nearer without it. This is §2's own rule applied to itself — colors that
+must be told apart differ in lightness, not hue alone.
+
+**Eight, because eleven does not fit.** At eleven the hue step is 33° instead of
+45, and holding that apart under a color vision deficiency needs more lightness
+steps, which pushes some of them past the 3:1 a dot has to keep. Eleven was a
+count of subjects a person might have, not a count the screen can carry. Beyond
+eight the palette repeats; two subjects sharing a color is a smaller failure
+than eleven nobody can separate.
+
+**The color is stored on the subject.** Today it is computed from creation
+order — `SUBJECT_DOT_CLASSES[map.size % 11]` — so deleting one subject shifts
+the color of every subject after it. The file's own comment says a subject that
+changes color between screens defeats the point; a subject that changes color
+between weeks defeats it the same way. This is a field the backend has to keep.
+
+**Where color is doing the work is the calendar.** A cell holds two events
+before it folds the rest into `+N`, and there is no room for a subject's name —
+`컴퓨터네트워크` and `컴퓨터구조` both truncate to `컴퓨터`. In the sidebar the
+name is already beside the dot, so the dot there is reinforcement rather than
+the message; the calendar is what the palette exists for.
+
+> **Undecided.** The two level colors.
 
 #### The name carries the hue and the job
 
