@@ -224,11 +224,13 @@ function TodoRow({
             이 칸을 밀어 넓힌다. 글자가 넘치는 건 어차피 못 막지만 행 상자는 카드 폭에 묶어 둔다. */}
         <span className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="flex items-baseline justify-between gap-3">
-            <span className="truncate text-[17px] leading-6 font-medium text-gray-900">
-              {/* 완료해도 글자를 지우지 않는다 — 취소선 대신 형광펜을 긋는다. */}
-              <span className={cn('todo-marker', done && 'todo-marker-on')}>
-                {todoName(todo)}
-              </span>
+            <span
+              className={cn(
+                'truncate text-[17px] leading-6 font-medium',
+                done ? 'text-gray-650 line-through' : 'text-gray-900',
+              )}
+            >
+              {todoName(todo)}
             </span>
             <span
               className={cn(

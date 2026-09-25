@@ -8,10 +8,7 @@ import { examName } from '@/features/exam/lib/examName';
 import { todoName } from '@/features/todo/lib/todoName';
 import { useTodoFilter } from '@/features/todo/hooks/useTodoFilter';
 import { buildMonthGrid } from '@/features/calendar/lib/month';
-import {
-  buildSubjectDotMap,
-  subjectIdsInCreationOrder,
-} from '@/shared/lib/subjectColor';
+import { buildSubjectColorMap } from '@/shared/lib/subjectColor';
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
 import { useCalendarMonth } from '@/features/calendar/hooks/useCalendarMonth';
 import { CalendarCell, type ScheduleItem } from './CalendarCell';
@@ -30,10 +27,7 @@ export function Calendar() {
   const cells = useMemo(() => buildMonthGrid(year, month), [year, month]);
 
   // 사이드바 강의 점과 같은 색이어야 하므로 배정 규칙을 공용 함수에 맡긴다.
-  const subjectDots = useMemo(
-    () => buildSubjectDotMap(subjectIdsInCreationOrder(projects)),
-    [projects],
-  );
+  const subjectDots = useMemo(() => buildSubjectColorMap(projects), [projects]);
 
   // 날짜를 키로 Map을 만들어 42개 칸이 각각 O(1)로 꺼내 쓴다.
   // 한 칸에서 시험이 투두보다 위에 오도록 시험을 먼저 넣는다.

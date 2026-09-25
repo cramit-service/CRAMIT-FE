@@ -68,6 +68,7 @@ export async function createProject(title: string): Promise<Project> {
       projectId: String(Date.now()),
       title,
       createdAt: new Date().toISOString(),
+      colorIndex: null,
     };
   }
   return apiClient.post<Project>('/projects', { title });
@@ -95,6 +96,7 @@ export async function createLecture(
       examName: req.examDate ? '시험' : null,
       examDate: req.examDate,
       sharedBy: null,
+      colorIndex: req.colorIndex,
     };
     addMockProjectSummary(summary);
     return summary;
@@ -117,6 +119,7 @@ export async function updateLecture(
       professor: req.professor ?? '미정',
       examName: req.examDate ? (current.examName ?? '시험') : null,
       examDate: req.examDate,
+      colorIndex: req.colorIndex,
     };
     updateMockProjectSummary(summary);
     return summary;

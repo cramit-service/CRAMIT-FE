@@ -7,9 +7,8 @@ import { cn } from '@/shared/lib/cn';
 import { Tooltip } from '@/shared/ui/Tooltip';
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
 import {
-  buildSubjectDotMap,
+  buildSubjectColorMap,
   subjectDotClass,
-  subjectIdsInCreationOrder,
 } from '@/shared/lib/subjectColor';
 import type { ProjectSummary } from '@/shared/types/api';
 import { BookNavIcon } from './navIcons';
@@ -37,10 +36,7 @@ export function CourseNav({ expanded }: CourseNavProps) {
   const shared = courses.filter((p) => p.sharedBy);
   // 색 배정은 걸러 보여주기 전의 전체 목록을 본다 — 내 강의/공유 강의로 나눈 뒤
   // 각자 배정하면 같은 과목이 캘린더와 다른 색이 된다.
-  const subjectDots = useMemo(
-    () => buildSubjectDotMap(subjectIdsInCreationOrder(data)),
-    [data],
-  );
+  const subjectDots = useMemo(() => buildSubjectColorMap(data), [data]);
 
   return (
     <>
@@ -77,7 +73,7 @@ interface CourseSectionProps {
   label: string;
   courses: ProjectSummary[];
   /** 과목 id -> 점 색 클래스. 캘린더와 같은 규칙으로 만든 것을 위에서 내려준다. */
-  subjectDots: Map<string, string>;
+  subjectDots: Map<string, number>;
   open: boolean;
   onToggle: () => void;
   expanded: boolean;
@@ -149,10 +145,10 @@ function CourseSection({
             [0, 1, 2].map((i) => (
               <li key={i} className="flex items-center py-2.5">
                 <span className="flex w-22.5 shrink-0 justify-center">
-                  <span className="size-1.5 motion-safe:animate-pulse rounded-full bg-gray-700" />
+                  <span className="size-1.5 rounded-full bg-gray-700 motion-safe:animate-pulse" />
                 </span>
                 {expanded && (
-                  <span className="mr-5 h-3 flex-1 motion-safe:animate-pulse rounded-full bg-gray-800" />
+                  <span className="mr-5 h-3 flex-1 rounded-full bg-gray-800 motion-safe:animate-pulse" />
                 )}
               </li>
             ))}

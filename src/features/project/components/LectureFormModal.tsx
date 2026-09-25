@@ -11,11 +11,17 @@ import {
   SECTION_DIVIDER,
 } from '@/shared/ui/FormModal';
 import { ModalDateField } from '@/shared/ui/ModalDateField';
+import {
+  buildSubjectColorMap,
+  firstUnusedColorIndex,
+} from '@/shared/lib/subjectColor';
 import type { ProjectSummary } from '@/shared/types/api';
 import {
   useCreateLecture,
   useUpdateLecture,
 } from '@/features/project/hooks/useLectureMutations';
+import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
+import { SubjectColorField } from './SubjectColorField';
 
 interface LectureFormModalProps {
   /** 있으면 수정 모드(강의 상세 헤더의 연필), 없으면 생성 모드(1:2614). */
@@ -43,6 +49,24 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
   );
   const [formError, setFormError] = useState<string | null>(null);
 
+  // 과목 색. 사용자가 고르기 전엔 null이고 기본값은 목록에서 정한다 — 목록이 아직 안 왔을 수
+  // 있어(강의 상세에서 열 때) 초기 state로 굳히지 않고 매 렌더 파생시킨다.
+  const [pickedColor, setPickedColor] = useState<number | null>(null);
+  const { data: summaries } = useProjectSummaries();
+  const colorMap = buildSubjectColorMap(summaries);
+  const taken = new Set(
+    [...colorMap]
+      .filter(([projectId]) => projectId !== project?.projectId)
+      .map(([, index]) => index),
+  );
+  // 수정이면 지금 화면에 보이는 색, 생성이면 아직 안 쓰인 첫 색.
+  const defaultColor = isEdit
+    ? (colorMap.get(project.projectId) ?? project.colorIndex)
+    : summaries
+      ? firstUnusedColorIndex(taken)
+      : null;
+  const colorIndex = pickedColor ?? defaultColor;
+
   const busy = createMutation.isPending || updateMutation.isPending;
 
   // 시안에서 필수는 강의명 하나뿐이다 — 교수명은 (선택)이고,
@@ -53,7 +77,8 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
     !isEdit ||
     title.trim() !== project.title ||
     examDate !== (project.examDate ?? '') ||
-    (professor.trim() || '미정') !== project.professor;
+    (professor.trim() || '미정') !== project.professor ||
+    colorIndex !== defaultColor;
   const canSubmit = filled && changed && !busy;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -67,6 +92,8 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
       title: title.trim(),
       examDate: examDate || null,
       professor: professor.trim() || null,
+      // 목록을 끝내 못 받아 기본값이 없으면 첫 색으로 보낸다.
+      colorIndex: colorIndex ?? 1,
     };
 
     const onError = (error: Error) =>
@@ -117,15 +144,25 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
         <label htmlFor={`${fieldId}-title`} className={LABEL}>
           강의
         </label>
-        <input
-          id={`${fieldId}-title`}
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="강의 명을 입력해 주세요."
-          required
-          disabled={busy}
-          className={FIELD_FILLED}
-        />
+        {/* 색 점이 강의명 왼쪽에 붙는다 — 이름과 색이 한 줄에 있어야 "이 과목의 색"으로 읽힌다. */}
+        <div className="flex gap-3">
+          <SubjectColorField
+            id={`${fieldId}-color`}
+            value={colorIndex}
+            onChange={setPickedColor}
+            taken={taken}
+            disabled={busy}
+          />
+          <input
+            id={`${fieldId}-title`}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="강의 명을 입력해 주세요."
+            required
+            disabled={busy}
+            className={cn(FIELD_FILLED, 'min-w-0 flex-1')}
+          />
+        </div>
       </div>
 
       {/* 시험 날짜 (선택) — 수정 시안에만 있는 칸이다. 생성 시안에는 없다. */}

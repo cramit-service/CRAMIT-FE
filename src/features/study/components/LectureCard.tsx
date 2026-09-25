@@ -7,21 +7,13 @@ import { ChevronRightIcon } from './icons';
 import { getDday } from '@/features/study/lib/format';
 import type { ProjectSummary } from '@/shared/types/api';
 
-// 섹션에 따라 카드 바탕색이 갈린다 (Figma: 내 강의 #e7f7fa / 공유 강의 #f0f1f1).
-// cn은 merge가 없으므로 hover까지 묶어 '완성된' 세트로 고른다.
-export type LectureTone = 'mine' | 'shared';
-
-const toneStyles: Record<LectureTone, string> = {
-  mine: 'bg-secondary-100 hover:bg-secondary-200',
-  shared: 'bg-gray-200 hover:bg-gray-300',
-};
-
 interface LectureCardProps {
   lecture: ProjectSummary;
-  tone: LectureTone;
+  /** 과목 점 색 클래스. 사이드바·캘린더와 같은 배정을 목록 화면이 넘긴다. */
+  dotClass: string;
 }
 
-export function LectureCard({ lecture, tone }: LectureCardProps) {
+export function LectureCard({ lecture, dotClass }: LectureCardProps) {
   const router = useRouter();
   const dday = getDday(lecture.examName, lecture.examDate);
 
@@ -29,14 +21,18 @@ export function LectureCard({ lecture, tone }: LectureCardProps) {
     <button
       type="button"
       onClick={() => router.push(`/projects/${lecture.projectId}`)}
-      className={cn(
-        'flex w-full items-center gap-3 rounded-md p-4.25 text-left transition-colors',
-        toneStyles[tone],
-      )}
+      className="hover:bg-gray-150 flex w-full items-center gap-3 rounded-md bg-white p-4.25 text-left transition-colors"
     >
       <span className="flex min-w-0 flex-1 flex-col gap-3">
-        <span className="text-body-sm truncate font-semibold text-gray-800">
-          {lecture.title}
+        {/* 점이 과목과 색을 잇는다 — 사이드바 밖에서 색을 배우는 유일한 자리다 */}
+        <span className="flex min-w-0 items-center gap-2">
+          <span
+            aria-hidden
+            className={cn('size-2 shrink-0 rounded-full', dotClass)}
+          />
+          <span className="text-body-sm truncate font-semibold text-gray-800">
+            {lecture.title}
+          </span>
         </span>
 
         {/* 태그 구성·순서는 챕터 상세 헤더(ProjectHeader)와 맞춘다 */}

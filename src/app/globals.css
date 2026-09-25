@@ -108,23 +108,18 @@
   --color-error-300: #ff9aa2;
 
   /* ===== 과목 색 =====
-     과목(강의)을 색으로 가르는 자리. 캘린더 점과 사이드바 점이 생성 순서대로 이 열하나를 쓴다.
-     11에서 멈춘 건 그 이상 늘리면 서로 헷갈리기 시작해서다 — Lab 거리로 재면 11색까지는
-     가장 가까운 쌍이 ΔE 26이지만, 12색이 되면 20.8(코랄↔로즈)로 떨어진다.
-     12번째 과목부터는 색이 한 바퀴 돌아 겹친다.
-     2·3은 secondary-400·primary-500과 같은 값이지만 별도로 둔다 —
-     과목 팔레트는 브랜드 색과 따로 움직여야 해서 한쪽을 바꿀 때 다른 쪽이 끌려가면 안 된다. */
+     과목(강의)에만 쓰는 색. 캘린더·사이드바·강의 카드의 점이 생성 순서대로 이 열을 쓴다.
+     secondary-400·primary-500과 같은 값이던 하늘·연두는 뺐다 — 한 색에 뜻 하나.
+     10번째 과목부터는 한 바퀴 돌아 겹친다. 이웃한 번호끼리 멀리 보이도록 순서를 잡았다. */
   --color-subject-1: #f2c94c;
-  --color-subject-2: #4dd8ff;
-  --color-subject-3: #bedd0c;
-  --color-subject-4: #7fd8c4;
+  --color-subject-2: #6b8afd;
+  --color-subject-3: #ffa7a0;
+  --color-subject-4: #5cc98a;
   --color-subject-5: #b9a7f5;
-  --color-subject-6: #ffa7a0;
-  --color-subject-7: #5cc98a;
-  --color-subject-8: #6b8afd;
-  --color-subject-9: #f58fd0;
-  --color-subject-10: #ff9f5a;
-  --color-subject-11: #a8b84a;
+  --color-subject-6: #ff9f5a;
+  --color-subject-7: #f58fd0;
+  --color-subject-8: #7fd8c4;
+  --color-subject-9: #a8b84a;
 
   /* ===== etc (입문/중급/전공 단계) =====
      level-03(#e3ff00)은 primary-400과 같은 값이었다. 같은 색에 이름이 둘이면
@@ -240,30 +235,6 @@
      상한이 먼저 걸려 펼칠 때 열이 깎인다 — 폭을 지키자던 애초 목적과 어긋난다. */
   max-width: calc(100% - 40px);
   margin-inline: auto;
-}
-
-/* 완료한 할 일 제목에 긋는 형광펜. 취소선 대신 쓴다 — 글자를 지우지 않고 "끝났다"만 말한다.
-   미완료도 같은 padding/margin을 써서 토글할 때 글자가 밀리지 않는다.
-   clone은 줄바꿈된 각 줄에 상자를 따로 그린다(없으면 두 번째 줄에 왼쪽 여백이 안 생긴다). */
-@utility todo-marker {
-  margin: 0 -2px;
-  padding: 1px 2px 2px;
-  border-radius: var(--radius-xs);
-  background: transparent;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-  transition: background 150ms;
-}
-
-/* 손으로 그은 것처럼 양 끝이 옅다. 색은 primary-400을 알파만 바꿔 쓴다. */
-@utility todo-marker-on {
-  background: linear-gradient(
-    104deg,
-    color-mix(in srgb, var(--color-primary-400) 0%, transparent) 0.5%,
-    color-mix(in srgb, var(--color-primary-400) 75%, transparent) 2.5%,
-    color-mix(in srgb, var(--color-primary-400) 65%, transparent) 96%,
-    color-mix(in srgb, var(--color-primary-400) 0%, transparent) 99%
-  );
 }
 
 /* 스크롤 영역이 항목을 반쯤 자른 채 끝나지 않게 아래쪽을 페이드로 닫는다.
