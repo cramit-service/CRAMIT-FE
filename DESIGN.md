@@ -1665,38 +1665,92 @@ already does both: the board scrolls inside a page that is itself 1945 tall.
 
 #### The frame
 
-A dark rail on the left, about 90 wide, holding icons; the canvas beside it; a
-chat tab pinned to the right edge. The rail opens to 289, wider than the space
-between the content column and the window, so it covers rather than pushes.
+A dark rail on the left, 90 wide, holding icons; the canvas beside it; a chat tab
+pinned to the right edge. The rail opens to 256, and it **pushes rather than
+covers** — the content moves right by the same 166 and keeps the width it had.
+
+That is one formula rather than two states. The column is
+`(100% + rail - 90) * 0.8257` measured inside the pushed content box, and
+`100% + rail` does not move when the rail does, so the width reduces to
+**(viewport - 90) x 0.8257** — the same number open or closed. Measured, open
+against closed: 1165.9/1165.9 at 1502, 1246.8/1246.8 at 1600, 1511/1511 at both
+1920 and 2560.
+
+**This holds down to 1502 and not below**, because under that width the gutter
+floor in the next section takes precedence and the open rail does narrow the
+column: by 10.7 at 1440 and by 46.9 at 1232. Keeping the width is what the
+formula is for; clearing the chat tab is what the floor is for, and where the two
+cannot both be had, the floor wins.
 
 #### The wide end is 2560
 
-Nothing new is needed for it. Containers already cap at their design px, so past
-roughly 1830 the content column stops growing and the margins take what is left.
-2560 is a width to check, not a rule to write.
+Nothing new is needed for it. Containers already cap at their design px, so at
+1920 the content column reaches 1511 and stops; past that the margins take what
+is left (396.5 a side at 2560). 2560 is a width to check, not a rule to write.
 
-> **Undecided.** The narrow end. It is the width at which the study screen's
-> split stops working, and it is measured off that screen rather than picked —
-> the split is what breaks first, because a page that scrolls does not break at a
-> width, it only gets taller.
+The cap is not a chosen number. 1511 is what the formula returns at 1920, which
+is the design width, and the reason to stop there is that the panels inside the
+column were drawn at that size. This is not the reading-width argument that caps
+a column of prose — the column holds panels set beside each other, so what
+overgrowing costs is fidelity, not legibility.
 
-**A second candidate has appeared and it is arithmetic rather than judgment.** The
-rail is to push the content without narrowing it, so the 199px it opens by comes
-out of the side margins. Those margins run out:
+#### The gutters have a floor, and only the right side sets it
 
-| Viewport | Column | Margin, rail closed | Margin, rail open |
-| -------: | -----: | ------------------: | ----------------: |
-|     1232 |  942.9 |                99.5 |           **0.0** |
-|     1280 |  982.6 |               103.7 |               4.2 |
-|     1440 | 1114.7 |               117.7 |              18.2 |
-|     1920 | 1511.0 |               159.5 |              60.0 |
+**The column keeps at least 40 on each side.** Where that cannot be had, the
+column narrows to give it.
 
-Below **1232** the column cannot keep its width with the rail open, and keeping
-20 on each side needs **1461**. The existing `max-width: calc(100% - 40px)` on the
-content column binds first — at 1440 it would pull the column to 1111 and
-re-truncate everything in it — so that cap has to be measured off the closed rail
-or dropped. None of this is settled here; the column's width is being chosen, and
-these are the widths it has to answer to.
+**The chat tab is the whole reason.** It is fixed to the window's right edge, 32
+wide, and it belongs to the window rather than to the column — so a gutter under
+32 puts it on top of the content. At 1280 it did: the column ended at 1259 and
+the tab began at 1248, an 11px overlap across the tab's 107-tall band. 32 plus 8
+is 40, and the 8 is the width the rail's own drag strip already uses.
+
+**The left never binds, and it is worth saying why not.** Two things reach past
+the rail's edge — an 8-wide drag strip hanging 4 out, and a 24 chevron hanging 12
+— and both exist only while the rail is _closed_. Closed leaves at least 99.5 on
+that side at every width down to 1232. Open, nothing protrudes at all. The floor
+reads as a rule about both sides only because the column is centred; one number
+governs two gutters whether or not both need it.
+
+**The cost lands on the laptop widths:**
+
+| Viewport | Floor 20 | Floor 40 | Column loses |
+| -------: | -------: | -------: | -----------: |
+|     1232 |    942.9 |      896 |         46.9 |
+|     1280 |    982.6 |      944 |         38.6 |
+|     1366 |   1053.6 |     1030 |         23.6 |
+|     1440 |   1114.7 |     1104 |         10.7 |
+|     1502 |   1165.9 |   1165.9 |            0 |
+|     1920 |     1511 |     1511 |            0 |
+
+At **1502 and above the floor costs nothing** and the column is one number at
+every state. Below it the column pays, and only with the rail open — closed, the
+rail leaves 99.5 or more on the left and the floor never comes near. That is the
+trade being made: text that stays clear of a control it does not own beats 40
+more pixels of panel.
+
+**This closes most of the narrow end.** The earlier note here put the break at
+1232, where `max-width: calc(100% - 40px)` clipped the column by 6.9 and the
+margins hit zero. With the floor there is no such width — the column narrows
+continuously instead of failing at a point, so there is nothing to declare broken.
+
+> **Undecided.** What remains of the narrow end is the study split: the width at
+> which the material and its summary stop being readable beside each other. That
+> is measured off the panels' contents, not off the frame, and it is a different
+> question from the one the gutters answered.
+
+#### Settings has a reading width, not a work width
+
+**Settings keeps 747 and does not follow the content column.** It is the one
+screen that reads down a single column, and widening it only lengthens the lines.
+Every other screen sets things beside each other — material against summary,
+calendar against TODO — and there a wider column is more of what the screen is
+for.
+
+So the column's width is not one number for the product; it is one number for
+screens that lay work out side by side. If a second reading screen appears, the
+747 becomes a rule rather than an exception. With one, it stays an exception and
+says so at the two files that use it.
 
 ### Responsive Behavior
 
