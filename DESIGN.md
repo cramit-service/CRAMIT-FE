@@ -1331,6 +1331,44 @@ are not.
 `ChapterStatus` stops being `BEFORE | IN_PROGRESS | DONE` and becomes a count,
 with an endpoint the chapter screen calls to add one.
 
+#### A 회독 is raised by a stepper, and lowered by the same one
+
+**The chapter screen carries `−  3회독  +`. The chapter list carries the number
+and nothing else.**
+
+This is the only control in the product that is pressed repeatedly on the same
+screen. Every confirming button is pressed once and the screen it stood on goes
+away. That is why this one does not take a confirming button's size, and why
+§6's `~하기` rule does not reach it — a stepper has no word in it at all.
+
+**Undo is the whole question.** A count that only goes up is a record that can
+never be corrected, and one wrong press stays wrong for the rest of the term.
+The stepper makes the way back symmetric: right is +1, left is −1. There is
+nothing to learn and nothing to discover.
+
+The two alternatives both hide it. A long press is a gesture with no place to
+announce itself — the product uses it for editing a TODO and a chapter's
+details, and someone who does not know it is told nowhere. A `되돌리기` inside a
+notice works only until the notice fades, and it would add a component §4 has
+spent this section removing.
+
+The icon buttons are **32**, which is §4's own glyph × 2 at a 16px glyph. No new
+value enters.
+
+**The list gets no control.** §4 gives a chapter row one slot and no button, and
+the row itself is the target; a stepper there would put two targets in one row
+and one of them would be 32px inside a 40px press area.
+
+**Cost accepted: a record becomes an adjuster.** Nothing stops the number going
+up without anything having been read. This count is a private study log rather
+than a claim anyone audits, so the cost is bounded — but it is the reason the
+plus is a 32px icon and not a lime button at 56. **The control is as loud as the
+thing it records is important, and no louder.**
+
+**What the backend has to change.** §4's `reviewCount` has to go down as well as
+up. An increment-only endpoint cannot serve this, so it is one endpoint that
+sets the count, or two that step it.
+
 #### A failure is one word in the list and the whole account inside
 
 **The row says `실패` in `red-ink`. It does not dim, and it still opens.**
@@ -1619,26 +1657,27 @@ retiring `수정완료` / `수정 완료`.
 is done to a document; a single-line field takes input. Three strings say
 `작성해주세요` today and are wrong on both counts at once.
 
-#### Undecided: what the register does not settle
+#### A pass through a chapter is a 회독
 
-> **Undecided.** Four splits survive the decision above, because none of them is
-> a question of formality. They are recorded here so the next decision starts
-> from evidence rather than from taste.
+**The chapter list says `1회독`, `3회독`.** Zero is `학습 전`, which §4 settled
+separately.
 
-| What               | Split                                                                                            |
-| ------------------ | ------------------------------------------------------------------------------------------------ |
-| Work in progress   | noun + `중…` (`저장 중…`, `삭제 중…`) against verb + `는 중…` (`불러오는 중…`, `만드는 중…`)     |
-| Confirming buttons | `~하기` for six labels, `~완료` for one                                                          |
-| Spacing            | `수정완료` against `수정 완료`; `해주세요` (4) against `해 주세요` (47)                          |
-| One act, two verbs | `닉네임을 작성해주세요` (3) against `닉네임을 입력해 주세요` (2); `회독` against `복습 n번` (§4) |
+`복습` was the other candidate and it fails on one case: **the first pass is not
+a review.** Reading material for the first time is 학습, so a list that says
+`복습 1번` names something that did not happen. This is the same shape of hole
+that ruled out 합니다체 — a word that cannot cover one of the cases the product
+actually has.
 
-The spacing row is not a style question in one case — `수정완료` and `수정 완료`
-are the same label written two ways in two files, and one of them is wrong
-whichever way this goes.
+Splitting it — `학습 완료` for the first pass and `복습 2번` after — is accurate
+and was rejected anyway. It puts three grammars in one slot, and §4 retired that
+arrangement when it settled on one rule: zero is a word, the rest are numbers.
 
-**Button labels are the ones §4 is waiting on.** Their evenness is what lets a
-button take its label's width with no minimum; a two-character confirming label
-would put that rule under strain the moment it appeared.
+`회독` is the vocabulary of someone studying for an exam. That is who reads this
+product, so it is the precise word for them rather than jargon they have to
+learn.
+
+**Nothing in §6 is undecided now.** The register, the button labels, the progress
+text, the spacing, the verb for a field and the word for a pass are all above.
 
 ---
 
