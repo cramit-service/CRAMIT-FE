@@ -41,9 +41,9 @@ const delay = (ms: number, signal?: AbortSignal) =>
     );
   });
 
-// 학습하기(강의 목록) 조회 — 내 강의와 공유 강의를 한 번에 받아 화면에서 나눈다.
-// TODO: 백엔드 목록 응답에 태그용 필드(professor/chapterCount/examName/examDate/sharedBy)가
-//       포함되는지, 내 강의/공유 강의를 따로 내려주는지 확정 시 재확인 필요.
+// 학습하기(강의 목록) 조회.
+// TODO: 백엔드 목록 응답에 태그용 필드(professor/chapterCount/examName/examDate)가
+//       포함되는지 확정 시 재확인 필요.
 export async function getProjectSummaries(
   signal?: AbortSignal,
 ): Promise<ProjectSummary[]> {
@@ -73,10 +73,6 @@ export async function getProjectDetail(
       ...summary,
       projectId,
       chapterCount: mockChapters.length,
-      // 공유받은 강의면 공유 게시판이 붙는다.
-      isShared: summary
-        ? summary.sharedBy !== null
-        : mockProjectDetail.isShared,
     };
   }
   return apiClient.get<ProjectDetail>(`/projects/${projectId}`, { signal });

@@ -1714,16 +1714,23 @@ clips loses what overflows in silence: this codebase has already spent a day on
 every container measured clean. A page that scrolls shows the same bug on the
 first look.
 
-**A region with its own scrollbar is a separate matter.** The shared board, the
-TODO list, the page thumbnails — each decides how much of itself to show, and
-that works whether or not the page behind it scrolls. The shared-lecture screen
-already does both: the board scrolls inside a page that is itself 1945 tall.
+**A region with its own scrollbar is a separate matter.** The rail's course
+list, the TODO list, the page thumbnails — each decides how much of itself to
+show, and that works whether or not the page behind it scrolls. The rail already
+does both: its list scrolls past seven courses inside a page that scrolls on its
+own.
 
 #### The frame
 
 A rail on the left, 90 wide, holding icons; the canvas beside it; a chat tab
 pinned to the right edge. The rail opens to 256, and it **pushes rather than
 covers** — the content moves right by the same 166 and keeps the width it had.
+
+**Sharing is gone from the frame.** A second course group, `공유 강의`, sat
+under `내 강의`; §7 puts sharing out of scope and the rail was the last place the
+feature still showed. What went with it is listed in §4's audit — the shared tag,
+the shared board, the split on the lecture list — so the rail is the end of that
+thread rather than a change of its own.
 
 **The rail is light.** It was drawn dark and stayed dark after §2 removed dark
 surfaces, which left it the one dark plane in the product and left §4's "there is

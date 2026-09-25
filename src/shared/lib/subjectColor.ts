@@ -53,7 +53,7 @@ export function firstUnusedColorIndex(used: ReadonlySet<number>): number {
 }
 
 /**
- * 과목별 색 번호. 저장된 번호를 먼저 놓고, 없는 과목(공유 강의 등)은 생성 순으로
+ * 과목별 색 번호. 저장된 번호를 먼저 놓고, 없는 과목은 생성 순으로
  * 안 쓰인 번호를 채운다. 화면마다 걸러 보여주기 전의 전체 목록을 넣어야 같은 색이 나온다.
  */
 export function buildSubjectColorMap(

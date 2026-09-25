@@ -31,7 +31,6 @@ const TITLE_MAX = 10;
 // 시안: Figma 추가 1:1345 / 수정 1:1733.
 export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
   const fieldId = useId();
-  // 공유받은 강의도 시험을 볼 수 있으니 거르지 않는다.
   const { data: lectures } = useProjectSummaries();
   const lectureOptions = useMemo(
     () => (lectures ?? []).map((l) => ({ value: l.projectId, label: l.title })),

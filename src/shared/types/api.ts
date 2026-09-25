@@ -80,20 +80,19 @@ export interface Project {
   projectId: string;
   title: string;
   createdAt: string; // ISO 날짜 문자열
-  // 과목 색 — 팔레트 번호(1부터). 없으면 화면이 생성 순으로 채운다(공유 강의 등).
-  // TODO: 백엔드 필드명 확정 시 맞춘다. 공유 강의도 내 색으로 보여야 해서 사용자-강의 쌍 저장을 요청했다.
+  // 과목 색 — 팔레트 번호(1부터). 없으면 화면이 생성 순으로 채운다.
+  // TODO: 백엔드 필드명 확정 시 맞춘다.
   colorIndex: number | null;
 }
 
 // 학습하기(강의 목록) 카드 한 장에 필요한 메타.
-// Project만으로는 시안의 태그(교수명·강의 수·D-DAY·공유자)를 채울 수 없어 목록 응답을 따로 둔다.
+// Project만으로는 시안의 태그(교수명·강의 수·D-DAY)를 채울 수 없어 목록 응답을 따로 둔다.
 // TODO: 백엔드 목록 응답 스펙 확정 시 필드명 재확인 필요
 export interface ProjectSummary extends Project {
   professor: string; // 교수명 (태그: "OOO 교수님")
   chapterCount: number; // 강의(챕터) 개수 (태그: "강의 N개")
   examName: string | null; // 시험명 (예: "중간고사")
   examDate: string | null; // 시험일 (YYYY-MM-DD) — D-DAY 계산용
-  sharedBy: string | null; // 공유자 이름 (태그: "OOO 님의 공유"). 내 강의면 null
 }
 
 /* ===== Chapter / 단계별 학습 (이슈 A) ===== */
@@ -148,12 +147,10 @@ export interface UpdateChapterRequest extends CreateChapterRequest {
   chapterId: string;
 }
 
-// 프로젝트 상세 헤더에 필요한 메타.
-// 목록 카드와 같은 태그를 쓰므로 ProjectSummary를 그대로 물려받고, 상세에서만 쓰는 필드를 더한다.
+// 프로젝트 상세 헤더에 필요한 메타. 공유가 빠지면서 목록 응답과 같은 모양이 됐지만,
+// 다른 엔드포인트의 응답이라 이름은 남긴다 — 상세에만 있는 필드가 생기면 여기서 갈라진다.
 // TODO: 백엔드 프로젝트 상세 응답 스펙 확정 시 필드명 재확인 필요
-export interface ProjectDetail extends ProjectSummary {
-  isShared: boolean; // 공유 강의 여부 (공유 게시판 노출 여부)
-}
+export type ProjectDetail = ProjectSummary;
 
 /* ===== 학습 뷰어 / 강의자료 (이슈 B) ===== */
 
@@ -309,20 +306,4 @@ export interface CreateProjectRequest {
 // 강의 수정 (강의 상세 헤더의 연필 버튼). 시안에 전용 프레임이 없어 생성 모달의 수정 모드로 쓴다.
 export interface UpdateProjectRequest extends CreateProjectRequest {
   projectId: string;
-}
-
-/* ===== 공유하기 (기획서 8.6) ===== */
-
-export interface ShareMember {
-  userId: string;
-  nickname: string;
-  email: string;
-}
-
-// 강의 하나의 공유 상태. 시안 헤더가 "공유 중인 사용자 현재 (2/3)"라 상한도 함께 받는다.
-// TODO: 백엔드 공유 조회 스펙 확정 시 필드명 재확인 필요
-export interface ProjectShare {
-  projectId: string;
-  members: ShareMember[];
-  maxMembers: number;
 }

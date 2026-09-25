@@ -2,8 +2,8 @@
 // 사이드바 전용 인라인 SVG 아이콘 (lucide-react 미설치라 직접 그린다).
 // 색은 currentColor로 물려받아 활성/비활성 텍스트 색을 그대로 따른다.
 // 대부분의 메뉴 아이콘은 실제 에셋(navIcons.tsx)을 쓰고, 여기엔 접기/펴기·묶음 토글용
-// chevron과, 에셋이 아직 없는 두 항목(공유 강의·강의 관리)을 둔다.
-// TODO(디자인): 홈·공유 강의·강의 관리 아이콘 에셋을 받으면 navIcons.tsx로 옮긴다.
+// chevron과, 에셋이 아직 없는 항목(강의 관리)을 둔다.
+// TODO(디자인): 홈·강의 관리 아이콘 에셋을 받으면 navIcons.tsx로 옮긴다.
 
 interface IconProps {
   className?: string;
@@ -74,16 +74,6 @@ export function HouseIcon({ className }: IconProps) {
       <path d="m3 10.5 9-7.5 9 7.5" />
       <path d="M5.25 9.75V19.5A1.5 1.5 0 0 0 6.75 21h10.5a1.5 1.5 0 0 0 1.5-1.5V9.75" />
       <path d="M9.75 21v-6h4.5v6" />
-    </StrokeIcon>
-  );
-}
-
-export function UsersIcon({ className }: IconProps) {
-  return (
-    <StrokeIcon className={className} strokeWidth={GLYPH_STROKE}>
-      <path d="M16 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 17.5V19" />
-      <circle cx="10" cy="7.5" r="3.5" />
-      <path d="M20 19v-1.5a3.5 3.5 0 0 0-2.6-3.4M15.4 4.6a3.5 3.5 0 0 1 0 6.8" />
     </StrokeIcon>
   );
 }

@@ -7,60 +7,36 @@ import { cn } from '@/shared/lib/cn';
 import { Tooltip } from '@/shared/ui/Tooltip';
 import type { NavCourse } from './types';
 import { BookNavIcon } from './navIcons';
-import { ChevronRightIcon, UsersIcon } from './icons';
+import { ChevronRightIcon } from './icons';
 
-// 목록이 이보다 길어지면 묶음 안에서 스크롤한다. 안 그러면 내 강의가 길 때
-// 공유 강의와 하단 메뉴가 화면 밖으로 밀린다.
+// 목록이 이보다 길어지면 묶음 안에서 스크롤한다. 안 그러면 강의가 많을 때
+// 하단 프로필이 화면 밖으로 밀린다.
 const MAX_ROWS = 7;
 const ROW_H = 42;
 
 interface CourseNavProps {
   // 사이드바 펼침 여부. 접힘이면 점만 남고 강의명이 사라진다.
   expanded: boolean;
-  /** 이미 나뉘어 들어온다. 무엇이 "내 것"인지는 넣는 쪽이 판단한다. */
   mine: NavCourse[];
-  shared: NavCourse[];
   pending: boolean;
   error: boolean;
 }
 
-// 사이드바 과목 목록 — 내 강의 / 공유 강의 두 묶음이 각자 접힌다.
-// 한 토글로 묶으면 내 강의를 보려고 열 때 공유 강의까지 따라 열린다.
-export function CourseNav({
-  expanded,
-  mine,
-  shared,
-  pending,
-  error,
-}: CourseNavProps) {
-  const [openMine, setOpenMine] = useState(true);
-  const [openShared, setOpenShared] = useState(true);
+// 사이드바 과목 목록.
+export function CourseNav({ expanded, mine, pending, error }: CourseNavProps) {
+  const [open, setOpen] = useState(true);
 
   return (
-    <>
-      <CourseSection
-        icon={<BookNavIcon />}
-        label="내 강의"
-        courses={mine}
-        open={openMine}
-        onToggle={() => setOpenMine((v) => !v)}
-        expanded={expanded}
-        pending={pending}
-        error={error}
-      />
-      {/* 공유받은 게 없으면 묶음째로 안 그린다 — 빈 소제목만 남으면 고장으로 읽힌다.
-          로딩 중에도 아직 모르므로 그리지 않는다(내 강의 쪽에 스켈레톤이 이미 있다). */}
-      {shared.length > 0 && (
-        <CourseSection
-          icon={<UsersIcon className="size-6" />}
-          label="공유 강의"
-          courses={shared}
-          open={openShared}
-          onToggle={() => setOpenShared((v) => !v)}
-          expanded={expanded}
-        />
-      )}
-    </>
+    <CourseSection
+      icon={<BookNavIcon />}
+      label="내 강의"
+      courses={mine}
+      open={open}
+      onToggle={() => setOpen((v) => !v)}
+      expanded={expanded}
+      pending={pending}
+      error={error}
+    />
   );
 }
 

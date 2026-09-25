@@ -95,7 +95,6 @@ export async function createLecture(
       // 있어야 뜨므로(getDday), 날짜를 넣었으면 중립적인 이름을 붙여 태그가 보이게 한다.
       examName: req.examDate ? '시험' : null,
       examDate: req.examDate,
-      sharedBy: null,
       colorIndex: req.colorIndex,
     };
     addMockProjectSummary(summary);
@@ -112,7 +111,7 @@ export async function updateLecture(
     await delay(300);
     const current = findMockProjectSummary(req.projectId);
     if (!current) throw new Error('수정할 강의를 찾지 못했어요.');
-    // 챕터 수·공유자처럼 모달이 건드리지 않는 값은 그대로 둔다.
+    // 챕터 수처럼 모달이 건드리지 않는 값은 그대로 둔다.
     const summary: ProjectSummary = {
       ...current,
       title: req.title,

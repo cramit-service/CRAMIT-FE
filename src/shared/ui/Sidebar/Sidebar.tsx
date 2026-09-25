@@ -218,7 +218,6 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
         <CourseNav
           expanded={expanded}
           mine={nav.mine}
-          shared={nav.shared}
           pending={nav.pending}
           error={nav.error}
         />

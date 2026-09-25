@@ -40,9 +40,6 @@ export function LectureCard({ lecture, dotClass }: LectureCardProps) {
           <Tag tone="dark">{lecture.professor} 교수님</Tag>
           <Tag tone="outline">강의 {lecture.chapterCount}개</Tag>
           {dday && <Tag tone={dday.tone}>{dday.label}</Tag>}
-          {lecture.sharedBy && (
-            <Tag tone="shared">{lecture.sharedBy} 님의 공유</Tag>
-          )}
         </span>
       </span>
 

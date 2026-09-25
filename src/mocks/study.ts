@@ -115,7 +115,6 @@ export function updateMockChapter(chapter: Chapter): void {
 }
 
 // 프로젝트 상세 헤더 mock (과목명·교수·시험 D-DAY 등)
-// isShared=false / sharedBy=null → 내 강의. 공유 강의 게시판은 share 담당이 채운다.
 export const mockProjectDetail: ProjectDetail = {
   projectId: '1',
   title: '알고리즘',
@@ -124,8 +123,6 @@ export const mockProjectDetail: ProjectDetail = {
   chapterCount: 6,
   examName: '중간고사',
   examDate: '2026-07-20',
-  isShared: false,
-  sharedBy: null,
   colorIndex: 1,
 };
 

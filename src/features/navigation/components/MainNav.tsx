@@ -17,8 +17,8 @@ export function MainNav({ children }: { children: React.ReactNode }) {
 
   const nav = useMemo(() => {
     const courses = data ?? [];
-    // 색 배정은 걸러 보여주기 전의 전체 목록을 본다 — 내 강의/공유 강의로 나눈 뒤
-    // 각자 배정하면 같은 과목이 캘린더와 다른 색이 된다.
+    // 색 배정은 캘린더와 같은 전체 목록을 본다 — 다른 집합으로 배정하면
+    // 같은 과목이 화면마다 다른 색이 된다.
     const dots = buildSubjectColorMap(data);
     const toNav = (p: (typeof courses)[number]): NavCourse => ({
       id: p.projectId,
@@ -27,8 +27,7 @@ export function MainNav({ children }: { children: React.ReactNode }) {
     });
 
     return {
-      mine: courses.filter((p) => !p.sharedBy).map(toNav),
-      shared: courses.filter((p) => p.sharedBy).map(toNav),
+      mine: courses.map(toNav),
       pending: isPending,
       error: isError,
       profile: profile

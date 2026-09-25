@@ -28,9 +28,7 @@ function PageShell({ children }: { children: ReactNode }) {
 // 학습하기(강의 목록) 화면. page.tsx는 이 컴포넌트를 조립만 한다.
 export function LectureListScreen() {
   const [keyword, setKeyword] = useState('');
-  // 두 섹션의 정렬은 시안에서 각각 드롭다운을 갖고 있어 상태도 따로 둔다.
   const [mySort, setMySort] = useState<SortKey>('REGISTERED');
-  const [sharedSort, setSharedSort] = useState<SortKey>('REGISTERED');
 
   const { data: lectures, isLoading } = useProjectSummaries();
 
@@ -54,16 +52,7 @@ export function LectureListScreen() {
     );
   }
 
-  // 두 섹션이 같은 검색어를 쓰므로 검색을 먼저 걸고 나서 소유/공유로 나눈다.
-  const matched = filterLectures(lectures, keyword);
-  const mine = sortLectures(
-    matched.filter((l) => l.sharedBy === null),
-    mySort,
-  );
-  const shared = sortLectures(
-    matched.filter((l) => l.sharedBy !== null),
-    sharedSort,
-  );
+  const mine = sortLectures(filterLectures(lectures, keyword), mySort);
   const searching = keyword.trim().length > 0;
   // 검색으로 거르기 전 전체 목록으로 배정해야 사이드바·캘린더와 같은 색이 나온다.
   const subjectDots = buildSubjectColorMap(lectures);
@@ -84,20 +73,6 @@ export function LectureListScreen() {
         emptyMessage="아직 만든 강의가 없어요. 생성하기로 첫 강의를 시작해보세요."
         action={<CreateLectureButton />}
       />
-
-      {/* 시안에서 두 섹션 사이만 다른 간격보다 넓다 */}
-      <div className="pt-6">
-        <LectureSection
-          title="공유 강의"
-          description="공유자가 나를 초대하면 자동으로 목록에 표시돼요."
-          lectures={shared}
-          subjectDots={subjectDots}
-          sort={sharedSort}
-          onSortChange={setSharedSort}
-          searching={searching}
-          emptyMessage="아직 공유받은 강의가 없어요."
-        />
-      </div>
     </PageShell>
   );
 }

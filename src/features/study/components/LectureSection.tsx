@@ -20,7 +20,7 @@ interface LectureSectionProps {
   action?: React.ReactNode;
 }
 
-// 내 강의 / 공유 강의가 같은 골격이라 하나로 쓰고 문구·액션만 받는다.
+// 목록 한 묶음의 골격. 문구·액션만 받는다.
 export function LectureSection({
   title,
   description,

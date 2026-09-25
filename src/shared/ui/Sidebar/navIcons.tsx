@@ -1,7 +1,7 @@
 // src/shared/ui/Sidebar/navIcons.tsx
 // 사이드바 메뉴 아이콘 — 실제 에셋(public/sidebar-icons/*)을 그대로 사용한다.
 // 디자이너가 active(연두)/inactive(회색) 두 버전을 제공하므로 상태별로 이미지를 교체한다.
-// (책=내 강의. 홈·공유 강의·강의 관리·chevron 등은 icons.tsx의 SVG 사용)
+// (책=내 강의. 홈·강의 관리·chevron 등은 icons.tsx의 SVG 사용)
 import Image from 'next/image';
 import { cn } from '@/shared/lib/cn';
 
