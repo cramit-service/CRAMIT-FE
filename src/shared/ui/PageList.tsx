@@ -54,6 +54,9 @@ export function PageList({
   }, [currentPage]);
 
   const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
+  // 자릿수는 총 쪽수에서 나온다. 늘 두 자리로 채우면 아홉 쪽짜리 자료가 P.01이 되고,
+  // 백 쪽이 넘으면 배지 폭이 중간에 달라진다. 총 쪽수에 맞추면 전부 같은 폭이 된다.
+  const digits = String(pageCount).length;
   const previewHeight = Math.round(width * previewRatio);
 
   return (
@@ -90,16 +93,16 @@ export function PageList({
               >
                 {renderPreview?.(page)}
                 {/* 번호 배지. 미리보기 위에 겹치므로 자기 채움을 갖는다.
-                    미리보기는 대개 흰 종이라, 쉬는 배지가 흰색이면 보이지 않는다. */}
+                    미리보기가 대개 흰 종이라 쉬는 배지는 테두리로 자기 자리를 낸다. */}
                 <span
                   className={cn(
                     'text-label absolute top-1.5 left-1 rounded-sm px-1.5 py-px',
                     current
                       ? 'bg-lime-action text-gray-800'
-                      : 'text-surface bg-gray-800',
+                      : 'bg-surface border border-gray-100 text-gray-700',
                   )}
                 >
-                  P.{String(page).padStart(2, '0')}
+                  P.{String(page).padStart(digits, '0')}
                 </span>
                 <span className="sr-only">{page}페이지 미리보기</span>
               </button>

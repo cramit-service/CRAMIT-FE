@@ -54,7 +54,8 @@ export function AudioPlayer({
           onClick={onToggleList}
           aria-label={listOpen ? '페이지 목록 닫기' : '페이지 목록 열기'}
         >
-          P.{String(currentPage).padStart(2, '0')} / {pageCount}
+          P.{String(currentPage).padStart(String(pageCount).length, '0')} /{' '}
+          {pageCount}
         </Toggle>
       </span>
 
