@@ -65,8 +65,7 @@ export function AudioPlayer({
           ml-auto도 못 쓴다 — 자동 마진이 붙으면 폭이 모자라도 줄지 않고 오른쪽으로
           넘쳐버린다. 그래서 우측 정렬은 부모의 justify-between으로 만든다. */}
       <div className="flex flex-1 items-center justify-end gap-5">
-        {/* 연두는 글리프가 아니라 채움이다 (§2). 아이콘만 연두로 칠하면 캔버스 위에서
-            1.09:1이라 사실상 보이지 않는다. */}
+        {/* 연두는 글리프가 아니라 채움이다 (§2). */}
         <IconButton
           name={isPlaying ? 'pause' : 'play'}
           rank="primary"
@@ -84,14 +83,16 @@ export function AudioPlayer({
           // 그래도 안 들어가는 구간(라벨 137 + 최소 우측 223 = 360)부터는 아예 뺀다.
           className="max-w-[276px] min-w-[80px] flex-1 basis-0 py-2 @max-[380px]:hidden"
         >
-          <span className="block h-[3px] w-full rounded-full bg-gray-100">
-            {/* 진행분은 하늘이다. §2의 역할 분담대로 — 연두는 누르는 것이고, 얼마나
-                왔는지 알려 주는 일은 하늘이 맡는다. 재생 버튼이 연두인데 진행분까지
-                연두면 한 줄 안에서 그 둘이 구분되지 않는다.
-                트랙은 sky-pale이 아니라 gray-100이다. §2가 진행 트랙을 sky-pale로
-                이름 댄 건 흰 판 기준이고, 파인 판(well) 위에서는 ΔL* 1.1이라 녹는다. */}
+          <span className="block h-1.5 w-full rounded-full bg-gray-200">
+            {/* 연두가 안 보이던 건 밝기 때문이다. lime-action은 L*가 95.1이라 밝은
+                표면 위에서는 밝기 차가 안 난다(§2: "캔버스 위에서 연두는 흐린 게 아니라
+                없다"). 연두를 바꾸는 대신 뒤를 어둡게 한다 — gray-200 트랙에서 ΔL* 17이다.
+                그보다 어두운 트랙(gray-400)은 남은 시간이 지난 시간보다 눈에 띄어
+                말하려는 것이 뒤집힌다.
+                두께 6은 어느 램프에도 없다. §2가 과목 색 막대에 대해 인정한 것과 같다 —
+                색 표시는 타이포도 간격도 아이콘도 아니라 램프가 닿지 않는다. */}
             <span
-              className="bg-sky-status block h-full rounded-full"
+              className="bg-lime-action block h-full rounded-full"
               style={{ width: `${percent}%` }}
             />
           </span>

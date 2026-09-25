@@ -56,17 +56,23 @@ separates surfaces by **fill**, and reserves shadow for things that float.
 | ------- | ----------------- | --------- | -------------------------------------- |
 | Canvas  | `--color-canvas`  | `#fcfaf7` | Page background                        |
 | Surface | `--color-surface` | `#ffffff` | Cards, panels, modals, menus           |
-| Well    | `--color-well`    | `#f0f1f1` | Recessed areas: search field, viewport |
+| Well    | `--color-well`    | `#e9e9e9` | Recessed areas: search field, viewport |
 
 Borders are not the default separator. Shadow is used **only** on surfaces that
 float above the page — modal, dropdown, tooltip — never on cards in a list.
 
 **Known cost.** Canvas to surface is ΔE 2.35 (ΔL\* 1.65), barely past the
 threshold where a difference registers. Soft card edges are the deliberate
-choice: a quiet screen over a crisp one. Canvas to well is ΔE 3.76, twice as
+choice: a quiet screen over a crisp one. Canvas to well is ΔE 6.23, over twice as
 large, so the ladder is uneven by acceptance, not by oversight. If card edges
 ever need strengthening, deepen the canvas rather than add borders — that keeps
 fill as the single mechanism.
+
+**Deepening a surface pulls the gray ramp down with it.** The two thresholds
+below are measured against the darkest of the three surfaces, so `well` and the
+ramp move together or not at all. Well went from `#f0f1f1` to `#e9e9e9` for the
+study viewport — white paper on a panel two steps apart is hard to see as paper
+at all — and every gray step followed by one or two hex units.
 
 ### Color Palette & Roles
 
@@ -261,7 +267,7 @@ has. It is named here because the figures below were first computed against a
 darker step that the scale no longer carries.
 
 On the canvas lime is 1.09:1 — not faint, absent. With near-black text on it
-lime is 14.6:1, the strongest pair in the system.
+lime is 14.7:1, the strongest pair in the system.
 
 So lime is not a color that fails as text; it is a color whose place is the
 fill. Text, icons and links are never lime. An interactive label with no fill
@@ -269,7 +275,7 @@ behind it takes no color at all — position, cursor and shape carry that, the
 same division §3 relies on for weight.
 
 Blue does both, but not at the same step. `#4dd8ff` is a fill and takes
-near-black text (9.9:1). `#0475b9` is 4.74:1 on the canvas and 4.94:1 on a
+near-black text (10.0:1). `#0475b9` is 4.74:1 on the canvas and 4.94:1 on a
 white card, so state that is only text — a due date, a count, a status — can
 be blue with nothing behind it.
 
@@ -349,7 +355,7 @@ Pressing the wrong thing here cannot be undone, and that outranks a consistent
 palette. The exception is written down so the next one has to be argued
 instead of assumed.
 
-Near-black text goes on the red fill (5.5:1). White on it is 3.0:1 and does
+Near-black text goes on the red fill (5.6:1). White on it is 3.0:1 and does
 not pass, which is what the delete button carries today.
 
 **The fill color is never the text color.** `#ff5d6b` as text on white is
@@ -369,14 +375,14 @@ system — and the two do not move together. Surfaces are now `--color-canvas`,
 
 | Token              | Value     | L\* | Job                          |
 | ------------------ | --------- | --: | ---------------------------- |
-| `--color-gray-100` | `#dfe0df` |  89 | Dividers and borders         |
-| `--color-gray-200` | `#c1c1c1` |  78 | Disabled text, decoration    |
-| `--color-gray-300` | `#a3a3a3` |  67 | —                            |
-| `--color-gray-400` | `#868686` |  56 | An icon that carries meaning |
-| `--color-gray-500` | `#6a6a6a` |  45 | Text that recedes            |
-| `--color-gray-600` | `#505050` |  34 | —                            |
-| `--color-gray-700` | `#373737` |  23 | Body                         |
-| `--color-gray-800` | `#1f1f1f` |  12 | Headings and emphasis        |
+| `--color-gray-100` | `#dedede` |  88 | Dividers and borders         |
+| `--color-gray-200` | `#bfbfbf` |  77 | Disabled text, decoration    |
+| `--color-gray-300` | `#a1a1a1` |  66 | —                            |
+| `--color-gray-400` | `#858585` |  56 | An icon that carries meaning |
+| `--color-gray-500` | `#696969` |  44 | Text that recedes            |
+| `--color-gray-600` | `#4f4f4f` |  34 | —                            |
+| `--color-gray-700` | `#363636` |  23 | Body                         |
+| `--color-gray-800` | `#1e1e1e` |  11 | Headings and emphasis        |
 
 Eight steps, 11 apart in L\*. The spacing is not arbitrary: it is the distance
 between the two thresholds the scale has to hit, so both land on a step rather
@@ -384,8 +390,8 @@ than between two. `400` is the lightest step that clears 3:1 for a meaningful
 icon on all three surfaces, and `500` is the lightest that clears 4.5:1 for
 text on all three.
 
-**One receded step, not two.** The 4.5:1 line sits at L\* 46.6 on the well,
-48.6 on the canvas and 49.8 on white — within three of each other. A step
+**One receded step, not two.** The 4.5:1 line sits at L\* 44.4 on the well,
+48.4 on the canvas and 49.6 on white — within six of each other. A step
 below all three clears all three, so the pair the scale used to carry for this
 one job collapses into `500`.
 
@@ -1082,12 +1088,12 @@ panel; it does not have to be the largest thing on the screen.**
 | Part        | Value                        | On `well` |
 | ----------- | ---------------------------- | --------: |
 | Fill        | `well`                       |         — |
-| Value       | `gray-700`                   |   10.52:1 |
-| Placeholder | `gray-500`                   |    4.78:1 |
-| Label       | `gray-700`, above the fill   |   10.52:1 |
-| Focused     | `sky-ink` border             |    4.37:1 |
-| Invalid     | `red-ink` border and message |    5.09:1 |
-| Disabled    | `gray-400` value             |    3.22:1 |
+| Value       | `gray-700`                   |    9.95:1 |
+| Placeholder | `gray-500`                   |    4.52:1 |
+| Label       | `gray-700`, above the fill   |    9.95:1 |
+| Focused     | `sky-ink` border             |    4.07:1 |
+| Invalid     | `red-ink` border and message |    4.74:1 |
+| Disabled    | `gray-400` value             |    3.04:1 |
 
 §2 hands most of this over already: `well` is named for recessed areas, borders
 are not the default separator, and the border of an invalid field is `red-ink`.
@@ -1098,14 +1104,14 @@ signature color is not available for the one state the system is obliged to
 show.
 
 **Ink cannot do it either, and the reason is the interesting one.** A
-`gray-800` border reads at 14.57:1, nearly three times the invalid border's
-5.09:1. Focus happens on every field a person touches; failure happens rarely
+`gray-800` border reads at 13.73:1, nearly three times the invalid border's
+4.74:1. Focus happens on every field a person touches; failure happens rarely
 and matters when it does. A focus ring louder than an error is the same
 inversion §2 refused between red and amber — the constant signal drowning the
 rare one.
 
 So the border carries state and nothing else: absent is resting, blue is here,
-red is wrong. `sky-ink` at 4.37:1 sits just under the error at 5.09:1 and on the
+red is wrong. `sky-ink` at 4.07:1 sits just under the error at 4.74:1 and on the
 opposite side of the wheel, and `*-ink` steps already carry borders — this is
 the second use of that rule, not a new one.
 
