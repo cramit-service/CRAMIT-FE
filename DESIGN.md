@@ -137,7 +137,44 @@ before it folds the rest into `+N`, and there is no room for a subject's name �
 name is already beside the dot, so the dot there is reinforcement rather than
 the message; the calendar is what the palette exists for.
 
-> **Undecided.** The two level colors.
+#### The two level colors are removed
+
+**`--color-level-01` `#f0abff` and `--color-level-02` `#ffde65` leave the
+system.** Nothing replaces them.
+
+They were a three-step scale for a chapter's study state, and `level-03` was
+already removed from it for being the lime under a second name. §4 then replaced
+that state with a count, so the scale has nothing left to step through.
+
+They could not have stayed in any case. On a light surface `#f0abff` is
+**1.75:1** and `#ffde65` is **1.32:1**; text needs 4.5 and a border needs 3. The
+shared tag draws both its label and its border in a color that clears neither,
+beside a `D-3` tag on the same line that clears 4.6.
+
+| Where it was used                | What it becomes                        |
+| -------------------------------- | -------------------------------------- |
+| The `IN_PROGRESS` button fill    | Gone — §4 removed the button           |
+| The shared tag's text and border | A `gray-800` border and a people icon  |
+| The download button's gradient   | An ordinary second action, so a border |
+
+**Sharing has no cell in §2's table of roles.** Lime is what can be pressed,
+blue is what informs, red is fault or loss, orange is time. Sharing is not a
+state — it is a fact about a lecture, and a fact is carried by the word for it.
+The icon is there for the width at which the word does not fit.
+
+Darkening them instead was considered and it collides. To carry text they need
+L\* near 45, and the pink at that lightness is `#c26fae` — subject 8. Yellow
+lands on subject 3's neighbourhood the same way. The subject palette steps hue by
+45° all the way round, so there is no gap to move into, and §2 removed `level-03`
+for being one value under two names.
+
+**The gradient's reason disappears twice over.** Its component exists because the
+summary panel is dark — "어두운 패널 위에 올라가서 shared/ui의 Button variant와
+색 역할이 달라" — and §2 abolished dark surfaces. Its colors are these two. Both
+halves of the argument for it are gone at once.
+
+**Color is now closed.** Every color in this section has a role, and no role is
+waiting for a color.
 
 #### A subject's color is a bar beside a name and a circle standing alone
 
