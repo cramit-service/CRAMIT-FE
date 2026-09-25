@@ -68,6 +68,19 @@ large, so the ladder is uneven by acceptance, not by oversight. If card edges
 ever need strengthening, deepen the canvas rather than add borders — that keeps
 fill as the single mechanism.
 
+**A thing that sits on a surface cannot use that surface's own fill.** There are
+three levels and no more, so what a card does depends on what is under it: on
+`canvas` a card rises to `surface`; on a `surface` panel it has nowhere to rise
+to and sinks to `well` instead. The study viewer found this the hard way — white
+cards on a white panel measured 1:1, which is a card that is not there. Its
+panel is now `well` and the rows rise to `surface`, which is the same ladder read
+from the other end.
+
+**The same shortage reaches `sky-pale`.** It is named above for a progress track,
+and that assumes the track sits on white. On a `well` panel it is ΔL\* 3.8 from
+the ground and disappears; there the track takes `gray-100` and the fill carries
+the state alone.
+
 **Deepening a surface pulls the gray ramp down with it.** The two thresholds
 below are measured against the darkest of the three surfaces, so `well` and the
 ramp move together or not at all. Well went from `#f0f1f1` to `#e9e9e9` for the
@@ -855,13 +868,24 @@ are open at once, and pagination, where exactly one is.
 | ---------------------------- | ----: | -------------------------------------------- |
 | A card or row, pressed whole |     9 | `Card`, inside the feature's own component   |
 | A dropdown trigger or option |     5 | The select family — not settled here         |
-| Back, and other navigation   |     3 | A destination makes it a link, not a button  |
+| Back, and other navigation   |     4 | Back goes; the rest become links             |
 | Social sign-in               |     1 | Kakao yellow and Google white sit outside §2 |
 | The audio scrubber           |     1 | It takes a value: `input type="range"`       |
 
 These are `<button>` because `<button>` is what takes a click, not because they
 are buttons. Keeping them out is what keeps the three above small — a component
 that has to serve a card, a select and a scrubber has no shape left of its own.
+
+**There is no back control anywhere in the product.** Three screens carried one
+— the viewer, the lecture, the new chapter — and all three pointed at somewhere
+the sidebar already points. `홈` and `강의 관리` stand in it permanently, and the
+lecture a person is inside stays lit while they are in a chapter of it. This is
+the same call §4 makes for the modal's ×: where a way out already exists, a
+second one is an exit in the corner people find last. Removing it also lets a
+screen's title start the line instead of being pushed along by it.
+
+The fourth of the four was not a back control at all — `새 주차 업로드` was
+routing with `router.push` from a `<button>`. A destination makes it a link.
 
 #### What this removes
 
@@ -908,41 +932,63 @@ prevent.
 near-black fill is a second signature nobody chose. The landing page keeps its
 own, because §3 already puts the landing outside the ramp.
 
-#### Two heights, and the field shares one
+#### A control's height and the type inside it are one step
 
-**A button is 56 or 44. A field is 56.**
+**Pick a step, not a height.** Every control — button, field, list row, toggle —
+stands on one of §2's control heights, and each height carries one type step
+with it. The two cannot be chosen apart.
 
-| Height | Where                                                 |
-| -----: | ----------------------------------------------------- |
-|     56 | The confirming action, and the field it stands beside |
-|     44 | An action inside a row — a header, a toolbar, a list  |
+| Step  | Height | Type         | Room above and below | Ratio |
+| ----- | -----: | ------------ | -------------------: | ----: |
+| `sm`  |     32 | `label` 14   |                    5 |  2.29 |
+| `md`  |     40 | `label` 14   |                    9 |  2.86 |
+| `lg`  |     44 | `body-sm` 16 |                   10 |  2.75 |
+| `xl`  |     48 | `body` 18    |                   10 |  2.67 |
+| `2xl` |     56 | `body-md` 20 |                   13 |  2.80 |
 
-A button's height is not the button's own. It is read against the field next to
-it, which is why §2 puts buttons, fields and tabs on one list rather than giving
-each its own. That list is a pool of legal heights, not a ramp any single
-control walks — nothing said a button has five sizes.
+**`md` is where a control stands unless the screen says otherwise.**
 
-The design file offers two clusters, 60 and 44, with 40, 46 and 52 drifting
-between them. 44 costs nothing to keep — it is already a step on §2's list, and
-this is the job it is there for. **60 does not survive.** Where a field and a button meet on one
-row — a field with an invite button at its right — four pixels leave the button
-standing proud at the top and the bottom of the row, and closing that gap the
-other way means adding 60 to §2's control heights. A step added to a list is not
-one more line; it is one more judgement every time a height is picked. §3 turned
-down a 12px step on exactly that ground.
+The pairing is what makes the ramp usable. Lower the height alone and the type
+sits in a box that has closed around it; lower the type alone and the box is
+loose. Neither is a choice anyone makes on purpose — they are what happens when
+a system lets the two move separately.
+
+**Each step down changes something a person can see.** That is why `md` takes 14
+rather than 16: at 16 it and `lg` differ by four pixels of padding and nothing
+else, and a ramp with a step nobody can tell apart has a step that has to be
+argued about forever. `sm` is the one place the ratio falls off, because §3's
+ramp stops at 14 and there is nothing below it to pair with 32.
+
+**The steps are not named for roles.** `confirm` and `row` were tried and
+removed. Which role a screen is in needs a judgement every time, and the thing
+that judgement was supposed to settle — rank — is not carried by height at all:
+§4 gives it to fill against border, and to position. The judgement stayed and
+bought nothing.
+
+**A control's height is still not its own.** It is read against the control
+beside it, which is why §2 puts buttons, fields and tabs on one list rather than
+giving each its own. A screen picks one step for a row and everything in that
+row takes it.
+
+**60 does not survive**, and it is the reason the list has five steps rather than
+six. The design file offers two clusters, 60 and 44, with 40, 46 and 52 drifting
+between them. Where a field and a button meet on one row — a field with an invite
+button at its right — four pixels leave the button standing proud at the top and
+the bottom, and closing that gap the other way means adding 60 to §2's control
+heights. A step added to a list is not one more line; it is one more judgement
+every time a height is picked. §3 turned down a 12px step on exactly that ground.
 
 **Of the places where the design file is not followed, this is the least
 comfortable.** The dark panels of §2 and the 18px line height of §3 overruled
-values with nothing behind them. 60 appears
-at six different widths here, which reads as intent rather than drift. It is
-overruled anyway because the cost of keeping it lands on the system — a sixth
-step everyone has to choose against forever — while the cost of dropping it
-lands on one row, four pixels deep.
+values with nothing behind them. 60 appears at six different widths here, which
+reads as intent rather than drift. It is overruled anyway because the cost of
+keeping it lands on the system — a sixth step everyone has to choose against
+forever — while the cost of dropping it lands on one row, four pixels deep.
 
-`IconButton` and `Toggle` take neither of these two heights. Both are square or
-near it, so height and width move together and neither is read against a field.
-They are settled below instead: an icon button by the glyph it holds, a toggle by
-the row it stands in.
+`IconButton` takes none of these. It is square, so height and width move
+together and neither is read against a field; it is settled below by the glyph it
+holds. `Toggle` takes a step like everything else, because it stands in a row
+beside controls that have one.
 
 #### A button is as wide as its label
 
@@ -1055,9 +1101,15 @@ in the file was never the number on the screen; 655 is 65 less than what is
 there now, and it is the same on every machine.
 
 **Height is the content's, capped at 80% of the window.** On an 803-tall laptop
-that is 642. Of the three form modals only the exam's reaches it — four stacked
-fields and a memo come to about 708 — so one modal scrolls inside itself and the
-others stand at their own height.
+that is 642. None of the three form modals reaches it once the controls stand on
+`md` — the todo's, the tallest, comes to 628. At `2xl` it was 732 and scrolled;
+the pairing above is what took it under the cap.
+
+**The title and the footer hold still; only the fields scroll.** If a modal does
+reach the cap and all three scroll together, the person loses both the name of
+what they are filling and the way to finish it — the two things a form modal
+exists to hold. So the panel is three bands: a title that stays, a field area
+that scrolls, a footer that stays.
 
 Spacing inside a modal comes from §2's list like everywhere else. Six values in
 the current shell are not on it — 84, 60, 89, 47, 15 and 18 — and they become 48
