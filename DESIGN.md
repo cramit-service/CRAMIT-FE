@@ -592,7 +592,41 @@ notices two pixels of drift. It does not change the spacing list.
 
 ### Motion & Easing
 
-> **Undecided.**
+**Two durations, 150 and 300, and one curve, `ease-out`.**
+
+| Duration | What takes it                                                                                                |
+| -------- | ------------------------------------------------------------------------------------------------------------ |
+| **150**  | Things that change in place — fill, text color, opacity, shadow, a toggle's knob                             |
+| **300**  | Things that change position or size — the rail and the content it pushes, a panel sliding in, a progress bar |
+
+The count is the rule, the same way §2's two shadow levels are. **Two durations
+means two kinds of change, and a third value would mean a third kind nobody can
+name.**
+
+**200 is removed, and it is the value that proves the point.** Its three uses are
+all one motion — the rail's width and the padding of the content beside it — but
+the names inside that rail transition at 150, so the labels finish before the
+rail they sit in. A value chosen with no rule behind it splits a single movement
+into two times.
+
+**The rail and the content it pushes share one value because they move the same
+distance.** The rail opens from 90 to 289, so the content moves 199; two numbers
+for one displacement is the 200 mistake again.
+
+**The names in the rail get no transition of their own.** They arrive with the
+rail. This is the better fix: matching two numbers keeps them in step, and
+removing one of the two makes being out of step impossible.
+
+**One curve, and it is `ease-out` in both directions.** `ease-in` on something
+leaving starts it slowly, and a thing that has been asked to go and has not yet
+moved reads as a screen that did not hear the click. The same curve arriving and
+leaving is also one value instead of two.
+
+**Motion that does not end stops under `prefers-reduced-motion`.** There is one
+such motion in the product — §4's pulsing bolt — and it has no such guard today.
+The landing page's drifting background is on the surface §6 put outside this
+document. The one-shot transitions above stay on: they are state changes rather
+than movement, and turning them off makes the interface jump rather than calm it.
 
 ---
 
@@ -1574,6 +1608,24 @@ roughly 1830 the content column stops growing and the margins take what is left.
 > split stops working, and it is measured off that screen rather than picked —
 > the split is what breaks first, because a page that scrolls does not break at a
 > width, it only gets taller.
+
+**A second candidate has appeared and it is arithmetic rather than judgment.** The
+rail is to push the content without narrowing it, so the 199px it opens by comes
+out of the side margins. Those margins run out:
+
+| Viewport | Column | Margin, rail closed | Margin, rail open |
+| -------: | -----: | ------------------: | ----------------: |
+|     1232 |  942.9 |                99.5 |           **0.0** |
+|     1280 |  982.6 |               103.7 |               4.2 |
+|     1440 | 1114.7 |               117.7 |              18.2 |
+|     1920 | 1511.0 |               159.5 |              60.0 |
+
+Below **1232** the column cannot keep its width with the rail open, and keeping
+20 on each side needs **1461**. The existing `max-width: calc(100% - 40px)` on the
+content column binds first — at 1440 it would pull the column to 1111 and
+re-truncate everything in it — so that cap has to be measured off the closed rail
+or dropped. None of this is settled here; the column's width is being chosen, and
+these are the widths it has to answer to.
 
 ### Responsive Behavior
 
