@@ -1,7 +1,7 @@
 'use client';
 // src/features/study/components/viewer/AudioPlayer.tsx
 import { formatPlayTime } from '@/features/study/lib/format';
-import { PauseIcon, PlayIcon } from '@/features/study/components/viewer/icons';
+import { IconButton } from '@/shared/ui/IconButton';
 
 interface AudioPlayerProps {
   currentPage: number;
@@ -51,18 +51,14 @@ export function AudioPlayer({
           ml-auto도 못 쓴다 — 자동 마진이 붙으면 폭이 모자라도 줄지 않고 오른쪽으로
           넘쳐버린다. 그래서 우측 정렬은 부모의 justify-between으로 만든다. */}
       <div className="flex flex-1 items-center justify-end gap-5">
-        <button
-          type="button"
-          onClick={onTogglePlay}
+        {/* 연두는 글리프가 아니라 채움이다 (§2). 아이콘만 연두로 칠하면 캔버스 위에서
+            1.09:1이라 사실상 보이지 않는다. */}
+        <IconButton
+          name={isPlaying ? 'pause' : 'play'}
+          rank="primary"
           aria-label={isPlaying ? '일시정지' : '재생'}
-          className="text-primary-400 flex size-7 shrink-0 items-center justify-center rounded-full transition-opacity hover:opacity-80"
-        >
-          {isPlaying ? (
-            <PauseIcon className="size-5" />
-          ) : (
-            <PlayIcon className="size-5" />
-          )}
-        </button>
+          onClick={onTogglePlay}
+        />
 
         <button
           type="button"
@@ -74,10 +70,10 @@ export function AudioPlayer({
           // 그래도 안 들어가는 구간(라벨 137 + 최소 우측 223 = 360)부터는 아예 뺀다.
           className="max-w-[276px] min-w-[80px] flex-1 basis-0 py-2 @max-[380px]:hidden"
         >
-          <span className="block h-[3px] w-full rounded-full bg-gray-500">
+          <span className="block h-[3px] w-full rounded-full bg-gray-100">
             {/* 진행분은 연두(primary) — 시그니처 강조 역할 */}
             <span
-              className="bg-primary-400 block h-full rounded-full"
+              className="bg-lime-action block h-full rounded-full"
               style={{ width: `${percent}%` }}
             />
           </span>

@@ -4,6 +4,10 @@ import Link from 'next/link';
 import { Tag } from '@/features/study/components/Tag';
 import { ViewerTabs } from '@/features/study/components/viewer/ViewerTabs';
 import { EditableChapterTitle } from '@/features/study/components/viewer/EditableChapterTitle';
+import {
+  CollapseIcon,
+  ExpandIcon,
+} from '@/features/study/components/viewer/icons';
 import { Icon } from '@/shared/ui/Icon';
 import { Toggle } from '@/shared/ui/Toggle';
 import { formatChapterDay } from '@/features/study/lib/format';
@@ -39,7 +43,11 @@ export function ViewerHeader({
       title={focus ? '집중 모드 끄기 (Esc)' : '집중 모드'}
       aria-label={focus ? '집중 모드 끄기' : '집중 모드'}
     >
-      <Icon name={focus ? 'option' : 'scroll'} size={16} />
+      {focus ? (
+        <CollapseIcon className="size-4" />
+      ) : (
+        <ExpandIcon className="size-4" />
+      )}
       {focus ? '나가기' : '집중 모드'}
     </Toggle>
   );
