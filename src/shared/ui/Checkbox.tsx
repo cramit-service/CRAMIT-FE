@@ -51,8 +51,8 @@ export function CheckboxBox({
         // 체크 시 색을 채우고, 아니면 아이콘을 투명하게 두어 크기 변화를 막는다.
         // 채움이 연두라 체크 표시는 어두워야 한다 — 흰색이면 1.13:1로 사라진다.
         checked
-          ? 'border-primary-400 bg-primary-400 text-gray-950'
-          : 'border-gray-400 bg-gray-100 text-transparent',
+          ? 'border-lime-action bg-lime-action text-gray-800'
+          : 'bg-surface border-gray-400 text-transparent',
         className,
       )}
     >
@@ -88,10 +88,10 @@ export function Checkbox({
       {/* 포커스 링은 여기 남긴다 — peer-*는 형제인 input이 있어야 동작하므로 CheckboxBox로 못 옮긴다 */}
       <CheckboxBox
         checked={checked}
-        className="peer-focus-visible:ring-secondary-400 peer-focus-visible:ring-2 peer-focus-visible:ring-offset-1"
+        className="peer-focus-visible:ring-sky-ink peer-focus-visible:ring-2 peer-focus-visible:ring-offset-1"
       />
       {/* 라벨이 없으면 span 자체를 그리지 않는다 — 빈 span이 남으면 gap만큼 클릭 영역이 넓어진다 */}
-      {label !== undefined && <span className="text-gray-900">{label}</span>}
+      {label !== undefined && <span className="text-gray-700">{label}</span>}
     </label>
   );
 }

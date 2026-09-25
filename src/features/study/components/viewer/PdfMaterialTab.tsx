@@ -94,7 +94,7 @@ export function PdfMaterialTab({ material, audio }: PdfMaterialTabProps) {
         onSeek={audio.seek}
       />
 
-      <div className="flex min-h-0 flex-1 px-8 pb-5">
+      <div className="flex min-h-0 flex-1 px-6 pb-5">
         {/* 목록은 PDF를 모른다 — 미리보기 한 칸만 여기서 그려 넘긴다 (CLAUDE.md 3절).
             체크무늬는 자리표시다. 페이지가 그려지면 종이 뒤로 무늬가 비쳐 보인다.
             비율은 문서가 오면 첫 페이지 것으로 갈아탄다 — 강의자료는 A4 세로도 흔하다. */}

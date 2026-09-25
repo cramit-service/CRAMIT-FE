@@ -120,7 +120,7 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
       // 봐야 펼칠 때 셋이 따로 놀지 않는다(MainShell이 정한다).
       // 엣지 스트립과 chevron이 우측 경계 밖으로 나가야 해서 여기서는 자르지 않는다.
       // 라벨을 자르는 건 헤더·nav·하단 세 칸이 각자 맡는다.
-      className="z-nav fixed top-0 left-0 flex h-screen w-[var(--sidebar-w)] flex-col bg-gray-950 text-gray-300 transition-[width] duration-200 ease-out"
+      className="z-nav bg-frame fixed top-0 left-0 flex h-screen w-[var(--sidebar-w)] flex-col text-gray-700 transition-[width] duration-200 ease-out"
     >
       {/* 헤더 — 높이(92)는 두 상태가 같아야 한다. 접힘에서 토글을 로고 아래 한 줄로 두면
           그 줄이 아래 항목 전부를 밀어 내려 전환이 점프처럼 보인다(그래서 엣지로 뺐다).
@@ -142,7 +142,7 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
           {/* 높이는 호출처가 정한다 — Logo는 기본 크기를 갖지 않는다 */}
           <Logo variant="symbol" className="h-[35px]" />
         </span>
-        <Logo className={cn('h-[19px] shrink-0 text-white', labelClass)} />
+        <Logo className={cn('h-[19px] shrink-0 text-gray-800', labelClass)} />
         {expanded && (
           <Tooltip label={toggleLabel}>
             <button
@@ -151,7 +151,7 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
               aria-label={toggleLabel}
               aria-expanded={expanded}
               aria-controls={NAV_ID}
-              className="focus-visible:ring-secondary-400 ml-auto flex size-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-100 focus-visible:ring-2 focus-visible:outline-none"
+              className="focus-visible:ring-sky-ink ml-auto flex size-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-800 focus-visible:ring-2 focus-visible:outline-none"
             >
               <ChevronLeftIcon className="size-5" />
             </button>
@@ -170,7 +170,7 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
             onMouseLeave={() => setHovering(false)}
             className="group/edge absolute inset-y-0 -right-1 w-2 cursor-pointer"
           >
-            <span className="absolute inset-y-0 left-1 w-px bg-gray-700 opacity-0 transition-opacity duration-150 ease-out group-hover/edge:opacity-100" />
+            <span className="absolute inset-y-0 left-1 w-px bg-gray-300 opacity-0 transition-opacity duration-150 ease-out group-hover/edge:opacity-100" />
           </div>
           <Tooltip label={toggleLabel}>
             <button
@@ -183,7 +183,7 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
               onMouseLeave={() => setHovering(false)}
               // 세로 중심은 로고 행 중앙(헤더 92의 절반=46). 가로는 경계에 걸친다.
               className={cn(
-                'focus-visible:ring-secondary-400 absolute top-11.5 right-0 flex size-6 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-gray-700 bg-gray-800 text-gray-100 transition-opacity duration-150 ease-out hover:bg-gray-700 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:outline-none',
+                'focus-visible:ring-sky-ink bg-surface shadow-near absolute top-11.5 right-0 flex size-6 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-gray-100 text-gray-700 transition-opacity duration-150 ease-out hover:bg-gray-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:outline-none',
                 // hover가 없는 입력(터치)에서는 hover 상태를 만들 수 없다. 그러면 8px 엣지
                 // 스트립만으로 펼쳐야 해서 사실상 못 편다 — 그 환경에서는 상시로 띄운다.
                 '[@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100',
@@ -206,7 +206,7 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
           가로 스크롤이 따라 생기는 걸 막는다(한 축이 visible이 아니면 다른 축은 auto가 된다). */}
       <nav
         id={NAV_ID}
-        className="scrollbar-dark fade-bottom flex min-h-0 flex-1 [scrollbar-gutter:stable] flex-col gap-1 overflow-x-hidden overflow-y-auto overscroll-contain"
+        className="scrollbar-slim fade-bottom flex min-h-0 flex-1 [scrollbar-gutter:stable] flex-col gap-1 overflow-x-hidden overflow-y-auto overscroll-contain"
       >
         <SidebarItem
           icon={<HouseIcon className="size-6" />}
@@ -243,22 +243,22 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
             href="/settings/profile"
             aria-label={expanded ? undefined : profileName}
             className={cn(
-              'focus-visible:ring-secondary-400 relative flex items-center py-3 transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
+              'focus-visible:ring-sky-ink relative flex items-center py-3 transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
               profileActive
-                ? 'text-primary-400'
-                : 'text-gray-200 hover:text-white',
+                ? 'text-gray-800'
+                : 'text-gray-700 hover:text-gray-800',
             )}
           >
             {profileActive && (
-              <span className="absolute inset-y-0 right-2 left-2 rounded-lg bg-gray-800" />
+              <span className="bg-lime-action absolute inset-y-0 right-2 left-2 rounded-lg" />
             )}
             <span className="relative flex w-22.5 shrink-0 justify-center">
               <span
                 className={cn(
                   'text-label flex size-8 items-center justify-center overflow-hidden rounded-full font-medium',
                   profileActive
-                    ? 'bg-primary-400 text-gray-950'
-                    : 'border border-gray-700 text-gray-300',
+                    ? 'bg-surface text-gray-800'
+                    : 'border border-gray-200 text-gray-500',
                 )}
               >
                 {profile?.imageUrl ? (

@@ -17,9 +17,10 @@ type Rank = 'primary' | 'secondary' | 'plain';
 const rankStyles: Record<Rank, string> = {
   primary:
     'bg-lime-action text-gray-800 hover:bg-lime-hover active:bg-lime-pressed',
-  secondary: 'bg-surface border border-gray-100 text-gray-700 hover:bg-well',
+  secondary:
+    'bg-surface border border-gray-100 text-gray-700 hover:bg-gray-100',
   // 채움도 테두리도 없는 것. 줄 안에 묻혀 있다가 커서가 오면 자리를 드러낸다.
-  plain: 'text-gray-700 hover:bg-well',
+  plain: 'text-gray-700 hover:bg-gray-100',
 };
 
 interface IconButtonProps extends Omit<

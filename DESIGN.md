@@ -52,11 +52,17 @@ brightness band as the paper.
 Depth cannot be built from brightness here: white is the ceiling. Cramit
 separates surfaces by **fill**, and reserves shadow for things that float.
 
-| Level   | Token             | Value     | Use                                    |
-| ------- | ----------------- | --------- | -------------------------------------- |
-| Canvas  | `--color-canvas`  | `#fcfaf7` | Page background                        |
-| Surface | `--color-surface` | `#ffffff` | Cards, panels, modals, menus           |
-| Well    | `--color-well`    | `#e9e9e9` | Recessed areas: search field, viewport |
+| Level   | Token             | Value     | Use                                     |
+| ------- | ----------------- | --------- | --------------------------------------- |
+| Canvas  | `--color-canvas`  | `#fcfaf7` | Page background                         |
+| Surface | `--color-surface` | `#ffffff` | Cards, panels, modals, menus            |
+| Well    | `--color-well`    | `#e9e9e9` | Recessed areas: search field, PDF stage |
+
+Beside them, outside the ladder:
+
+| Token           | Value     | Use                |
+| --------------- | --------- | ------------------ |
+| `--color-frame` | `#f3f1ee` | The sidebar's rail |
 
 Borders are not the default separator. Shadow is used **only** on surfaces that
 float above the page — modal, dropdown, tooltip — never on cards in a list.
@@ -67,6 +73,48 @@ choice: a quiet screen over a crisp one. Canvas to well is ΔE 6.23, over twice 
 large, so the ladder is uneven by acceptance, not by oversight. If card edges
 ever need strengthening, deepen the canvas rather than add borders — that keeps
 fill as the single mechanism.
+
+#### The frame is beside the ladder, not a fourth rung
+
+**`frame` is the rail's ground and nothing stacks on it**, so it never has to
+answer the question the three levels exist to answer. A card on `canvas` rises
+to `surface`; on a `surface` panel it sinks to `well`. Nothing rises on the rail
+— its active item is a lime fill and its avatar is a border — so the rail can
+have a fill of its own without making the ladder four deep.
+
+It is the canvas's own color with the lightness taken down, from L\* 98.3 to
+95.05. That point is where the two distances are largest at once: ΔE 3.13 from
+`canvas` and 3.33 from `well`, both past the 2.35 where a difference registers.
+Below `well` the gray ramp would have to come down with it, so the value sits
+above.
+
+#### `well` stopped being a ground, and that was a bug fix
+
+**A recessed area holds content, not controls.** `well` was named for a search
+field and then given to the study viewer's panel, and a panel is a ground —
+buttons, toggles, cards and bare text all sit on it.
+
+That broke hover. A control resting on `surface` shows hover by darkening, and
+§4 sets the step at 8% black, which over white is `#ebebeb` — **ΔE 0.70 from
+`well`**. On that panel the page toggle turned exactly the panel's color and
+disappeared. Measured: `rgb(233,233,233)` against `rgb(233,233,233)`.
+
+The panel could not simply go darker. At L\* 92.3 `well` is already at the
+ramp's edge — `gray-400` reads 3.04:1 against the 3:1 it has to clear and
+`gray-500` reads 4.52:1 against 4.5:1 — so one step down breaks icons and text
+together. Nor could it go lighter, which is what deepening it fixed in the first
+place.
+
+**So the panel moved up instead.** The viewer's panel is `surface` with a
+`gray-100` border, its PDF stage is `well`, and the rows on it sink to `well` —
+the ladder read exactly as written. `well` keeps the places where nothing is
+pressed.
+
+**The cost is that a second-rank control resting on that panel is ΔE 0 from it**,
+carried by a `gray-100` border at 1.35:1. §4 already took that thinness as the
+price of giving up the fill; on a white panel the border is the whole signal
+rather than most of it. Accepted, and recorded here so the next reader knows it
+was a choice.
 
 **A thing that sits on a surface cannot use that surface's own fill.** There are
 three levels and no more, so what a card does depends on what is under it: on
@@ -84,8 +132,10 @@ the state alone.
 **Deepening a surface pulls the gray ramp down with it.** The two thresholds
 below are measured against the darkest of the three surfaces, so `well` and the
 ramp move together or not at all. Well went from `#f0f1f1` to `#e9e9e9` for the
-study viewport — white paper on a panel two steps apart is hard to see as paper
-at all — and every gray step followed by one or two hex units.
+PDF stage — white paper two steps from its ground is hard to see as paper at all
+— and every gray step followed by one or two hex units. `frame` sits above
+`well` for the same reason, which is why the rail could not simply be a darker
+cream.
 
 ### Color Palette & Roles
 
@@ -524,6 +574,12 @@ ground.
 
 So `far` and `near` never land on a dark ground, and the level a dark modal
 would have needed does not have to exist.
+
+**The last exception was the rail, and it is gone.** §5 described it as dark
+while this section said no dark surface exists; the rail now takes `frame` and
+the sentence holds with nothing to except. The tooltip went with it — it was
+`gray-900`, and §4 assigns it the `near` shadow, which is computed for a light
+ground.
 
 **The cost is a redraw, not a reclass.** The form modal is dark throughout:
 `gray-900` panel, `gray-800` fields, `gray-700` popovers, light text on all
@@ -1665,9 +1721,17 @@ already does both: the board scrolls inside a page that is itself 1945 tall.
 
 #### The frame
 
-A dark rail on the left, 90 wide, holding icons; the canvas beside it; a chat tab
+A rail on the left, 90 wide, holding icons; the canvas beside it; a chat tab
 pinned to the right edge. The rail opens to 256, and it **pushes rather than
 covers** — the content moves right by the same 166 and keeps the width it had.
+
+**The rail is light.** It was drawn dark and stayed dark after §2 removed dark
+surfaces, which left it the one dark plane in the product and left §4's "there is
+no dark surface" true everywhere except the first thing on screen. It now takes
+`frame`, §2's cream one step down from the canvas. Its labels are `gray-700`, its
+icons `gray-400`, and its active item is a lime fill with `gray-800` on it —
+lime as text was never available here, since on any light ground it measures
+between 1.07:1 and 1.13:1.
 
 That is one formula rather than two states. The column is
 `(100% + rail - 90) * 0.8257` measured inside the pushed content box, and

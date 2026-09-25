@@ -99,7 +99,7 @@ export function Select<T extends string>({
           'border border-gray-100 font-medium whitespace-nowrap text-gray-700',
           'transition-colors duration-150 ease-out',
           'focus-visible:ring-sky-ink focus-visible:ring-2 focus-visible:outline-none',
-          disabled ? 'cursor-not-allowed text-gray-400' : 'hover:bg-well',
+          disabled ? 'cursor-not-allowed text-gray-400' : 'hover:bg-gray-100',
         )}
       >
         {selected?.label}

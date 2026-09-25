@@ -19,6 +19,9 @@ interface CardProps extends Omit<
   /** 긴 목록의 한 줄. 여백과 모서리를 줄인다 — 16px 여백은 격자 위의 카드에 맞는 값이고,
    *  예순 줄짜리 전사문에서는 내용보다 여백이 화면을 더 쓴다. */
   dense?: boolean;
+  /** surface 판 위에 놓일 때. §2에 표면이 셋뿐이라 더 올라갈 데가 없어 well로 내려간다 —
+   *  흰 판 위의 흰 카드는 ΔE 0이고, 실제로 뷰어에서 그렇게 사라진 적이 있다. */
+  sunken?: boolean;
   children: React.ReactNode;
 }
 
@@ -26,6 +29,7 @@ export function Card({
   press = 'none',
   selected = false,
   dense = false,
+  sunken = false,
   children,
   ...props
 }: CardProps) {
@@ -36,17 +40,20 @@ export function Card({
   // "가라앉았다"가 아니라 "이것"으로 읽힌다.
   // 테두리도 그림자도 안 쓴다 — §2가 목록 위의 카드에 그림자를 금지한다.
   const className = cn(
-    'bg-surface transition-colors duration-150 ease-out',
+    'transition-[background-color,filter] duration-150 ease-out',
+    sunken ? 'bg-well' : 'bg-surface',
     dense ? 'rounded-md px-3 py-2' : 'rounded-lg p-4',
     // 눌린 채로 있는 건 눌림이 아니라 선택이다. §2가 넓은 면의 연두로 pale을 남겼다.
     selected && 'bg-lime-pale',
     pressable && 'w-full cursor-pointer text-left',
-    // TODO: §4의 호버는 "그 카드의 채움 위에 검정 8%"다. 흰 위의 8%는 #ebebeb,
-    // lime-pale 위의 8%는 #deeb7e인데 둘 다 토큰이 없다. well로 근사해 뒀다.
-    pressable && !selected && 'hover:bg-well',
+    // §4의 8%·16%를 채움을 갈아 끼우지 않고 그대로 곱한다. 고정 토큰으로 근사하면
+    // 카드가 어떤 판 위에 있느냐에 따라 그 판과 같은 색이 되는 순간이 생긴다 —
+    // well 판 위의 hover가 실제로 그랬다. 곱셈은 제 채움을 기준으로 하니 바닥을 안 탄다.
+    // (brightness-92는 흰 위에서 #ebebeb, lime-pale 위에서 #deeb7e — §4가 적은 두 값과 같다)
+    pressable && 'hover:brightness-92',
     // 눌림은 화면이 그대로 남을 때만 그린다. 넘어가는 카드의 눌림은
     // 그려지자마자 페이지와 함께 버려진다.
-    press === 'in-place' && !selected && 'active:bg-gray-100',
+    press === 'in-place' && 'active:brightness-84',
   );
 
   if (!pressable) {

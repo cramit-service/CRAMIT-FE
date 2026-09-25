@@ -79,7 +79,7 @@ export function Tooltip({ label, disabled = false, children }: TooltipProps) {
             id={id}
             role="tooltip"
             // 마우스를 가로채면 트리거에서 벗어난 것으로 읽혀 툴팁이 깜빡인다
-            className="text-label z-tooltip pointer-events-none fixed -translate-y-1/2 rounded-md border border-gray-800 bg-gray-900 px-2.5 py-1 whitespace-nowrap text-gray-100 shadow-lg"
+            className="text-label bg-surface shadow-near z-tooltip pointer-events-none fixed -translate-y-1/2 rounded-md border border-gray-100 px-2.5 py-1 whitespace-nowrap text-gray-700"
             style={{ top: box.top, left: box.left }}
           >
             {label}

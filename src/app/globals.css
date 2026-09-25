@@ -63,6 +63,12 @@
   --color-canvas: #fcfaf7; /* 페이지 바탕 */
   --color-surface: #ffffff; /* 카드·패널·모달·메뉴 */
   --color-well: #e9e9e9; /* 파인 자리 — 검색칸, 뷰포트 */
+  /* 프레임(사이드바 레일)의 바닥. 표면 사다리 셋과 별개다 — 레일 위에는 카드가 올라앉지
+     않으므로 "무엇이 올라가고 내려가는가"를 정하는 그 사다리에 낄 필요가 없다.
+     크림(canvas)의 색도를 그대로 들고 L*만 98.3 → 95.05로 내렸다. 그 지점이 두 이웃과
+     동시에 가장 멀어지는 자리다(canvas와 ΔE 3.13, well과 3.33 — 문턱 2.35).
+     well보다 어두워지면 회색 램프의 두 문턱이 따라 내려온다. 그래서 위쪽에 둔다. */
+  --color-frame: #f3f1ee;
 
   /* 연두 = 누를 수 있는 것.
      hover·pressed는 action 위에 검정을 8%·16% 얹어 계산한 값이다. action을 바꾸면
@@ -348,28 +354,6 @@
   &::-webkit-scrollbar-thumb {
     border-radius: var(--radius-full);
     background-color: var(--color-gray-300);
-  }
-  &::-webkit-scrollbar-button {
-    display: none;
-  }
-}
-
-/* 어두운 표면(모달 패널·다크 팝오버)용. 기본 회색 썸은 어두운 배경에서 너무 밝다.
-   TODO: DESIGN.md §2가 어두운 표면을 없앴다. 부품을 옮기고 나면 이 유틸리티도 사라진다. */
-@utility scrollbar-dark {
-  /* scrollbar-width/color를 두면 Blink가 아래 규칙을 무시한다 (전역 블록 주석 참고) */
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-track {
-    background-color: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    border-radius: var(--radius-full);
-    background-color: var(--color-gray-500);
-  }
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: var(--color-gray-400);
   }
   &::-webkit-scrollbar-button {
     display: none;

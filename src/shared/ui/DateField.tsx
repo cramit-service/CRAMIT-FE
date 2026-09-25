@@ -223,7 +223,7 @@ export function DateField({
         className={cn(
           FIELD_TRIGGER,
           'flex w-full items-center justify-between gap-2 text-left disabled:cursor-not-allowed disabled:opacity-50',
-          value ? 'text-gray-300' : 'text-gray-500',
+          value ? 'text-gray-700' : 'text-gray-500',
         )}
       >
         {value ? formatDisplay(value) : 'YY. MM. DD.'}
@@ -238,7 +238,7 @@ export function DateField({
           role="dialog"
           aria-label="날짜 선택"
           // absolute의 기준은 위 래퍼의 relative다. (CLAUDE.md 4-5)
-          className="absolute top-11 left-0 z-10 w-63 rounded-lg border-[0.5px] border-gray-600 bg-gray-800 p-3 shadow-xl"
+          className="bg-surface shadow-near absolute top-11 left-0 z-10 w-63 rounded-lg border border-gray-100 p-3"
         >
           {/* 달 이동 */}
           <div className="mb-2 flex items-center justify-between">
@@ -246,7 +246,7 @@ export function DateField({
               type="button"
               onClick={() => shift(-1)}
               aria-label="이전 달"
-              className="flex size-6 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-100"
+              className="flex size-6 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-800"
             >
               <span className="size-3 rotate-90">
                 <Icon name="arrow-down" size={16} />
@@ -254,7 +254,7 @@ export function DateField({
             </button>
             <span
               aria-live="polite"
-              className="text-body font-medium text-gray-100"
+              className="text-body font-medium text-gray-800"
             >
               {view.year}년 {view.month}월
             </span>
@@ -262,7 +262,7 @@ export function DateField({
               type="button"
               onClick={() => shift(1)}
               aria-label="다음 달"
-              className="flex size-6 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-100"
+              className="flex size-6 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-800"
             >
               <span className="size-3 -rotate-90">
                 <Icon name="arrow-down" size={16} />
@@ -317,14 +317,14 @@ export function DateField({
                   className={cn(
                     'text-button-sm flex h-10 items-center justify-center rounded-md font-medium transition-colors',
                     blocked
-                      ? 'cursor-not-allowed text-gray-700'
+                      ? 'cursor-not-allowed text-gray-200'
                       : selected
-                        ? 'bg-primary-400 text-gray-950'
+                        ? 'bg-lime-action text-gray-800'
                         : inMonth
-                          ? 'text-gray-200 hover:bg-gray-700'
-                          : 'text-gray-600 hover:bg-gray-700',
+                          ? 'text-gray-700 hover:bg-gray-100'
+                          : 'text-gray-400 hover:bg-gray-100',
                     // 오늘은 고르지 않았을 때만 테두리로 표시한다(고르면 채움과 겹친다).
-                    iso === today && !selected && 'ring-1 ring-gray-500',
+                    iso === today && !selected && 'ring-1 ring-gray-300',
                   )}
                 >
                   {date.getDate()}

@@ -347,7 +347,7 @@ const ICONS = {
           fill="currentColor"
         />
         {/* 안 읽음 배지 — 시그니처 연두 */}
-        <circle cx="43.5" cy="601" r="2" className="fill-primary-400" />
+        <circle cx="43.5" cy="601" r="2" className="fill-lime-action" />
       </>
     ),
   },
@@ -427,12 +427,12 @@ const ICONS = {
     size: 40,
     body: (
       <>
-        <circle cx="40" cy="148" r="17" className="fill-primary-400" />
+        <circle cx="40" cy="148" r="17" className="fill-lime-action" />
         <path
           d="M33.5 148.355L37.6472 153.758C37.7453 153.885 37.9339 153.896 38.0458 153.78L47.5 144"
           strokeWidth="1.5"
           strokeLinecap="round"
-          className="stroke-gray-950"
+          className="stroke-gray-800"
         />
       </>
     ),

@@ -211,7 +211,7 @@ export function Combobox({
           role="listbox"
           // absolute의 기준은 위 래퍼의 relative다. (CLAUDE.md 4-5)
           className={cn(
-            'scrollbar-dark absolute top-11 right-0 left-0 z-10 max-h-52 overflow-y-auto',
+            'scrollbar-slim absolute top-11 right-0 left-0 z-10 max-h-52 overflow-y-auto',
             OPTION_LIST,
           )}
         >

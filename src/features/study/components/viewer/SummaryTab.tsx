@@ -101,16 +101,16 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
   }
 
   return (
-    <section className={cn(PANEL, 'px-8 pt-5 pb-8')}>
+    <section className={cn(PANEL, 'px-6 pt-5 pb-8')}>
       {/* 상단 바: 좌측 MD 배지 + 파일명, 우측 상태별 버튼.
           이분할 화면에선 패널이 절반 이하로 좁아진다. 버튼을 안 접으면 툴바가 패널을
           넘치고 그대로 문서 폭까지 밀어내 페이지에 가로 스크롤이 생긴다. */}
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="text-button-sm flex h-[22px] shrink-0 items-center justify-center rounded-full border-[0.5px] border-white px-1.5 font-medium text-white">
+          <span className="text-button-sm flex h-[22px] shrink-0 items-center justify-center rounded-full border-[0.5px] border-gray-300 px-1.5 font-medium text-gray-700">
             MD
           </span>
-          <p className="text-label truncate font-medium text-white">
+          <p className="text-label truncate font-medium text-gray-700">
             {summary.fileName}
           </p>
           <p
@@ -168,7 +168,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
       {/* 흰 영역: 조회 시 Markdown 렌더, 편집 시 원문 textarea */}
       <div className="relative mt-5 min-h-0 flex-1 rounded-md bg-white">
         {mode === 'view' ? (
-          <div ref={viewRef} className="h-full overflow-y-auto px-8 py-7">
+          <div ref={viewRef} className="h-full overflow-y-auto px-6 py-7">
             {markdown ? (
               <MarkdownContent markdown={markdown} />
             ) : (

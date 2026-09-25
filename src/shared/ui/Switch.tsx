@@ -33,8 +33,8 @@ export function Switch({
       onClick={() => onChange(!checked)}
       className={cn(
         'relative inline-flex h-[23px] w-10 shrink-0 items-center rounded-full transition-colors',
-        'focus-visible:ring-secondary-400 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-800 focus-visible:outline-none',
-        checked ? 'bg-secondary-400' : 'bg-gray-500',
+        'focus-visible:ring-sky-ink focus-visible:ring-2 focus-visible:outline-none',
+        checked ? 'bg-lime-action' : 'bg-gray-400',
         disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
       )}
     >

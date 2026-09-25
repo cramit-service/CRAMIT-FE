@@ -25,7 +25,8 @@ interface ButtonProps extends Omit<
 const rankStyles: Record<Rank, string> = {
   primary:
     'bg-lime-action text-gray-800 hover:bg-lime-hover active:bg-lime-pressed',
-  secondary: 'bg-surface border border-gray-100 text-gray-700 hover:bg-well',
+  secondary:
+    'bg-surface border border-gray-100 text-gray-700 hover:bg-gray-100',
   danger: 'bg-red-danger text-gray-800 hover:brightness-95',
 };
 

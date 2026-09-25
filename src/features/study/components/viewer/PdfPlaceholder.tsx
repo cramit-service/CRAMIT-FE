@@ -37,16 +37,16 @@ export function PdfPagePreview({
     <div
       className={cn(
         'flex min-w-0 flex-1 items-center justify-center overflow-hidden rounded-md',
-        // 페이지가 그려지면 남는 좌우 여백은 패널 색 그대로 둔다.
-        // 체크무늬를 깔아 두면 종이 옆에 무늬가 붙어 보인다.
-        doc && 'bg-gray-950/40',
+        // 흰 판 위의 흰 종이는 ΔE 0이라 경계가 없다. 종이가 놓이는 자리를 well로 파서
+        // 종이를 드러낸다 — 여긴 hover가 없으니 well이 바닥 노릇을 해도 걸리는 게 없다.
+        doc && 'bg-well',
       )}
       style={doc ? undefined : checkerStyle(48)}
     >
       {doc ? (
         <PdfCanvas doc={doc} page={page} className="size-full" />
       ) : (
-        <p className="text-label text-gray-950">
+        <p className="text-label text-gray-500">
           {failed
             ? '강의 자료를 불러오지 못했어요'
             : isLoading

@@ -99,7 +99,7 @@ function CourseSection({
           onClick={onToggle}
           aria-expanded={open}
           aria-label={expanded ? undefined : label}
-          className="focus-visible:ring-secondary-400 flex w-full items-center py-4.5 text-gray-200 transition-colors hover:text-white focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
+          className="focus-visible:ring-sky-ink flex w-full items-center py-4.5 text-gray-700 transition-colors hover:text-gray-800 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
         >
           <span className="flex w-22.5 shrink-0 justify-center text-gray-400">
             {icon}
@@ -127,7 +127,7 @@ function CourseSection({
         <ul
           className={cn(
             courses.length > MAX_ROWS &&
-              'scrollbar-dark fade-bottom overflow-x-hidden overflow-y-auto overscroll-contain',
+              'scrollbar-slim fade-bottom overflow-x-hidden overflow-y-auto overscroll-contain',
           )}
           style={
             courses.length > MAX_ROWS
@@ -157,7 +157,7 @@ function CourseSection({
             <li>
               <Link
                 href="/projects"
-                className="text-label focus-visible:ring-secondary-400 block py-2 pl-22.5 text-gray-500 transition-colors hover:text-gray-300 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
+                className="text-label focus-visible:ring-sky-ink block py-2 pl-22.5 text-gray-500 transition-colors hover:text-gray-700 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
               >
                 아직 강의가 없어요 · 등록하러 가기
               </Link>
@@ -176,15 +176,15 @@ function CourseSection({
                     href={href}
                     aria-label={expanded ? undefined : course.label}
                     className={cn(
-                      'focus-visible:ring-secondary-400 relative flex items-center py-2.5 transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
+                      'focus-visible:ring-sky-ink relative flex items-center py-2.5 transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
                       active
-                        ? 'text-primary-400'
-                        : 'text-gray-300 hover:text-white',
+                        ? 'text-gray-800'
+                        : 'text-gray-500 hover:text-gray-700',
                     )}
                   >
                     {/* 활성 배경은 레일 안쪽으로 들여 양끝을 살린다 — 꽉 채우면 잘린 것처럼 보인다 */}
                     {active && (
-                      <span className="absolute inset-y-0 right-2 left-2 rounded-lg bg-gray-800" />
+                      <span className="bg-lime-action absolute inset-y-0 right-2 left-2 rounded-lg" />
                     )}
                     {/* 캘린더 일정 점과 같은 과목 색. 접힘에서는 이것만 남으므로
                         6px으로는 레일에서 안 보여 10px로 키운다. */}

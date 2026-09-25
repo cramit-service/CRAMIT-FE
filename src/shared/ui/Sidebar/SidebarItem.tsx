@@ -32,13 +32,13 @@ export function SidebarItem({
   // text-* 색이 먹지 않는다. 그래서 색이 아니라 항목 전체의 opacity로 낮춘다.
   // 낮춘 대비(약 4:1)는 WCAG 1.4.3의 비활성 컨트롤 예외에 해당해 문제가 되지 않는다.
   const className = cn(
-    'focus-visible:ring-secondary-400 focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none relative flex items-center py-4.5 transition-colors',
+    'focus-visible:ring-sky-ink focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none relative flex items-center py-4.5 transition-colors',
     // 활성: 연두 강조 / 비활성: 라벨은 밝게 (덮어쓰기 금지 → 삼항 분기)
     disabled
-      ? 'cursor-not-allowed text-gray-200 opacity-50'
+      ? 'cursor-not-allowed text-gray-400 opacity-50'
       : active
-        ? 'text-primary-400'
-        : 'text-gray-200 hover:text-white',
+        ? 'text-gray-800'
+        : 'text-gray-700 hover:text-gray-800',
   );
 
   const inner = (
@@ -46,7 +46,7 @@ export function SidebarItem({
       {/* 활성 배경. 접힘·펼침이 같은 언어를 쓰도록 좌측 탭 대신 항목 자체를 칠한다.
           레일 안쪽으로 8px 들여 양끝을 살린다 — 꽉 채우면 잘린 것처럼 보인다. */}
       {active && (
-        <span className="absolute inset-y-0 right-2 left-2 rounded-lg bg-gray-800" />
+        <span className="bg-lime-action absolute inset-y-0 right-2 left-2 rounded-lg" />
       )}
       {/* 아이콘 칸 폭은 사이드바 접힘 폭(Sidebar의 w-22.5)과 같다. 그래서 아이콘 중심이
           펼침·접힘 모두 같은 x에 있고, 폭이 줄어드는 동안에도 제자리에 머문다.

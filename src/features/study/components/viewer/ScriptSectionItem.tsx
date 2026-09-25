@@ -26,6 +26,7 @@ export function ScriptSectionItem({
     <li className="@container">
       <Card
         dense
+        sunken
         press="in-place"
         onClick={onToggle}
         aria-expanded={open}

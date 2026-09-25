@@ -73,10 +73,10 @@ export function ScriptTab({
   const { sections } = scriptQuery.data;
 
   return (
-    <section className={cn(PANEL, 'px-8 pt-5')}>
+    <section className={cn(PANEL, 'px-6 pt-5')}>
       {/* 상단: 안내문 + 재생 위치 (재생 컨트롤은 PDF 탭에만 둔다) */}
       <div className="flex shrink-0 items-start justify-between gap-4">
-        <p className="text-label font-medium text-white">
+        <p className="text-label font-medium text-gray-700">
           녹음본을 텍스트화해서 PPT 페이지별로 정리했습니다. 녹음본 재생은 ‘PDF
           강의 자료’를 이용해 주세요.
         </p>

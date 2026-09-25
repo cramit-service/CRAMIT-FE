@@ -165,7 +165,7 @@ export function TimeField({
       aria-label={label}
       id={`${listId}-${col}`}
       style={{ maxHeight: COLUMN_MAX_HEIGHT }}
-      className="scrollbar-dark overflow-y-auto overscroll-contain"
+      className="scrollbar-slim overflow-y-auto overscroll-contain"
     >
       {options.map((option, i) => {
         const selected = option === selectedValue;
@@ -192,7 +192,7 @@ export function TimeField({
               OPTION_ROW,
               'cursor-pointer text-center transition-colors',
               optionStateClass({ selected, active: false }),
-              !selected && 'hover:bg-gray-100 hover:text-gray-900',
+              !selected && 'hover:bg-gray-100 hover:text-gray-800',
             )}
           >
             {option}

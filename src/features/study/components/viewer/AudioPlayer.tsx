@@ -43,7 +43,7 @@ export function AudioPlayer({
   return (
     // 이분할에서 이 줄이 가장 먼저 좁아진다. 창이 아니라 줄 자체의 폭을 봐야 해서
     // @container를 건다(스크립트 구간 머리글과 같은 방식).
-    <div className="@container flex h-[70px] shrink-0 items-center justify-between gap-4 pr-11 pl-8">
+    <div className="@container flex h-[70px] shrink-0 items-center justify-between gap-4 pr-9 pl-6">
       {/* 몇 쪽인지 말하는 자리를 그대로 스위치로 쓴다. 무슨 자료인지는 위의 탭이
           이미 말하고 있어서 "PDF 강의자료"는 같은 말을 두 번 하는 것이었다.
           목록의 배지와 같은 말(P.01)을 써서 둘이 같은 것을 가리킨다는 게 드러난다. */}

@@ -43,7 +43,7 @@ export function Toggle({
           ? 'cursor-not-allowed bg-gray-100 text-gray-400'
           : pressed
             ? 'bg-lime-action hover:bg-lime-hover text-gray-800'
-            : 'bg-surface hover:bg-well border border-gray-100 text-gray-700',
+            : 'bg-surface border border-gray-100 text-gray-700 hover:bg-gray-100',
       )}
       {...props}
     >
