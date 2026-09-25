@@ -1248,11 +1248,35 @@ The depth and period of the pulse are not set here. They belong to Motion (§2),
 which is not settled, and the choice matters: at an opacity floor of 0.22 the
 glyph reaches 1.13:1, which is not a pulse but a disappearance.
 
-> **Undecided.** Empty and error are not settled. Error has nothing to design
-> against yet: `ProcessStatus` is `READY | PROCESSING` with no failure value, so
-> a job that dies polls forever. Adding one is a request to the backend,
-> collected and not yet sent (§7). Disabled is settled per component rather than
-> here — the button and the field each name their own.
+#### A failure is one word in the list and the whole account inside
+
+**The row says `실패` in `red-ink`. It does not dim, and it still opens.**
+
+What failed is the AI, not the chapter. A chapter whose transcription failed
+still has its slides; one whose summary failed still has its transcript. Dimming
+the row would close the way to those, and nothing is wrong with them.
+
+So the list carries the fact and the chapter carries the account. That division
+is also what keeps a row readable: a row has one line for its state, and `실패`
+fits there where `요약 없음 · 다른 녹음이 필요해요` does not. Naming the missing
+piece in the list was the alternative — it is more informative and it is the
+wrong place, because the list is read by scanning and the account is only useful
+where it can be acted on.
+
+`red-ink` because red is what went wrong and amber is what is running out of
+time (§2). A failed conversion is a loss, not a deadline.
+
+**What the backend still has to send.** `FAILED` alone is enough for the row.
+The chapter needs more: the two status endpoints already say _which_ stage
+failed, but telling someone to wait apart from telling them to change the file
+needs `retryable`. Without it every failure gets the same button, and half of
+them — a recording with no speech in it, a file that will not open — can never
+succeed however often it is pressed.
+
+> **Undecided.** The empty screen, and what the chapter shows in place of a
+> stage that failed. The second waits on the chapter screen itself, which is not
+> designed yet; this section settles only what the list says. Disabled is settled
+> per component rather than here — the button and the field each name their own.
 
 ---
 
