@@ -22,7 +22,7 @@ const UI = [
 ];
 
 // 색·타이포의 임의값만 막는다. 폭·높이·간격의 임의값(border-[0.5px], w-[min(960px,50vw)])은
-// CLAUDE.md 4-3이 뷰포트 비례 컨테이너에 쓰라고 정해 둔 것이라 건드리지 않는다.
+// DESIGN.md §5가 뷰포트 비례 컨테이너에 쓰라고 정해 둔 것이라 건드리지 않는다.
 const ARBITRARY = String.raw`(?:text|leading|tracking|font|fill|stroke|decoration)-\[|(?:bg|border|ring|shadow|from|via|to)-\[#`;
 
 const eslintConfig = defineConfig([

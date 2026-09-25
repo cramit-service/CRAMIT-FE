@@ -154,13 +154,17 @@ beside a `D-3` tag on the same line that clears 4.6.
 | Where it was used                | What it becomes                        |
 | -------------------------------- | -------------------------------------- |
 | The `IN_PROGRESS` button fill    | Gone — §4 removed the button           |
-| The shared tag's text and border | A `gray-800` border and a people icon  |
+| The shared tag's text and border | Gone — sharing is out of scope         |
 | The download button's gradient   | An ordinary second action, so a border |
 
-**Sharing has no cell in §2's table of roles.** Lime is what can be pressed,
-blue is what informs, red is fault or loss, orange is time. Sharing is not a
-state — it is a fact about a lecture, and a fact is carried by the word for it.
-The icon is there for the width at which the word does not fit.
+**Sharing is out of scope, so its tag goes with it** — and §4 had already retired
+`Tag` entirely, which is the stronger reason: its seven tones drew names, counts
+and deadlines alike, and that work becomes text.
+
+Had sharing stayed it would still not have taken a color. **There is no cell for
+it in §2's table of roles** — lime is what can be pressed, blue is what informs,
+red is fault or loss, orange is time. Sharing is not a state; it is a fact about a
+lecture, and a fact is carried by the word for it.
 
 Darkening them instead was considered and it collides. To carry text they need
 L\* near 45, and the pink at that lightness is `#c26fae` — subject 8. Yellow
@@ -1816,12 +1820,18 @@ text, the spacing, the verb for a field and the word for a pass are all above.
 
 1. Direct user instructions for the requested scope.
 2. This document.
-3. The Figma design file.
-4. The current state of the repository.
+3. The current state of the repository.
 
-Where this document and the Figma file disagree, this document wins and the
-design file is corrected later. Where this document says nothing, the Figma file
-governs.
+**The design file is no longer one of these.** The screens it holds are not the
+screens being built, so it cannot be corrected into agreement and it cannot
+govern where this document is silent. Where this document says nothing, the
+question is open and is settled here before it is built.
+
+It stays cited throughout this document, and those citations stay as they are.
+They are the record of how each value was arrived at — which figure was measured,
+which was declined and why — and that record does not stop being true when the
+file stops being authoritative. **Read a citation as provenance, never as a source
+to go back to.**
 
 ### Scope
 
