@@ -1,9 +1,9 @@
 'use client';
 // src/features/study/components/LectureSection.tsx
-import { SortSelect } from './SortSelect';
+import { Select } from '@/shared/ui/Select';
 import { LectureCard } from './LectureCard';
 import { subjectDotClass } from '@/shared/lib/subjectColor';
-import type { SortKey } from '@/features/study/lib/lectureList';
+import { SORT_OPTIONS, type SortKey } from '@/features/study/lib/lectureList';
 import type { ProjectSummary } from '@/shared/types/api';
 
 interface LectureSectionProps {
@@ -45,9 +45,10 @@ export function LectureSection({
           )}
         </div>
         <div className="flex items-center gap-3">
-          <SortSelect
+          <Select
             value={sort}
             onChange={onSortChange}
+            options={SORT_OPTIONS}
             label={`${title} 정렬`}
           />
           {action}
