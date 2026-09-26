@@ -12,6 +12,7 @@ import { buildSubjectColorMap } from '@/shared/lib/subjectColor';
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
 import { useCalendarMonth } from '@/features/calendar/hooks/useCalendarMonth';
 import { CalendarCell, type ScheduleItem } from './CalendarCell';
+import { Icon } from '@/shared/ui/Icon';
 
 // 일요일 시작. 시안 헤더는 MON…SUN이지만 팀 결정으로 일요일 시작을 쓴다.
 // buildMonthGrid의 leading 계산도 같은 기준이라 한쪽만 바꾸면 날짜가 요일과 어긋난다.
@@ -130,28 +131,10 @@ function NavButton({
       onClick={onClick}
       className="flex size-5.25 items-center justify-center rounded-md bg-gray-800 text-white transition-colors hover:bg-gray-900"
     >
-      <ChevronIcon
-        className={direction === 'left' ? 'size-5 rotate-180' : 'size-5'}
+      <Icon
+        name={direction === 'left' ? 'arrow-left' : 'arrow-right'}
+        size={20}
       />
     </button>
-  );
-}
-
-function ChevronIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M9 6l6 6-6 6"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

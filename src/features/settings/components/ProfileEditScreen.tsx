@@ -9,6 +9,7 @@ import {
   useMyProfile,
   useUpdateNickname,
 } from '@/features/settings/hooks/useMyProfile';
+import { Icon } from '@/shared/ui/Icon';
 
 // 로딩·에러 문구도 본문과 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
 // 설정은 content-col을 쓰지 않는다. 다른 화면은 패널을 나란히 놓는 작업 열이라 폭이
@@ -114,7 +115,7 @@ export function ProfileEditScreen() {
           aria-label="프로필 사진 변경"
           className="absolute right-0 bottom-0.5 flex size-[33px] items-center justify-center rounded-full bg-gray-800 text-gray-100 transition-colors hover:bg-gray-700"
         >
-          <PencilIcon className="size-4" />
+          <Icon name="edit" size={16} />
         </button>
       </div>
       {notice && (
@@ -199,23 +200,5 @@ export function ProfileEditScreen() {
         </button>
       </div>
     </form>
-  );
-}
-
-// 아바타 편집 뱃지 안의 연필
-function PencilIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.6}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M4 20h4l10-10a2.8 2.8 0 1 0-4-4L4 16v4Z" />
-    </svg>
   );
 }

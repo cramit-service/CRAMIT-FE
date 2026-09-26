@@ -1,7 +1,7 @@
 'use client';
 // src/features/study/components/Pagination.tsx
 import { cn } from '@/shared/lib/cn';
-import { ChevronLeftIcon, ChevronRightIcon } from './icons';
+import { Icon } from '@/shared/ui/Icon';
 
 interface PaginationProps {
   currentPage: number; // 1-based
@@ -106,7 +106,7 @@ export function Pagination({
         onClick={() => onPageChange(Math.max(1, currentPage - 1))}
         ariaLabel="이전 페이지"
       >
-        <ChevronLeftIcon className="size-3.5" />
+        <Icon name="arrow-left" size={14} />
       </ArrowButton>
 
       {items.map((item, i) =>
@@ -130,7 +130,7 @@ export function Pagination({
         onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
         ariaLabel="다음 페이지"
       >
-        <ChevronRightIcon className="size-3.5" />
+        <Icon name="arrow-right" size={14} />
       </ArrowButton>
     </nav>
   );

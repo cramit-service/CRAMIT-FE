@@ -1,6 +1,7 @@
 'use client';
 // src/features/settings/components/SettingRow.tsx
 import { cn } from '@/shared/lib/cn';
+import { Icon } from '@/shared/ui/Icon';
 
 // 프로필 화면의 어두운 행 한 줄. 알림·요금제·계정 설정이 모두 같은 상자를 쓴다.
 // Figma: 747×76, radius 6, 좌우 패딩 20. 글자는 시안 Body/Small(16/24).
@@ -70,32 +71,12 @@ export function SettingLinkRow({
       >
         {label}
       </span>
-      {/* 시안 비율 9×18 그대로 — 정사각 박스에 넣으면 좌우가 비어 위치가 어긋난다 */}
-      <ChevronRightIcon
-        className={cn(
-          'h-[13px] w-[6.5px] shrink-0',
-          danger ? 'text-error' : 'text-gray-400',
-        )}
-      />
+      <span
+        className={cn('shrink-0', danger ? 'text-red-ink' : 'text-gray-400')}
+      >
+        <Icon name="arrow-right" size={16} />
+      </span>
     </button>
-  );
-}
-
-// 시안 vector 9×18 — 얇은 라인 화살표
-function ChevronRightIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 9 18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.6}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M1 1l7 8-7 8" />
-    </svg>
   );
 }
 

@@ -5,9 +5,9 @@ import { useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { LectureFormModal } from '@/features/project/components/LectureFormModal';
 import { Tag } from './Tag';
-import { PencilIcon, PlusIcon } from './icons';
 import { getDday } from '@/features/study/lib/format';
 import type { ProjectDetail } from '@/shared/types/api';
+import { Icon } from '@/shared/ui/Icon';
 
 // 헤더 우측 액션의 골격.
 // TODO: 컨트롤 사다리(shared/ui/control.ts)에 맞춰 Button으로 옮길 것 — 지금 이 높이는
@@ -34,7 +34,7 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
         onClick={() => setEditOpen(true)}
         className="text-button-sm inline-flex items-center gap-1 text-gray-700 transition-colors hover:text-gray-900"
       >
-        <PencilIcon className="size-3" />
+        <Icon name="edit" size={12} />
         수정하기
       </button>
 
@@ -50,7 +50,7 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
           )}
         >
           새 주차 업로드
-          <PlusIcon className="size-4" />
+          <Icon name="plus" size={16} />
         </Link>
       </div>
 

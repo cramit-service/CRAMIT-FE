@@ -1,7 +1,7 @@
 // src/features/landing/components/FinalCtaSection.tsx
 import Link from 'next/link';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
-import { ArrowUpRightIcon } from './icons';
+import { Icon } from '@/shared/ui/Icon';
 
 // "맨 위로" 버튼은 이 섹션에 있었지만, 끝까지 내려와야만 보여서 ScrollTopButton으로 옮겼다.
 // 남은 건 순수 표시용이라 서버 컴포넌트로 되돌린다.
@@ -28,7 +28,7 @@ export function FinalCtaSection() {
           className="bg-secondary-400 hover:bg-secondary-500 mt-12 inline-flex items-center gap-2 rounded-md px-5 py-2.5 text-sm font-medium text-gray-900 transition-colors"
         >
           크래밋 시작하기
-          <ArrowUpRightIcon className="h-4 w-4" />
+          <Icon name="arrow-upper-right" size={16} />
         </Link>
       </div>
     </section>

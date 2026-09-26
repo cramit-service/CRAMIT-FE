@@ -186,17 +186,7 @@ export function Combobox({
           aria-label="선택 해제"
           className="absolute top-1/2 right-2.5 flex size-5 -translate-y-1/2 items-center justify-center rounded-sm text-gray-500 transition-colors hover:text-gray-300"
         >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.8}
-            strokeLinecap="round"
-            className="size-3"
-            aria-hidden
-          >
-            <path d="m5 5 14 14M19 5 5 19" />
-          </svg>
+          <Icon name="close" size={12} />
         </button>
       ) : (
         <span className="pointer-events-none absolute top-1/2 right-3.5 size-3 -translate-y-1/2 text-gray-500">

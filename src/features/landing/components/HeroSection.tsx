@@ -2,7 +2,7 @@
 // src/features/landing/components/HeroSection.tsx
 import Link from 'next/link';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
-import { ArrowUpRightIcon, ScrollIndicatorIcon } from './icons';
+import { Icon } from '@/shared/ui/Icon';
 
 export function HeroSection() {
   // 화면 아무 데나 누르면 내려가는 동작은 ClickToScrollArea(main)가 맡는다.
@@ -26,7 +26,7 @@ export function HeroSection() {
           className="mt-8 inline-flex items-center gap-2 rounded-md bg-gray-800 px-5 py-2.5 text-sm font-medium text-gray-100 transition-colors hover:bg-gray-900"
         >
           크래밋 시작하기
-          <ArrowUpRightIcon className="h-4 w-4" />
+          <Icon name="arrow-upper-right" size={16} />
         </Link>
       </div>
 
@@ -36,7 +36,7 @@ export function HeroSection() {
         onClick={scrollOnePage}
         className="absolute bottom-16 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-gray-600 transition-colors hover:text-gray-900"
       >
-        <ScrollIndicatorIcon className="h-6 w-4" />
+        <Icon name="scroll" size={24} />
         <span className="text-xs font-medium tracking-wide">Scroll</span>
       </button>
     </section>

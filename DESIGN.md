@@ -812,6 +812,62 @@ Matching the text exactly was the alternative and is worse: a stroke icon drawn
 on a 24-unit grid and rendered at 18 puts its strokes on half pixels and reads
 blurred.
 
+#### An icon is a name, not a file
+
+**Every icon lives in one record, `ICONS` in `shared/ui/Icon.tsx`, and screens
+call it by name:** `<Icon name="edit" size={16} />`. There is no other place an
+icon may be drawn.
+
+**The reason is a count.** Before this rule there were 43 icon definitions across
+15 files — `icons.tsx` in five features, one in `shared/ui/Sidebar`, and eleven
+more written inline in the component that used them. `ChevronRightIcon` existed
+five times over, `CheckIcon` and `PlusIcon` three each. Half of the 56 distinct
+glyphs were not used at all, and the registry's own `close`, `restart` and
+`upload` sat unused beside hand-drawn copies of themselves.
+
+A record cannot hold the same key twice, so the duplication that produced that
+count is not expressible. `IconName` is `keyof typeof ICONS`, so a name that is
+not in the design cannot be typed. And `IconButton` takes `name: IconName` —
+an icon outside the record cannot go in the shared icon button, which is how
+screens ended up drawing raw `<button>` around their own SVG.
+
+**Two of the 43 were not duplicates but ghosts.** The sidebar's book was a PNG
+and the TODO memo was an SVG file in `public/`, and both had their color baked
+in — so neither could follow `currentColor`, and both had been re-drawn by hand
+next to the asset that could not be used. An icon that cannot take the text
+color of the thing it sits beside is not an icon in this system.
+
+**The record is two records, and the second one is a debt.** `DESIGN_ICONS`
+holds what came from the design's icon frame; `LOCAL_ICONS` holds what was drawn
+here because the frame has no glyph for it. They merge into one `ICONS` at the
+end, so calling code sees a single list — but adding an icon forces a choice
+between them, and that choice is the rule: **look in the frame before drawing.**
+
+Today that is 18 against 12. The 12 are not wrong, they are unfinished: `house`,
+`book`, `mic`, `paperclip`, `send`, `expand`, `collapse`, `to-top`,
+`arrow-upper-right`, `check`, `memo`, `bolt`. When the frame grows one of them,
+it moves up. The count going down is the progress.
+
+Entries from the frame carry that frame's cell coordinates as their `viewBox` —
+`'20 215 24 24'` is where `arrow-down` sits in the file — so they stay 1:1 with
+it, and a `box` whose origin is not `0 0` is how you can tell at a glance which
+record an entry belongs in.
+
+**The frame draws one glyph per size, and the registry keeps only the sizes it
+uses.** The plus exists there at 16 and at 24, with strokes of 1.30 and 1.50 —
+the design holds the stroke near-constant in absolute pixels, so the larger
+drawing is proportionally thinner. Both were in the registry as `plus` and `add`
+until it turned out that `add`, the 24, was being rendered at 14 in the one place
+it was used, putting its strokes on 0.87px. The 24 is gone and the 16 covers
+everything from 12 to 20. Fetch a size back from the frame when a screen needs
+it, rather than scaling the wrong one.
+
+**Names say the job, not the shape.** `edit`, not `pencil`; `restart`, not
+`refresh`; `upload`, not `cloud-up`. Two jobs that happen to share a glyph today
+can diverge without renaming every call site, and a screen reads for what it
+means. The exceptions are the glyphs that have no job but their direction —
+`arrow-up`, `arrow-down` and the two beside them.
+
 #### Removed tokens
 
 | Token       | Was   | Why                                                                                                   |

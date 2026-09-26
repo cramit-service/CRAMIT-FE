@@ -2,13 +2,13 @@
 // src/features/project/components/FileDropzone.tsx
 import { useId, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
-import { CloudUploadIcon } from './icons';
 import {
   UPLOAD_SPEC,
   formatFileSize,
   validateUpload,
 } from '@/features/project/lib/upload';
 import type { UploadKind } from '@/features/project/lib/upload';
+import { Icon } from '@/shared/ui/Icon';
 
 interface FileDropzoneProps {
   kind: UploadKind;
@@ -98,7 +98,9 @@ export function FileDropzone({
 
         {file ? (
           <div className="flex size-full flex-col items-center justify-center gap-2 px-[22px] text-center">
-            <CloudUploadIcon className="text-secondary-400 size-[22px]" />
+            <span className="text-secondary-400">
+              <Icon name="cloud-upload" size={22} />
+            </span>
             <p className="text-button-sm max-w-full truncate text-gray-100">
               {file.name}
             </p>
@@ -135,7 +137,9 @@ export function FileDropzone({
           // 사용자가 같은 파일을 다시 올리게 된다(200MB짜리 녹음이 그대로 재전송된다).
           // 새로 고르기 전까지는 이 파일이 유지된다는 걸 문구로도 말해 준다.
           <div className="flex size-full flex-col items-center justify-center gap-1.5 px-4 text-center">
-            <CloudUploadIcon className="size-4 text-gray-500" />
+            <span className="text-gray-500">
+              <Icon name="cloud-upload" size={16} />
+            </span>
             <p className="text-button-sm max-w-full truncate text-gray-300">
               {existingFileName}
             </p>
@@ -161,7 +165,7 @@ export function FileDropzone({
             className="flex size-full cursor-pointer flex-col items-center justify-center gap-2 px-[22px] text-center disabled:cursor-not-allowed"
           >
             <span className="text-button-sm flex items-center gap-2 text-gray-300">
-              <CloudUploadIcon className="size-[22px]" />
+              <Icon name="cloud-upload" size={22} />
               파일 선택
             </span>
             <span className="text-label text-gray-600">

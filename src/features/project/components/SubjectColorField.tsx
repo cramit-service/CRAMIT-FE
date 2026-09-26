@@ -172,7 +172,11 @@ export function SubjectColorField({
                   )}
                 >
                   {/* ✓는 "이미 골라진 색". 고른 색은 링만으로 알린다 — 둘 다 ✓면 구분이 안 된다. */}
-                  {isTaken && <CheckIcon className="size-4 text-gray-950" />}
+                  {isTaken && (
+                    <span className="text-gray-950">
+                      <Icon name="check" size={16} />
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -180,22 +184,5 @@ export function SubjectColorField({
         </div>
       )}
     </div>
-  );
-}
-
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.4}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="m5 12 4.5 4.5L19 7" />
-    </svg>
   );
 }

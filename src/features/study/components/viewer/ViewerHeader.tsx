@@ -3,13 +3,10 @@
 import { ViewerTabs } from '@/features/study/components/viewer/ViewerTabs';
 import { EditableChapterTitle } from '@/features/study/components/viewer/EditableChapterTitle';
 import { ReviewStepper } from '@/features/study/components/viewer/ReviewStepper';
-import {
-  CollapseIcon,
-  ExpandIcon,
-} from '@/features/study/components/viewer/icons';
 import { Toggle } from '@/shared/ui/Toggle';
 import { formatChapterDay } from '@/features/study/lib/format';
 import type { Chapter, ViewerTab } from '@/shared/types/api';
+import { Icon } from '@/shared/ui/Icon';
 
 interface ViewerHeaderProps {
   chapter: Chapter;
@@ -40,9 +37,9 @@ export function ViewerHeader({
       aria-label={focus ? '집중 모드 끄기' : '집중 모드'}
     >
       {focus ? (
-        <CollapseIcon className="size-4" />
+        <Icon name="collapse" size={16} />
       ) : (
-        <ExpandIcon className="size-4" />
+        <Icon name="expand" size={16} />
       )}
       {focus ? '나가기' : '집중 모드'}
     </Toggle>

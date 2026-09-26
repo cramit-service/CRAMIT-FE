@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
 import { formatChapterDate } from '@/features/study/lib/format';
 import { useLongPress } from '@/features/study/hooks/useLongPress';
-import { CalendarIcon, ChevronRightIcon, RefreshIcon } from './icons';
 import type { Chapter, ChapterStatus } from '@/shared/types/api';
+import { Icon } from '@/shared/ui/Icon';
 
 // 액션 버튼 라벨이 곧 상태다 — 상태 3종(학습 전/중/완료)과 1:1로 대응한다.
 const actionLabel: Record<ChapterStatus, string> = {
@@ -68,7 +68,7 @@ export function ChapterCard({ chapter, onLongPress }: ChapterCardProps) {
           </p>
         </div>
         <p className="text-button-sm text-gray-650 flex items-center gap-1 font-medium">
-          <CalendarIcon className="size-3.5" />
+          <Icon name="calendar" size={14} />
           {formatChapterDate(chapter.createdAt)}
         </p>
       </div>
@@ -86,9 +86,9 @@ export function ChapterCard({ chapter, onLongPress }: ChapterCardProps) {
       >
         {actionLabel[chapter.status]}
         {chapter.status === 'DONE' ? (
-          <RefreshIcon className="size-4" />
+          <Icon name="restart" size={16} />
         ) : (
-          <ChevronRightIcon className="size-4" />
+          <Icon name="arrow-right" size={16} />
         )}
       </button>
     </div>

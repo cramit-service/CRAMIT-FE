@@ -16,7 +16,7 @@ import { Tooltip } from '@/shared/ui/Tooltip';
 import { SidebarItem } from './SidebarItem';
 import { CourseNav } from './CourseNav';
 import type { NavData } from './types';
-import { ChevronLeftIcon, ChevronRightIcon, HouseIcon } from './icons';
+import { Icon } from '@/shared/ui/Icon';
 
 // 접은 직후 chevron을 잠깐 보여 주는 시간. "어디로 갔는지" 한 번 알려 주는 용도다.
 const PEEK_MS = 1500;
@@ -148,7 +148,7 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
               aria-controls={NAV_ID}
               className="focus-visible:ring-sky-ink ml-auto flex size-8 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 focus-visible:ring-2 focus-visible:outline-none"
             >
-              <ChevronLeftIcon className="size-5" />
+              <Icon name="arrow-left" size={20} />
             </button>
           </Tooltip>
         )}
@@ -187,7 +187,7 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
                   : 'pointer-events-none opacity-0',
               )}
             >
-              <ChevronRightIcon className="size-4" />
+              <Icon name="arrow-right" size={16} />
             </button>
           </Tooltip>
         </>
@@ -197,7 +197,7 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
           과목 목록 안에서만 일어난다. nav 전체를 스크롤러로 두면 홈까지 같이 밀린다. */}
       <nav id={NAV_ID} className="flex min-h-0 flex-1 flex-col gap-1">
         <SidebarItem
-          icon={<HouseIcon className="size-6" />}
+          icon={<Icon name="house" size={24} />}
           label="홈"
           href="/home"
           active={isActive('/home')}

@@ -3,9 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
 import { Tag } from './Tag';
-import { ChevronRightIcon } from './icons';
 import { getDday } from '@/features/study/lib/format';
 import type { ProjectSummary } from '@/shared/types/api';
+import { Icon } from '@/shared/ui/Icon';
 
 interface LectureCardProps {
   lecture: ProjectSummary;
@@ -43,7 +43,9 @@ export function LectureCard({ lecture, dotClass }: LectureCardProps) {
         </span>
       </span>
 
-      <ChevronRightIcon className="size-3.5 shrink-0 text-gray-700" />
+      <span className="shrink-0 text-gray-700">
+        <Icon name="arrow-right" size={14} />
+      </span>
     </button>
   );
 }

@@ -7,18 +7,13 @@ import {
 } from '@/features/chat/hooks/useChat';
 import { ChatBubble } from '@/features/chat/components/ChatBubble';
 import {
-  CloseIcon,
-  PaperclipIcon,
-  SendIcon,
-} from '@/features/chat/components/icons';
-import {
   ATTACHMENT_ACCEPT,
   formatFileSize,
   validateAttachment,
 } from '@/features/chat/lib/attachment';
 import { mockSuggestedQuestions } from '@/mocks/chat';
-import { ArrowUpIcon } from '@/features/study/components/viewer/icons';
 import { Button } from '@/shared/ui/Button';
+import { Icon } from '@/shared/ui/Icon';
 
 // 챗봇 패널 본문. 도크(열고 닫는 껍데기)는 ChatDock이 맡는다.
 export function ChatPanel({
@@ -168,7 +163,7 @@ export function ChatPanel({
             aria-label="맨 위로"
             className="sticky bottom-0 mt-auto flex size-12 shrink-0 items-center justify-center self-end rounded-full border-2 border-gray-950 bg-white/80 text-gray-950 backdrop-blur transition-colors hover:bg-white"
           >
-            <ArrowUpIcon className="h-6 w-[19px]" />
+            <Icon name="to-top" size={24} />
           </button>
         )}
       </div>
@@ -205,7 +200,7 @@ export function ChatPanel({
               aria-label="전송 실패 알림 닫기"
               className="shrink-0 text-gray-400 transition-colors hover:text-gray-100"
             >
-              <CloseIcon className="size-4" />
+              <Icon name="close" size={16} />
             </button>
           </div>
         )}
@@ -213,7 +208,9 @@ export function ChatPanel({
         {/* 고른 파일 (시안 없음 — 미리보기 없이 이름·크기만 보여준다) */}
         {file && (
           <div className="flex max-w-full items-center gap-2 self-start rounded-sm border border-gray-500 bg-gray-700 px-2 py-1">
-            <PaperclipIcon className="size-5 shrink-0 text-gray-300" />
+            <span className="shrink-0 text-gray-300">
+              <Icon name="paperclip" size={20} />
+            </span>
             <span className="text-body-sm min-w-0 truncate text-gray-100">
               {file.name}
             </span>
@@ -229,7 +226,7 @@ export function ChatPanel({
               aria-label="첨부 파일 빼기"
               className="shrink-0 text-gray-400 transition-colors hover:text-gray-100"
             >
-              <CloseIcon className="size-4" />
+              <Icon name="close" size={16} />
             </button>
           </div>
         )}
@@ -267,7 +264,7 @@ export function ChatPanel({
             aria-describedby={fileError ? fileErrorId : undefined}
             className="shrink-0 text-gray-400 transition-colors hover:text-gray-100 disabled:opacity-50 disabled:hover:text-gray-400"
           >
-            <PaperclipIcon className="size-6" />
+            <Icon name="paperclip" size={24} />
           </button>
 
           <input
@@ -284,7 +281,7 @@ export function ChatPanel({
             aria-label="보내기"
             className="bg-secondary-400 flex size-9 shrink-0 items-center justify-center rounded-full text-white transition-opacity hover:opacity-90 disabled:opacity-40"
           >
-            <SendIcon className="size-[15px]" />
+            <Icon name="send" size={15} />
           </button>
         </div>
       </form>

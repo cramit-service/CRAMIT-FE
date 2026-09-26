@@ -8,7 +8,8 @@
 //
 // 대신 눌리지 않는다는 걸 분명히 한다: 흐린 색만으로는 고장인지 준비 중인지 알 수 없어
 // 배지와 툴팁으로 함께 말한다(SidebarItem의 "준비 중이에요"와 같은 규칙).
-import { MicIcon } from './icons';
+
+import { Icon } from '@/shared/ui/Icon';
 
 export function RecordingSlot() {
   return (
@@ -25,7 +26,9 @@ export function RecordingSlot() {
         title="준비 중이에요"
         className="flex h-[270px] flex-col items-center justify-center gap-2 rounded-md border border-dashed border-gray-700 bg-gray-800/50 px-[22px] text-center opacity-60"
       >
-        <MicIcon className="size-[22px] text-gray-400" />
+        <span className="text-gray-400">
+          <Icon name="mic" size={22} />
+        </span>
         <p className="text-button-sm text-gray-300">수업을 들으면서 녹음</p>
         <p className="text-label text-gray-600">
           끝나면 그대로 요약·스크립트까지

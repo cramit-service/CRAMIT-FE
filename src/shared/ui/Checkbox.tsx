@@ -1,6 +1,7 @@
 'use client';
 // src/shared/ui/Checkbox.tsx
 import { cn } from '@/shared/lib/cn';
+import { Icon } from '@/shared/ui/Icon';
 
 interface CheckboxProps {
   checked: boolean;
@@ -11,23 +12,6 @@ interface CheckboxProps {
   label?: React.ReactNode;
   'aria-label'?: string;
   className?: string;
-}
-
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className={className}
-    >
-      <path d="m5 12 5 5L20 7" />
-    </svg>
-  );
 }
 
 // 체크박스의 "네모" 표시만 떼어낸 것. 상태를 받아 그리기만 하고 아무것도 토글하지 않는다.
@@ -56,7 +40,7 @@ export function CheckboxBox({
         className,
       )}
     >
-      <CheckIcon className={cn('h-3.5 w-3.5', iconClassName)} />
+      <Icon name="check" className={cn('h-3.5 w-3.5', iconClassName)} />
     </span>
   );
 }

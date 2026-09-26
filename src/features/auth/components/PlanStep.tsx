@@ -2,6 +2,7 @@
 // src/features/auth/components/PlanStep.tsx
 import { cn } from '@/shared/lib/cn';
 import type { PlanId } from '@/shared/types/api';
+import { Icon } from '@/shared/ui/Icon';
 
 interface Plan {
   id: PlanId;
@@ -35,23 +36,6 @@ const PLANS: Plan[] = [
     features: ['내용1', '내용2'],
   },
 ];
-
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className={className}
-    >
-      <path d="m4 11 6 6L21 5" />
-    </svg>
-  );
-}
 
 interface PlanStepProps {
   selectedPlan: PlanId;
@@ -117,7 +101,9 @@ export function PlanStep({
                       key={feature}
                       className="flex items-center gap-2 text-sm text-gray-800"
                     >
-                      <CheckIcon className="h-4 w-4 shrink-0 text-gray-700" />
+                      <span className="shrink-0 text-gray-700">
+                        <Icon name="check" size={16} />
+                      </span>
                       {feature}
                     </li>
                   ))}

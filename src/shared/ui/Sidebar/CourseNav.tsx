@@ -6,8 +6,8 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
 import { Tooltip } from '@/shared/ui/Tooltip';
 import type { NavCourse } from './types';
-import { BookIcon, ChevronRightIcon } from './icons';
 import { NavScroll } from './NavScroll';
+import { Icon } from '@/shared/ui/Icon';
 
 interface CourseNavProps {
   // 사이드바 펼침 여부. 접힘이면 점만 남고 강의명이 사라진다.
@@ -24,7 +24,7 @@ export function CourseNav({ expanded, mine, pending, error }: CourseNavProps) {
 
   return (
     <CourseSection
-      icon={<BookIcon className="size-6" />}
+      icon={<Icon name="book" size={24} />}
       label="내 강의"
       href="/projects"
       courses={mine}
@@ -119,7 +119,8 @@ function CourseSection({
             aria-label={`${label} ${open ? '접기' : '펼치기'}`}
             className="focus-visible:ring-sky-ink relative mr-3.5 flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 focus-visible:ring-2 focus-visible:outline-none"
           >
-            <ChevronRightIcon
+            <Icon
+              name="arrow-right"
               className={cn(
                 'size-4 transition-transform duration-150 ease-out',
                 open && 'rotate-90',

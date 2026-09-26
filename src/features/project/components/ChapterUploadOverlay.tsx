@@ -5,23 +5,10 @@ import { useEffect, useRef } from 'react';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
 import { Logo } from '@/shared/ui/Logo';
 import { cn } from '@/shared/lib/cn';
+import { Icon } from '@/shared/ui/Icon';
 
 // 시안(1:5259 "로딩 화면-ver2")의 진행 표시는 CRAMIT 심볼 10개가 왼쪽부터 차오르는 모양이다.
 const DOT_COUNT = 10;
-
-// 심볼 한 개. 시안 그룹 export(300.364×31에 10개가 31px 간격)에서 글리프 하나를 그대로 떼어냈다.
-function BoltGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 21.364 31"
-      fill="currentColor"
-      className={className}
-      aria-hidden
-    >
-      <path d="M6.77647 0.855505C8.87141 -0.620313 11.7944 -0.138827 13.3058 1.9307L19.714 10.7061C20.4833 11.3577 21.0499 12.2591 21.2696 13.3194C21.3415 13.666 21.3707 14.0115 21.3644 14.3506C21.3968 15.8137 20.723 17.2638 19.4259 18.1778C18.5218 18.8148 17.4634 19.0859 16.4308 19.0235L12.7501 19.7588L15.6466 23.7246C17.1576 25.7942 16.6847 28.6686 14.5899 30.1446C12.495 31.6207 9.57108 31.139 8.05967 29.0694L1.36436 19.9014C0.742407 19.2788 0.288078 18.476 0.0967829 17.5528C0.0290198 17.2257 -0.00188412 16.8998 0.00010318 16.5791C-0.0095861 15.1401 0.663328 13.7216 1.93956 12.8223C2.65226 12.3201 3.46117 12.0441 4.27745 11.9805L8.53428 11.1299L5.71983 7.27543C4.20847 5.2058 4.68152 2.33159 6.77647 0.855505Z" />
-    </svg>
-  );
-}
 
 interface ChapterUploadOverlayProps {
   /** 화면 한가운데 문구. 생성/수정에 따라 달라진다. */
@@ -123,13 +110,15 @@ export function ChapterUploadOverlay({
               className="flex items-center gap-[9.636px]"
             >
               {Array.from({ length: DOT_COUNT }, (_, index) => (
-                <BoltGlyph
+                <span
                   key={index}
                   className={cn(
-                    'h-[31px] w-[21.364px] transition-colors duration-300',
-                    index < filled ? 'text-gray-950' : 'text-gray-100',
+                    'transition-colors duration-300',
+                    index < filled ? 'text-gray-800' : 'text-gray-100',
                   )}
-                />
+                >
+                  <Icon name="bolt" size={31} />
+                </span>
               ))}
             </div>
 

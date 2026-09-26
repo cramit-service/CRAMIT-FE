@@ -21,7 +21,9 @@ export function LectureSearchBar({ value, onChange }: LectureSearchBarProps) {
         aria-label="강의 검색"
         className="text-label min-w-0 flex-1 bg-transparent font-medium text-gray-100 placeholder:text-gray-400 focus:outline-none"
       />
-      <Icon name="search" size={16} className="text-gray-400" />
+      <span className="text-gray-400">
+        <Icon name="search" size={16} />
+      </span>
     </div>
   );
 }

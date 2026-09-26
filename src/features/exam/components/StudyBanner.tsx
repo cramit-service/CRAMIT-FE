@@ -8,6 +8,7 @@ import { daysUntil } from '@/features/exam/lib/dday';
 import { DdayBadge } from '@/features/exam/components/DdayBadge';
 import { examName } from '@/features/exam/lib/examName';
 import { useExams } from '@/features/exam/hooks/useExams';
+import { Icon } from '@/shared/ui/Icon';
 
 // 뱃지 오른쪽 한 마디. 급할 때만 붙이고 여유가 있으면 재촉하지 않는다.
 function urgencyNote(days: number): string | null {
@@ -113,7 +114,7 @@ export function StudyBanner() {
             )}
           >
             학습하러 가기
-            <ChevronRightIcon className="size-4" />
+            <Icon name="arrow-right" size={16} />
           </span>
         </Link>
       )}
@@ -156,24 +157,5 @@ function EmptyExamBanner() {
         새로운 시험이 등록되면 이곳에 표시됩니다.
       </p>
     </div>
-  );
-}
-
-function ChevronRightIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M9 6l6 6-6 6"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

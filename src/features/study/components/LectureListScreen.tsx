@@ -90,7 +90,7 @@ function CreateLectureButton() {
         className="text-label inline-flex h-7 items-center gap-1 rounded-md bg-gray-800 pr-2 pl-2.5 font-medium text-white transition-colors hover:bg-gray-700"
       >
         생성하기
-        <Icon name="add" size={14} />
+        <Icon name="plus" size={14} />
       </button>
       {open && <LectureFormModal onClose={() => setOpen(false)} />}
     </>

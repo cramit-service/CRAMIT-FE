@@ -2,10 +2,10 @@
 // src/features/chat/components/ChatBubble.tsx
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
-import { PaperclipIcon, SparkleIcon } from '@/features/chat/components/icons';
 import { formatFileSize } from '@/features/chat/lib/attachment';
 import { cn } from '@/shared/lib/cn';
 import type { ChatMessage } from '@/shared/types/api';
+import { Icon } from '@/shared/ui/Icon';
 
 // 접힌 높이(시안 고정값). 이 높이를 넘는 말풍선만 아래를 흐리게 덮고 "더 보기"를 붙인다.
 const COLLAPSED_HEIGHT = 264;
@@ -39,7 +39,9 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
             말풍선의 자식이라야 배경 위에 그려진다 — 형제로 두면 relative인
             말풍선이 위에 깔려 겹친 부분이 가려진다. */}
         {!isMine && (
-          <SparkleIcon className="text-secondary-400 absolute -top-6 left-0 size-9" />
+          <span className="text-secondary-400 absolute -top-6 left-0">
+            <Icon name="sparkle" size={36} />
+          </span>
         )}
 
         {/* 첨부 파일 (질문에 파일을 붙인 경우). 시안이 없어 미리보기 없이 칩으로만 둔다. */}
@@ -52,7 +54,9 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
                 : 'border-secondary-400 bg-white',
             )}
           >
-            <PaperclipIcon className="size-5 shrink-0 text-gray-600" />
+            <span className="shrink-0 text-gray-600">
+              <Icon name="paperclip" size={20} />
+            </span>
             <span className="text-body-sm min-w-0 truncate text-gray-800">
               {message.attachment.name}
             </span>
@@ -103,7 +107,7 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
             className="text-body-sm mt-1 flex items-center gap-1 font-medium text-gray-800 transition-opacity hover:opacity-70"
           >
             더 보기
-            <ChevronDown className="size-[19px]" />
+            <Icon name="arrow-down" size={16} />
           </button>
         )}
       </div>
@@ -123,24 +127,5 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
         />
       )}
     </li>
-  );
-}
-
-function ChevronDown({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M6 9l6 6 6-6"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
