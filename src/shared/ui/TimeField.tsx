@@ -4,6 +4,8 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { Icon } from '@/shared/ui/Icon';
 import {
+  FIELD_ICON,
+  FIELD_ICON_SIZE,
   FIELD_TRIGGER,
   OPTION_LIST,
   OPTION_ROW,
@@ -216,15 +218,18 @@ export function TimeField({
         aria-describedby={describedBy}
         className={cn(
           FIELD_TRIGGER,
-          'flex w-full items-center justify-between gap-2 text-left disabled:cursor-not-allowed disabled:opacity-50',
-          value ? 'text-gray-300' : 'text-gray-500',
+          'flex w-full items-center gap-2 text-left disabled:cursor-not-allowed disabled:opacity-50',
+          // 값 색이 gray-300이었다 — well 위에서 2.13:1이라 §4 필드 표의 gray-700(9.95:1)과
+          // 다른 색이었고, 같은 모달의 날짜 칸과도 어긋났다.
+          value ? 'text-gray-700' : 'text-gray-500',
         )}
       >
+        {/* 날짜 칸과 같은 이유로 chevron이 아니다 (DateField 주석 참고) */}
+        <span aria-hidden className={FIELD_ICON}>
+          <Icon name="time" size={FIELD_ICON_SIZE} />
+        </span>
         {/* 시안 표기는 사이를 띄운 `00 : 00`. 미선택일 때도 같은 글자를 흐리게 둔다 */}
         {value ? `${hour} : ${minute}` : '00 : 00'}
-        <span className="size-3 shrink-0 text-gray-500">
-          <Icon name="arrow-down" size={16} />
-        </span>
       </button>
 
       {open && (

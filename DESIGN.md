@@ -1288,6 +1288,52 @@ a mouse: `:focus-visible` leaves that to the browser, which gives the ring to
 keyboard navigation — and to text fields always, since a caret has to be
 findable.
 
+#### An icon in a field stands in front of it
+
+**The leading slot says what the field takes. The trailing slot says what
+pressing it does.**
+
+| Slot     | What it means          | Pressed | Today                        |
+| -------- | ---------------------- | ------- | ---------------------------- |
+| Leading  | What this field is for | No      | `search`, `calendar`, `time` |
+| Trailing | A list drops from here | Yes     | `Select`, `Combobox`         |
+
+One slot cannot hold both. Every field icon in the codebase sat on the right and
+every one of them opened something, so "right side" could be read as "press
+this" — until a magnifier arrived, which opens nothing. Putting it on the same
+side spends that reading for a decoration.
+
+**`aria-haspopup` had already drawn the line and the screens ignored it.**
+`Select` and `Combobox` are `listbox`: a list drops beneath the field, and a
+chevron points at where it will land. `DateField` and `TimeField` are `dialog`:
+a calendar, or a pair of columns, opens as a new surface, and an arrow pointing
+down describes nothing about that. All three were drawn with the same chevron
+anyway. So the date field takes a calendar and the time field a clock, in front,
+and neither keeps a chevron — what a `dialog` trigger owes the screen is what it
+is, not which direction it opens.
+
+**The leading icon is `gray-500`, not the `gray-400` §2 gives meaningful
+icons.** On `well` that step is 3.04:1 while the placeholder is 4.52:1, which
+leaves the icon fainter than the hint. The hint leaves when a value arrives and
+the icon stays, and the permanent mark cannot be the quieter one.
+
+**Its size comes from the control step, not from a prop.** §3 binds an icon to
+the text beside it and `control` already binds that text to the height, so the
+step settles it: every field is `md`, which is `label` 14, which rounds to 16.
+No field offers a size today, so there is one number and nothing to disagree
+with it.
+
+**A label above and an icon in front are the same sentence twice**, so the type
+takes one or the other and the build rejects both. The rule directly above about
+unenforced rules applies to this one.
+
+**The field element is a `<label>`.** Once the padding and the icon live outside
+the `<input>`, the places a person clicks stop being the input: the icon
+swallows nothing (`pointer-events: none`), but the box beneath it passes nothing
+on either, and the 18px at each end goes dead the same way. Wrapping in a
+`<label>` is the platform's own answer, costs one tag, and adds no accessible
+name because it holds no text of its own.
+
 #### Four things pick from a list, and they share one list
 
 **The trigger differs; the list does not.**

@@ -4,7 +4,11 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { Icon } from '@/shared/ui/Icon';
 import { toLocalDateString } from '@/shared/lib/date';
-import { FIELD_TRIGGER } from '@/shared/ui/fieldStyle';
+import {
+  FIELD_ICON,
+  FIELD_ICON_SIZE,
+  FIELD_TRIGGER,
+} from '@/shared/ui/fieldStyle';
 
 // 시안의 날짜 칸은 달력에서 고르는 것만 허용한다 — 네이티브 <input type="date">는
 // 세그먼트를 직접 타이핑할 수 있고 그 상태로 Enter를 치면 폼이 제출된다.
@@ -222,14 +226,17 @@ export function DateField({
         // 안 맞는다). 빈 날짜로 제출되는 건 각 모달의 canSubmit이 막는다.
         className={cn(
           FIELD_TRIGGER,
-          'flex w-full items-center justify-between gap-2 text-left disabled:cursor-not-allowed disabled:opacity-50',
+          'flex w-full items-center gap-2 text-left disabled:cursor-not-allowed disabled:opacity-50',
           value ? 'text-gray-700' : 'text-gray-500',
         )}
       >
-        {value ? formatDisplay(value) : 'YY. MM. DD.'}
-        <span className="size-3 shrink-0 text-gray-500">
-          <Icon name="arrow-down" size={16} />
+        {/* chevron이 아니라 달력이다. aria-haspopup이 이미 둘을 갈라 놨다 —
+            Select는 listbox라 목록이 아래로 떨어지지만 이건 dialog라 새 판이 열린다.
+            화면이 그걸 따라오지 않아 셋 다 같은 화살표를 달고 있었다. */}
+        <span aria-hidden className={FIELD_ICON}>
+          <Icon name="calendar" size={FIELD_ICON_SIZE} />
         </span>
+        {value ? formatDisplay(value) : 'YY. MM. DD.'}
       </button>
 
       {open && (
