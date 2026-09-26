@@ -816,7 +816,10 @@ blurred.
 
 **Every icon lives in one record, `ICONS` in `shared/ui/Icon.tsx`, and screens
 call it by name:** `<Icon name="edit" size={16} />`. There is no other place an
-icon may be drawn.
+icon may be drawn, and that is a lint rule rather than a sentence — `<svg>` is
+forbidden everywhere in `src` except `Icon.tsx` and `Logo.tsx`, the logo being a
+wordmark rather than an icon. The previous version of this rule was a sentence,
+and the count below is what a sentence was worth.
 
 **The reason is a count.** Before this rule there were 43 icon definitions across
 15 files — `icons.tsx` in five features, one in `shared/ui/Sidebar`, and eleven

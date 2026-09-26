@@ -103,6 +103,27 @@ const eslintConfig = defineConfig([
     },
   },
   {
+    // 아이콘은 shared/ui/Icon.tsx 한 곳에만 있다. 이 규칙이 없어서 같은 꺾쇠가
+    // 다섯 군데에 따로 그려졌고, 56종 중 절반이 아무 데서도 안 쓰였다.
+    // Logo는 아이콘이 아니라 워드마크라 자기 벡터를 갖는다.
+    files: ['src/shared/**/*.tsx'],
+    ignores: ['src/shared/ui/Icon.tsx', 'src/shared/ui/Logo.tsx'],
+    rules: {
+      'react/forbid-elements': [
+        'error',
+        {
+          forbid: [
+            {
+              element: 'svg',
+              message:
+                '아이콘은 <Icon name="…" />로 부릅니다. 없으면 시안 "Icon" 프레임(1:13899)을 먼저 보고 shared/ui/Icon.tsx에 추가하세요 (DESIGN.md 4절).',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     // 화면(features·app)은 부품을 조립만 한다.
     // 누를 수 있거나 값을 받는 것은 shared/ui에서 가져오고, 배치만 직접 그린다.
     // 이 규칙이 없으니 버튼이 66곳에서 날것으로 그려졌다 — 문서로는 안 막혔다.
@@ -122,6 +143,11 @@ const eslintConfig = defineConfig([
               element: 'textarea',
               message:
                 '공통 부품이 없으면 shared/ui에 먼저 PR을 올리세요 (CONTRIBUTING.md).',
+            },
+            {
+              element: 'svg',
+              message:
+                '아이콘은 <Icon name="…" />로 부릅니다. 없으면 시안 "Icon" 프레임(1:13899)을 먼저 보고 shared/ui/Icon.tsx에 추가하세요 (DESIGN.md 4절).',
             },
           ],
         },
