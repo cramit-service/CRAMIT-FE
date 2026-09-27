@@ -51,7 +51,9 @@ export function LoginScreen() {
     <GradientBackground className="flex min-h-screen flex-col items-center justify-center px-6">
       {/* Figma: 워드마크 → 200px 간격 → 소셜 버튼 2개(간격 20px) */}
       <div className="flex w-full max-w-[500px] flex-col items-center">
-        <Logo className="h-12 text-gray-950 md:h-14" />
+        {/* md:h-14로 한 단 커지고 있었다. §5가 "부품 내부 치수는 어느 폭에서도 그대로"라
+            해서 한 값으로 둔다. */}
+        <Logo height={48} />
 
         <div className="mt-32 flex w-full flex-col gap-4 md:mt-40">
           <SocialButton

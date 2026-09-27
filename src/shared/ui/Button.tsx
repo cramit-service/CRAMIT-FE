@@ -30,6 +30,9 @@ type ButtonProps = CommonProps &
   (
     | (Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'className'> & {
         href?: never;
+        // React 19에서 ref는 그냥 prop이다. 포커스를 이 버튼으로 옮겨야 하는 화면이
+        // 있다(업로드 대기 화면 — 할 수 있는 일이 취소뿐이라 거기서 시작한다).
+        ref?: React.Ref<HTMLButtonElement>;
       })
     | (Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'className'> & {
         href: string;

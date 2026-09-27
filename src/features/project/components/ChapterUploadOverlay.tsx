@@ -2,6 +2,7 @@
 // src/features/project/components/ChapterUploadOverlay.tsx
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
+import { Button } from '@/shared/ui/Button';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
 import { Logo } from '@/shared/ui/Logo';
 import { cn } from '@/shared/lib/cn';
@@ -77,7 +78,7 @@ export function ChapterUploadOverlay({
         <div className="relative flex h-full flex-col">
           {/* 시안 상단 바 124px. 워드마크는 다른 화면과 같은 22px로 둔다. */}
           <div className="flex h-[124px] shrink-0 items-center justify-center">
-            <Logo className="h-[22px] text-gray-950" />
+            <Logo height={22} />
           </div>
 
           {/* 시안에서 마스코트~심볼 묶음은 화면 정중앙이다. 위 로고 바만큼을 아래 여백으로
@@ -124,14 +125,14 @@ export function ChapterUploadOverlay({
 
             {/* 시안에는 없지만 필요하다 — 이게 없으면 큰 파일을 잘못 골랐을 때
               업로드가 끝날 때까지 화면을 벗어날 방법이 아예 없다. */}
-            <button
+            <Button
               ref={cancelRef}
-              type="button"
+              rank="secondary"
+              size="sm"
               onClick={onCancel}
-              className="text-label focus-visible:ring-secondary-400 mt-2 rounded-sm px-2 py-1 text-gray-600 underline underline-offset-4 transition-colors hover:text-gray-800 focus-visible:ring-2 focus-visible:outline-none"
             >
               업로드 취소
-            </button>
+            </Button>
           </div>
         </div>
       </div>
