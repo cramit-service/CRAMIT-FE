@@ -55,7 +55,7 @@ export function FileDropzone({
 
   // 칸 안에서 쓰는 밑줄 액션 버튼. "다시 선택"·"파일 교체"가 같은 생김새를 쓴다.
   const LINK_ACTION =
-    'text-label rounded-sm px-2 py-1 text-gray-300 underline underline-offset-2 transition-colors hover:text-gray-100 disabled:cursor-not-allowed disabled:text-gray-600';
+    'text-label rounded-sm px-2 py-1 text-gray-500 underline underline-offset-2 transition-colors hover:text-gray-800 disabled:cursor-not-allowed disabled:text-gray-400';
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -68,7 +68,7 @@ export function FileDropzone({
   return (
     <div className="flex flex-col gap-[22px]">
       {/* 라벨은 시안 20px. */}
-      <p className="text-body-md text-gray-300">{label}</p>
+      <p className="text-body-md text-gray-700">{label}</p>
 
       <div
         onDragOver={(e) => {
@@ -78,9 +78,9 @@ export function FileDropzone({
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
         className={cn(
-          'h-[270px] rounded-md border border-dashed bg-gray-800 transition-colors',
+          'bg-well h-[270px] rounded-md border border-dashed transition-colors',
           // 파일을 끌고 오면 테두리로 "여기에 놓으면 된다"를 알린다.
-          dragging ? 'border-secondary-400 bg-gray-700' : 'border-gray-400',
+          dragging ? 'border-sky-ink bg-sky-pale' : 'border-gray-300',
         )}
       >
         {/* 같은 파일을 지웠다가 다시 고르면 change가 안 뜬다. value를 비워 매번 뜨게 한다. */}
@@ -98,13 +98,13 @@ export function FileDropzone({
 
         {file ? (
           <div className="flex size-full flex-col items-center justify-center gap-2 px-[22px] text-center">
-            <span className="text-secondary-400">
+            <span className="text-gray-700">
               <Icon name="cloud-upload" size={22} />
             </span>
-            <p className="text-body-sm max-w-full truncate text-gray-100">
+            <p className="text-body-sm max-w-full truncate text-gray-800">
               {file.name}
             </p>
-            <p className="text-label text-gray-600">
+            <p className="text-label text-gray-500">
               {formatFileSize(file.size)}
             </p>
             <div className="mt-0.5 flex items-center gap-2">
@@ -126,7 +126,7 @@ export function FileDropzone({
                 }}
                 disabled={disabled}
                 aria-label={`${spec.label} 파일 삭제`}
-                className="text-error text-label rounded-sm px-2 py-1 underline underline-offset-2 transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:text-gray-600"
+                className="text-red-ink text-label rounded-sm px-2 py-1 underline underline-offset-2 transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:text-gray-400"
               >
                 삭제
               </button>
@@ -140,10 +140,10 @@ export function FileDropzone({
             <span className="text-gray-500">
               <Icon name="cloud-upload" size={16} />
             </span>
-            <p className="text-body-sm max-w-full truncate text-gray-300">
+            <p className="text-body-sm max-w-full truncate text-gray-800">
               {existingFileName}
             </p>
-            <p className="text-label text-gray-600">이미 올라간 파일이에요</p>
+            <p className="text-label text-gray-500">이미 올라간 파일이에요</p>
             <button
               type="button"
               onClick={openPicker}
@@ -164,11 +164,11 @@ export function FileDropzone({
             aria-describedby={describedBy}
             className="flex size-full cursor-pointer flex-col items-center justify-center gap-2 px-[22px] text-center disabled:cursor-not-allowed"
           >
-            <span className="text-body-sm flex items-center gap-2 text-gray-300">
+            <span className="text-body-sm flex items-center gap-2 text-gray-700">
               <Icon name="cloud-upload" size={22} />
               파일 선택
             </span>
-            <span className="text-label text-gray-600">
+            <span className="text-label text-gray-500">
               {spec.hint}
               <br />
               {spec.formatHint}
@@ -182,7 +182,7 @@ export function FileDropzone({
         <p
           id={errorId}
           role="alert"
-          className="text-error text-body-sm break-keep"
+          className="text-red-ink text-body-sm break-keep"
         >
           {error}
         </p>

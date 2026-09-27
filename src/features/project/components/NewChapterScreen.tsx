@@ -10,8 +10,8 @@ import { useProjectDetail } from '@/features/study/hooks/useProjectDetail';
 import { useChapters } from '@/features/study/hooks/useChapters';
 import { useCreateChapter } from '@/features/project/hooks/useCreateChapter';
 
-import { Tag } from '@/features/study/components/Tag';
 import { ViewerTabs } from '@/features/study/components/viewer/ViewerTabs';
+import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
 import { FileDropzone } from './FileDropzone';
 import { RecordingSlot } from './RecordingSlot';
 import { ChapterUploadOverlay } from './ChapterUploadOverlay';
@@ -130,34 +130,46 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
           탭은 아직 열 게 없어 잠가 두지만, 무엇이 생길지는 미리 보여준다. */}
       <header>
         <div className="flex items-center justify-between gap-4">
-          <h1 className="text-heading-md min-w-0 truncate text-right font-semibold text-gray-950">
+          <h1 className="text-heading-md min-w-0 truncate font-semibold text-gray-800">
             Chapter {nextNumber}
           </h1>
         </div>
 
         <div className="mt-7 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
           <ViewerTabs activeTabs={[]} onToggle={() => {}} locked />
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-label text-gray-950">
-              {projectQuery.data.title}
-            </p>
-            {projectQuery.data.professor && (
-              <Tag tone="dark">{projectQuery.data.professor} 교수님</Tag>
-            )}
-            {/* 실제 날짜를 렌더에서 만들면 서버·브라우저 시각이 갈릴 때 하이드레이션이
-                어긋난다. 아직 만들지 않은 주차라 "오늘"이 더 정확하기도 하다. */}
-            <Tag tone="outline">오늘</Tag>
-          </div>
+          {/* 알약 셋이었는데 글자로 내린다 — §4가 Tag를 걷어낸 이유 그대로다.
+              강의명은 자유 텍스트, 교수명도, "오늘"도 유한한 집합이 아니라 알약을
+              둘러도 형식만 빌려 오고 아무 말도 하지 않는다.
+              날짜를 렌더에서 만들지 않는 건 그대로다 — 서버·브라우저 시각이 갈리면
+              하이드레이션이 어긋나고, 아직 만들지 않은 주차라 "오늘"이 더 정확하다. */}
+          <p className="text-label text-gray-500">
+            {[
+              projectQuery.data.title,
+              projectQuery.data.professor
+                ? `${projectQuery.data.professor} 교수님`
+                : null,
+              '오늘',
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
         </div>
       </header>
 
-      {/* 학습 화면과 같은 어두운 패널이다 — 자료가 들어오면 이 자리가 그대로 뷰어가 된다. */}
-      <section className="mt-5 flex min-h-[590px] flex-col items-center justify-center gap-9 rounded-md bg-gray-900 px-8 py-10">
+      {/* 자료가 들어오면 이 자리가 그대로 뷰어가 되므로 판도 뷰어의 것을 그대로 쓴다.
+          어두운 판(bg-gray-900)이었는데 §2에 어두운 표면이 없다 — 같은 상수를 부르면
+          "그대로 뷰어가 된다"는 말이 주석이 아니라 코드가 된다. */}
+      <section
+        className={cn(
+          VIEWER_PANEL,
+          'flex flex-col items-center justify-center gap-9 px-8 py-10',
+        )}
+      >
         <div className="text-center">
-          <p className="text-heading-sm font-semibold text-white">
+          <p className="text-heading-sm font-semibold text-gray-800">
             Chapter {nextNumber} 학습을 시작해요
           </p>
-          <p className="text-body-sm mt-3 text-gray-400">
+          <p className="text-body-sm mt-3 text-gray-500">
             강의 자료와 녹음이 모이면 AI가 요약과 원문 스크립트를 만들어 줍니다.
           </p>
         </div>
@@ -189,14 +201,14 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
         <div className="text-label space-y-1 text-center text-gray-500">
           <p>
             강의 자료를 함께 올리면 전공 용어를 먼저 뽑아{' '}
-            <span className="text-gray-300">원문 스크립트가 정확해집니다.</span>
+            <span className="text-gray-700">원문 스크립트가 정확해집니다.</span>
           </p>
           <p>
             강의 자료만 먼저 올려 두고, 수업 시간에 다시 들어와 붙여도 됩니다.
           </p>
         </div>
 
-        {formError && <p className="text-label text-error">{formError}</p>}
+        {formError && <p className="text-label text-red-ink">{formError}</p>}
 
         <Button type="submit" disabled={!canSubmit}>
           업로드하기

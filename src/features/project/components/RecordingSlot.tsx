@@ -14,9 +14,9 @@ import { Icon } from '@/shared/ui/Icon';
 export function RecordingSlot() {
   return (
     <div className="flex flex-col gap-[22px]">
-      <p className="text-body-md flex items-center gap-2 text-gray-300">
+      <p className="text-body-md flex items-center gap-2 text-gray-700">
         바로 녹음하기
-        <span className="text-label rounded-full bg-gray-800 px-2 py-0.5 text-gray-500">
+        <span className="text-label rounded-full bg-gray-200 px-2 py-0.5 text-gray-700">
           준비 중
         </span>
       </p>
@@ -24,13 +24,13 @@ export function RecordingSlot() {
       <div
         aria-disabled
         title="준비 중이에요"
-        className="flex h-[270px] flex-col items-center justify-center gap-2 rounded-md border border-dashed border-gray-700 bg-gray-800/50 px-[22px] text-center opacity-60"
+        className="bg-well flex h-[270px] flex-col items-center justify-center gap-2 rounded-md border border-dashed border-gray-300 px-[22px] text-center opacity-60"
       >
-        <span className="text-gray-400">
+        <span className="text-gray-500">
           <Icon name="mic" size={22} />
         </span>
-        <p className="text-body-sm text-gray-300">수업을 들으면서 녹음</p>
-        <p className="text-label text-gray-600">
+        <p className="text-body-sm text-gray-700">수업을 들으면서 녹음</p>
+        <p className="text-label text-gray-500">
           끝나면 그대로 요약·스크립트까지
           <br />
           이어집니다
