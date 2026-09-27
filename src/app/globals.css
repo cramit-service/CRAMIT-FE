@@ -282,7 +282,9 @@
     width: 6px;
     height: 6px;
   }
-  /* 트랙을 비워 두면 바만 떠 있는 시안 모양이 된다 */
+  /* 페이지 스크롤바는 브라우저에 맡긴다 — 굵기만 6으로 맞추고 트랙은 비워 둔다.
+     안쪽 스크롤 영역(카드·패널·모달·사이드바)은 여기 걸리지 않는다. 그쪽은
+     shared/ui/ScrollArea가 네이티브를 빼고 자기 막대를 그린다. */
   *::-webkit-scrollbar-track {
     background-color: transparent;
   }
@@ -311,51 +313,12 @@
   }
 }
 
-/* 카드 안쪽 목록처럼 트랙까지 보이는 자리(시안의 홈 카드).
-   스크롤바는 요소의 padding 영역을 파고들어 항상 가장자리에 붙는다. 시안처럼 안쪽에
-   띄우려면 이 유틸리티를 쓰는 요소를 카드 안쪽에 한 겹 더 두고 여백은 카드가 갖는다. */
-/* 트랙 없는 6px 스크롤바. 홈 시험 일정 카드 전용 — 트랙이 있는 scrollbar-slim은
-   TODO·캘린더가 그대로 쓴다. */
-@utility scrollbar-bare {
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-track {
-    background-color: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    border-radius: var(--radius-full);
-    background-color: var(--color-gray-200);
-  }
-  &::-webkit-scrollbar-button {
-    display: none;
-  }
-}
-
 /* 스크롤바를 레이아웃에서 완전히 뺀다. 자리를 비워 두지도 않으므로 내용이 상자 폭을
    그대로 쓴다 — 그 대신 "얼마나 남았는지"를 알릴 방법이 사라지니, 쓰는 쪽이 막대를
    따로 그린다(shared/ui/Sidebar/NavScroll). */
 @utility scrollbar-hidden {
   scrollbar-width: none;
   &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-@utility scrollbar-slim {
-  /* scrollbar-width/color를 두면 Blink가 아래 규칙을 무시한다 (전역 블록 주석 참고) */
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-track {
-    border-radius: var(--radius-full);
-    background-color: var(--color-gray-100);
-  }
-  &::-webkit-scrollbar-thumb {
-    border-radius: var(--radius-full);
-    background-color: var(--color-gray-300);
-  }
-  &::-webkit-scrollbar-button {
     display: none;
   }
 }

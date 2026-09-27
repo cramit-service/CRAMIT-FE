@@ -641,6 +641,31 @@ the smallest step here is 32, so the standard is a floor this list already stand
 above rather than a reason for a step on it. 44 is not here because it is safe to
 tap; what it is for is settled in §4.
 
+#### Scroll areas
+
+**Everything that scrolls inside the page — a card, a panel, a modal body, the
+sidebar rail — uses one part, and the page itself is left to the browser.**
+`shared/ui/ScrollArea` takes the native bar out of the layout, closes the bottom
+with a fade, and draws its own 6px bar that appears while scrolling or while the
+pointer is over the area, and can be dragged.
+
+The native bar could not stay. In Blink a classic scrollbar takes its 6px out of
+the layout the moment it appears, so the content shifts every time a list grows
+past its box — in the rail that shift was the lime pill going 8 left and 14
+right. Hiding it per screen was the other option, and it produced four different
+treatments: a bar with a track, a bar without one, a hand-drawn gradient over a
+hidden bar, and a hand-drawn bar. Two of those utilities turned out to render
+identically to the default.
+
+**Padding belongs to the content, not to the scrolling box.** The bar sits on
+the right edge of the area, so anything padding the box pushes text under the
+bar or the bar off the edge — every call site that had tried to solve this had a
+different negative margin. With the padding inside, the bar stands over it.
+
+The page's own scrollbar is not this part. A fade across the bottom of the
+viewport would sit over the product permanently, and the browser's bar is the
+one thing on screen the product does not own.
+
 #### Corner radius
 
 | Step   |  px | Where                                                          |

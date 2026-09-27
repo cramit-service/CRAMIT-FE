@@ -14,6 +14,7 @@ import {
 import { mockSuggestedQuestions } from '@/mocks/chat';
 import { Button } from '@/shared/ui/Button';
 import { Icon } from '@/shared/ui/Icon';
+import { ScrollArea } from '@/shared/ui/ScrollArea';
 
 // 챗봇 패널 본문. 도크(열고 닫는 껍데기)는 ChatDock이 맡는다.
 export function ChatPanel({
@@ -89,84 +90,83 @@ export function ChatPanel({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       {/* 대화 영역 */}
-      <div
-        ref={listRef}
-        // flex-col + 아래 버튼의 mt-auto 조합이라, 대화가 짧아도 "맨 위로"가
-        // 시안처럼 대화 영역 우하단에 머문다(내용을 따라 위로 올라오지 않는다).
-        // 패널 본문은 흰 바탕이다(어두운 건 스크롤되지 않는 입력 바뿐).
-        // 시안 스크롤바는 트랙 #e7e7e8(gray-300) + 썸 #aeb1b6(gray-500) — scrollbar-slim이 그 값이다.
-        className="scrollbar-slim relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-10 pt-[50px] pb-6"
-      >
-        {chatQuery.isPending ? (
-          <p className="text-body text-gray-650 pt-10 text-center">
-            대화를 불러오는 중…
-          </p>
-        ) : chatQuery.isError ? (
-          <div className="flex flex-col items-center gap-3 pt-10">
-            <p className="text-body text-center text-gray-700">
-              대화를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+      {/* flex-col + 아래 버튼의 mt-auto 조합이라, 대화가 짧아도 "맨 위로"가
+          시안처럼 대화 영역 우하단에 머문다(내용을 따라 위로 올라오지 않는다).
+          패널 본문은 흰 바탕이다(어두운 건 스크롤되지 않는 입력 바뿐).
+          여백은 스크롤 칸이 아니라 안쪽 내용이 갖는다 — 막대가 그 여백 위에 선다. */}
+      <ScrollArea ref={listRef}>
+        <div className="relative flex min-h-full flex-col px-10 pt-[50px] pb-6">
+          {chatQuery.isPending ? (
+            <p className="text-body text-gray-650 pt-10 text-center">
+              대화를 불러오는 중…
             </p>
-            <Button
-              rank="secondary"
-              onClick={() => chatQuery.refetch()}
-              disabled={chatQuery.isFetching}
-            >
-              {chatQuery.isFetching ? '다시 시도 중…' : '다시 시도'}
-            </Button>
-          </div>
-        ) : messages.length === 0 ? (
-          // mock은 인사말을 항상 포함하지만, 백엔드가 빈 배열을 주면 아무 안내도 없이
-          // 빈 화면만 남는다. 로딩·에러와 마찬가지로 빈 상태도 말해 준다.
-          <p className="text-body text-gray-650 pt-10 text-center">
-            아직 주고받은 대화가 없어요. 궁금한 내용을 물어보세요.
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-7">
-            {messages.map((message) => (
-              <ChatBubble key={message.messageId} message={message} />
-            ))}
-            {sending && (
-              <li className="flex justify-start">
-                <p className="text-body-md rounded-md border-[0.5px] border-gray-300 bg-white px-5 py-3 text-gray-700">
-                  답변을 준비하고 있어요…
-                </p>
-              </li>
-            )}
-          </ul>
-        )}
-
-        {/* 추천 질문 (시안: 대화 영역 좌하단 흰 알약). 고정 바가 아니라 대화 흐름 안에 있어야
-            말풍선을 가리지 않는다. 첫 질문 전에만 둔다. */}
-        {!hasAsked && !chatQuery.isPending && !chatQuery.isError && (
-          <div className="mt-5 flex flex-col items-start gap-2">
-            {mockSuggestedQuestions.map((question) => (
-              <button
-                key={question}
-                type="button"
-                onClick={() => send(question)}
-                disabled={sending}
-                className="text-body-sm rounded-full border border-white bg-white px-[17px] py-1.5 font-medium text-gray-800 shadow-sm transition-colors hover:bg-gray-200 disabled:opacity-50"
+          ) : chatQuery.isError ? (
+            <div className="flex flex-col items-center gap-3 pt-10">
+              <p className="text-body text-center text-gray-700">
+                대화를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+              </p>
+              <Button
+                rank="secondary"
+                onClick={() => chatQuery.refetch()}
+                disabled={chatQuery.isFetching}
               >
-                {question}
-              </button>
-            ))}
-          </div>
-        )}
+                {chatQuery.isFetching ? '다시 시도 중…' : '다시 시도'}
+              </Button>
+            </div>
+          ) : messages.length === 0 ? (
+            // mock은 인사말을 항상 포함하지만, 백엔드가 빈 배열을 주면 아무 안내도 없이
+            // 빈 화면만 남는다. 로딩·에러와 마찬가지로 빈 상태도 말해 준다.
+            <p className="text-body text-gray-650 pt-10 text-center">
+              아직 주고받은 대화가 없어요. 궁금한 내용을 물어보세요.
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-7">
+              {messages.map((message) => (
+                <ChatBubble key={message.messageId} message={message} />
+              ))}
+              {sending && (
+                <li className="flex justify-start">
+                  <p className="text-body-md rounded-md border-[0.5px] border-gray-300 bg-white px-5 py-3 text-gray-700">
+                    답변을 준비하고 있어요…
+                  </p>
+                </li>
+              )}
+            </ul>
+          )}
 
-        {/* 맨 위로 (시안: 우하단 원형 버튼). mt-auto라 위 내용이 줄면 그만큼 내려온다 */}
-        {canScrollUp && (
-          <button
-            type="button"
-            onClick={() =>
-              listRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
-            }
-            aria-label="맨 위로"
-            className="sticky bottom-0 mt-auto flex size-12 shrink-0 items-center justify-center self-end rounded-full border-2 border-gray-950 bg-white/80 text-gray-950 backdrop-blur transition-colors hover:bg-white"
-          >
-            <Icon name="to-top" size={24} />
-          </button>
-        )}
-      </div>
+          {/* 추천 질문 (시안: 대화 영역 좌하단 흰 알약). 고정 바가 아니라 대화 흐름 안에 있어야
+            말풍선을 가리지 않는다. 첫 질문 전에만 둔다. */}
+          {!hasAsked && !chatQuery.isPending && !chatQuery.isError && (
+            <div className="mt-5 flex flex-col items-start gap-2">
+              {mockSuggestedQuestions.map((question) => (
+                <button
+                  key={question}
+                  type="button"
+                  onClick={() => send(question)}
+                  disabled={sending}
+                  className="text-body-sm rounded-full border border-white bg-white px-[17px] py-1.5 font-medium text-gray-800 shadow-sm transition-colors hover:bg-gray-200 disabled:opacity-50"
+                >
+                  {question}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* 맨 위로 (시안: 우하단 원형 버튼). mt-auto라 위 내용이 줄면 그만큼 내려온다 */}
+          {canScrollUp && (
+            <button
+              type="button"
+              onClick={() =>
+                listRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+              }
+              aria-label="맨 위로"
+              className="sticky bottom-0 mt-auto flex size-12 shrink-0 items-center justify-center self-end rounded-full border-2 border-gray-950 bg-white/80 text-gray-950 backdrop-blur transition-colors hover:bg-white"
+            >
+              <Icon name="to-top" size={24} />
+            </button>
+          )}
+        </div>
+      </ScrollArea>
 
       {/* 입력창 */}
       <form

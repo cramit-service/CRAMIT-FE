@@ -8,6 +8,7 @@
 // 이 부품이므로, 고른 것을 표시하는 일도 여기 있다.
 import { useEffect, useRef } from 'react';
 import { cn } from '@/shared/lib/cn';
+import { ScrollArea } from '@/shared/ui/ScrollArea';
 
 /** 목록 폭. 이보다 좁으면 미리보기가 무엇인지 알아볼 수 없고, 넓으면 본 화면이 좁아진다. */
 export const LIST_WIDTH = 160;
@@ -35,7 +36,7 @@ export function PageList({
   previewRatio = 0.561,
   previewPlaceholder,
 }: PageListProps) {
-  const listRef = useRef<HTMLUListElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const currentRef = useRef<HTMLLIElement>(null);
 
   // 방향키로 넘긴 페이지가 목록 밖이면 어디로 갔는지 알 수 없다.
@@ -60,56 +61,51 @@ export function PageList({
   const previewHeight = Math.round(width * previewRatio);
 
   return (
-    <div className="shrink-0" style={{ width }}>
-      <ul
-        ref={listRef}
-        className={cn(
-          // offsetTop이 목록 기준이 되도록 — 스크롤 위치 계산이 여기에 기댄다
-          'relative',
-          // 60~80장짜리 강의자료는 목록을 끌어 한 번에 훑어야 한다.
-          'scrollbar-slim fade-bottom h-full overflow-y-auto pr-1',
-          'space-y-3.5',
-        )}
-      >
-        {pages.map((page) => {
-          const current = page === currentPage;
-          return (
-            <li key={page} ref={current ? currentRef : undefined}>
-              <button
-                type="button"
-                onClick={() => onSelect(page)}
-                aria-current={current ? 'true' : undefined}
-                className={cn(
-                  'text-label relative block w-full overflow-hidden rounded-md font-medium',
-                  'transition-colors duration-150 ease-out',
-                  'focus-visible:ring-sky-ink focus-visible:ring-2 focus-visible:outline-none',
-                  // 고른 것만 연두다. 그림이 채움을 덮으므로 연두가 테두리로 나온다 —
-                  // 채울 자리가 없을 때 연두가 설 수 있는 유일한 자리다.
-                  current
-                    ? 'outline-lime-action outline-2'
-                    : 'outline-1 outline-transparent hover:outline-gray-100',
-                )}
-                style={{ ...previewPlaceholder, height: previewHeight }}
-              >
-                {renderPreview?.(page)}
-                {/* 번호 배지. 미리보기 위에 겹치므로 자기 채움을 갖는다.
-                    미리보기가 대개 흰 종이라 쉬는 배지는 테두리로 자기 자리를 낸다. */}
-                <span
+    <div className="flex shrink-0 flex-col" style={{ width }}>
+      {/* 60~80장짜리 강의자료는 목록을 끌어 한 번에 훑어야 한다.
+          offsetTop이 목록 기준이 되도록 ul이 relative다 — 스크롤 위치 계산이 여기 기댄다. */}
+      <ScrollArea ref={listRef}>
+        <ul className="relative space-y-3.5 pr-1">
+          {pages.map((page) => {
+            const current = page === currentPage;
+            return (
+              <li key={page} ref={current ? currentRef : undefined}>
+                <button
+                  type="button"
+                  onClick={() => onSelect(page)}
+                  aria-current={current ? 'true' : undefined}
                   className={cn(
-                    'text-label absolute top-1.5 left-1 rounded-md px-1.5 py-px',
+                    'text-label relative block w-full overflow-hidden rounded-md font-medium',
+                    'transition-colors duration-150 ease-out',
+                    'focus-visible:ring-sky-ink focus-visible:ring-2 focus-visible:outline-none',
+                    // 고른 것만 연두다. 그림이 채움을 덮으므로 연두가 테두리로 나온다 —
+                    // 채울 자리가 없을 때 연두가 설 수 있는 유일한 자리다.
                     current
-                      ? 'bg-lime-action text-gray-800'
-                      : 'bg-surface border border-gray-100 text-gray-700',
+                      ? 'outline-lime-action outline-2'
+                      : 'outline-1 outline-transparent hover:outline-gray-100',
                   )}
+                  style={{ ...previewPlaceholder, height: previewHeight }}
                 >
-                  P.{String(page).padStart(digits, '0')}
-                </span>
-                <span className="sr-only">{page}페이지 미리보기</span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+                  {renderPreview?.(page)}
+                  {/* 번호 배지. 미리보기 위에 겹치므로 자기 채움을 갖는다.
+                    미리보기가 대개 흰 종이라 쉬는 배지는 테두리로 자기 자리를 낸다. */}
+                  <span
+                    className={cn(
+                      'text-label absolute top-1.5 left-1 rounded-md px-1.5 py-px',
+                      current
+                        ? 'bg-lime-action text-gray-800'
+                        : 'bg-surface border border-gray-100 text-gray-700',
+                    )}
+                  >
+                    P.{String(page).padStart(digits, '0')}
+                  </span>
+                  <span className="sr-only">{page}페이지 미리보기</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </ScrollArea>
     </div>
   );
 }

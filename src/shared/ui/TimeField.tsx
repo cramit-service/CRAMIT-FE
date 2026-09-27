@@ -167,7 +167,7 @@ export function TimeField({
       aria-label={label}
       id={`${listId}-${col}`}
       style={{ maxHeight: COLUMN_MAX_HEIGHT }}
-      className="scrollbar-slim overflow-y-auto overscroll-contain"
+      className="overflow-y-auto overscroll-contain"
     >
       {options.map((option, i) => {
         const selected = option === selectedValue;

@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from 'react';
 import type { Todo } from '@/shared/types/api';
 import { Button } from '@/shared/ui/Button';
+import { ScrollArea } from '@/shared/ui/ScrollArea';
 import { CheckboxBox } from '@/shared/ui/Checkbox';
 import { cn } from '@/shared/lib/cn';
 import { toLocalDateString } from '@/shared/lib/date';
@@ -113,13 +114,13 @@ export function TodoChecklist() {
       </div>
 
       {/* 카드는 데이터 유무와 무관하게 항상 렌더 — 크기는 여기(div)에 준다. 비어도 안 줄어든다.
-          스크롤은 안쪽 div가 맡는다. 카드가 직접 스크롤하면 스크롤바가 카드 모서리에 붙는다.
-          안쪽의 -mr-3/pr-3은 스크롤바를 카드 우패딩 자리로 빼되 글자는 그대로 두려는 것이다. */}
+          스크롤은 ScrollArea가 맡는다(시험 일정 카드와 같은 부품·같은 기하).
+          오른쪽 패딩 12가 그 막대의 자리다. */}
       {/* lg 높이는 옆의 캘린더 카드와 하단이 맞아야 한다. 제목 행 규칙이 두 열에서 같으므로
           카드 높이도 캘린더와 같은 654다 — 한쪽을 바꾸면 다른 쪽도 같이 바꿔야 한다.
           예전에는 flex-1로 남는 높이를 채워 뷰포트마다 높이가 달라졌다. */}
-      <div className="flex h-124 flex-col rounded-md border border-gray-300 bg-white px-6 py-2 lg:h-[654px]">
-        <div className="scrollbar-slim -mr-3 min-h-0 flex-1 overflow-y-auto overscroll-none pr-3">
+      <div className="flex h-124 flex-col rounded-md border border-gray-300 bg-white py-2 pr-3 pl-6 lg:h-[654px]">
+        <ScrollArea>
           {isLoading ? (
             <StatusMessage>불러오는 중…</StatusMessage>
           ) : isError || !todos ? (
@@ -143,7 +144,7 @@ export function TodoChecklist() {
               ))}
             </ul>
           )}
-        </div>
+        </ScrollArea>
       </div>
 
       {/* 길게 눌러야 수정된다는 걸 화면만 봐서는 알 수 없어 시안(1:1166)의 안내 문구를 카드 아래에 둔다.

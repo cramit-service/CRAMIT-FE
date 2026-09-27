@@ -10,6 +10,7 @@ import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
 import { IconButton } from '@/shared/ui/IconButton';
+import { ScrollArea } from '@/shared/ui/ScrollArea';
 import { Textarea } from '@/shared/ui/Textarea';
 
 // PDF 탭·placeholder와 같은 패널 높이. 탭을 바꿔도 화면이 출렁이지 않게 맞춘다.
@@ -164,18 +165,20 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
 
       {/* 조회는 Markdown 렌더, 편집은 원문 textarea. 바탕은 감싼 패널의 surface를
           그대로 쓴다 — bg-white가 있었지만 토큰에서 흰색이 지워져 아무 일도 안 했다. */}
-      <div className="relative mt-5 min-h-0 flex-1 rounded-md">
+      <div className="relative mt-5 flex min-h-0 flex-1 flex-col rounded-md">
         {mode === 'view' ? (
-          <div ref={viewRef} className="h-full overflow-y-auto px-6 py-7">
-            {markdown ? (
-              <MarkdownContent markdown={markdown} />
-            ) : (
-              // 생성 중(PROCESSING)은 위에서 따로 걸러내므로 여기는 '생성됐지만 비어 있음'이다
-              <p className="text-label text-gray-500">
-                아직 생성된 요약이 없습니다.
-              </p>
-            )}
-          </div>
+          <ScrollArea ref={viewRef}>
+            <div className="px-6 py-7">
+              {markdown ? (
+                <MarkdownContent markdown={markdown} />
+              ) : (
+                // 생성 중(PROCESSING)은 위에서 따로 걸러내므로 여기는 '생성됐지만 비어 있음'이다
+                <p className="text-label text-gray-500">
+                  아직 생성된 요약이 없습니다.
+                </p>
+              )}
+            </div>
+          </ScrollArea>
         ) : (
           <Textarea
             ref={editRef}

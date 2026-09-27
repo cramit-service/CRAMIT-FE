@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
 import { Tooltip } from '@/shared/ui/Tooltip';
 import type { NavCourse } from './types';
-import { NavScroll } from './NavScroll';
+import { ScrollArea } from '@/shared/ui/ScrollArea';
 import { Icon } from '@/shared/ui/Icon';
 
 interface CourseNavProps {
@@ -131,7 +131,7 @@ function CourseSection({
       </div>
 
       {open && (
-        <NavScroll>
+        <ScrollArea>
           <ul>
             {pending &&
               [0, 1, 2].map((i) => (
@@ -219,7 +219,7 @@ function CourseSection({
               );
             })}
           </ul>
-        </NavScroll>
+        </ScrollArea>
       )}
     </div>
   );

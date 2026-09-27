@@ -5,6 +5,7 @@
 import { useId } from 'react';
 import { Button } from '@/shared/ui/Button';
 import { Modal } from '@/shared/ui/Modal';
+import { ScrollArea } from '@/shared/ui/ScrollArea';
 
 interface FormModalProps {
   open: boolean;
@@ -54,11 +55,11 @@ export function FormModal({
           {title}
         </h2>
 
-        {/* 구르는 자리. min-h-0이 없으면 flex 자식이 내용만큼 늘어나 스크롤이 안 생긴다.
-            좌우 여백을 안쪽에 두어야 스크롤바가 패널 가장자리에 붙는다. */}
-        <div className="scrollbar-slim flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-12">
-          {children}
-        </div>
+        {/* 구르는 자리. 여백은 스크롤 칸이 아니라 안쪽 내용이 갖는다 —
+            막대가 그 여백 위에 서서 글자를 안 덮는다. */}
+        <ScrollArea>
+          <div className="flex flex-col gap-6 px-12">{children}</div>
+        </ScrollArea>
 
         {/* 취소는 선택이 아니다. ×가 없으니, 반쯤 채운 폼을 두고 나갈 길이
             푸터에 없으면 사람이 누를 것이 화면에 남지 않는다.

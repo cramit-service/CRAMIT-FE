@@ -6,6 +6,7 @@ import { formatPlayTime } from '@/features/study/lib/format';
 import { ScriptSectionItem } from '@/features/study/components/viewer/ScriptSectionItem';
 import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
 import { cn } from '@/shared/lib/cn';
+import { ScrollArea } from '@/shared/ui/ScrollArea';
 import { Button } from '@/shared/ui/Button';
 import { Icon } from '@/shared/ui/Icon';
 
@@ -93,22 +94,21 @@ export function ScriptTab({
           아직 생성된 스크립트가 없습니다.
         </p>
       ) : (
-        // 목록은 패널 안에서만 스크롤한다. 아래 끝은 판 색(surface)으로 흐려지게 덮는다.
-        <div className="relative mt-6 min-h-0 flex-1">
-          {/* 아래 여백은 페이드 높이와 같게 준다 — 끝까지 내렸을 때 마지막 구간이
-              페이드에 덮여 흐려지지 않도록 밀어 올린다 */}
-          <ul className="flex h-full [scrollbar-width:none] flex-col gap-1 overflow-y-auto overscroll-contain pb-[73px] [&::-webkit-scrollbar]:hidden">
-            {sections.map((section) => (
-              <ScriptSectionItem
-                key={section.page}
-                section={section}
-                open={openPages.includes(section.page)}
-                onToggle={() => toggle(section.page)}
-              />
-            ))}
-          </ul>
-          {/* 스크롤이 남았음을 알리는 하단 페이드. 클릭을 막지 않도록 pointer-events 해제 */}
-          <div className="to-surface pointer-events-none absolute inset-x-0 bottom-0 h-[73px] bg-linear-to-b from-transparent to-55%" />
+        // 목록은 패널 안에서만 스크롤한다. 하단 페이드와 막대는 ScrollArea가 갖는다 —
+        // 전에는 73px짜리 그라디언트 div를 손으로 얹고 목록에 같은 크기의 아래 여백을 줬다.
+        <div className="mt-6 flex min-h-0 flex-1 flex-col">
+          <ScrollArea>
+            <ul className="flex flex-col gap-1">
+              {sections.map((section) => (
+                <ScriptSectionItem
+                  key={section.page}
+                  section={section}
+                  open={openPages.includes(section.page)}
+                  onToggle={() => toggle(section.page)}
+                />
+              ))}
+            </ul>
+          </ScrollArea>
         </div>
       )}
     </section>
