@@ -789,6 +789,14 @@ The 4px grid does not govern line height. The grid governs the space between
 things, which §2 settles. A line box is not space between things; it is the text
 itself. Where the two disagree, reading wins.
 
+**One place sets 14 in a 16 box, and that is the same rule applied.** A calendar
+day has 48px under its date, and an event there is a single truncated line, not
+a paragraph — three of them at the label's own 22 would need 66. At 16 they fit
+exactly, and the ramp keeps its floor: the size stays 14, which is what §3
+governs, while the box follows the cell. This is also what fixes the marker,
+since §2 binds the bar's height to the line box — 3 × 16. The alternative was
+keeping 12px text, and that trades a step on the ramp for two pixels of width.
+
 16/24 was settled first, against the summary panel — the long-form reading
 surface §1 is built around. At 24 a wrapped paragraph holds together as one
 block; at 28 its lines drift apart. The air that 28 would have bought belongs in
@@ -1040,6 +1048,17 @@ left open — a page number needs `aria-current` while `Toggle` emits
 | Back, and other navigation   |     4 | Back goes; the rest become links             |
 | Social sign-in               |     1 | Kakao yellow and Google white sit outside §2 |
 | The audio scrubber           |     1 | It takes a value: `input type="range"`       |
+| A calendar day cell          |     1 | It stays: neither a pill nor a card          |
+
+The day cell is the one that stays hand-drawn. This section names it as
+`Toggle`'s second user, and the semantics are right — exactly one day is pressed
+at a time, which is the arrangement the screen owns. The shape is not: a toggle
+is a pill 32 tall holding one line, and a day is a 96×110 grid cell holding a
+date and two event rows. `Card` is no closer — the grid already draws the line
+that separates one day from the next, and a card would draw a box inside it. So
+the cell keeps the raw element and the contract the components exist to enforce:
+it writes its own `aria-pressed` and its own name. The lint rule has a
+file-scoped exception for that one file, and only for `button`.
 
 These are `<button>` because `<button>` is what takes a click, not because they
 are buttons. Keeping them out is what keeps the three above small — a component

@@ -178,6 +178,36 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    // 캘린더의 하루 칸에서만 날것 button을 허락한다. 알약(Toggle)도 카드(Card)도 그
+    // 모양이 아니다 — 96×110 격자 칸에 날짜와 일정 줄이 들어가고, 칸을 가르는 선은
+    // 격자가 이미 긋는다. 누른 상태의 계약(aria-pressed·이름)은 그 파일이 직접 지킨다
+    // (DESIGN.md 4절). 나머지 넷은 그대로 막고, 임의 색·타이포 규칙도 그대로 걸린다.
+    files: ['src/features/calendar/components/CalendarCell.tsx'],
+    rules: {
+      'react/forbid-elements': [
+        'error',
+        {
+          forbid: [
+            { element: 'input', message: '@/shared/ui/Input을 쓰세요.' },
+            {
+              element: 'select',
+              message: '@/shared/ui/ModalCombobox 등 공통 부품을 쓰세요.',
+            },
+            {
+              element: 'textarea',
+              message:
+                '공통 부품이 없으면 shared/ui에 먼저 PR을 올리세요 (CONTRIBUTING.md).',
+            },
+            {
+              element: 'svg',
+              message: '아이콘은 <Icon name="…" />로 부릅니다 (DESIGN.md 4절).',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;
