@@ -3,6 +3,7 @@
 import { useId, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { FIELD_ERROR, FIELD_LABEL } from '@/shared/ui/fieldStyle';
+import { ConfirmModal } from '@/shared/ui/ConfirmModal';
 import { FormModal } from '@/shared/ui/FormModal';
 import { Input } from '@/shared/ui/Input';
 import {
@@ -12,6 +13,7 @@ import {
 import type { ProjectSummary } from '@/shared/types/api';
 import {
   useCreateLecture,
+  useDeleteLecture,
   useUpdateLecture,
 } from '@/features/project/hooks/useLectureMutations';
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
@@ -21,18 +23,31 @@ interface LectureFormModalProps {
   /** 있으면 수정 모드(주차 목록 헤더의 연필), 없으면 생성 모드(1:2614). */
   project?: ProjectSummary;
   onClose: () => void;
+  /** 지워진 뒤에 할 일. 강의가 사라졌으므로 그 강의의 화면에 머물면 안 된다 —
+   *  어디로 갈지는 부르는 쪽이 안다. 없으면 그냥 닫는다. */
+  onDeleted?: () => void;
 }
 
 // 내 강의 생성·수정 모달.
 // 시안: 생성 `새 강의 생성하기`(1:2614) / 수정 `강의 정보 수정하기`(528:7764, 528:8107).
 // 두 시안의 차이는 제목 문구와 시험 날짜 칸 하나뿐이라 한 폼을 모드로 나눠 쓴다.
 // 시험 날짜는 생성 시안에 없고 수정 시안에만 "(선택)"으로 있다.
-export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
+export function LectureFormModal({
+  project,
+  onClose,
+  onDeleted,
+}: LectureFormModalProps) {
   const fieldId = useId();
   const isEdit = project !== undefined;
 
   const createMutation = useCreateLecture();
   const updateMutation = useUpdateLecture();
+  const deleteMutation = useDeleteLecture();
+  // 삭제를 묻는 중. 확인 판이 이 폼 위에 쌓이지 않고 그 자리를 대신한다 —
+  // Modal이 자기 딤을 그리므로 둘을 겹치면 45%가 두 겹이 되어 69.75%가 된다.
+  // §2가 60%를 "여닫을 때마다 화면 전체가 출렁인다"며 거부한 값보다 어둡다(L* 42.4 → 32.2).
+  // 이 컴포넌트가 언마운트되지 않으므로 취소하고 돌아와도 입력값이 그대로 있다.
+  const [confirming, setConfirming] = useState(false);
 
   const [title, setTitle] = useState(project?.title ?? '');
   // 생성 때 교수명을 비우면 "미정"이 채워진다. 수정 화면에서 그게 그대로 보이면
@@ -60,7 +75,10 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
       : null;
   const colorIndex = pickedColor ?? defaultColor;
 
-  const busy = createMutation.isPending || updateMutation.isPending;
+  const busy =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending;
 
   // 필수는 강의명 하나다. 교수명은 (선택)이고, 시험 날짜는 이 모달에서 빠졌다 —
   // 시험은 강의에 딸린 별개 자료라 홈의 시험 일정에서 다룬다.
@@ -104,6 +122,33 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
     createMutation.mutate(payload, { onSuccess: () => onClose(), onError });
   };
 
+  if (isEdit && confirming) {
+    return (
+      <ConfirmModal
+        open
+        question="이 강의를 삭제할까요?"
+        detail="주차와 학습 기록이 함께 지워지고 되돌릴 수 없어요."
+        // §6: 파괴 버튼도 ~하기로 끝나고, 눌린 동안은 자기 낱말 + 중…
+        confirmLabel={deleteMutation.isPending ? '삭제 중…' : '삭제하기'}
+        danger
+        busy={deleteMutation.isPending}
+        onConfirm={() =>
+          deleteMutation.mutate(project.projectId, {
+            onSuccess: () => (onDeleted ?? onClose)(),
+            onError: (error) => {
+              setConfirming(false);
+              setFormError(
+                error.message ||
+                  '삭제에 실패했어요. 잠시 후 다시 시도해 주세요.',
+              );
+            },
+          })
+        }
+        onClose={() => setConfirming(false)}
+      />
+    );
+  }
+
   return (
     <FormModal
       open
@@ -122,6 +167,9 @@ export function LectureFormModal({ project, onClose }: LectureFormModalProps) {
       }
       submitDisabled={!canSubmit}
       busy={busy}
+      // 수정할 때만 지울 수 있다. FormModal이 푸터 반대쪽 끝(mr-auto)에 세운다 —
+      // 연두와 빨강이 나란히 서면 둘 다 그 줄을 자기 것이라 주장한다(§4).
+      onDelete={isEdit ? () => setConfirming(true) : undefined}
       onClose={onClose}
       onSubmit={handleSubmit}
     >

@@ -19,6 +19,7 @@ import {
   addMockProjectSummary,
   findMockProjectSummary,
   mockProjectsFromSummaries,
+  removeMockProjectSummary,
   updateMockProjectSummary,
 } from '@/mocks/project';
 import {
@@ -124,6 +125,20 @@ export async function updateLecture(
     return summary;
   }
   return apiClient.patch<ProjectSummary>(`/projects/${req.projectId}`, req);
+}
+
+// 강의 삭제 — 수정 모달 왼쪽 아래의 "삭제하기". 되돌릴 수 없으므로 화면이 먼저
+// ConfirmModal로 묻고, 그 답이 온 뒤에만 여기 닿는다.
+export async function deleteLecture(projectId: string): Promise<void> {
+  if (USE_MOCK) {
+    await delay(300);
+    if (!findMockProjectSummary(projectId)) {
+      throw new Error('삭제할 강의를 찾지 못했어요.');
+    }
+    removeMockProjectSummary(projectId);
+    return;
+  }
+  await apiClient.delete<void>(`/projects/${projectId}`);
 }
 
 // 새 주차(챕터) 업로드.

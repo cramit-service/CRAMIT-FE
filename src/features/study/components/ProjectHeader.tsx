@@ -1,5 +1,6 @@
 'use client';
 // src/features/study/components/ProjectHeader.tsx
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { LectureFormModal } from '@/features/project/components/LectureFormModal';
 import { getDday } from '@/features/study/lib/format';
@@ -10,6 +11,7 @@ import { IconButton } from '@/shared/ui/IconButton';
 // 주차 목록 상단 헤더: 강의명 + 연필, 그 아래 교수명·강의 수·D-day.
 // 새 주차 업로드는 헤더가 아니라 목록 바로 위에 있다(ChapterDetailScreen).
 export function ProjectHeader({ project }: { project: ProjectDetail }) {
+  const router = useRouter();
   const dday = getDday(project.examName, project.examDate);
   const [editOpen, setEditOpen] = useState(false);
 
@@ -46,6 +48,9 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
         <LectureFormModal
           project={project}
           onClose={() => setEditOpen(false)}
+          // 지운 강의의 화면에 남아 있으면 조회가 실패한 빈 페이지가 된다.
+          // replace라 뒤로 가기가 없어진 강의로 돌아오지 않는다.
+          onDeleted={() => router.replace('/projects')}
         />
       )}
     </header>

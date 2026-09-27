@@ -155,6 +155,14 @@ export function updateMockProjectSummary(summary: ProjectSummary): void {
   mockProjectSummaries[index] = summary;
 }
 
+// mock 전용: 목록에서 지운다. (removeMockExam·removeMockTodo와 같은 모양)
+export function removeMockProjectSummary(projectId: string): void {
+  const index = mockProjectSummaries.findIndex(
+    (p) => p.projectId === projectId,
+  );
+  if (index !== -1) mockProjectSummaries.splice(index, 1);
+}
+
 export function findMockProjectSummary(
   projectId: string,
 ): ProjectSummary | undefined {
