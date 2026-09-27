@@ -22,7 +22,7 @@ export function LectureSection({
 }: LectureSectionProps) {
   if (lectures.length === 0) {
     return (
-      <p className="text-body bg-surface rounded-lg px-6 py-12 text-center text-gray-500">
+      <p className="text-body bg-surface rounded-md px-6 py-12 text-center text-gray-500">
         {searching ? '검색 결과가 없어요.' : emptyMessage}
       </p>
     );

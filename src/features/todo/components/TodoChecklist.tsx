@@ -118,7 +118,7 @@ export function TodoChecklist() {
       {/* lg 높이는 옆의 캘린더 카드와 하단이 맞아야 한다. 제목 행 규칙이 두 열에서 같으므로
           카드 높이도 캘린더와 같은 654다 — 한쪽을 바꾸면 다른 쪽도 같이 바꿔야 한다.
           예전에는 flex-1로 남는 높이를 채워 뷰포트마다 높이가 달라졌다. */}
-      <div className="flex h-124 flex-col rounded-lg border border-gray-300 bg-white px-6 py-2 lg:h-[654px]">
+      <div className="flex h-124 flex-col rounded-md border border-gray-300 bg-white px-6 py-2 lg:h-[654px]">
         <div className="scrollbar-slim -mr-3 min-h-0 flex-1 overflow-y-auto overscroll-none pr-3">
           {isLoading ? (
             <StatusMessage>불러오는 중…</StatusMessage>
@@ -215,7 +215,7 @@ function TodoRow({
       >
         <CheckboxBox
           checked={done}
-          className="mt-px size-5.5 rounded-sm"
+          className="mt-px size-5.5 rounded-md"
           iconClassName="size-3.25"
         />
         {/* min-w-0 — 메모에 띄어쓰기 없는 아주 긴 문자열이 들어오면 flex 자동 최소폭(min-content)이

@@ -31,7 +31,7 @@ export function CheckboxBox({
   return (
     <span
       className={cn(
-        'flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border transition-colors',
+        'flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors',
         // 체크 시 색을 채우고, 아니면 아이콘을 투명하게 두어 크기 변화를 막는다.
         // 채움이 연두라 체크 표시는 어두워야 한다 — 흰색이면 1.13:1로 사라진다.
         checked

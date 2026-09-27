@@ -96,7 +96,7 @@ export function PageList({
                     미리보기가 대개 흰 종이라 쉬는 배지는 테두리로 자기 자리를 낸다. */}
                 <span
                   className={cn(
-                    'text-label absolute top-1.5 left-1 rounded-sm px-1.5 py-px',
+                    'text-label absolute top-1.5 left-1 rounded-md px-1.5 py-px',
                     current
                       ? 'bg-lime-action text-gray-800'
                       : 'bg-surface border border-gray-100 text-gray-700',

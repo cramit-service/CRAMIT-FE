@@ -78,7 +78,7 @@ export function PlanStep({
                   }
                 }}
                 className={cn(
-                  'flex h-full cursor-pointer flex-col rounded-lg border bg-gray-100 p-6 transition-colors',
+                  'flex h-full cursor-pointer flex-col rounded-md border bg-gray-100 p-6 transition-colors',
                   isSelected ? 'border-secondary-400' : 'border-gray-300',
                 )}
               >

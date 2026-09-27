@@ -28,7 +28,7 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
       <div
         // 최대 폭이 좌우가 다르다 — 시안 대화 열 632 기준 AI 612(≈97%), 내 질문 262(≈41%).
         className={cn(
-          'relative rounded-sm border-[0.5px] px-5 py-3',
+          'relative rounded-md border-[0.5px] px-5 py-3',
           isMine
             ? 'bg-primary-400 border-primary-200 max-w-[41%]'
             : 'border-secondary-400 max-w-[97%] bg-white',
@@ -48,7 +48,7 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
         {message.attachment && (
           <div
             className={cn(
-              'mb-1.5 flex max-w-full items-center gap-1.5 rounded-sm border-[0.5px] px-2 py-1',
+              'mb-1.5 flex max-w-full items-center gap-1.5 rounded-md border-[0.5px] px-2 py-1',
               isMine
                 ? 'border-primary-200 bg-white/60'
                 : 'border-secondary-400 bg-white',

@@ -36,7 +36,7 @@ export function SidebarItem({
           더 진해질 데가 없어서, 커서가 왔다는 건 채움이 말한다. */}
       <span
         className={cn(
-          'absolute inset-y-0 right-2 left-2 rounded-lg transition-colors',
+          'absolute inset-y-0 right-2 left-2 rounded-md transition-colors',
           active ? 'bg-lime-action' : 'group-hover:bg-gray-100',
         )}
       />

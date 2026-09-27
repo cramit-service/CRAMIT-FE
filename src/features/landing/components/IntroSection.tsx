@@ -15,7 +15,7 @@ export function IntroSection() {
           alt=""
           width={1200}
           height={900}
-          className="aspect-3/2 w-full rounded-lg object-cover"
+          className="aspect-3/2 w-full rounded-md object-cover"
         />
 
         <div>

@@ -184,7 +184,7 @@ export function Combobox({
             inputRef.current?.focus();
           }}
           aria-label="선택 해제"
-          className="absolute top-1/2 right-2.5 flex size-5 -translate-y-1/2 items-center justify-center rounded-sm text-gray-500 transition-colors hover:text-gray-300"
+          className="absolute top-1/2 right-2.5 flex size-5 -translate-y-1/2 items-center justify-center rounded-md text-gray-500 transition-colors hover:text-gray-300"
         >
           <Icon name="close" size={12} />
         </button>

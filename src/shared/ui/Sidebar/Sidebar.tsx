@@ -146,7 +146,7 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
               aria-label={toggleLabel}
               aria-expanded={expanded}
               aria-controls={NAV_ID}
-              className="focus-visible:ring-sky-ink ml-auto flex size-8 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 focus-visible:ring-2 focus-visible:outline-none"
+              className="focus-visible:ring-sky-ink ml-auto flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 focus-visible:ring-2 focus-visible:outline-none"
             >
               <Icon name="arrow-left" size={20} />
             </button>
@@ -227,7 +227,7 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
             )}
           >
             {profileActive && (
-              <span className="bg-lime-action absolute inset-y-0 right-2 left-2 rounded-lg" />
+              <span className="bg-lime-action absolute inset-y-0 right-2 left-2 rounded-md" />
             )}
             <span className="relative flex w-[var(--sidebar-rail)] shrink-0 justify-center">
               <span

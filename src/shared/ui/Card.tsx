@@ -16,7 +16,7 @@ interface CardProps extends Omit<
   press?: 'none' | 'navigates' | 'in-place';
   /** 다른 게 골라질 때까지 상태를 들고 있는 카드. 눌림이 아니라 선택이다. */
   selected?: boolean;
-  /** 긴 목록의 한 줄. 여백과 모서리를 줄인다 — 16px 여백은 격자 위의 카드에 맞는 값이고,
+  /** 긴 목록의 한 줄. 여백을 줄인다 — 16px 여백은 격자 위의 카드에 맞는 값이고,
    *  예순 줄짜리 전사문에서는 내용보다 여백이 화면을 더 쓴다. */
   dense?: boolean;
   /** surface 판 위에 놓일 때. §2에 표면이 셋뿐이라 더 올라갈 데가 없어 well로 내려간다 —
@@ -46,7 +46,8 @@ export function Card({
   const className = cn(
     'transition-[background-color,filter] duration-150 ease-out',
     sunken ? 'bg-well' : 'bg-surface border border-gray-100',
-    dense ? 'rounded-md px-3 py-2' : 'rounded-lg p-4',
+    'rounded-md',
+    dense ? 'px-3 py-2' : 'p-4',
     // 눌린 채로 있는 건 눌림이 아니라 선택이다. §2가 넓은 면의 연두로 pale을 남겼다.
     selected && 'bg-lime-pale',
     pressable && 'w-full cursor-pointer text-left',

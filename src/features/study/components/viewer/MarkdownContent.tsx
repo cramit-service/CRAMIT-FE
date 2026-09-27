@@ -87,7 +87,7 @@ const components: Components = {
   code: ({ children }) => (
     <code
       // 블록 안(pre 자식)에서는 배경을 지워 pre 배경만 보이게 한다
-      className="text-label rounded-sm bg-gray-200 px-1 py-0.5 font-mono text-gray-800 [pre_&]:bg-transparent [pre_&]:p-0"
+      className="text-label rounded-md bg-gray-200 px-1 py-0.5 font-mono text-gray-800 [pre_&]:bg-transparent [pre_&]:p-0"
     >
       {children}
     </code>

@@ -110,7 +110,7 @@ export function Modal({ open, onClose, children, labelledBy }: ModalProps) {
         // 높이는 내용의 것이되 창의 80%를 넘지 않는다 (§4). 넘으면 모달이 자기 안에서 구른다.
         // 구르는 자리는 안에 든 모달이 정한다 — 제목과 푸터는 제자리에 있어야 하므로
         // 여기서 통째로 overflow를 걸면 셋이 같이 밀려 올라간다.
-        className="shadow-far bg-surface flex max-h-[80vh] w-[655px] flex-col overflow-hidden rounded-lg"
+        className="shadow-far bg-surface flex max-h-[80vh] w-[655px] flex-col overflow-hidden rounded-md"
       >
         {children}
       </div>

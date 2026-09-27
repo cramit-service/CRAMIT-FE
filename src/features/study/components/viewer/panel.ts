@@ -11,4 +11,4 @@
 // separator"라 했지만, 그건 기본값을 정한 것이지 경계가 필요한 자리를 막은 게 아니다.
 // 그림자는 안 쓴다 — §2가 떠 있는 것에만 허락하고, 이 판은 떠 있지 않다.
 export const VIEWER_PANEL =
-  'bg-surface h-full min-h-[590px] rounded-lg border border-gray-100';
+  'bg-surface h-full min-h-[590px] rounded-md border border-gray-100';

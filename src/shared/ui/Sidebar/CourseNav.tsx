@@ -80,7 +80,7 @@ function CourseSection({
             hover도 같은 자리다(SidebarItem과 같은 이유). */}
         <span
           className={cn(
-            'absolute inset-y-0 right-2 left-2 rounded-lg transition-colors',
+            'absolute inset-y-0 right-2 left-2 rounded-md transition-colors',
             active ? 'bg-lime-action' : 'group-hover/row:bg-gray-100',
           )}
         />
@@ -186,7 +186,7 @@ function CourseSection({
                           위에서 4.08:1이라 문턱(4.5)을 못 넘는다. gray-700은 8.98:1. */}
                       <span
                         className={cn(
-                          'absolute inset-y-0 right-2 left-2 rounded-lg transition-colors',
+                          'absolute inset-y-0 right-2 left-2 rounded-md transition-colors',
                           active ? 'bg-lime-action' : 'group-hover:bg-gray-100',
                         )}
                       />

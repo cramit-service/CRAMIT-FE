@@ -127,7 +127,7 @@ export function ChatPanel({
             ))}
             {sending && (
               <li className="flex justify-start">
-                <p className="text-body-md rounded-sm border-[0.5px] border-gray-300 bg-white px-5 py-3 text-gray-700">
+                <p className="text-body-md rounded-md border-[0.5px] border-gray-300 bg-white px-5 py-3 text-gray-700">
                   답변을 준비하고 있어요…
                 </p>
               </li>
@@ -181,7 +181,7 @@ export function ChatPanel({
         {failed && (
           <div
             role="alert"
-            className="flex items-center gap-2 rounded-sm border border-gray-500 bg-gray-700 px-2 py-1.5"
+            className="flex items-center gap-2 rounded-md border border-gray-500 bg-gray-700 px-2 py-1.5"
           >
             <span className="min-w-0 flex-1">
               <span className="text-error text-body-sm block break-keep">
@@ -207,7 +207,7 @@ export function ChatPanel({
 
         {/* 고른 파일 (시안 없음 — 미리보기 없이 이름·크기만 보여준다) */}
         {file && (
-          <div className="flex max-w-full items-center gap-2 self-start rounded-sm border border-gray-500 bg-gray-700 px-2 py-1">
+          <div className="flex max-w-full items-center gap-2 self-start rounded-md border border-gray-500 bg-gray-700 px-2 py-1">
             <span className="shrink-0 text-gray-300">
               <Icon name="paperclip" size={20} />
             </span>

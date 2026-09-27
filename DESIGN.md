@@ -643,12 +643,27 @@ tap; what it is for is settled in §4.
 
 #### Corner radius
 
-| Step   |  px | Where                                    |
-| ------ | --: | ---------------------------------------- |
-| `sm`   |   4 | Small marks — a tag, an inline code span |
-| `md`   |   6 | Controls — buttons, fields, menu rows    |
-| `lg`   |  10 | Cards, panels, modals                    |
-| `full` | 999 | Pills and circles — see below            |
+| Step   |  px | Where                                                          |
+| ------ | --: | -------------------------------------------------------------- |
+| `md`   |   6 | Every rectangle — controls, cards, panels, modals, small marks |
+| `full` | 999 | Pills and circles — see below                                  |
+
+**Two steps, and the second one is a shape rather than a size.** There were
+four: 4 for small marks, 6 for controls, 10 for cards. The two that went were
+answering a question the product does not ask. A corner of 10 on a 654px card
+against 6 on the button inside it is a difference nobody reads as a rank, and
+between 4 and 6 on a tag there is nothing to read at all — but every new
+rectangle had to be classified against all three before it could be drawn.
+
+**What the corner stopped saying, the fill already said.** §2 gives pressable
+things lime and §4 gives a second action a border; a card carries a resting
+border because `surface` on `canvas` is ΔE 2.35 and needs an edge. None of those
+signals was ever carried by the radius, so removing two steps removes a decision
+without removing a distinction.
+
+The cost is real and it is small: a card and the button inside it now share a
+corner. That reads as one material rather than as two, which is what a card and
+its contents are.
 
 `full` makes two different shapes and only one of them carries meaning. **Among
 things that can be pressed, a pill is a control that holds a state**, which is
@@ -657,11 +672,10 @@ shape of a thing that is already round — an avatar, an icon with no label — 
 says nothing about state.
 
 **A value that cannot be pressed reads the corner the other way, and one does.**
-Every rectangle in this table is a control — 6 is a button, a field, a menu row,
-and 4 is a small mark on the same family of corners — so a small rectangle
-carrying a fill is a small button. The exam countdown is the one non-interactive
-value in the product with a fill of its own (§4 leaves exactly one badge
-standing), and at 4 or 6 it read as something to press. It takes `full`.
+Every rectangle in the product is now 6, and 6 is what a button is — so a small
+rectangle carrying a fill is a small button. The exam countdown is the one
+non-interactive value in the product with a fill of its own (§4 leaves exactly
+one badge standing), and at 6 it read as something to press. It takes `full`.
 
 This does not weaken the sentence above it. The collision that rule exists to
 settle is between a lit toggle and a confirming button — both `#e3ff00`, both
@@ -670,9 +684,9 @@ was never in that comparison. What the corner means is read together with
 whether the thing can be pressed at all, which the cursor and the element
 already say.
 
-Four steps, taken from the design file as drawn. A fifth, `xs` at 3px, was in the
-stylesheet, in no design and used nowhere — it is gone, for the reason §3 removed
-its own two: a step nobody needs is a step everyone has to rule out.
+Three steps are gone from the stylesheet, and for one reason: `xs` at 3px was in
+no design and used nowhere, while `sm` and `lg` were used and still said nothing.
+A step nobody needs is a step everyone has to rule out.
 
 #### Icon size
 

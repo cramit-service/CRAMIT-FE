@@ -245,7 +245,7 @@ export function DateField({
           role="dialog"
           aria-label="날짜 선택"
           // absolute의 기준은 위 래퍼의 relative다. (CLAUDE.md 4-5)
-          className="bg-surface shadow-near absolute top-11 left-0 z-10 w-63 rounded-lg border border-gray-100 p-3"
+          className="bg-surface shadow-near absolute top-11 left-0 z-10 w-63 rounded-md border border-gray-100 p-3"
         >
           {/* 달 이동 */}
           <div className="mb-2 flex items-center justify-between">

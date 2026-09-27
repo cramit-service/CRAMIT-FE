@@ -32,7 +32,7 @@ export function Toggle({
       disabled={disabled}
       // 높이가 없다. 줄이 정한다 — 옆에 선 컨트롤과 같아야 하는 값이라
       // 자기 단계를 가지면 이유를 댈 수 없는 차이가 생긴다.
-      // 모서리가 버튼과 가른다. 알약은 상태를 들고, 6px 모서리는 일을 한다.
+      // 모서리가 버튼과 가른다. 상자는 전부 6이고, 알약만 상태를 든다.
       className={cn(
         control(size),
         'inline-flex items-center justify-center gap-1 rounded-full px-4.5',

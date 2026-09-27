@@ -82,7 +82,7 @@ export function Calendar() {
           596 = 셀 96 × 6 + 행 간격 4 × 5 — 전부 §2 간격 목록 위의 값이고 정수로 떨어진다.
           떨어지지 않으면 셀 상단 선이 디바이스 픽셀에서 반올림되며 들쭉날쭉해 보인다.
           셀 96이 일정 두 줄 + "+N"을 담는 최소값이다(CalendarCell). */}
-      <div className="bg-surface rounded-lg border border-gray-100 px-5 py-4 lg:h-[654px]">
+      <div className="bg-surface rounded-md border border-gray-100 px-5 py-4 lg:h-[654px]">
         {/* 요일 머리글. 배경·구분선 없이 글자만 둔다 — 격자선은 셀이 각자 위에 긋는다. */}
         <div className="mb-2 grid grid-cols-7 gap-x-1">
           {WEEKDAYS.map((label) => (
