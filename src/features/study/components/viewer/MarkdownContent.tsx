@@ -3,11 +3,14 @@ import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 // Markdown 원문을 요약 패널(surface) 안에 렌더한다.
+// 제목은 20(body-md) → 18(body) → 16(body-sm)으로 내려간다. 20은 §3이 "카드 제목"에
+// 준 칸이고, 이 h1도 판 안에서 읽는 글의 머리라 화면 제목(32)·모달 제목(24)보다 아래다.
+// h1이 22(body-lg)였는데 그 칸은 §3이 쓰임을 못 정한 자리라 사다리 밖에 혼자 서 있었다.
 // Tailwind Typography(prose)는 자체 색 팔레트를 끌고 들어와 @theme 토큰과 어긋나므로,
 // 태그별 클래스를 직접 지정해 디자인 토큰만 쓰도록 한다.
 const components: Components = {
   h1: ({ children }) => (
-    <h1 className="text-body-lg mt-10 mb-4 font-semibold text-gray-800 first:mt-0">
+    <h1 className="text-body-md mt-10 mb-4 font-semibold text-gray-800 first:mt-0">
       {children}
     </h1>
   ),
