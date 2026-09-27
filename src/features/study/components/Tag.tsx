@@ -1,6 +1,12 @@
 // src/features/study/components/Tag.tsx
 import { cn } from '@/shared/lib/cn';
 
+// 폐기 예정. §4가 "값이 유한한 집합에서 올 때만 뱃지"로 정리하면서 이 부품을 걷어냈다 —
+// 일곱 tone이 교수명(자유 텍스트)·강의 수(숫자)·마감(집합)을 똑같은 알약으로 그려서,
+// 넷이 한 줄에 서면 아무것도 강조되지 않는다. 남은 하나(마감)는 DdayBadge가 이미 한다.
+// 강의 목록은 옮겼다. ProjectHeader·ViewerHeader·NewChapterScreen이 아직 부르고 있고,
+// 그 셋이 자기 회차에서 넘어가면 이 파일을 지운다.
+//
 // 강의 카드·상세 헤더의 라벨 태그(알약). tone은 색이 아니라 역할이다.
 type Tone = 'dark' | 'outline' | 'urgent' | 'soon' | 'near' | 'normal' | 'past';
 

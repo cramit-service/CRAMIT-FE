@@ -396,9 +396,9 @@ time.**
 | -------------------- | --------- | ------------------------------------------ |
 | `--color-red-danger` | `#ff5d6b` | The fill of a destructive action           |
 | `--color-red-ink`    | `#c9182b` | Error text, the border of an invalid field |
-| `--color-amber-100`  | `#ffebbd` | Three days out                             |
-| `--color-amber-200`  | `#ffd572` | Two days out                               |
-| `--color-amber-300`  | `#ffb914` | The day itself                             |
+| `--color-amber-100`  | `#ffebbd` | Two weeks out — D-14 to D-8                |
+| `--color-amber-200`  | `#ffd572` | One week out — D-7 to D-4                  |
+| `--color-amber-300`  | `#ffb914` | The last three days — D-3 to D-DAY         |
 
 An exam tool shows _time is short_ constantly and _this cannot be undone_
 rarely. One color for both means the rare one is read as the constant one, and
@@ -650,10 +650,25 @@ tap; what it is for is settled in §4.
 | `lg`   |  10 | Cards, panels, modals                    |
 | `full` | 999 | Pills and circles — see below            |
 
-`full` makes two different shapes and only one of them carries meaning. **A pill
-is a control that holds a state**, which is what separates a lit toggle from a
-button in the same color (§4). A circle is the shape of a thing that is already
-round — an avatar, an icon with no label — and says nothing about state.
+`full` makes two different shapes and only one of them carries meaning. **Among
+things that can be pressed, a pill is a control that holds a state**, which is
+what separates a lit toggle from a button in the same color (§4). A circle is the
+shape of a thing that is already round — an avatar, an icon with no label — and
+says nothing about state.
+
+**A value that cannot be pressed reads the corner the other way, and one does.**
+Every rectangle in this table is a control — 6 is a button, a field, a menu row,
+and 4 is a small mark on the same family of corners — so a small rectangle
+carrying a fill is a small button. The exam countdown is the one non-interactive
+value in the product with a fill of its own (§4 leaves exactly one badge
+standing), and at 4 or 6 it read as something to press. It takes `full`.
+
+This does not weaken the sentence above it. The collision that rule exists to
+settle is between a lit toggle and a confirming button — both `#e3ff00`, both
+pressable, told apart only by the corner. The countdown is amber and inert, so it
+was never in that comparison. What the corner means is read together with
+whether the thing can be pressed at all, which the cursor and the element
+already say.
 
 Four steps, taken from the design file as drawn. A fifth, `xs` at 3px, was in the
 stylesheet, in no design and used nowhere — it is gone, for the reason §3 removed
@@ -1450,7 +1465,7 @@ without the function: a box that draws the eye and then says nothing.
 
 | Value                        | A set?                                 | Then      |
 | ---------------------------- | -------------------------------------- | --------- |
-| Days until the exam          | four bands, and §2 colors them         | **Badge** |
+| Days until the exam          | five bands, and §2 colors three        | **Badge** |
 | The professor's name         | free text                              | Text      |
 | "3 lectures"                 | a number                               | Text      |
 | Not started · reading · done | three, but blue reads as text (4.94:1) | Text      |
@@ -1468,6 +1483,29 @@ the one part that was not text is the countdown, which already exists elsewhere.
 
 The countdown's colors move from red to amber, which §2 settled: red is what
 went wrong, amber is what is running out.
+
+**Its five bands are three colors and two grays, and the boundaries halve.**
+
+| Days left | Fill        | Called       |
+| --------- | ----------- | ------------ |
+| D-15 +    | `gray-200`  | no color yet |
+| D-14 – 8  | `amber-100` | two weeks    |
+| D-7 – 4   | `amber-200` | one week     |
+| D-3 – 0   | `amber-300` | three days   |
+| past      | `gray-200`  | 종료         |
+
+The count of bands is not a choice: §2 has three amber steps and forbids a
+fourth, so only the boundaries were open. They halve — 14, 7, 3 — because the
+ramp's own steps are even (ΔE 29.89 and 28.97) and time left is read as a ratio,
+which is the argument §2 already makes about spacing. Each boundary is also a
+unit a person says out loud: two weeks, a week, three days.
+
+Equal fifths (14–10 / 9–5 / 4–0) was the alternative and it makes the last band
+weigh the same as the first, which four days before an exam does not.
+
+A finished exam takes the neutral gray rather than the darkest step. The label
+inside it reads 종료, and the most urgent fill would be saying the opposite of
+its own text.
 
 #### A card takes the press rule unchanged
 
@@ -1487,6 +1525,19 @@ Drawn out, the darkening reads as _this one_ rather than _this is sunken_: a
 change that lives under the cursor is read as pointing. The alternatives each
 cost a rule — a border only cards use, a shadow §2 forbids on lists, or no
 feedback at all on a target the size of a card.
+
+**A resting card on `canvas` takes a border, and only there.** The fill rule
+above covers what a card does under a cursor; it does not give the card an edge
+when nothing is happening to it. `surface` against `canvas` is ΔE 2.35, which is
+the threshold at which a difference begins to register — the card is separated
+from the page by exactly the amount that counts as barely, with nothing in hand
+for a dimmer screen or a row of antialiased corners.
+
+The border is `gray-100`, the step §2 names for rules and edges, and it is not a
+second rule to remember: a card is either on the page or inside a panel, and
+`sunken` already says which. A sunken card is `well` on `surface` at ΔE 7.65 and
+carries its own edge, so it takes none. Nothing new is added to choose between
+them.
 
 **Pressed is drawn only where the screen stays.** A button does its work in
 place, so the 16% fill is visible for as long as the finger is down. A card
@@ -1860,6 +1911,12 @@ seven courses and scrolled inside that, so a taller window showed seven and a
 shorter one also showed seven. A region's height comes from the room it is given,
 and the window decides that. The count was a number nobody could defend at any
 particular viewport.
+The lecture list was the same rule broken a second way. It capped itself at
+three rows — 90 per card, twice a 12 gap, 294 — and scrolled inside that, on a
+page whose only content it was. Unlike the rail's list it has nothing above or
+below holding it in place, so it needs no height of its own at all: the cap
+came out and the page scrolls, which is what the rule at the top of this section
+already said.
 
 **And the region is the list, not the rail.** `홈`, the `내 강의` row and the
 profile stay where they are; only the courses under them move. Scrolling the

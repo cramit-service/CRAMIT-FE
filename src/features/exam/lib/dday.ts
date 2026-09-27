@@ -19,6 +19,8 @@ export function daysUntil(examDate: string): number {
 }
 
 // 남은 일수 → 뱃지 라벨. 0이면 'D-DAY', 그 외엔 'D-3'.
+// 음수는 오지 않는다 — DdayBadge가 지난 시험이면 렌더 자체를 하지 않는다.
+// (여기서 한 번 더 막아 두면 도달할 수 없는 분기가 하나 생긴다.)
 export function ddayLabel(days: number): string {
   return days === 0 ? 'D-DAY' : `D-${days}`;
 }

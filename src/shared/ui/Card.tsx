@@ -38,10 +38,14 @@ export function Card({
   // §2의 누름 규칙을 그대로 쓴다 — 흰 카드 위에 검정 8%와 16%, 더한 것 없음.
   // 흰색이 천장이라 호버는 내려갈 수밖에 없는데, 커서 아래에서 일어나는 변화라
   // "가라앉았다"가 아니라 "이것"으로 읽힌다.
-  // 테두리도 그림자도 안 쓴다 — §2가 목록 위의 카드에 그림자를 금지한다.
+  // 그림자는 안 쓴다 — §2가 목록 위의 카드에 금지한다. 테두리는 쉬는 상태의 가장자리
+  // 때문에 필요하다: surface(#ffffff)와 canvas(#fcfaf7)는 ΔE 2.35로, 차이가 인지되기
+  // 시작하는 문턱 바로 그 값이다. 여유가 0이라 안티에일리어싱 한 겹이면 가장자리가 없다.
+  // sunken이 이미 그 판단을 들고 있어서 prop을 새로 만들지 않는다 — 가라앉은 카드는
+  // surface 판 위의 well이라 ΔE 7.65고, 자기 채움만으로 이미 가장자리를 갖는다.
   const className = cn(
     'transition-[background-color,filter] duration-150 ease-out',
-    sunken ? 'bg-well' : 'bg-surface',
+    sunken ? 'bg-well' : 'bg-surface border border-gray-100',
     dense ? 'rounded-md px-3 py-2' : 'rounded-lg p-4',
     // 눌린 채로 있는 건 눌림이 아니라 선택이다. §2가 넓은 면의 연두로 pale을 남겼다.
     selected && 'bg-lime-pale',

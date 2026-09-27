@@ -60,6 +60,7 @@ export function toPlayDuration(value: number | undefined): number {
 // D-DAY 계산 결과 (태그 텍스트 + 긴급도)
 export interface Dday {
   label: string; // 예: "중간고사 D-3", "중간고사 D-DAY", "중간고사 종료"
+  days: number; // 남은 일수. 뱃지(DdayBadge)가 라벨 대신 이것을 받는다
   // 가까울수록 진하게 — 홈 DdayBadge와 같은 단계. D-DAY·D-1 / D-2 / D-3 / 여유 / 지남
   tone: 'urgent' | 'soon' | 'near' | 'normal' | 'past';
 }
@@ -87,12 +88,14 @@ export function getDday(
     (target.getTime() - today.getTime()) / 86_400_000,
   );
 
-  if (diffDays < 0) return { label: `${examName} 종료`, tone: 'past' };
-  if (diffDays === 0) return { label: `${examName} D-DAY`, tone: 'urgent' };
+  if (diffDays < 0)
+    return { label: `${examName} 종료`, days: diffDays, tone: 'past' };
+  if (diffDays === 0)
+    return { label: `${examName} D-DAY`, days: diffDays, tone: 'urgent' };
 
   const label = `${examName} D-${diffDays}`;
-  if (diffDays <= 1) return { label, tone: 'urgent' };
-  if (diffDays === 2) return { label, tone: 'soon' };
-  if (diffDays === 3) return { label, tone: 'near' };
-  return { label, tone: 'normal' };
+  if (diffDays <= 1) return { label, days: diffDays, tone: 'urgent' };
+  if (diffDays === 2) return { label, days: diffDays, tone: 'soon' };
+  if (diffDays === 3) return { label, days: diffDays, tone: 'near' };
+  return { label, days: diffDays, tone: 'normal' };
 }
