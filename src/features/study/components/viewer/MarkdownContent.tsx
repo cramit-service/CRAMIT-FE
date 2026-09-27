@@ -2,22 +2,22 @@
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-// Markdown 원문을 흰 영역에 렌더한다.
+// Markdown 원문을 요약 패널(surface) 안에 렌더한다.
 // Tailwind Typography(prose)는 자체 색 팔레트를 끌고 들어와 @theme 토큰과 어긋나므로,
 // 태그별 클래스를 직접 지정해 디자인 토큰만 쓰도록 한다.
 const components: Components = {
   h1: ({ children }) => (
-    <h1 className="text-body-lg mt-10 mb-4 font-semibold text-gray-950 first:mt-0">
+    <h1 className="text-body-lg mt-10 mb-4 font-semibold text-gray-800 first:mt-0">
       {children}
     </h1>
   ),
   h2: ({ children }) => (
-    <h2 className="text-body mt-9 mb-3 font-semibold text-gray-950 first:mt-0">
+    <h2 className="text-body mt-9 mb-3 font-semibold text-gray-800 first:mt-0">
       {children}
     </h2>
   ),
   h3: ({ children }) => (
-    <h3 className="text-body-sm mt-7 mb-2 font-semibold text-gray-900 first:mt-0">
+    <h3 className="text-body-sm mt-7 mb-2 font-semibold text-gray-800 first:mt-0">
       {children}
     </h3>
   ),
@@ -35,7 +35,7 @@ const components: Components = {
     </ol>
   ),
   strong: ({ children }) => (
-    <strong className="font-semibold text-gray-950">{children}</strong>
+    <strong className="font-semibold text-gray-800">{children}</strong>
   ),
   em: ({ children }) => <em className="text-gray-700 italic">{children}</em>,
   a: ({ href, children }) => (
@@ -43,14 +43,17 @@ const components: Components = {
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="text-secondary-600 underline underline-offset-2"
+      // §2에 링크 잉크가 없다. 하늘은 제품이 알려주는 것이고 연두는 L*가 95라
+      // 글자로는 안 보인다 — 색을 새로 빌리지 않고 밑줄만으로 링크를 말한다.
+      className="text-gray-800 underline underline-offset-2"
     >
       {children}
     </a>
   ),
-  // 인용은 시그니처 색(연두)으로 왼쪽 선을 준다
+  // 왼쪽 선만으로 인용을 말한다. border-primary-400은 토큰에 없어 선이 아예 안 나왔고,
+  // 짝이던 bg-gray-200 채움은 §2가 비활성에 준 자리라 인용이 꺼진 것처럼 보였다.
   blockquote: ({ children }) => (
-    <blockquote className="border-primary-400 my-4 border-l-4 bg-gray-200 py-2 pl-4 text-gray-700">
+    <blockquote className="my-4 border-l-4 border-gray-300 py-2 pl-4 text-gray-700">
       {children}
     </blockquote>
   ),
@@ -62,7 +65,7 @@ const components: Components = {
     </div>
   ),
   th: ({ children }) => (
-    <th className="border border-gray-300 bg-gray-200 px-3 py-2 text-left font-medium text-gray-900">
+    <th className="border border-gray-300 bg-gray-200 px-3 py-2 text-left font-medium text-gray-800">
       {children}
     </th>
   ),
@@ -74,14 +77,14 @@ const components: Components = {
   // react-markdown v10: 코드 블록은 pre > code로 오고, 인라인 코드는 pre 없이 온다.
   // code에서 둘을 구분하려 하면 부모를 알 수 없어, pre에 블록 스타일을 준다.
   pre: ({ children }) => (
-    <pre className="text-label my-4 overflow-x-auto rounded-md bg-gray-900 p-4 text-gray-200">
+    <pre className="text-label bg-well my-4 overflow-x-auto rounded-md p-4 text-gray-700">
       {children}
     </pre>
   ),
   code: ({ children }) => (
     <code
       // 블록 안(pre 자식)에서는 배경을 지워 pre 배경만 보이게 한다
-      className="text-label rounded-sm bg-gray-200 px-1 py-0.5 font-mono text-gray-900 [pre_&]:bg-transparent [pre_&]:p-0 [pre_&]:text-gray-200"
+      className="text-label rounded-sm bg-gray-200 px-1 py-0.5 font-mono text-gray-800 [pre_&]:bg-transparent [pre_&]:p-0"
     >
       {children}
     </code>

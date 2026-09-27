@@ -162,8 +162,9 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
         </div>
       </div>
 
-      {/* 흰 영역: 조회 시 Markdown 렌더, 편집 시 원문 textarea */}
-      <div className="relative mt-5 min-h-0 flex-1 rounded-md bg-white">
+      {/* 조회는 Markdown 렌더, 편집은 원문 textarea. 바탕은 감싼 패널의 surface를
+          그대로 쓴다 — bg-white가 있었지만 토큰에서 흰색이 지워져 아무 일도 안 했다. */}
+      <div className="relative mt-5 min-h-0 flex-1 rounded-md">
         {mode === 'view' ? (
           <div ref={viewRef} className="h-full overflow-y-auto px-6 py-7">
             {markdown ? (

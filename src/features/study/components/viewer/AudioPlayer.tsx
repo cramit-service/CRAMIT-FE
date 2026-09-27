@@ -98,7 +98,7 @@ export function AudioPlayer({
           </span>
         </button>
 
-        <p className="text-label font-medium whitespace-nowrap text-white tabular-nums">
+        <p className="text-label font-medium whitespace-nowrap text-gray-700 tabular-nums">
           {formatPlayTime(currentTime)} / {formatPlayTime(duration)}
         </p>
       </div>

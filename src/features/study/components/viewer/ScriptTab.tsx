@@ -93,7 +93,7 @@ export function ScriptTab({
           아직 생성된 스크립트가 없습니다.
         </p>
       ) : (
-        // 목록은 패널 안에서만 스크롤한다. 아래 끝은 시안대로 배경색으로 흐려지게 덮는다.
+        // 목록은 패널 안에서만 스크롤한다. 아래 끝은 판 색(surface)으로 흐려지게 덮는다.
         <div className="relative mt-6 min-h-0 flex-1">
           {/* 아래 여백은 페이드 높이와 같게 준다 — 끝까지 내렸을 때 마지막 구간이
               페이드에 덮여 흐려지지 않도록 밀어 올린다 */}
@@ -108,7 +108,7 @@ export function ScriptTab({
             ))}
           </ul>
           {/* 스크롤이 남았음을 알리는 하단 페이드. 클릭을 막지 않도록 pointer-events 해제 */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[73px] bg-linear-to-b from-transparent to-gray-900 to-55%" />
+          <div className="to-surface pointer-events-none absolute inset-x-0 bottom-0 h-[73px] bg-linear-to-b from-transparent to-55%" />
         </div>
       )}
     </section>

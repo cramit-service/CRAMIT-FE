@@ -86,7 +86,7 @@ export function Resizer({
     >
       {divider && <span className="absolute inset-y-0 w-px bg-gray-800" />}
       {/* 가운데 잡는 부분 (Figma: 6×51 회색 알약) */}
-      <span className="group-focus:bg-secondary-400 relative h-9 w-1 rounded-full bg-gray-500 transition-colors group-hover:bg-gray-400" />
+      <span className="group-focus:bg-sky-ink relative h-9 w-1 rounded-full bg-gray-500 transition-colors group-hover:bg-gray-400" />
     </div>
   );
 }
