@@ -7,7 +7,7 @@ import {
   FIELD_ICON,
   FIELD_ICON_SIZE,
   FIELD_TRIGGER,
-  OPTION_LIST,
+  OPTION_PANEL,
   OPTION_ROW,
   optionStateClass,
 } from '@/shared/ui/fieldStyle';
@@ -22,8 +22,10 @@ const MINUTES = Array.from({ length: 60 }, (_, i) =>
   String(i).padStart(2, '0'),
 );
 
-// 열 하나의 최대 높이. 29px 행이 일곱 개쯤 보이고 나머지는 스크롤로 본다.
-const COLUMN_MAX_HEIGHT = 203;
+// 열 하나의 최대 높이. 행이 40(§2 컨트롤 md)이라 딱 다섯 줄이 보이고 나머지는
+// 스크롤로 본다. 판의 높이는 이 값이 정한다 — 판에 따로 상한을 주면 그 둘이 어긋나
+// 판까지 구르고, 한 팝오버에 스크롤바가 셋 생긴다.
+const COLUMN_MAX_HEIGHT = 200;
 
 type Column = 'hour' | 'minute';
 
@@ -228,9 +230,28 @@ export function TimeField({
         <span aria-hidden className={FIELD_ICON}>
           <Icon name="time" size={FIELD_ICON_SIZE} />
         </span>
-        {/* 시안 표기는 사이를 띄운 `00 : 00`. 미선택일 때도 같은 글자를 흐리게 둔다 */}
-        {value ? `${hour} : ${minute}` : '00 : 00'}
+        {/* 빈 칸은 HH:MM이다. 시안은 미선택일 때도 `00 : 00`을 흐리게 뒀는데, 그러면
+            이미 0시 0분이 들어 있는 것처럼 읽힌다 — 옆 날짜 칸의 YYYY.MM.DD와 같은
+            말투로 "무엇을 넣는 자리인지"만 말한다. */}
+        {value ? `${hour}:${minute}` : 'HH:MM'}
+        {/* 지우는 자리. 값이 있을 때만 서고, 없을 때도 폭을 차지해 글자가 밀리지 않는다.
+            버튼 안에 버튼을 넣을 수 없어(중첩 인터랙티브) 자리만 비우고 실제 ×는
+            아래 형제로 얹는다. */}
+        <span aria-hidden className="ml-auto size-4 shrink-0" />
       </button>
+
+      {/* 시간은 선택이라 지울 수 있어야 한다(날짜는 필수라 ×가 없다).
+          트리거 위에 얹되 z-10으로 올려 클릭이 트리거로 내려가지 않게 한다. */}
+      {value && !disabled && (
+        <button
+          type="button"
+          onClick={() => onChange('')}
+          aria-label={`${ariaLabel ?? '시간'} 지우기`}
+          className="absolute top-1/2 right-4.5 z-10 flex -translate-y-1/2 text-gray-500 transition-colors hover:text-gray-800"
+        >
+          <Icon name="close" size={FIELD_ICON_SIZE} />
+        </button>
+      )}
 
       {open && (
         <div
@@ -241,7 +262,7 @@ export function TimeField({
           // absolute의 기준은 위 래퍼의 relative다. (CLAUDE.md 4-5)
           className={cn(
             'absolute top-11 right-0 left-0 z-10 grid grid-cols-2',
-            OPTION_LIST,
+            OPTION_PANEL,
           )}
         >
           {renderColumn('hour', HOURS, hour, hourFocus, selectHour, '시')}

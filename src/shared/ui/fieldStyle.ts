@@ -48,8 +48,13 @@ export const FIELD_INVALID = 'border-red-ink';
 /** 펼쳐지는 목록 한 판. 다섯 줄(40×5) 뒤에 스크롤한다 — 들어가는 만큼이 아니라
  *  세어서 정한 값이라 어디서 열리든 같은 크기다.
  *  위치(top-full / bottom-full)는 여는 쪽이 붙인다. */
-export const OPTION_LIST =
-  'shadow-near bg-surface z-10 max-h-[200px] w-full overflow-y-auto rounded-md py-1';
+/** 목록이 뜨는 판의 생김새만. 스크롤은 안 들어간다 — 판 안에 목록이 둘인 자리가
+ *  있다(시간 칸의 시/분). 판까지 구르면 한 팝오버에 스크롤바가 셋 생긴다. */
+export const OPTION_PANEL =
+  'shadow-near bg-surface z-10 w-full rounded-md py-1';
+
+/** 목록 하나가 곧 판인 자리(콤보박스·셀렉트). 판이 직접 구른다. */
+export const OPTION_LIST = `${OPTION_PANEL} max-h-[200px] overflow-y-auto`;
 
 /** 목록 한 줄. */
 export const OPTION_ROW = `${control()} flex cursor-pointer items-center px-4.5 font-medium transition-colors duration-150 ease-out`;

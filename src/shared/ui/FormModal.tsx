@@ -11,7 +11,7 @@ interface FormModalProps {
   open: boolean;
   /** 제목은 그린다. 숨긴 제목은 읽는 사람이 하나뿐이라 낡아도 아무도 모른다. */
   title: string;
-  /** 저장 쪽 버튼의 말 — 생성하기·수정완료 같은 것. */
+  /** 저장 쪽 버튼의 말 — 생성하기·수정하기 같은 것. */
   submitLabel: string;
   /** 편집 중일 때만. 푸터 반대쪽 끝에 선다. */
   onDelete?: () => void;

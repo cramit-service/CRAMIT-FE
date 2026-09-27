@@ -104,7 +104,7 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
   };
 
   const filled = title.trim() !== '' && dueDate !== '';
-  // 수정 모드에서는 바꾼 게 있어야 저장을 연다 (시안에서도 변경 전에는 수정완료가 회색이다).
+  // 수정 모드에서는 바꾼 게 있어야 저장을 연다 (시안에서도 변경 전에는 버튼이 회색이다).
   const changed =
     !isEdit ||
     title.trim() !== todo.title ||
@@ -173,7 +173,7 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
     <FormModal
       open
       title={isEdit ? 'TODO 수정' : 'TODO 추가'}
-      submitLabel={isEdit ? '수정완료' : '생성하기'}
+      submitLabel={isEdit ? '수정하기' : '생성하기'}
       onDelete={isEdit ? handleDelete : undefined}
       deleteLabel={deleteMutation.isPending ? '삭제 중…' : '삭제하기'}
       submitDisabled={!canSubmit}
@@ -247,24 +247,27 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
         </div>
 
         <div className="flex flex-col gap-2">
-          {/* 강의를 고르기 전에는 고를 주차가 없다. 비활성으로 두어 순서를 알린다. */}
+          {/* 강의를 고르기 전에는 고를 주차가 없다. 비활성으로 두어 순서를 알리고,
+              그 이유는 칸 안(placeholder)에서 말한다 — 칸 아래 문구로 두면 옆 칸과
+              높이가 달라지고, 강의를 고르는 순간 사라지면서 모달이 출렁였다. */}
           <Combobox
             id={`${fieldId}-lecture`}
-            label="연결된 주차 (선택)"
+            label="주차"
             value={lectureId}
             onChange={setLectureId}
             options={chapterOptions}
             disabled={busy || projectId === NONE}
-            placeholder={isChaptersLoading ? '불러오는 중이에요' : '선택 없음'}
+            placeholder={
+              projectId === NONE
+                ? '강의를 먼저 고르세요'
+                : isChaptersLoading
+                  ? '불러오는 중이에요'
+                  : '선택 없음'
+            }
             clearable
           />
-          {/* 이 문구는 강의를 고르기 전까지 계속 떠 있다(사라졌다 나타나지 않는다).
-              그래서 위 로딩 문구와 달리 높이를 출렁이게 하지 않는다. */}
-          {projectId === NONE && (
-            <p className={'text-body-sm text-gray-500'}>
-              강의를 먼저 고르면 주차를 연결할 수 있어요.
-            </p>
-          )}
+          {/* 실패는 안내가 아니라 사고라 칸 밖에 남긴다 — placeholder로 두면
+              "고를 게 없다"와 "못 불러왔다"가 같은 자리에서 같은 말투가 된다. */}
           {isChaptersError && (
             <p role="alert" className={FIELD_ERROR}>
               주차 목록을 불러오지 못했어요.

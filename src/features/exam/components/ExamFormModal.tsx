@@ -56,12 +56,21 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
   const trimmedTitle = title.trim();
   const isTitleTooLong = trimmedTitle.length > TITLE_MAX;
 
-  const canSubmit =
+  const filled =
     trimmedTitle !== '' &&
     !isTitleTooLong &&
     projectId !== '' &&
-    examDate !== '' &&
-    !isPending;
+    examDate !== '';
+  // 수정 모드에서는 바꾼 게 있어야 저장을 연다. 바꾼 것 없이 누르면 같은 값을 그대로
+  // 다시 보내면서 모달만 닫히는데, 화면에서는 아무 일도 안 일어난 것과 구분되지 않는다.
+  // (TODO 모달이 이미 같은 규칙이다.)
+  const changed =
+    !isEdit ||
+    trimmedTitle !== exam.title ||
+    projectId !== exam.projectId ||
+    examDate !== exam.examDate ||
+    (memo.trim() || null) !== exam.memo;
+  const canSubmit = filled && changed && !isPending;
 
   // 지난 날짜로 만들면 "다가오는 시험" 목록에서 곧바로 사라져 실패한 것처럼 보인다.
   // 이미 지난 시험을 수정 중이면 그 날짜까지는 열어둬야 다른 칸만 고칠 수 있다.
@@ -111,7 +120,7 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
   const submitLabel = isEdit
     ? update.isPending
       ? '저장 중…'
-      : '수정완료'
+      : '수정하기'
     : create.isPending
       ? '만드는 중…'
       : '생성하기';
