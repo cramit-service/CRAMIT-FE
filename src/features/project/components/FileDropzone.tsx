@@ -1,6 +1,6 @@
 'use client';
 // src/features/project/components/FileDropzone.tsx
-import { useId, useRef, useState } from 'react';
+import { useId, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import {
   UPLOAD_SPEC,
@@ -8,6 +8,8 @@ import {
   validateUpload,
 } from '@/features/project/lib/upload';
 import type { UploadKind } from '@/features/project/lib/upload';
+import { Button } from '@/shared/ui/Button';
+import { FileInput } from '@/shared/ui/FileInput';
 import { Icon } from '@/shared/ui/Icon';
 
 interface FileDropzoneProps {
@@ -23,8 +25,12 @@ interface FileDropzoneProps {
   existingFileName?: string | null;
 }
 
-// 강의 자료(PDF) / 음성 파일을 끌어다 놓거나 클릭해서 고르는 영역.
-// Figma 시안 387×270.
+// 강의 자료(PDF) / 음성 파일을 끌어다 놓거나 눌러서 고르는 칸. Figma 시안 387×270.
+//
+// 칸 자체가 <label>이다. 전에는 상태마다 버튼이 따로 있었다 — 빈 칸엔 "파일 선택",
+// 파일이 있으면 "다시 선택", 이미 올라간 파일엔 "파일 교체". 셋이 하는 일이 같은데
+// 이름만 달랐고, 정작 칸의 나머지 면적은 아무 반응이 없었다.
+// label이 되면 셋이 한 규칙으로 합쳐진다: 칸을 누르면 고른다.
 export function FileDropzone({
   kind,
   label,
@@ -35,12 +41,10 @@ export function FileDropzone({
   disabled,
   existingFileName,
 }: FileDropzoneProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
   const errorId = useId();
   const [dragging, setDragging] = useState(false);
   const spec = UPLOAD_SPEC[kind];
-  // 드롭존이 2개 나란히 있어서 "파일 선택"·"삭제"만으로는 어느 쪽인지 알 수 없다.
-  // 스크린리더가 읽을 이름에 종류("강의 자료"/"음성 파일")를 붙인다.
   const describedBy = error ? errorId : undefined;
 
   // 파일 하나를 받아 검증 후 부모에 올린다. 실패하면 선택을 비우고 문구만 남긴다.
@@ -50,12 +54,6 @@ export function FileDropzone({
     onError(message);
     onChange(message ? null : picked);
   };
-
-  const openPicker = () => inputRef.current?.click();
-
-  // 칸 안에서 쓰는 밑줄 액션 버튼. "다시 선택"·"파일 교체"가 같은 생김새를 쓴다.
-  const LINK_ACTION =
-    'text-label rounded-sm px-2 py-1 text-gray-500 underline underline-offset-2 transition-colors hover:text-gray-800 disabled:cursor-not-allowed disabled:text-gray-400';
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -70,7 +68,10 @@ export function FileDropzone({
       {/* 라벨은 시안 20px. */}
       <p className="text-body-md text-gray-700">{label}</p>
 
-      <div
+      {/* relative — 안의 input이 sr-only(=absolute)라 기준이 필요하다 (CLAUDE.md 4-6).
+          focus-within — 이름도 글자도 없는 input이라 포커스가 어디 있는지 칸이 말해 준다. */}
+      <label
+        htmlFor={inputId}
         onDragOver={(e) => {
           e.preventDefault();
           if (!disabled) setDragging(true);
@@ -78,26 +79,25 @@ export function FileDropzone({
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
         className={cn(
-          'bg-well h-[270px] rounded-md border border-dashed transition-colors',
+          'bg-well relative flex h-[270px] flex-col items-center justify-center gap-2 rounded-md border border-dashed px-[22px] text-center transition-colors',
           // 파일을 끌고 오면 테두리로 "여기에 놓으면 된다"를 알린다.
           dragging ? 'border-sky-ink bg-sky-pale' : 'border-gray-300',
+          'focus-within:border-sky-ink',
+          disabled ? 'cursor-not-allowed' : 'cursor-pointer',
         )}
       >
-        {/* 같은 파일을 지웠다가 다시 고르면 change가 안 뜬다. value를 비워 매번 뜨게 한다. */}
-        <input
-          ref={inputRef}
-          type="file"
+        <FileInput
+          id={inputId}
           accept={spec.accept}
-          className="hidden"
+          onPick={accept}
           disabled={disabled}
-          onChange={(e) => {
-            accept(e.target.files?.[0]);
-            e.target.value = '';
-          }}
+          // 드롭존이 둘 나란히 있어서 "파일 고르기"만으로는 어느 쪽인지 알 수 없다.
+          aria-label={`${spec.label} 파일 고르기`}
+          aria-describedby={describedBy}
         />
 
         {file ? (
-          <div className="flex size-full flex-col items-center justify-center gap-2 px-[22px] text-center">
+          <>
             <span className="text-gray-700">
               <Icon name="cloud-upload" size={22} />
             </span>
@@ -105,65 +105,26 @@ export function FileDropzone({
               {file.name}
             </p>
             <p className="text-label text-gray-500">
-              {formatFileSize(file.size)}
+              {formatFileSize(file.size)} · 눌러서 다시 고르기
             </p>
-            <div className="mt-0.5 flex items-center gap-2">
-              <button
-                type="button"
-                onClick={openPicker}
-                disabled={disabled}
-                aria-label={`${spec.label} 파일 다시 고르기`}
-                aria-describedby={describedBy}
-                className={LINK_ACTION}
-              >
-                다시 선택
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  onChange(null);
-                  onError(null);
-                }}
-                disabled={disabled}
-                aria-label={`${spec.label} 파일 삭제`}
-                className="text-red-ink text-label rounded-sm px-2 py-1 underline underline-offset-2 transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:text-gray-400"
-              >
-                삭제
-              </button>
-            </div>
-          </div>
+          </>
         ) : existingFileName ? (
           // 수정 모드에서 이미 올라가 있는 파일. 이 칸을 빈 채로 두면 "파일이 날아갔다"로 읽혀
           // 사용자가 같은 파일을 다시 올리게 된다(200MB짜리 녹음이 그대로 재전송된다).
           // 새로 고르기 전까지는 이 파일이 유지된다는 걸 문구로도 말해 준다.
-          <div className="flex size-full flex-col items-center justify-center gap-1.5 px-4 text-center">
+          <>
             <span className="text-gray-500">
               <Icon name="cloud-upload" size={16} />
             </span>
             <p className="text-body-sm max-w-full truncate text-gray-800">
               {existingFileName}
             </p>
-            <p className="text-label text-gray-500">이미 올라간 파일이에요</p>
-            <button
-              type="button"
-              onClick={openPicker}
-              disabled={disabled}
-              aria-label={`${spec.label} 파일 교체하기`}
-              aria-describedby={describedBy}
-              className={cn(LINK_ACTION, 'mt-0.5')}
-            >
-              파일 교체
-            </button>
-          </div>
+            <p className="text-label text-gray-500">
+              이미 올라간 파일이에요 · 눌러서 교체
+            </p>
+          </>
         ) : (
-          <button
-            type="button"
-            onClick={openPicker}
-            disabled={disabled}
-            aria-label={`${spec.label} 파일 고르기`}
-            aria-describedby={describedBy}
-            className="flex size-full cursor-pointer flex-col items-center justify-center gap-2 px-[22px] text-center disabled:cursor-not-allowed"
-          >
+          <>
             <span className="text-body-sm flex items-center gap-2 text-gray-700">
               <Icon name="cloud-upload" size={22} />
               파일 선택
@@ -173,9 +134,28 @@ export function FileDropzone({
               <br />
               {spec.formatHint}
             </span>
-          </button>
+          </>
         )}
-      </div>
+      </label>
+
+      {/* 삭제는 칸 밖에 선다 — label 안에 있으면 클릭이 label로 올라가 피커가 같이 열린다.
+          고른 파일을 비우는 일이라 칸을 누르는 일(고르기)과 섞이면 안 된다. */}
+      {file && (
+        <div className="flex justify-center">
+          <Button
+            rank="secondary"
+            size="sm"
+            onClick={() => {
+              onChange(null);
+              onError(null);
+            }}
+            disabled={disabled}
+            aria-label={`${spec.label} 파일 삭제`}
+          >
+            삭제
+          </Button>
+        </div>
+      )}
 
       {/* 파일을 고른 직후 나타나는 문구라 보조기기가 바로 읽도록 alert로 둔다. */}
       {error && (
