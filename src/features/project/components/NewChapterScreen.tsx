@@ -129,30 +129,20 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
       {/* 학습 뷰어와 같은 2단 헤더다 — 자료가 들어오면 이 화면이 그대로 뷰어가 된다.
           탭은 아직 열 게 없어 잠가 두지만, 무엇이 생길지는 미리 보여준다. */}
       <header>
-        <div className="flex items-center justify-between gap-4">
-          <h1 className="text-heading-md min-w-0 truncate font-semibold text-gray-800">
-            Chapter {nextNumber}
-          </h1>
-        </div>
+        {/* 제목은 "Chapter N"이 아니라 강의명 + 몇 주차다 — 이 화면에 들어온 사람이
+            알아야 하는 건 어느 강의의 몇 번째 자리인지고, 강의명은 오른쪽에서 따로
+            말할 게 아니라 제목이 직접 말해야 한다(그래서 교수명·날짜 줄을 지웠다).
+            숫자를 제목과 한 덩어리로 자르면 긴 강의명에서 "4주차"가 먼저 잘린다.
+            강의명만 줄이고 숫자는 남긴다. */}
+        <h1 className="text-heading-md flex min-w-0 items-baseline font-semibold text-gray-800">
+          <span className="min-w-0 truncate">{projectQuery.data.title}</span>
+          {/* 간격을 gap이 아니라 진짜 공백으로 둔다 — gap이면 보조기기가 두 span을
+              붙여 "알고리즘7주차"로 읽는다. */}
+          <span className="shrink-0"> {nextNumber}주차</span>
+        </h1>
 
-        <div className="mt-7 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <div className="mt-7">
           <ViewerTabs activeTabs={[]} onToggle={() => {}} locked />
-          {/* 알약 셋이었는데 글자로 내린다 — §4가 Tag를 걷어낸 이유 그대로다.
-              강의명은 자유 텍스트, 교수명도, "오늘"도 유한한 집합이 아니라 알약을
-              둘러도 형식만 빌려 오고 아무 말도 하지 않는다.
-              날짜를 렌더에서 만들지 않는 건 그대로다 — 서버·브라우저 시각이 갈리면
-              하이드레이션이 어긋나고, 아직 만들지 않은 주차라 "오늘"이 더 정확하다. */}
-          <p className="text-label text-gray-500">
-            {[
-              projectQuery.data.title,
-              projectQuery.data.professor
-                ? `${projectQuery.data.professor} 교수님`
-                : null,
-              '오늘',
-            ]
-              .filter(Boolean)
-              .join(' · ')}
-          </p>
         </div>
       </header>
 
@@ -167,7 +157,7 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
       >
         <div className="text-center">
           <p className="text-heading-sm font-semibold text-gray-800">
-            Chapter {nextNumber} 학습을 시작해요
+            {nextNumber}주차 학습을 시작해요
           </p>
           <p className="text-body-sm mt-3 text-gray-500">
             강의 자료와 녹음이 모이면 AI가 요약과 원문 스크립트를 만들어 줍니다.
