@@ -62,9 +62,12 @@ export function CalendarCell({
     >
       <span
         className={cn(
-          // 오늘이든 아니든 같은 크기 원형 슬롯을 써서 숫자 위치가 흔들리지 않게 한다.
+          // 오늘이든 아니든 같은 크기 슬롯을 써서 숫자 위치가 흔들리지 않게 한다.
           'text-label inline-flex size-6 shrink-0 items-center justify-center rounded-full leading-none',
-          isToday && 'bg-gray-800 text-gray-100',
+          // 오늘은 하늘 링이다 — 선은 §2가 "글자만으로 된 상태"라 부른 ink 쪽이고,
+          // 채움(status)은 흰 바탕과 1.67:1이라 선으로는 안 보인다.
+          // 검정 원이었는데 칸에서 가장 센 표시라, 고른 날의 연두 면이 그 옆에서 묻혔다.
+          isToday && 'ring-sky-ink text-gray-800 ring-2 ring-inset',
           !isToday && cell.isCurrentMonth && 'text-gray-800',
           !isToday && !cell.isCurrentMonth && 'text-gray-400',
           isToday ? 'font-semibold' : 'font-medium',

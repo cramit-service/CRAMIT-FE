@@ -35,9 +35,11 @@ function buildGrid(year: number, month: number): Date[] {
 }
 
 // 'YYYY-MM-DD' → "2026. 08. 10." (시안 표기)
+// 칸에 보이는 값과 placeholder가 같은 모양이어야 한다 — 빈 칸이 "무엇을 넣는지"를
+// 그 자리에서 말한다(YYYY.MM.DD → 2026.09.28).
 function formatDisplay(value: string): string {
   const [y, m, d] = value.split('-');
-  return `${y}. ${m}. ${d}.`;
+  return `${y}.${m}.${d}`;
 }
 
 // 값을 Date로 읽는다. 'YYYY-MM-DD'가 정상이지만 백엔드가 ISO 타임스탬프를 주거나
@@ -241,7 +243,7 @@ export function DateField({
         <span aria-hidden className={FIELD_ICON}>
           <Icon name="calendar" size={FIELD_ICON_SIZE} />
         </span>
-        {value ? formatDisplay(value) : 'YY. MM. DD.'}
+        {value ? formatDisplay(value) : 'YYYY.MM.DD'}
       </button>
 
       {open && (
@@ -250,10 +252,10 @@ export function DateField({
           role="dialog"
           aria-label="날짜 선택"
           // absolute의 기준은 위 래퍼의 relative다. (CLAUDE.md 4-5)
-          className="bg-surface shadow-near absolute top-11 left-0 z-10 w-63 rounded-md border border-gray-100 p-3"
+          className="bg-surface shadow-near absolute top-11 left-0 z-10 w-60 rounded-md border border-gray-100 p-2"
         >
           {/* 달 이동 */}
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-1 flex items-center justify-between">
             <IconButton
               name="arrow-left"
               aria-label="이전 달"
@@ -262,7 +264,7 @@ export function DateField({
             />
             <span
               aria-live="polite"
-              className="text-body-md font-medium text-gray-800"
+              className="text-body-sm font-medium text-gray-800"
             >
               {view.year}년 {view.month}월
             </span>
@@ -275,7 +277,7 @@ export function DateField({
           </div>
 
           {/* 요일 */}
-          <div className="grid grid-cols-7 gap-1">
+          <div className="grid grid-cols-7">
             {WEEKDAYS.map((w) => (
               <span
                 key={w}
@@ -292,7 +294,7 @@ export function DateField({
             ref={gridRef}
             id={gridId}
             onKeyDown={handleGridKeyDown}
-            className="grid grid-cols-7 gap-1"
+            className="grid grid-cols-7"
           >
             {cells.map((date, i) => {
               const iso = toLocalDateString(date);
@@ -318,31 +320,38 @@ export function DateField({
                   aria-disabled={blocked}
                   aria-pressed={selected}
                   aria-current={iso === today ? 'date' : undefined}
-                  // 고른 날은 면, 오늘은 그 안의 검정 원 — 홈 캘린더가 쓰는 두 값
-                  // 그대로다(§2가 선택에 남긴 lime-pale, 오늘에 쓰는 gray-800).
-                  // 전에는 고른 날이 lime-action(진한 채움), 오늘이 회색 사각 링이라
-                  // 같은 제품의 달력 둘이 서로 다른 말을 하고 있었다.
+                  // 고른 날은 연두 채움, 오늘은 하늘 원이다.
+                  // 연두는 pale이 아니라 action이다 — pale은 §2가 "넓은 면"에 준 값이고
+                  // (Card의 selected), 24px 칸에서는 흰 바탕과 L* 차이가 3밖에 안 나
+                  // 고른 날이 안 보인다. 이 칸은 눌린 채로 있는 컨트롤이라 Toggle의
+                  // pressed와 같은 자리다.
+                  // 오늘은 하늘 링이다. 채움(sky-status)은 흰 바탕과 1.67:1이라 선으로
+                  // 쓰면 안 보이고, 선은 §2가 "글자만으로 된 상태"라 부른 ink 쪽이다
+                  // (흰 바탕 5.0:1 — WCAG 1.4.11의 3:1을 넘는다).
+                  // 검정 원이었을 때는 그게 판에서 가장 센 표시라 고른 날이 묻혔다.
                   className={cn(
-                    'flex h-8 items-center justify-center rounded-md transition-colors',
+                    'text-label flex h-8 items-center justify-center rounded-md font-medium transition-colors',
                     blocked
                       ? 'cursor-not-allowed'
                       : selected
-                        ? 'bg-lime-pale'
+                        ? 'bg-lime-action'
                         : 'hover:bg-gray-100',
+                    // 막힌 날은 gray-400(3.0:1)이다. gray-200은 1.5:1이라
+                    // "고를 수 없다"가 아니라 "안 보인다"로 읽혔다.
+                    blocked
+                      ? 'text-gray-400'
+                      : inMonth
+                        ? 'text-gray-800'
+                        : 'text-gray-400',
                   )}
                 >
+                  {/* 오늘만 원을 두른다. 칸(32×24)에 바로 칠하면 원이 아니라 알약이 된다. */}
                   <span
                     className={cn(
-                      'text-label flex size-6 items-center justify-center rounded-full font-medium',
-                      // 막힌 날은 gray-400(3.0:1)이다. gray-200은 1.5:1이라
-                      // "고를 수 없다"가 아니라 "안 보인다"로 읽혔다.
-                      blocked
-                        ? 'text-gray-400'
-                        : iso === today
-                          ? 'bg-gray-800 text-gray-100'
-                          : inMonth
-                            ? 'text-gray-800'
-                            : 'text-gray-400',
+                      'flex size-6 items-center justify-center rounded-full',
+                      iso === today &&
+                        !blocked &&
+                        'ring-sky-ink text-gray-800 ring-2 ring-inset',
                     )}
                   >
                     {date.getDate()}

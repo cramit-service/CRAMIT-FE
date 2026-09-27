@@ -6,7 +6,7 @@ import { Button } from '@/shared/ui/Button';
 import { ScrollArea } from '@/shared/ui/ScrollArea';
 import { CheckboxBox } from '@/shared/ui/Checkbox';
 import { cn } from '@/shared/lib/cn';
-import { toLocalDateString } from '@/shared/lib/date';
+import { formatShortDate, toLocalDateString } from '@/shared/lib/date';
 import { useTodos } from '@/features/todo/hooks/useTodos';
 import { todoName } from '@/features/todo/lib/todoName';
 import { useLongPress } from '@/features/todo/hooks/useLongPress';
@@ -19,11 +19,10 @@ import { TodoFormModal } from './TodoFormModal';
 import { Icon } from '@/shared/ui/Icon';
 
 // 마감 표시 — "9/10 (목) 13:30". 제목과 한 줄에 놓이므로 짧게 간다.
-const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토'];
+// 시험 일정 목록과 같은 형식이다 — 홈에서 두 카드가 나란히 서는데 한쪽은
+// "9/29 (화)", 다른 쪽은 "09.29.(화)"였다.
 function dueLabel(todo: Todo): string {
-  const [year, month, day] = todo.dueDate.split('-').map(Number);
-  const weekday = WEEKDAY[new Date(year, month - 1, day).getDay()];
-  return `${month}/${day} (${weekday})${todo.dueTime ? ` ${todo.dueTime}` : ''}`;
+  return `${formatShortDate(todo.dueDate)}${todo.dueTime ? ` ${todo.dueTime}` : ''}`;
 }
 
 // 목록이 비었을 때의 안내. 보기마다 비는 이유가 달라 문구도 다르다.
