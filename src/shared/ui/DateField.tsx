@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { Icon } from '@/shared/ui/Icon';
+import { IconButton } from '@/shared/ui/IconButton';
 import { toLocalDateString } from '@/shared/lib/date';
 import {
   FIELD_ICON,
@@ -253,41 +254,33 @@ export function DateField({
         >
           {/* 달 이동 */}
           <div className="mb-2 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => shift(-1)}
+            <IconButton
+              name="arrow-left"
               aria-label="이전 달"
-              className="flex size-6 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-800"
-            >
-              <span className="size-3 rotate-90">
-                <Icon name="arrow-down" size={16} />
-              </span>
-            </button>
+              rank="plain"
+              onClick={() => shift(-1)}
+            />
             <span
               aria-live="polite"
-              className="text-body font-medium text-gray-800"
+              className="text-body-md font-medium text-gray-800"
             >
               {view.year}년 {view.month}월
             </span>
-            <button
-              type="button"
-              onClick={() => shift(1)}
+            <IconButton
+              name="arrow-right"
               aria-label="다음 달"
-              className="flex size-6 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-800"
-            >
-              <span className="size-3 -rotate-90">
-                <Icon name="arrow-down" size={16} />
-              </span>
-            </button>
+              rank="plain"
+              onClick={() => shift(1)}
+            />
           </div>
 
           {/* 요일 */}
-          <div className="grid grid-cols-7 gap-0.5">
+          <div className="grid grid-cols-7 gap-1">
             {WEEKDAYS.map((w) => (
               <span
                 key={w}
                 aria-hidden
-                className="text-label flex h-8 items-center justify-center font-medium text-gray-500"
+                className="text-label flex h-6 items-center justify-center font-medium text-gray-500"
               >
                 {w}
               </span>
@@ -299,7 +292,7 @@ export function DateField({
             ref={gridRef}
             id={gridId}
             onKeyDown={handleGridKeyDown}
-            className="grid grid-cols-7 gap-0.5"
+            className="grid grid-cols-7 gap-1"
           >
             {cells.map((date, i) => {
               const iso = toLocalDateString(date);
@@ -325,20 +318,35 @@ export function DateField({
                   aria-disabled={blocked}
                   aria-pressed={selected}
                   aria-current={iso === today ? 'date' : undefined}
+                  // 고른 날은 면, 오늘은 그 안의 검정 원 — 홈 캘린더가 쓰는 두 값
+                  // 그대로다(§2가 선택에 남긴 lime-pale, 오늘에 쓰는 gray-800).
+                  // 전에는 고른 날이 lime-action(진한 채움), 오늘이 회색 사각 링이라
+                  // 같은 제품의 달력 둘이 서로 다른 말을 하고 있었다.
                   className={cn(
-                    'text-body-sm flex h-10 items-center justify-center rounded-md font-medium transition-colors',
+                    'flex h-8 items-center justify-center rounded-md transition-colors',
                     blocked
-                      ? 'cursor-not-allowed text-gray-200'
+                      ? 'cursor-not-allowed'
                       : selected
-                        ? 'bg-lime-action text-gray-800'
-                        : inMonth
-                          ? 'text-gray-700 hover:bg-gray-100'
-                          : 'text-gray-400 hover:bg-gray-100',
-                    // 오늘은 고르지 않았을 때만 테두리로 표시한다(고르면 채움과 겹친다).
-                    iso === today && !selected && 'ring-1 ring-gray-300',
+                        ? 'bg-lime-pale'
+                        : 'hover:bg-gray-100',
                   )}
                 >
-                  {date.getDate()}
+                  <span
+                    className={cn(
+                      'text-label flex size-6 items-center justify-center rounded-full font-medium',
+                      // 막힌 날은 gray-400(3.0:1)이다. gray-200은 1.5:1이라
+                      // "고를 수 없다"가 아니라 "안 보인다"로 읽혔다.
+                      blocked
+                        ? 'text-gray-400'
+                        : iso === today
+                          ? 'bg-gray-800 text-gray-100'
+                          : inMonth
+                            ? 'text-gray-800'
+                            : 'text-gray-400',
+                    )}
+                  >
+                    {date.getDate()}
+                  </span>
                 </button>
               );
             })}
