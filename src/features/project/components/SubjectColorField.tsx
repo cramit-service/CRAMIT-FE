@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { Icon } from '@/shared/ui/Icon';
+import { FIELD_TRIGGER } from '@/shared/ui/fieldStyle';
 import { SUBJECT_COLORS, subjectDotClassOf } from '@/shared/lib/subjectColor';
 
 interface SubjectColorFieldProps {
@@ -119,15 +120,25 @@ export function SubjectColorField({
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={`과목 색: ${currentName}`}
-        className="focus:ring-secondary-400 flex h-14 w-19 items-center justify-center gap-2 rounded-md bg-gray-800 outline-none focus:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
+        className={cn(
+          FIELD_TRIGGER,
+          'flex w-auto items-center gap-2 whitespace-nowrap',
+          'disabled:cursor-not-allowed disabled:opacity-50',
+        )}
       >
+        {/* 견본이 앞자리에 선다. dialog 트리거는 chevron을 달지 않는다(§4) — 아래로
+            목록이 떨어지는 게 아니라 새 판이 열리므로 화살표가 설명하는 게 없다.
+            날짜가 달력, 시간이 시계인 그 자리에 색은 색 자신이 온다.
+            이름을 같이 적어서 보이는 값과 aria-label이 같은 말을 하게 한다 —
+            점만 있으면 눈으로는 "무슨 색"을 부를 수 없다. */}
         <span
           aria-hidden
-          className={cn('size-4.5 rounded-full', subjectDotClassOf(value))}
+          className={cn(
+            'size-4 shrink-0 rounded-full',
+            subjectDotClassOf(value),
+          )}
         />
-        <span className="size-3 shrink-0 text-gray-500">
-          <Icon name="arrow-down" size={16} />
-        </span>
+        {currentName}
       </button>
 
       {open && (
@@ -135,10 +146,13 @@ export function SubjectColorField({
           ref={popoverRef}
           role="dialog"
           aria-label="과목 색 고르기"
+          // 칩 격자는 OPTION_LIST를 쓰지 않는다 — 그건 줄 목록의 명세다(§4 "they share
+          // one list"). 판의 생김새만 같이 쓴다: 밝은 표면 + near 그림자, 테두리 없음.
+          // 안쪽 제목도 뺐다. 네 개의 다른 목록판도 제목이 없고, 트리거가 바로 위에서
+          // 현재 색을 보여 주고 있다 — dialog 이름은 aria-label이 갖는다.
           // w-max — absolute는 부모(트리거 폭)를 상한으로 줄어들어 칩이 겹친다.
-          className="absolute top-16 left-0 z-10 w-max rounded-md border-[0.5px] border-gray-600 bg-gray-700 p-4 shadow-xl"
+          className="bg-surface shadow-near absolute top-full left-0 z-10 mt-1 w-max rounded-md p-4"
         >
-          <p className="text-body-sm mb-3 text-gray-300">과목 색</p>
           <div
             ref={gridRef}
             onKeyDown={handleGridKeyDown}
@@ -165,15 +179,18 @@ export function SubjectColorField({
                   className={cn(
                     'flex size-8 items-center justify-center rounded-full outline-none',
                     color.dot,
+                    // 링 색이 ring-white·ring-secondary-400이었다. 둘 다 토큰에 없어서
+                    // 고른 색의 링도 포커스 링도 렌더되지 않았다 — 포커스는 §4가 유일하게
+                    // "선택이 아니라 요구"라고 적은 항목이다(WCAG 2.4.7).
                     selected &&
-                      'ring-2 ring-white ring-offset-3 ring-offset-gray-700',
+                      'ring-offset-surface ring-2 ring-gray-800 ring-offset-2',
                     !selected &&
-                      'focus-visible:ring-secondary-400 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-700',
+                      'focus-visible:ring-sky-ink focus-visible:ring-offset-surface focus-visible:ring-2 focus-visible:ring-offset-2',
                   )}
                 >
                   {/* ✓는 "이미 골라진 색". 고른 색은 링만으로 알린다 — 둘 다 ✓면 구분이 안 된다. */}
                   {isTaken && (
-                    <span className="text-gray-950">
+                    <span className="text-gray-800">
                       <Icon name="check" size={16} />
                     </span>
                   )}
