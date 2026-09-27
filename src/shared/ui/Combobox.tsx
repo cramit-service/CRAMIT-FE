@@ -4,8 +4,11 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { Icon } from '@/shared/ui/Icon';
 import {
+  FIELD_BOX,
+  FIELD_ICON,
+  FIELD_ICON_SIZE,
   FIELD_LABEL,
-  FIELD_TRIGGER,
+  FIELD_PLACEHOLDER,
   OPTION_LIST,
   OPTION_ROW,
   optionStateClass,
@@ -142,61 +145,70 @@ export function Combobox({
 
   const field = (
     <div ref={wrapRef} className={cn('relative', width)}>
-      <input
-        ref={inputRef}
-        id={id}
-        type="text"
-        role="combobox"
-        aria-expanded={open}
-        aria-controls={listId}
-        aria-autocomplete="list"
-        aria-activedescendant={
-          open && filtered[highlight]
-            ? `${listId}-${filtered[highlight].value}`
-            : undefined
-        }
-        autoComplete="off"
-        disabled={disabled}
-        placeholder={placeholder}
-        value={query ?? selected?.label ?? ''}
-        onChange={(e) => {
-          setQuery(e.target.value);
-          setHighlight(0);
-          setOpen(true);
-        }}
-        onFocus={openList}
-        // Tab으로 빠져나가면 목록이 떠 있는 채로 남는다. 항목 선택은 mousedown에서
-        // 이미 끝나므로 여기서 닫아도 클릭이 씹히지 않는다.
-        onBlur={closeList}
-        onKeyDown={handleKeyDown}
-        className={cn(
-          FIELD_TRIGGER,
-          'w-full cursor-text pr-9 disabled:cursor-not-allowed disabled:opacity-50',
-        )}
-      />
-
-      {/* 값이 있고 지울 수 있으면 ×, 아니면 목록 화살표 */}
-      {clearable && value && !disabled ? (
-        <button
-          type="button"
-          // 이게 없으면 누르는 순간 입력칸이 blur돼 onBlur가 목록을 닫고, 이어지는
-          // focus()가 onFocus를 태워 방금 닫은 목록이 도로 열린다. 포커스를 아예 뺏지 않는다.
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => {
-            onChange('');
-            setQuery(null);
-            inputRef.current?.focus();
+      {/* Input과 같은 상자다 — 채움·테두리·여백은 상자가 갖고 input은 그 안에서
+          투명하게 깔린다. 화살표를 absolute로 띄우면 글자의 오른쪽 여백을
+          18+16+8로 박아야 하는데 42는 §2 간격 목록에 없다. */}
+      <div
+        className={cn(FIELD_BOX, disabled && 'cursor-not-allowed opacity-50')}
+      >
+        <input
+          ref={inputRef}
+          id={id}
+          type="text"
+          role="combobox"
+          aria-expanded={open}
+          aria-controls={listId}
+          aria-autocomplete="list"
+          aria-activedescendant={
+            open && filtered[highlight]
+              ? `${listId}-${filtered[highlight].value}`
+              : undefined
+          }
+          autoComplete="off"
+          disabled={disabled}
+          placeholder={placeholder}
+          value={query ?? selected?.label ?? ''}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setHighlight(0);
+            setOpen(true);
           }}
-          aria-label="선택 해제"
-          className="absolute top-1/2 right-2.5 flex size-5 -translate-y-1/2 items-center justify-center rounded-md text-gray-500 transition-colors hover:text-gray-300"
-        >
-          <Icon name="close" size={12} />
-        </button>
-      ) : (
-        <span className="pointer-events-none absolute top-1/2 right-3.5 size-3 -translate-y-1/2 text-gray-500">
-          <Icon name="arrow-down" size={16} />
-        </span>
-      )}
+          onFocus={openList}
+          // Tab으로 빠져나가면 목록이 떠 있는 채로 남는다. 항목 선택은 mousedown에서
+          // 이미 끝나므로 여기서 닫아도 클릭이 씹히지 않는다.
+          onBlur={closeList}
+          onKeyDown={handleKeyDown}
+          className={cn(
+            'min-w-0 flex-1 cursor-text bg-transparent outline-none',
+            // 브라우저 기본 placeholder는 글자색의 50%라 다른 칸보다 연했다.
+            `placeholder:${FIELD_PLACEHOLDER}`,
+            disabled ? 'cursor-not-allowed text-gray-400' : 'text-gray-700',
+          )}
+        />
+
+        {/* 값이 있고 지울 수 있으면 ×, 아니면 목록 화살표 */}
+        {clearable && value && !disabled ? (
+          <button
+            type="button"
+            // 이게 없으면 누르는 순간 입력칸이 blur돼 onBlur가 목록을 닫고, 이어지는
+            // focus()가 onFocus를 태워 방금 닫은 목록이 도로 열린다. 포커스를 아예 뺏지 않는다.
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => {
+              onChange('');
+              setQuery(null);
+              inputRef.current?.focus();
+            }}
+            aria-label="선택 해제"
+            className="shrink-0 text-gray-500 transition-colors hover:text-gray-800"
+          >
+            <Icon name="close" size={FIELD_ICON_SIZE} />
+          </button>
+        ) : (
+          <span aria-hidden className={FIELD_ICON}>
+            <Icon name="arrow-down" size={FIELD_ICON_SIZE} />
+          </span>
+        )}
+      </div>
 
       {open && (
         <ul

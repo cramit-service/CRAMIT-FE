@@ -11,6 +11,12 @@ import { control } from '@/shared/ui/control';
  *  쉬는 상태에도 투명한 테두리를 두는 건 포커스가 들어올 때 칸이 커지지 않게 하려는 것. */
 export const FIELD_TRIGGER = `${control()} bg-well w-full rounded-md border border-transparent px-4.5 text-gray-700 outline-none transition-colors duration-150 ease-out focus:border-sky-ink`;
 
+/** 아이콘을 품는 칸의 상자. 안의 input·글자는 투명하게 깔리고, 상자가 채움과
+ *  테두리를 갖는다. 아이콘을 absolute로 띄우면 글자 여백을 18+16+8=42로 박아야 하는데
+ *  그 값은 §2 간격 목록에 없다 — flex로 두면 그 자리가 gap-2(8)이 되어 목록 안에 남는다.
+ *  포커스가 focus가 아니라 focus-within인 것도 이 구조 때문이다(상자는 포커스를 못 받는다). */
+export const FIELD_BOX = `${control()} bg-well flex w-full items-center gap-2 rounded-md border border-transparent px-4.5 transition-colors duration-150 ease-out focus-within:border-sky-ink`;
+
 /** 아직 고르지 않았을 때의 글자. */
 export const FIELD_PLACEHOLDER = 'text-gray-500';
 
@@ -25,7 +31,10 @@ export const FIELD_LABEL = 'text-body-sm font-medium text-gray-700';
  *  색은 gray-500이다. §2가 "뜻을 지닌 아이콘"에 준 gray-400은 여기서 거꾸로다 —
  *  well 위에서 3.04:1이라 placeholder(4.52:1)보다 연해지는데, placeholder는 값이
  *  들어오면 사라지고 이 아이콘은 끝까지 남는다. */
-export const FIELD_ICON = 'pointer-events-none shrink-0 text-gray-500';
+// flex가 규칙의 나머지 절반이다. 감싼 span이 inline이면 svg가 글자 베이스라인 위에
+// 앉아 줄상자(22) 안에서 1.3px 내려간다 — 칸에서 아이콘만 글자보다 낮아 보인다.
+// flex로 두면 상자 높이가 글리프 높이(16)가 되고, 칸의 items-center가 둘을 같은 선에 맞춘다.
+export const FIELD_ICON = 'pointer-events-none flex shrink-0 text-gray-500';
 
 /** 앞아이콘의 크기. §3은 옆 글자에 맞춰 4px로 올리라 하고, control.ts가 높이와 글자를
  *  한 칸으로 묶어 뒀으므로 칸이 정하면 된다 — 지금 필드는 전부 md(label 14)라 16 하나다.

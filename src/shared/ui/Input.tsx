@@ -4,8 +4,8 @@
 // "An icon in a field stands in front of it".
 import { useId } from 'react';
 import { cn } from '@/shared/lib/cn';
-import { control } from '@/shared/ui/control';
 import {
+  FIELD_BOX,
   FIELD_ICON,
   FIELD_ICON_SIZE,
   FIELD_LABEL,
@@ -61,14 +61,9 @@ export function Input({
       <label
         htmlFor={inputId}
         className={cn(
-          control(),
-          'bg-well flex w-full items-center gap-2 rounded-md px-4.5',
-          // 테두리는 자리를 차지하므로 쉬는 상태에도 투명한 테두리를 둔다.
-          // 없으면 포커스가 들어오는 순간 칸이 1px 커지면서 옆의 것들이 밀린다.
-          'border border-transparent transition-colors duration-150 ease-out',
-          // 채움이 필드다. 테두리는 할 말이 있을 때만 나온다 — 파랑은 여기, 빨강은 틀림.
-          // 테두리가 늘 있으면 상태를 말할 채널이 남지 않는다.
-          error ? FIELD_INVALID : 'focus-within:border-sky-ink',
+          FIELD_BOX,
+          // 채움이 필드다. 테두리는 할 말이 있을 때만 나온다 — 파랑은 포커스, 빨강은 틀림.
+          error && FIELD_INVALID,
           disabled && 'cursor-not-allowed',
         )}
       >
