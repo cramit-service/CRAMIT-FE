@@ -6,7 +6,6 @@ import { getDday } from '@/features/study/lib/format';
 import { DdayBadge } from '@/features/exam/components/DdayBadge';
 import type { ProjectSummary } from '@/shared/types/api';
 import { Card } from '@/shared/ui/Card';
-import { Icon } from '@/shared/ui/Icon';
 
 interface LectureCardProps {
   lecture: ProjectSummary;
@@ -27,9 +26,7 @@ export function LectureCard({ lecture, dotClass }: LectureCardProps) {
     >
       <span className="flex items-center gap-3">
         <span className="flex min-w-0 flex-1 flex-col gap-2">
-          {/* 점이 과목과 색을 잇는다 — 사이드바 밖에서 색을 배우는 유일한 자리다.
-              뱃지도 이 줄에 선다. 아래 줄에 뒀을 때는 옆 글자가 뱃지와 같은 14px이라
-              채움을 두른 쪽이 더 큰 것으로 읽혔다 — 제목은 16이라 그 경쟁이 없다. */}
+          {/* 점이 과목과 색을 잇는다 — 사이드바 밖에서 색을 배우는 유일한 자리다 */}
           <span className="flex min-w-0 items-center gap-2">
             <span
               aria-hidden
@@ -38,11 +35,6 @@ export function LectureCard({ lecture, dotClass }: LectureCardProps) {
             <span className="text-body-md truncate font-semibold text-gray-800">
               {lecture.title}
             </span>
-            {/* §4: 값이 유한한 집합에서 올 때만 뱃지다. 교수명은 자유 텍스트고 강의 수는
-                숫자라 집합이 없다 — 알약을 둘러도 눈만 끌고 아무 말도 안 한다.
-                이 카드에서 집합인 건 시험까지 남은 날 하나뿐이고, §2가 색을 정해 뒀다.
-                제목이 길면 제목이 잘리고 뱃지는 남는다 — min-w가 줄어들 바닥을 막는다. */}
-            {dday && <DdayBadge days={dday.days} />}
           </span>
 
           <span className="text-label truncate text-gray-500">
@@ -50,9 +42,13 @@ export function LectureCard({ lecture, dotClass }: LectureCardProps) {
           </span>
         </span>
 
-        <span className="shrink-0 text-gray-700">
-          <Icon name="arrow-right" size={16} />
-        </span>
+        {/* 오른쪽 끝은 꺽쇠 자리였다. 카드 전체가 눌리고 호버가 그걸 말하므로 방향을
+            한 번 더 그리는 화살표는 §4가 걷어낸 뒤로가기와 같은 종류의 중복이었다.
+            §4: 값이 유한한 집합에서 올 때만 뱃지다 — 교수명은 자유 텍스트, 강의 수는
+            숫자라 글자가 됐고, 이 카드에서 집합인 건 시험까지 남은 날 하나뿐이다.
+            여기 두면 옆에 글자가 없어서 채움이 무엇과도 크기를 겨루지 않는다.
+            줄지 않는 건 min-w가 막는다(DdayBadge). */}
+        {dday && <DdayBadge days={dday.days} />}
       </span>
     </Card>
   );
