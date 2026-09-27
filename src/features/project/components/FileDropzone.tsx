@@ -21,8 +21,6 @@ interface FileDropzoneProps {
   error: string | null;
   onError: (message: string | null) => void;
   disabled?: boolean;
-  /** 수정 모드에서 이미 올라가 있는 파일의 이름. 새로 고르지 않으면 이 파일이 유지된다. */
-  existingFileName?: string | null;
 }
 
 // 강의 자료(PDF) / 음성 파일을 끌어다 놓거나 눌러서 고르는 칸. Figma 시안 387×270.
@@ -39,7 +37,6 @@ export function FileDropzone({
   error,
   onError,
   disabled,
-  existingFileName,
 }: FileDropzoneProps) {
   const inputId = useId();
   const errorId = useId();
@@ -106,21 +103,6 @@ export function FileDropzone({
             </p>
             <p className="text-label text-gray-500">
               {formatFileSize(file.size)} · 눌러서 다시 고르기
-            </p>
-          </>
-        ) : existingFileName ? (
-          // 수정 모드에서 이미 올라가 있는 파일. 이 칸을 빈 채로 두면 "파일이 날아갔다"로 읽혀
-          // 사용자가 같은 파일을 다시 올리게 된다(200MB짜리 녹음이 그대로 재전송된다).
-          // 새로 고르기 전까지는 이 파일이 유지된다는 걸 문구로도 말해 준다.
-          <>
-            <span className="text-gray-500">
-              <Icon name="cloud-upload" size={16} />
-            </span>
-            <p className="text-body-sm max-w-full truncate text-gray-800">
-              {existingFileName}
-            </p>
-            <p className="text-label text-gray-500">
-              이미 올라간 파일이에요 · 눌러서 교체
             </p>
           </>
         ) : (
