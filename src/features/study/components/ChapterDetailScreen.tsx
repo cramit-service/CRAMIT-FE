@@ -3,9 +3,7 @@
 import type { ReactNode } from 'react';
 import { useProjectDetail } from '@/features/study/hooks/useProjectDetail';
 import { useChapters } from '@/features/study/hooks/useChapters';
-import { Button } from '@/shared/ui/Button';
 import { ProjectHeader } from './ProjectHeader';
-import { LearningProgress } from './LearningProgress';
 import { ChapterCard } from './ChapterCard';
 
 // 콘텐츠 폭은 홈·강의 목록과 같은 1512 (CLAUDE.md 4-4). 바깥 여백은 남는 공간이 갖는다.
@@ -20,7 +18,6 @@ function PageShell({ children }: { children: ReactNode }) {
 
 // 주차 목록 화면. page.tsx는 이 컴포넌트를 조립만 한다.
 export function ChapterDetailScreen({ projectId }: { projectId: string }) {
-  // 꾹 눌러 연 "주차 정보 수정하기" 대상. 닫을 때 통째로 언마운트해 입력값이 남지 않게 한다.
   const {
     data: project,
     isLoading: projectLoading,
@@ -62,42 +59,22 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
 
   return (
     <PageShell>
-      <ProjectHeader project={project} />
+      <ProjectHeader project={project} percent={progress} />
 
-      <section className="mt-8">
-        {/* 섹션 제목("단계별 학습")을 뺐다 — 상태 셋이 회독 수로 바뀌면서 밟을 단계가
-            없어졌고, 이 화면에 목록이 하나뿐이라 그건 섹션 이름이 아니라 화면 이름이었다.
-            화면 이름은 위 ProjectHeader의 강의명이 이미 맡고 있다. */}
-        {/* 진행률과 업로드가 카드들 오른쪽 위에 한 줄로 선다. 업로드는 헤더에 있었는데,
-            누르는 대상이 아래 목록을 늘리는 일이라 그 목록 바로 위가 자기 자리다.
-            items-end — 진행바의 밑변과 버튼의 밑변이 같은 선에 온다. */}
-        <div className="mb-4 flex items-end justify-end gap-4">
-          <div className="w-full max-w-[280px] min-w-[160px]">
-            <LearningProgress percent={progress} />
-          </div>
-          {/* 모달을 띄우지 않고 학습 화면 자리로 바로 들어간다 — 수업을 들으면서
-              쓰는 동선이라 모달에 갇히지 않는 게 중요하다(#107).
-              목적지가 있으므로 버튼이 아니라 링크다(§4). Button이 href를 받으면 <a>를
-              내므로 생김새가 다른 버튼과 한 부품에서 나온다. */}
-          <Button href={`/projects/${projectId}/chapters/new`}>
-            새 주차 업로드
-          </Button>
-        </div>
-
-        {/* 카드 간 간격 */}
-        <div className="flex flex-col gap-2">
-          {ordered.length === 0 ? (
-            // 아직 주차를 올리지 않은 프로젝트는 빈 영역 대신 안내를 보여준다.
-            <p className="text-body bg-surface rounded-lg px-6 py-12 text-center text-gray-500">
-              아직 업로드된 강의가 없어요. 새 주차를 업로드해 학습을
-              시작해보세요.
-            </p>
-          ) : (
-            ordered.map((chapter) => (
-              <ChapterCard key={chapter.chapterId} chapter={chapter} />
-            ))
-          )}
-        </div>
+      {/* 섹션 제목("단계별 학습")을 뺐다 — 상태 셋이 회독 수로 바뀌면서 밟을 단계가
+          없어졌고, 이 화면에 목록이 하나뿐이라 그건 섹션 이름이 아니라 화면 이름이었다.
+          화면 이름은 위 ProjectHeader의 강의명이 이미 맡고 있다. */}
+      <section className="mt-8 flex flex-col gap-2">
+        {ordered.length === 0 ? (
+          // 아직 주차를 올리지 않은 프로젝트는 빈 영역 대신 안내를 보여준다.
+          <p className="text-body bg-surface rounded-lg px-6 py-12 text-center text-gray-500">
+            아직 업로드된 강의가 없어요. 새 주차를 업로드해 학습을 시작해보세요.
+          </p>
+        ) : (
+          ordered.map((chapter) => (
+            <ChapterCard key={chapter.chapterId} chapter={chapter} />
+          ))
+        )}
       </section>
     </PageShell>
   );
