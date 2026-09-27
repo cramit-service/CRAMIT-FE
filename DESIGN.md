@@ -1020,9 +1020,16 @@ checked by anything. Putting it in the type signature is how it stops depending
 on who wrote the screen.
 
 `Toggle` knows only whether it is pressed. Whether pressing one releases its
-neighbors — a tab strip, a page number — is arrangement, and arrangement belongs
-to the screen. One component therefore serves the viewer's tabs, where several
-are open at once, and pagination, where exactly one is.
+neighbors — a tab strip, a calendar's day — is arrangement, and arrangement
+belongs to the screen. One component therefore serves the viewer's tabs, where
+several are open at once, and a calendar cell, where exactly one is.
+
+**There is no pagination in the product.** It was named here as the second user
+of `Toggle` and it has since gone: the chapter list paged four at a time, which
+is the row count §5 forbids a region from picking, and the list now shows every
+chapter and lets the page scroll. That also settles a question this section had
+left open — a page number needs `aria-current` while `Toggle` emits
+`aria-pressed`, and with no page numbers left there is nothing that needs both.
 
 #### Nineteen of the sixty-six are not buttons
 
@@ -1585,8 +1592,8 @@ when the screen is drawn.
 tab strip with several tabs open at once is a set of toggles; a page number, a
 chosen date, a current step is a _selection_, where picking one releases another
 and the state belongs to the group. Selections are drawn by the component that
-owns the group — a calendar, a pagination — because only the group knows which
-one is current. The ARIA divides on the same line: `aria-pressed` against
+owns the group — a calendar — because only the group knows which one is
+current. The ARIA divides on the same line: `aria-pressed` against
 `aria-selected` or `aria-current`.
 
 #### An icon button is twice its glyph
@@ -1618,17 +1625,26 @@ input. The substitute is the button's place:
 
 | Where it stands                                     | Glyph | Button |
 | --------------------------------------------------- | ----: | -----: |
-| Inside a row — a toolbar, a pagination, an input    |    16 |     32 |
+| Inside a row — a toolbar, a field, a list header    |    16 |     32 |
 | Alone — back to top, close, an overlay on an avatar |    24 |     48 |
 
-Fewer of these are truly text-less than it first appears. A pagination arrow
-stands beside "2 / 12", so §3's rule still runs and needs no substitute. What is
+Fewer of these are truly text-less than it first appears. An edit pencil stands
+beside a screen's title, so §3's rule still runs and needs no substitute. What is
 genuinely without a reference is the floating kind, and a floating control has
 nothing around it to be measured against — it is measured against the hand.
 
 **This is the one rule in §4 decided without a screen to check it on.** Every
 other measure here was settled against something drawn. This one is a reasoned
 guess at a gap in §3, and it is expected back when screens are built.
+
+**It came back, and the answer is the middle step.** The first text-less button
+drawn against a screen is the edit pencil beside a 32/44 title, and the two
+sections disagreed about it: §3 gives an icon beside a heading the heading's own
+size, which is 32, while the table above puts a button inside a row at 16. Both
+were wrong on the screen — 16 is lost beside a 32 title and 48 stands taller than
+the line the title sits on. The pencil is **20, in a 40 button**, which fits
+inside the 44 line box. `IconButton` offers no 32 glyph at all, so §3's reading
+was never buildable: §4's ladder comes from §3's own 16·20·24 ramp.
 
 ### States
 
@@ -1911,6 +1927,11 @@ seven courses and scrolled inside that, so a taller window showed seven and a
 shorter one also showed seven. A region's height comes from the room it is given,
 and the window decides that. The count was a number nobody could defend at any
 particular viewport.
+The chapter list was the third. It paged four at a time, which is the same
+undefendable number wearing pagination instead of a cap — four rows on a tall
+window and four on a short one. Every chapter now shows and the page scrolls, and
+the pagination component went with it.
+
 The lecture list was the same rule broken a second way. It capped itself at
 three rows — 90 per card, twice a 12 gap, 294 — and scrolled inside that, on a
 page whose only content it was. Unlike the rail's list it has nothing above or

@@ -250,8 +250,14 @@ src/
 
 ### 협업 지점 (중요)
 
-- **프로젝트 진입 레이아웃** (`app/(main)/projects/[projectId]/layout.tsx`):
-  study·chat·todo가 함께 쓰는 골격. 변경 시 양쪽 담당이 인지해야 한다.
+- **주차 레이아웃** (`app/(main)/projects/[projectId]/chapters/layout.tsx`):
+  챗독이 여기 있다. study와 chat이 함께 쓰는 자리라 변경 시 양쪽 담당이 인지해야 한다.
+  **이 자리가 곧 "챗독이 뜨는 범위"다** — `chapters/` 아래가 주차 안이고, 주차 목록
+  (`/projects/[projectId]`)에는 물어볼 자료가 아직 없어서 도크를 두지 않는다.
+  라우트를 늘릴 때 챗독이 필요한지는 `chapters/` 안인지 밖인지가 답한다.
+  (전에는 `[projectId]/layout.tsx`에 있어서 주차 목록까지 걸렸다. 그 파일은 남은 일이
+  없어져 지웠다 — `min-h-screen`은 `MainShell`이 갖고 있고 `relative`는 챗독이
+  `fixed`라 쓰이지 않았다.)
 - **공통 컴포넌트/타입** (`shared/`): 한쪽이 바꾸면 다른 쪽 화면에 영향을 준다.
   변경은 반드시 리뷰를 거친다.
 
