@@ -2,6 +2,7 @@
 // src/features/study/components/viewer/AudioPlayer.tsx
 import { formatPlayTime } from '@/features/study/lib/format';
 import { IconButton } from '@/shared/ui/IconButton';
+import { Slider } from '@/shared/ui/Slider';
 import { Toggle } from '@/shared/ui/Toggle';
 
 interface AudioPlayerProps {
@@ -31,15 +32,6 @@ export function AudioPlayer({
   duration,
   onSeek,
 }: AudioPlayerProps) {
-  const percent = duration > 0 ? (currentTime / duration) * 100 : 0;
-
-  // 진행바를 클릭한 가로 위치를 재생 위치로 환산한다
-  const handleSeek = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    if (rect.width === 0) return;
-    onSeek(((e.clientX - rect.left) / rect.width) * duration);
-  };
-
   return (
     // 이분할에서 이 줄이 가장 먼저 좁아진다. 창이 아니라 줄 자체의 폭을 봐야 해서
     // @container를 건다(스크립트 구간 머리글과 같은 방식).
@@ -73,30 +65,21 @@ export function AudioPlayer({
           onClick={onTogglePlay}
         />
 
-        <button
-          type="button"
-          onClick={handleSeek}
-          aria-label="재생 위치 이동"
-          // 폭을 w-[276px]로 못 박으면 그 값이 부모 그룹의 자동 최소 크기가 돼서,
-          // min-w를 줘도 그룹이 그 밑으로 줄지 못하고 통째로 오른쪽으로 넘친다.
-          // 고정 폭 대신 "남는 만큼 늘리되 276까지"로 두면 필요할 때 알아서 줄어든다.
-          // 그래도 안 들어가는 구간(라벨 137 + 최소 우측 223 = 360)부터는 아예 뺀다.
-          className="max-w-[276px] min-w-[80px] flex-1 basis-0 py-2 @max-[380px]:hidden"
-        >
-          <span className="block h-1.5 w-full rounded-full bg-gray-200">
-            {/* 연두가 안 보이던 건 밝기 때문이다. lime-action은 L*가 95.1이라 밝은
-                표면 위에서는 밝기 차가 안 난다(§2: "캔버스 위에서 연두는 흐린 게 아니라
-                없다"). 연두를 바꾸는 대신 뒤를 어둡게 한다 — gray-200 트랙에서 ΔL* 17이다.
-                그보다 어두운 트랙(gray-400)은 남은 시간이 지난 시간보다 눈에 띄어
-                말하려는 것이 뒤집힌다.
-                두께 6은 어느 램프에도 없다. §2가 과목 색 막대에 대해 인정한 것과 같다 —
-                색 표시는 타이포도 간격도 아이콘도 아니라 램프가 닿지 않는다. */}
-            <span
-              className="bg-lime-action block h-full rounded-full"
-              style={{ width: `${percent}%` }}
-            />
-          </span>
-        </button>
+        {/* 폭을 w-[276px]로 못 박으면 그 값이 부모 그룹의 자동 최소 크기가 돼서,
+            min-w를 줘도 그룹이 그 밑으로 줄지 못하고 통째로 오른쪽으로 넘친다.
+            고정 폭 대신 "남는 만큼 늘리되 276까지"로 두면 필요할 때 알아서 줄어든다.
+            그래도 안 들어가는 구간(라벨 137 + 최소 우측 223 = 360)부터는 아예 뺀다.
+            연두는 글리프가 아니라 채움이라는 §2 규칙은 Slider 안에 있다. */}
+        <div className="max-w-[276px] min-w-[80px] flex-1 basis-0 @max-[380px]:hidden">
+          <Slider
+            value={currentTime}
+            max={duration}
+            onChange={onSeek}
+            aria-label="재생 위치 이동"
+            // 초 단위 숫자를 그대로 읽으면 "137"이 된다.
+            aria-valuetext={`${formatPlayTime(currentTime)} / ${formatPlayTime(duration)}`}
+          />
+        </div>
 
         <p className="text-label font-medium whitespace-nowrap text-gray-700 tabular-nums">
           {formatPlayTime(currentTime)} / {formatPlayTime(duration)}
