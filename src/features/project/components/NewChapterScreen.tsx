@@ -26,8 +26,8 @@ interface NewChapterScreenProps {
 // 새 주차 등록 화면. 모달을 띄우는 대신 학습 화면 자리로 바로 들어와서, 여기서 자료를 올린다.
 // 수업을 들으면서 쓰는 동선이라 모달에 갇히지 않는 게 중요하다(#107).
 //
-// 제목·수강 날짜·교수명은 묻지 않는다 — 제목은 비워 두고(뷰어 헤더에서 눌러 붙인다),
-// 날짜는 오늘, 교수명은 강의에 적힌 값을 그대로 쓴다.
+// 제목·수강 날짜·교수명은 묻지 않는다 — 제목은 "강의명 N"을 기본값으로 붙여 두고
+// (학습 화면 헤더에서 눌러 고친다), 날짜는 오늘, 교수명은 강의에 적힌 값을 그대로 쓴다.
 export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
   const router = useRouter();
   const projectQuery = useProjectDetail(projectId);
@@ -47,9 +47,15 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
   useEffect(() => () => abortRef.current?.abort(), []);
 
   const chapters = chaptersQuery.data ?? [];
-  // 번호는 서버가 매기지만 화면에는 미리 보여줘야 해서 같은 규칙으로 짐작한다.
-  const nextNumber =
-    chapters.reduce((max, c) => Math.max(max, c.chapterNumber), 0) + 1;
+  // 제목에 붙는 숫자 = 지금 있는 주차 갯수 + 1.
+  // 서버가 매기는 chapterNumber와는 다른 값일 수 있다. 이 숫자는 순서를 주장하지 않는
+  // 라벨이고, 제목 자체가 사람이 눌러 고치는 값이라 어긋나도 한 번의 클릭으로 끝난다.
+  const nextCount = chapters.length + 1;
+  // 제목 기본값. 화면의 제목과 저장되는 제목이 같은 조각에서 나와야 한다 —
+  // 제목 줄은 긴 강의명을 자르느라 둘로 쪼개 그리지만 값은 이 하나다.
+  const defaultTitle = projectQuery.data
+    ? `${projectQuery.data.title} ${nextCount}`
+    : '';
 
   const isPending = createChapter.isPending;
   const canSubmit =
@@ -70,7 +76,7 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
     createChapter.mutate(
       {
         projectId,
-        title: '',
+        title: defaultTitle,
         lectureDate: toLocalDateString(new Date()),
         professor: projectQuery.data?.professor ?? null,
         materialFile,
@@ -129,16 +135,16 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
       {/* 학습 뷰어와 같은 2단 헤더다 — 자료가 들어오면 이 화면이 그대로 뷰어가 된다.
           탭은 아직 열 게 없어 잠가 두지만, 무엇이 생길지는 미리 보여준다. */}
       <header>
-        {/* 제목은 "Chapter N"이 아니라 강의명 + 몇 주차다 — 이 화면에 들어온 사람이
-            알아야 하는 건 어느 강의의 몇 번째 자리인지고, 강의명은 오른쪽에서 따로
-            말할 게 아니라 제목이 직접 말해야 한다(그래서 교수명·날짜 줄을 지웠다).
-            숫자를 제목과 한 덩어리로 자르면 긴 강의명에서 "4주차"가 먼저 잘린다.
-            강의명만 줄이고 숫자는 남긴다. */}
+        {/* 여기 적힌 것이 곧 이 주차의 제목이 된다 — 업로드가 끝나면 학습 화면 헤더에
+            같은 글자가 들어가 있고, 거기서 눌러 고친다. 전에는 "Chapter N"을 보여주고
+            제목은 빈 값으로 만들어서, 학습 화면이 "제목 추가"부터 시작했다.
+            강의명을 제목이 말하므로 오른쪽 끝의 강의명·교수명·날짜 줄은 지웠다.
+            숫자를 강의명과 한 덩어리로 자르면 긴 강의명에서 숫자가 먼저 잘린다. */}
         <h1 className="text-heading-md flex min-w-0 items-baseline font-semibold text-gray-800">
           <span className="min-w-0 truncate">{projectQuery.data.title}</span>
           {/* 간격을 gap이 아니라 진짜 공백으로 둔다 — gap이면 보조기기가 두 span을
               붙여 "알고리즘7주차"로 읽는다. */}
-          <span className="shrink-0"> {nextNumber}주차</span>
+          <span className="shrink-0"> {nextCount}</span>
         </h1>
 
         <div className="mt-7">
@@ -157,7 +163,7 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
       >
         <div className="text-center">
           <p className="text-heading-sm font-semibold text-gray-800">
-            {nextNumber}주차 학습을 시작해요
+            이번 주차 학습을 시작해요
           </p>
           <p className="text-body-sm mt-3 text-gray-500">
             강의 자료와 녹음이 모이면 AI가 요약과 원문 스크립트를 만들어 줍니다.
