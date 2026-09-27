@@ -141,6 +141,9 @@ function AppIcon({
   return (
     <div
       className={cn(
+        // 앱 아이콘은 UI 사각형이 아니라 이미지 자산이라 §2의 6이 닿지 않는다 —
+        // 파비콘은 어느 크기로 내보내도 같게 보여야 해서 코너가 비율이다(시안 200에 40).
+        // eslint-disable-next-line no-restricted-syntax
         'inline-flex items-center justify-center rounded-[22%]',
         // Figma: 200px 박스에 코너 40px(≈20%). 글자색은 배경 대비로 결정한다.
         isLime ? 'bg-lime-action text-gray-800' : 'bg-gray-800 text-gray-100',

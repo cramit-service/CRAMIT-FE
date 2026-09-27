@@ -21,9 +21,12 @@ const UI = [
   'Tooltip',
 ];
 
-// 색·타이포의 임의값만 막는다. 폭·높이·간격의 임의값(border-[0.5px], w-[min(960px,50vw)])은
-// DESIGN.md §5가 뷰포트 비례 컨테이너에 쓰라고 정해 둔 것이라 건드리지 않는다.
-const ARBITRARY = String.raw`(?:text|leading|tracking|font|fill|stroke|decoration)-\[|(?:bg|border|ring|shadow|from|via|to)-\[#`;
+// 색·타이포·모서리의 임의값을 막는다. 폭·높이·간격의 임의값(border-[0.5px],
+// w-[min(960px,50vw)])은 DESIGN.md §5가 뷰포트 비례 컨테이너에 쓰라고 정해 둔 것이라
+// 건드리지 않는다.
+// 모서리는 §2가 6과 full 둘만 남겼다. 토큰을 지운 것과 한 쌍이다 — 이름으로는 못 쓰게
+// 됐지만 rounded-[10px]로 되돌리는 길이 열려 있으면 지운 의미가 없다.
+const ARBITRARY = String.raw`(?:text|leading|tracking|font|fill|stroke|decoration)-\[|(?:bg|border|ring|shadow|from|via|to)-\[#|\brounded(?:-[a-z]{1,2})?-\[`;
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -65,12 +68,12 @@ const eslintConfig = defineConfig([
         {
           selector: `Literal[value=/${ARBITRARY}/]`,
           message:
-            '색·타이포는 임의값을 쓰지 않습니다. DESIGN.md 2·3절의 토큰을 쓰고, 필요한 값이 없으면 멈추고 협의하세요.',
+            '색·타이포·모서리는 임의값을 쓰지 않습니다. DESIGN.md 2·3절의 토큰을 쓰고, 필요한 값이 없으면 멈추고 협의하세요.',
         },
         {
           selector: `TemplateElement[value.raw=/${ARBITRARY}/]`,
           message:
-            '색·타이포는 임의값을 쓰지 않습니다. DESIGN.md 2·3절의 토큰을 쓰고, 필요한 값이 없으면 멈추고 협의하세요.',
+            '색·타이포·모서리는 임의값을 쓰지 않습니다. DESIGN.md 2·3절의 토큰을 쓰고, 필요한 값이 없으면 멈추고 협의하세요.',
         },
       ],
     },
