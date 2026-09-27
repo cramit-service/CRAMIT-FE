@@ -174,7 +174,11 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-start justify-center gap-6">
+        {/* 칸 셋의 폭은 판이 나눈다. 전에는 폭을 아무도 안 줘서 안내 문구 길이가
+            각자 폭을 정했고(264·253·221), 파일을 고르면 파일명이 그 폭을 다시
+            정했다 — 짧은 이름엔 182로 줄고 긴 이름엔 659로 벌어졌다.
+            grid라 셋이 늘 같고, 폭이 정해지니 안에서 truncate가 비로소 동작한다. */}
+        <div className="grid w-full grid-cols-3 items-start gap-6">
           <FileDropzone
             kind="material"
             label="강의 자료 업로드"

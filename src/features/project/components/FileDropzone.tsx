@@ -64,7 +64,7 @@ export function FileDropzone({
   };
 
   return (
-    <div className="flex flex-col gap-[22px]">
+    <div className="flex min-w-0 flex-col gap-[22px]">
       {/* 라벨은 시안 20px. */}
       <p className="text-body-md text-gray-700">{label}</p>
 
@@ -79,7 +79,7 @@ export function FileDropzone({
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
         className={cn(
-          'bg-well relative flex h-[270px] flex-col items-center justify-center gap-2 rounded-md border border-dashed px-[22px] text-center transition-colors',
+          'bg-well relative flex h-[270px] w-full flex-col items-center justify-center gap-2 rounded-md border border-dashed px-[22px] text-center transition-colors',
           // 파일을 끌고 오면 테두리로 "여기에 놓으면 된다"를 알린다.
           dragging ? 'border-sky-ink bg-sky-pale' : 'border-gray-300',
           'focus-within:border-sky-ink',
