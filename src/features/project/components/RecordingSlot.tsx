@@ -29,7 +29,7 @@ export function RecordingSlot() {
         <span className="text-gray-400">
           <Icon name="mic" size={22} />
         </span>
-        <p className="text-button-sm text-gray-300">수업을 들으면서 녹음</p>
+        <p className="text-body-sm text-gray-300">수업을 들으면서 녹음</p>
         <p className="text-label text-gray-600">
           끝나면 그대로 요약·스크립트까지
           <br />

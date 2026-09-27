@@ -130,7 +130,7 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
           탭은 아직 열 게 없어 잠가 두지만, 무엇이 생길지는 미리 보여준다. */}
       <header>
         <div className="flex items-center justify-between gap-4">
-          <h1 className="text-heading-sm min-w-0 truncate text-right font-semibold text-gray-950">
+          <h1 className="text-heading-md min-w-0 truncate text-right font-semibold text-gray-950">
             Chapter {nextNumber}
           </h1>
         </div>

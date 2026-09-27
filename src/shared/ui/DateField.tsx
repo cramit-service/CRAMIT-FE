@@ -322,7 +322,7 @@ export function DateField({
                   aria-pressed={selected}
                   aria-current={iso === today ? 'date' : undefined}
                   className={cn(
-                    'text-button-sm flex h-10 items-center justify-center rounded-md font-medium transition-colors',
+                    'text-body-sm flex h-10 items-center justify-center rounded-md font-medium transition-colors',
                     blocked
                       ? 'cursor-not-allowed text-gray-200'
                       : selected

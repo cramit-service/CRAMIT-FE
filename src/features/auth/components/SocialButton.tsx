@@ -47,7 +47,7 @@ export function SocialButton({
     <button
       type="button"
       className={cn(
-        'text-button-lg flex w-full items-center justify-center gap-3 rounded-full px-6 py-2.5 font-medium text-gray-950 transition',
+        'text-body-md flex w-full items-center justify-center gap-3 rounded-full px-6 py-2.5 font-medium text-gray-950 transition',
         // 비활성이면 회색만, 아니면 브랜드 색 적용
         disabled
           ? 'cursor-not-allowed bg-gray-300 text-gray-600'

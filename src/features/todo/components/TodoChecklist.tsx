@@ -99,7 +99,9 @@ export function TodoChecklist() {
       {/* 제목 행은 옆의 시험 일정 열과 같은 규칙 — 높이를 고정하지 않고 내용(버튼 28)이 정한다.
           고정하면 28짜리 버튼이 가운데 놓이면서 위아래로 빈 자리가 생겨 간격이 그만큼 벌어진다. */}
       <div className="mb-1.5 flex items-center justify-between">
-        <h2 className="text-body font-medium text-gray-950">TODO 체크리스트</h2>
+        <h2 className="text-body-md font-medium text-gray-950">
+          TODO 체크리스트
+        </h2>
         <div className="flex items-center gap-2">
           <TodoViewSelect />
           {/* ExamSchedule 추가하기와 동일 버튼 */}
@@ -147,7 +149,7 @@ export function TodoChecklist() {
       {/* 길게 눌러야 수정된다는 걸 화면만 봐서는 알 수 없어 시안(1:1166)의 안내 문구를 카드 아래에 둔다.
           오른쪽 끝을 카드 오른쪽 끝에 맞추고, 옆 캘린더의 범례 줄과 같은 자리(mt-2)에 놓는다. */}
       {/* 실제로 알려줘야 하는 문구다. gray-500은 2.06:1이라 안내가 안내로 안 읽혔다. */}
-      <p className="text-button-sm text-gray-650 mt-2 text-right">
+      <p className="text-body-sm text-gray-650 mt-2 text-right">
         *꾹 눌러서 TODO를 수정할 수 있어요!
       </p>
 

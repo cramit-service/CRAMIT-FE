@@ -145,7 +145,7 @@ export function ChatPanel({
                 type="button"
                 onClick={() => send(question)}
                 disabled={sending}
-                className="text-button-sm rounded-full border border-white bg-white px-[17px] py-1.5 font-medium text-gray-800 shadow-sm transition-colors hover:bg-gray-200 disabled:opacity-50"
+                className="text-body-sm rounded-full border border-white bg-white px-[17px] py-1.5 font-medium text-gray-800 shadow-sm transition-colors hover:bg-gray-200 disabled:opacity-50"
               >
                 {question}
               </button>

@@ -23,7 +23,7 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
   return (
     <header className="relative flex flex-wrap items-center gap-x-4 gap-y-3">
       {/* 과목명 + 정보 태그들 */}
-      <h1 className="text-heading-sm font-semibold text-gray-950">
+      <h1 className="text-heading-md font-semibold text-gray-950">
         {project.title}
       </h1>
       <Tag tone="dark">{project.professor} 교수님</Tag>
@@ -32,7 +32,7 @@ export function ProjectHeader({ project }: { project: ProjectDetail }) {
       <button
         type="button"
         onClick={() => setEditOpen(true)}
-        className="text-button-sm inline-flex items-center gap-1 text-gray-700 transition-colors hover:text-gray-900"
+        className="text-body-sm inline-flex items-center gap-1 text-gray-700 transition-colors hover:text-gray-900"
       >
         <Icon name="edit" size={12} />
         수정하기

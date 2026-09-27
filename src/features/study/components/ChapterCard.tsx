@@ -67,7 +67,7 @@ export function ChapterCard({ chapter, onLongPress }: ChapterCardProps) {
             {chapter.title === '' ? '제목 없음' : chapter.title}
           </p>
         </div>
-        <p className="text-button-sm text-gray-650 flex items-center gap-1 font-medium">
+        <p className="text-body-sm text-gray-650 flex items-center gap-1 font-medium">
           <Icon name="calendar" size={14} />
           {formatChapterDate(chapter.createdAt)}
         </p>

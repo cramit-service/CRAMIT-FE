@@ -107,16 +107,13 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
           넘치고 그대로 문서 폭까지 밀어내 페이지에 가로 스크롤이 생긴다. */}
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="text-button-sm flex h-[22px] shrink-0 items-center justify-center rounded-full border-[0.5px] border-gray-300 px-1.5 font-medium text-gray-700">
+          <span className="text-body-sm flex h-[22px] shrink-0 items-center justify-center rounded-full border-[0.5px] border-gray-300 px-1.5 font-medium text-gray-700">
             MD
           </span>
           <p className="text-label truncate font-medium text-gray-700">
             {summary.fileName}
           </p>
-          <p
-            aria-live="polite"
-            className="text-button-sm shrink-0 text-gray-400"
-          >
+          <p aria-live="polite" className="text-body-sm shrink-0 text-gray-400">
             {notice}
           </p>
         </div>

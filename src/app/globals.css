@@ -28,20 +28,15 @@
   --text-body-md--letter-spacing: -0.02em;
 
   --text-body: 18px; /* Body/Regular1·2, Button/Medium */
-  --text-body--line-height: 30px;
+  /* 28이다. 30이던 건 DESIGN.md §3 표(18/28)와 어긋났고, §2의 "격자 밖은 여덟 중 셋"
+     (label 14/22 · body-md 20/30 · heading-lg 52/74)도 거짓으로 만들고 있었다 —
+     30은 4의 배수가 아니라서 넷째가 된다. */
+  --text-body--line-height: 28px;
   --text-body--letter-spacing: -0.02em;
 
   --text-body-sm: 16px; /* Body/Small */
   --text-body-sm--line-height: 24px;
   --text-body-sm--letter-spacing: -0.02em;
-
-  --text-button-lg: 20px; /* Button/Large1 — 같은 20px이지만 줄높이가 body-md와 다르다 */
-  --text-button-lg--line-height: 28px;
-  --text-button-lg--letter-spacing: -0.02em;
-
-  --text-button-sm: 16px; /* Button/Small — body-sm과 줄높이가 다르다 */
-  --text-button-sm--line-height: 28px;
-  --text-button-sm--letter-spacing: -0.02em;
 
   --text-label: 14px; /* Button/Label2 */
   --text-label--line-height: 22px;
@@ -132,7 +127,6 @@
   --shadow-near: 0 1px 2px rgb(0 0 0 / 0.05), 0 4px 10px rgb(0 0 0 / 0.07);
 
   /* ===== Radius ===== */
-  --radius-xs: 3px;
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 10px;

@@ -101,7 +101,7 @@ export function FileDropzone({
             <span className="text-secondary-400">
               <Icon name="cloud-upload" size={22} />
             </span>
-            <p className="text-button-sm max-w-full truncate text-gray-100">
+            <p className="text-body-sm max-w-full truncate text-gray-100">
               {file.name}
             </p>
             <p className="text-label text-gray-600">
@@ -140,7 +140,7 @@ export function FileDropzone({
             <span className="text-gray-500">
               <Icon name="cloud-upload" size={16} />
             </span>
-            <p className="text-button-sm max-w-full truncate text-gray-300">
+            <p className="text-body-sm max-w-full truncate text-gray-300">
               {existingFileName}
             </p>
             <p className="text-label text-gray-600">이미 올라간 파일이에요</p>
@@ -164,7 +164,7 @@ export function FileDropzone({
             aria-describedby={describedBy}
             className="flex size-full cursor-pointer flex-col items-center justify-center gap-2 px-[22px] text-center disabled:cursor-not-allowed"
           >
-            <span className="text-button-sm flex items-center gap-2 text-gray-300">
+            <span className="text-body-sm flex items-center gap-2 text-gray-300">
               <Icon name="cloud-upload" size={22} />
               파일 선택
             </span>
@@ -182,7 +182,7 @@ export function FileDropzone({
         <p
           id={errorId}
           role="alert"
-          className="text-error text-button-sm break-keep"
+          className="text-error text-body-sm break-keep"
         >
           {error}
         </p>

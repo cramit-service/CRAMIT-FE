@@ -655,9 +655,9 @@ is a control that holds a state**, which is what separates a lit toggle from a
 button in the same color (§4). A circle is the shape of a thing that is already
 round — an avatar, an icon with no label — and says nothing about state.
 
-Four steps, taken from the design file as drawn. A fifth, `xs` at 3px, exists in
-the stylesheet, is in no design and is used nowhere — it goes, for the reason §3
-removed its own two: a step nobody needs is a step everyone has to rule out.
+Four steps, taken from the design file as drawn. A fifth, `xs` at 3px, was in the
+stylesheet, in no design and used nowhere — it is gone, for the reason §3 removed
+its own two: a step nobody needs is a step everyone has to rule out.
 
 #### Icon size
 
@@ -731,6 +731,38 @@ settled here. Weight is never part of a token — it is set separately, and
 | Heading S | `--text-heading-sm` |   24 |          36 |  1.50 |
 | Heading M | `--text-heading-md` |   32 |          44 |  1.38 |
 | Heading L | `--text-heading-lg` |   52 |          74 |  1.42 |
+
+#### A title takes one of three steps, and each step has one job
+
+**32 names the screen, 24 names a modal, 20 names a card or a panel.**
+
+| Step | Token        | What it titles                                |
+| ---: | ------------ | --------------------------------------------- |
+|   32 | `heading-md` | The screen                                    |
+|   24 | `heading-sm` | A modal                                       |
+|   20 | `body-md`    | A card, a panel, a section                    |
+|   18 | `body`       | Not a title — body text, and the `xl` control |
+|   16 | `body-sm`    | Text inside a card                            |
+|   14 | `label`      | Metadata, and every button                    |
+
+**24 was doing three of these jobs at once.** It titled four screens, both
+modals, and one panel on the home screen — so nothing in the product could be
+read as outranking anything else. Moving screens up to 32 leaves 24 to modals
+alone, and a modal that outranks every card is right: it is the one thing on
+screen when it is open.
+
+**A card title at 20 is what frees 18.** Before this, 18 titled the calendar,
+the TODO list and a section heading while also setting body paragraphs, empty
+states and error messages — and 20 had no job but a chat bubble. Each step now
+answers one question, and none of them is empty.
+
+The same rule fixes a split nobody chose: card titles were 16, 18 and 24
+depending on which card, and the three panels on the home screen were 18, 18 and
+24 standing side by side.
+
+**Two steps are still open.** `heading-lg` (52) is used nowhere, and `body-lg`
+(22) holds three uses that are not titles. Neither is assigned here, and a step
+with no job is the thing §2 and §3 have each removed once already.
 
 #### Line height
 
@@ -873,10 +905,10 @@ means. The exceptions are the glyphs that have no job but their direction —
 
 #### Removed tokens
 
-| Token       | Was   | Why                                                                                                   |
-| ----------- | ----- | ----------------------------------------------------------------------------------------------------- |
-| `button-lg` | 20/28 | Same size as `body-md`. Every use is a fixed-height button, where line height changes nothing.        |
-| `button-sm` | 16/28 | Same size as `body-sm`. Named for buttons, but most uses were paragraphs, headings, hints and badges. |
+| Token       | Was   | Why                                                                                                                                                                                                                                                                                         |
+| ----------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `button-lg` | 20/28 | Same size as `body-md`. Its one caller is a button whose height comes from the 40px brand icon inside it, so the 28 never applies: measured 500×60 before and after the swap.                                                                                                               |
+| `button-sm` | 16/28 | Same size as `body-sm`. Named for buttons, but most uses were paragraphs, headings, hints and badges — 13 of its 15. Moving all 15 to `body-sm` left every fixed-height control unmoved and narrowed the rest from 1.75 to 1.50: the home page came out 4px shorter and nothing re-wrapped. |
 
 A token named after a component starts lying the moment that component stops
 being its only user. Size and line height belong to the ramp; a button's height

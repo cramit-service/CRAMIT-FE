@@ -63,10 +63,10 @@ export function Calendar() {
 
   return (
     <section className="flex min-h-0 flex-col">
-      {/* 제목 행은 시험 일정·TODO 열과 같은 규칙 — leading-7(28) + mb-1.5(6).
-          셋 다 같은 text-body 제목이라 줄높이와 간격이 어긋나면 나란히 놓였을 때 바로 보인다. */}
+      {/* 제목 행은 시험 일정·TODO 열과 같은 규칙 — text-body-md(20/30) + mb-1.5(6).
+          셋 다 같은 제목 단이라 줄높이와 간격이 어긋나면 나란히 놓였을 때 바로 보인다. */}
       <div className="mb-1.5 flex items-center justify-between">
-        <h2 className="text-body font-medium text-gray-950">캘린더</h2>
+        <h2 className="text-body-md font-medium text-gray-950">캘린더</h2>
         <div className="flex items-center gap-2">
           <span className="text-body font-medium text-gray-950">
             {year}년 {month}월

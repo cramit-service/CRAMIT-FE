@@ -41,7 +41,7 @@ export function LectureSection({
             {title}
           </h2>
           {description && (
-            <p className="text-button-sm text-gray-650">{description}</p>
+            <p className="text-body-sm text-gray-650">{description}</p>
           )}
         </div>
         <div className="flex items-center gap-3">

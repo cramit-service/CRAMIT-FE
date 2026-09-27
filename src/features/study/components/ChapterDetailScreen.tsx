@@ -78,7 +78,9 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
       <section className="mt-7">
         {/* 섹션 제목 + 우측 학습 진행률 바 */}
         <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
-          <h2 className="text-body font-semibold text-gray-950">단계별 학습</h2>
+          <h2 className="text-body-md font-semibold text-gray-950">
+            단계별 학습
+          </h2>
           <div className="ml-auto w-full max-w-[280px] min-w-[160px] flex-1">
             <LearningProgress percent={progress} />
           </div>

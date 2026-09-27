@@ -138,7 +138,7 @@ export function SubjectColorField({
           // w-max — absolute는 부모(트리거 폭)를 상한으로 줄어들어 칩이 겹친다.
           className="absolute top-16 left-0 z-10 w-max rounded-md border-[0.5px] border-gray-600 bg-gray-700 p-4 shadow-xl"
         >
-          <p className="text-button-sm mb-3 text-gray-300">과목 색</p>
+          <p className="text-body-sm mb-3 text-gray-300">과목 색</p>
           <div
             ref={gridRef}
             onKeyDown={handleGridKeyDown}

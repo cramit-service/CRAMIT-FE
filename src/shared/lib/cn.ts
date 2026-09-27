@@ -20,8 +20,6 @@ const TEXT_TOKENS = [
   'body-md',
   'body',
   'body-sm',
-  'button-lg',
-  'button-sm',
   'label',
 ];
 

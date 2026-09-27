@@ -17,7 +17,7 @@ const components: Components = {
     </h2>
   ),
   h3: ({ children }) => (
-    <h3 className="text-button-sm mt-7 mb-2 font-semibold text-gray-900 first:mt-0">
+    <h3 className="text-body-sm mt-7 mb-2 font-semibold text-gray-900 first:mt-0">
       {children}
     </h3>
   ),

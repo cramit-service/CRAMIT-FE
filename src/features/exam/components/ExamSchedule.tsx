@@ -29,7 +29,7 @@ export function ExamSchedule() {
   return (
     <section className="flex min-h-0 flex-col">
       <div className="mb-1.5 flex min-h-10 items-center justify-between">
-        <h2 className="text-heading-sm leading-8 font-semibold text-gray-950">
+        <h2 className="text-body-md font-semibold text-gray-950">
           다가오는 시험 일정
         </h2>
         {/* 텍스트 버튼이라 좌우 패딩만큼 라벨이 안으로 들어간다. 음수 마진으로 그만큼

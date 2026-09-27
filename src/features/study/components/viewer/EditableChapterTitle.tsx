@@ -11,7 +11,7 @@ export function EditableChapterTitle({ chapter }: { chapter: Chapter }) {
   const updateChapter = useUpdateChapter(chapter.projectId);
 
   return (
-    <h1 className="text-heading-sm relative flex min-w-0 items-center gap-2 font-semibold text-gray-800">
+    <h1 className="text-heading-md relative flex min-w-0 items-center gap-2 font-semibold text-gray-800">
       <EditableText
         value={chapter.title}
         placeholder="제목 추가"
