@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import type { Exam } from '@/shared/types/api';
+import { Button } from '@/shared/ui/Button';
 import { Icon } from '@/shared/ui/Icon';
+import { IconButton } from '@/shared/ui/IconButton';
 import { formatShortDate } from '@/shared/lib/date';
 import { daysUntil } from '@/features/exam/lib/dday';
 import { DdayBadge } from '@/features/exam/components/DdayBadge';
@@ -13,7 +15,7 @@ import { ExamFormModal } from './ExamFormModal';
 
 function StatusMessage({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-label text-gray-650 flex h-full items-center justify-center text-center">
+    <p className="text-label flex h-full items-center justify-center text-center text-gray-500">
       {children}
     </p>
   );
@@ -29,21 +31,15 @@ export function ExamSchedule() {
   return (
     <section className="flex min-h-0 flex-col">
       <div className="mb-1.5 flex min-h-10 items-center justify-between">
-        <h2 className="text-body-md font-semibold text-gray-950">
+        <h2 className="text-body-md font-semibold text-gray-800">
           다가오는 시험 일정
         </h2>
-        {/* 텍스트 버튼이라 좌우 패딩만큼 라벨이 안으로 들어간다. 음수 마진으로 그만큼
-            빼내 "추가"의 오른쪽 끝이 아래 카드의 오른쪽 끝과 한 선에 선다. */}
-        <button
-          type="button"
-          onClick={() => setEditing('new')}
-          className="focus-visible:ring-secondary-400 text-label -mr-2.5 flex items-center gap-1 rounded-md px-2.5 py-2 text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-900 focus-visible:ring-2 focus-visible:outline-none"
-        >
-          <span className="shrink-0">
-            <Icon name="plus" size={14} />
-          </span>
+        {/* 옆 TODO 열의 추가하기와 같은 부품·같은 칸이다. 손으로 그린 텍스트 버튼이었고,
+            §3대로면 글리프는 옆 글자(14)에 가장 가까운 4의 배수라 16이다. */}
+        <Button onClick={() => setEditing('new')}>
           추가
-        </button>
+          <Icon name="plus" size={16} />
+        </Button>
       </div>
 
       {/* 카드는 데이터 유무와 무관하게 항상 렌더 — 크기는 여기(div)에 준다. 비어도 안 줄어든다.
@@ -51,9 +47,10 @@ export function ExamSchedule() {
           안쪽의 -mr-3/pr-3은 스크롤바를 카드 우패딩 자리로 빼되 글자는 그대로 두려는 것이다. */}
       {/* 높이는 1행(배너가 정하는 202)에서 제목 블록 46을 뺀 값이다. 배너와 하단이 맞는다 —
           2행에서 TODO 카드가 캘린더와 맞는 것과 같은 규칙이다.
-          안쪽 140에 세 행이 들어가야 한다: 행 46 × 3 + 구분선 1 × 2 = 140.
-          행 46 = 뱃지 32 + py-1.75(14). 이 셋 중 하나를 바꾸면 세 행이 깨진다. */}
-      <div className="flex h-[156px] flex-col rounded-md border border-gray-300 bg-white px-6 py-2">
+          몇 행이 보이는지는 정하지 않는다 — 들어가는 만큼 보이고 나머지는 스크롤한다.
+          전에는 "행 46 × 3 + 구분선 2 = 140"으로 세 행에 맞춰 두고 행 여백을 7(py-1.75)로
+          깎아 뒀는데, 그건 §5가 영역에 금지한 줄 수 고르기고 7은 §2 간격 목록에도 없다. */}
+      <div className="bg-surface flex h-[156px] flex-col rounded-md border border-gray-100 px-6 py-2">
         <div className="scrollbar-bare -mr-3 min-h-0 flex-1 overflow-y-auto overscroll-none pr-3">
           {isLoading ? (
             <StatusMessage>불러오는 중…</StatusMessage>
@@ -76,21 +73,22 @@ export function ExamSchedule() {
                 return (
                   <li
                     key={exam.examId}
-                    className="group relative flex items-center gap-4 py-1.75"
+                    className="group relative flex items-center gap-4 py-2"
                   >
                     <DdayBadge days={days} />
                     {/* after로 행 전체를 덮어 뱃지·여백을 눌러도 이동하게 한다.
                         빈 오버레이 링크가 아니라 글자를 감싸는 이유: 링크 이름이
                         "시험명 + 날짜"로 저절로 잡힌다(빈 링크면 aria-label을 따로 붙여야 한다). */}
-                    {/* 제목과 날짜가 한 줄에 선다. 2줄로 쌓으면 글자만 44라 행이 46에 안 들어간다. */}
+                    {/* 제목과 날짜가 한 줄에 선다. 2줄로 쌓으면 글자만 44라 행 하나가
+                        카드 높이의 3분의 1을 넘는다. */}
                     <Link
                       href={`/projects/${exam.projectId}`}
-                      className="focus-visible:ring-secondary-400 flex min-w-0 flex-1 items-baseline gap-3 rounded-md after:absolute after:inset-0 focus-visible:ring-2 focus-visible:outline-none"
+                      className="focus-visible:ring-sky-ink flex min-w-0 flex-1 items-baseline gap-3 rounded-md after:absolute after:inset-0 focus-visible:ring-2 focus-visible:outline-none"
                     >
-                      <span className="text-body-sm truncate font-medium text-gray-900 transition-colors group-hover:text-gray-950">
+                      <span className="text-body-sm truncate font-medium text-gray-800 transition-colors group-hover:text-gray-700">
                         {examName(exam)}
                       </span>
-                      <span className="text-label text-gray-650 ml-auto shrink-0">
+                      <span className="text-label ml-auto shrink-0 text-gray-500">
                         {formatShortDate(exam.examDate)}
                       </span>
                     </Link>
@@ -101,18 +99,16 @@ export function ExamSchedule() {
                         opacity로만 숨기므로 버튼은 계속 포커스 대상이고 보조기술에도 남는다.
                         group-focus-within이라 Tab으로 행에 들어오면 같이 보인다 —
                         키보드로는 호버가 없으니 이게 없으면 보이지 않는 채로 포커스만 간다.
-                        보이는 크기는 28로 두고 before로 히트 영역만 44로 넓힌다(28+8*2).
-                        늘린 8px은 옆 셰브론과의 간격(16) 안쪽이라 서로 겹치지 않는다. */}
-                    <button
-                      type="button"
-                      aria-label={`${examName(exam)} 수정`}
-                      onClick={() => setEditing(exam)}
-                      className="focus-visible:ring-secondary-400 relative z-10 flex size-7 shrink-0 items-center justify-center rounded-md text-gray-400 opacity-0 transition group-focus-within:opacity-100 group-hover:opacity-100 before:absolute before:-inset-2 hover:bg-gray-200 hover:text-gray-700 focus-visible:ring-2 focus-visible:outline-none"
-                    >
-                      <Icon name="edit" size={16} />
-                    </button>
-                    <span className="shrink-0 text-gray-500">
-                      <Icon name="arrow-right" size={16} />
+                        크기는 IconButton이 정한다 — 글리프 16의 두 배인 32다(§4).
+                        전에는 28에 before로 히트 영역만 44로 넓혀 뒀는데, 그 둘은 부품이
+                        이미 답한 질문이었다. */}
+                    <span className="relative z-10 shrink-0 opacity-0 transition group-focus-within:opacity-100 group-hover:opacity-100">
+                      <IconButton
+                        name="edit"
+                        aria-label={`${examName(exam)} 수정`}
+                        rank="plain"
+                        onClick={() => setEditing(exam)}
+                      />
                     </span>
                   </li>
                 );
