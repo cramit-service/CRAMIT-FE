@@ -98,7 +98,7 @@ export function ScriptTab({
         // 전에는 73px짜리 그라디언트 div를 손으로 얹고 목록에 같은 크기의 아래 여백을 줬다.
         <div className="mt-6 flex min-h-0 flex-1 flex-col">
           <ScrollArea>
-            <ul className="flex flex-col gap-1">
+            <ul className="flex flex-col gap-1 pr-3">
               {sections.map((section) => (
                 <ScriptSectionItem
                   key={section.page}

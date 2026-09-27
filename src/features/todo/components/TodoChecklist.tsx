@@ -114,12 +114,12 @@ export function TodoChecklist() {
       </div>
 
       {/* 카드는 데이터 유무와 무관하게 항상 렌더 — 크기는 여기(div)에 준다. 비어도 안 줄어든다.
-          스크롤은 ScrollArea가 맡는다(시험 일정 카드와 같은 부품·같은 기하).
-          오른쪽 패딩 12가 그 막대의 자리다. */}
+          스크롤은 ScrollArea가 맡는다(시험 일정 카드와 같은 부품·같은 규칙) —
+          좌우 여백은 카드가 아니라 안쪽 목록이 갖고, 막대는 그 여백 위에 선다. */}
       {/* lg 높이는 옆의 캘린더 카드와 하단이 맞아야 한다. 제목 행 규칙이 두 열에서 같으므로
           카드 높이도 캘린더와 같은 654다 — 한쪽을 바꾸면 다른 쪽도 같이 바꿔야 한다.
           예전에는 flex-1로 남는 높이를 채워 뷰포트마다 높이가 달라졌다. */}
-      <div className="flex h-124 flex-col rounded-md border border-gray-300 bg-white py-2 pr-3 pl-6 lg:h-[654px]">
+      <div className="flex h-124 flex-col rounded-md border border-gray-300 bg-white py-2 lg:h-[654px]">
         <ScrollArea>
           {isLoading ? (
             <StatusMessage>불러오는 중…</StatusMessage>
@@ -132,7 +132,7 @@ export function TodoChecklist() {
           ) : (
             // 행 사이 선은 둘째 행부터의 위쪽 테두리다. divide-y를 안 쓰는 이유는
             // v4에서 그게 아래쪽 선으로 바뀌어 "첫 행 제외 상단"과 걸리는 요소가 달라서다.
-            <ul className="[&>li+li]:border-t [&>li+li]:border-gray-200">
+            <ul className="px-6 [&>li+li]:border-t [&>li+li]:border-gray-200">
               {visible.map((todo) => (
                 <TodoRow
                   key={todo.todoId}

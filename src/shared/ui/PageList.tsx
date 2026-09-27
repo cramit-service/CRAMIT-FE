@@ -65,7 +65,7 @@ export function PageList({
       {/* 60~80장짜리 강의자료는 목록을 끌어 한 번에 훑어야 한다.
           offsetTop이 목록 기준이 되도록 ul이 relative다 — 스크롤 위치 계산이 여기 기댄다. */}
       <ScrollArea ref={listRef}>
-        <ul className="relative space-y-3.5 pr-1">
+        <ul className="relative space-y-3.5 pr-3">
           {pages.map((page) => {
             const current = page === currentPage;
             return (

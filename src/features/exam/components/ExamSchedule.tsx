@@ -40,14 +40,15 @@ export function ExamSchedule() {
 
       {/* 카드는 데이터 유무와 무관하게 항상 렌더 — 크기는 여기(div)에 준다. 비어도 안 줄어든다.
           스크롤은 안쪽 div가 맡는다. 카드가 직접 스크롤하면 막대가 모서리에 붙는다.
-          스크롤은 ScrollArea가 맡는다 — 네이티브 막대를 빼고 자기 막대를 오른쪽 여백
-          위에 얹는다. 오른쪽 패딩 12가 그 막대(잡는 폭 12)의 자리다. */}
+          좌우 여백은 카드가 아니라 안쪽 목록이 갖는다. 막대는 스크롤 칸의 오른쪽 끝에
+          서므로, 여백이 카드에 있으면 그 끝이 곧 글자 끝이라 날짜 위에 올라탄다.
+          여백을 안쪽으로 옮기면 막대가 그 빈 자리로 들어간다. */}
       {/* 높이는 1행(배너가 정하는 202)에서 제목 블록 46을 뺀 값이다. 배너와 하단이 맞는다 —
           2행에서 TODO 카드가 캘린더와 맞는 것과 같은 규칙이다.
           몇 행이 보이는지는 정하지 않는다 — 들어가는 만큼 보이고 나머지는 스크롤한다.
           전에는 "행 46 × 3 + 구분선 2 = 140"으로 세 행에 맞춰 두고 행 여백을 7(py-1.75)로
           깎아 뒀는데, 그건 §5가 영역에 금지한 줄 수 고르기고 7은 §2 간격 목록에도 없다. */}
-      <div className="bg-surface flex h-[156px] flex-col rounded-md border border-gray-100 py-2 pr-3 pl-6">
+      <div className="bg-surface flex h-[156px] flex-col rounded-md border border-gray-100 py-2">
         <ScrollArea>
           {isLoading ? (
             <StatusMessage>불러오는 중…</StatusMessage>
@@ -60,7 +61,7 @@ export function ExamSchedule() {
           ) : (
             // 행 사이 선은 둘째 행부터의 위쪽 테두리다. divide-y를 안 쓰는 이유는
             // v4에서 그게 아래쪽 선으로 바뀌어 "첫 행 제외 상단"과 걸리는 요소가 달라서다.
-            <ul className="[&>li+li]:border-t [&>li+li]:border-gray-200">
+            <ul className="px-6 [&>li+li]:border-t [&>li+li]:border-gray-200">
               {exams.map((exam) => {
                 const days = daysUntil(exam.examDate);
                 // 행을 누르면 그 시험의 강의로 이동한다. 홈에서 학습으로 들어가는 길이

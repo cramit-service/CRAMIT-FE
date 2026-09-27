@@ -18,7 +18,7 @@ const MIN_THUMB = 24;
 
 interface ScrollAreaProps {
   children: React.ReactNode;
-  /** 아래 페이드를 끈다. 스크롤이 끝을 감추면 안 되는 자리(선택 목록 등)에서 쓴다. */
+  /** 아래 페이드를 아예 끈다. 켜 두면 "아래에 더 있을 때만" 뜬다. */
   fade?: boolean;
   /** 스크롤하는 노드. 코드가 직접 굴려야 하는 화면이 있다(챗의 맨 아래, 요약의 맨 위로). */
   ref?: React.Ref<HTMLDivElement>;
@@ -37,6 +37,8 @@ export function ScrollArea({
     null,
   );
   const [active, setActive] = useState(false);
+  // 페이드는 "아래에 더 있다"는 말이다. 넘치지 않거나 바닥까지 내렸으면 할 말이 없다.
+  const [more, setMore] = useState(false);
 
   const measure = useCallback(() => {
     const el = ref.current;
@@ -45,8 +47,10 @@ export function ScrollArea({
     // 넘치지 않으면 막대 자체가 없다
     if (scrollHeight <= clientHeight + 1) {
       setThumb(null);
+      setMore(false);
       return;
     }
+    setMore(scrollTop + clientHeight < scrollHeight - 1);
     const height = Math.max(
       MIN_THUMB,
       (clientHeight / scrollHeight) * clientHeight,
@@ -134,7 +138,7 @@ export function ScrollArea({
         onScroll={handleScroll}
         className={cn(
           'scrollbar-hidden min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain',
-          fade && 'fade-bottom',
+          fade && more && 'fade-bottom',
         )}
       >
         {children}
