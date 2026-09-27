@@ -2,7 +2,8 @@
 // src/features/project/components/LectureFormModal.tsx
 import { useId, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
-import { FIELD_ERROR, FIELD_LABEL } from '@/shared/ui/fieldStyle';
+import { FIELD_ERROR } from '@/shared/ui/fieldStyle';
+import { FieldGroup } from '@/shared/ui/FieldGroup';
 import { ConfirmModal } from '@/shared/ui/ConfirmModal';
 import { FormModal } from '@/shared/ui/FormModal';
 import { Input } from '@/shared/ui/Input';
@@ -174,10 +175,7 @@ export function LectureFormModal({
       onSubmit={handleSubmit}
     >
       {/* 색 점이 강의명 왼쪽에 붙는다 — 이름과 색이 한 줄에 있어야 "이 과목의 색"으로 읽힌다. */}
-      <div className="flex flex-col gap-2">
-        <label htmlFor={`${fieldId}-title`} className={FIELD_LABEL}>
-          강의
-        </label>
+      <FieldGroup label="강의">
         <div className="flex gap-3">
           <SubjectColorField
             id={`${fieldId}-color`}
@@ -187,7 +185,7 @@ export function LectureFormModal({
             disabled={busy}
           />
           {/* 라벨은 이 줄 위에 하나뿐이라 Input에 넘기지 않는다 — 색 칸과 이름 칸이
-              "강의" 하나를 같이 받는다. 바깥 label의 htmlFor가 이 id를 가리킨다. */}
+              FieldGroup의 "강의"를 같이 이름으로 받는다. */}
           <div className="min-w-0 flex-1">
             <Input
               id={`${fieldId}-title`}
@@ -199,7 +197,7 @@ export function LectureFormModal({
             />
           </div>
         </div>
-      </div>
+      </FieldGroup>
 
       <Input
         id={`${fieldId}-professor`}

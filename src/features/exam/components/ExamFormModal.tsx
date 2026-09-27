@@ -5,7 +5,7 @@ import type { Exam } from '@/shared/types/api';
 import { cn } from '@/shared/lib/cn';
 import { toLocalDateString } from '@/shared/lib/date';
 import { Combobox } from '@/shared/ui/Combobox';
-import { FIELD_ERROR, FIELD_LABEL } from '@/shared/ui/fieldStyle';
+import { FIELD_ERROR } from '@/shared/ui/fieldStyle';
 import { DateField } from '@/shared/ui/DateField';
 import { FormModal } from '@/shared/ui/FormModal';
 import { Input } from '@/shared/ui/Input';
@@ -144,31 +144,23 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
       />
 
       {/* 강의 — 목록에서 고른 것만 값이 된다. 강의 없는 시험은 만들지 않는다. */}
-      <div className="flex flex-col gap-2">
-        <label htmlFor={`${fieldId}-lecture`} className={FIELD_LABEL}>
-          강의
-        </label>
-        <Combobox
-          id={`${fieldId}-lecture`}
-          value={projectId}
-          onChange={setProjectId}
-          options={lectureOptions}
-          disabled={isPending}
-        />
-      </div>
+      <Combobox
+        id={`${fieldId}-lecture`}
+        label="강의"
+        value={projectId}
+        onChange={setProjectId}
+        options={lectureOptions}
+        disabled={isPending}
+      />
 
-      <div className="flex flex-col gap-2">
-        <label htmlFor={`${fieldId}-date`} className={FIELD_LABEL}>
-          시험 날짜
-        </label>
-        <DateField
-          id={`${fieldId}-date`}
-          value={examDate}
-          onChange={setExamDate}
-          min={minDate}
-          disabled={isPending}
-        />
-      </div>
+      <DateField
+        id={`${fieldId}-date`}
+        label="시험 날짜"
+        value={examDate}
+        onChange={setExamDate}
+        min={minDate}
+        disabled={isPending}
+      />
 
       <Input
         id={`${fieldId}-memo`}

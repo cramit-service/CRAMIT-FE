@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { Icon } from '@/shared/ui/Icon';
 import {
+  FIELD_LABEL,
   FIELD_TRIGGER,
   OPTION_LIST,
   OPTION_ROW,
@@ -20,6 +21,8 @@ export interface ComboboxOption {
 
 interface ComboboxProps {
   id: string;
+  /** 칸 위에 서는 이름. 라벨 하나가 칸 여럿을 덮는 자리는 FieldGroup을 쓴다. */
+  label?: string;
   /** 고른 항목의 value. 빈 문자열이면 미선택. */
   value: string;
   onChange: (value: string) => void;
@@ -33,6 +36,7 @@ interface ComboboxProps {
 
 export function Combobox({
   id,
+  label,
   value,
   onChange,
   options,
@@ -136,7 +140,7 @@ export function Combobox({
     }
   };
 
-  return (
+  const field = (
     <div ref={wrapRef} className={cn('relative', width)}>
       <input
         ref={inputRef}
@@ -238,6 +242,18 @@ export function Combobox({
           )}
         </ul>
       )}
+    </div>
+  );
+
+  if (!label) return field;
+  return (
+    <div className={cn('flex flex-col gap-2', width)}>
+      {/* 팝오버의 기준(relative)은 안쪽 래퍼가 갖는다 — 라벨까지 기준에 들어가면
+          목록이 라벨 높이만큼 내려온다. */}
+      <label htmlFor={id} className={FIELD_LABEL}>
+        {label}
+      </label>
+      {field}
     </div>
   );
 }

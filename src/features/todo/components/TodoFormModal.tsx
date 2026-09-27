@@ -5,7 +5,8 @@ import { cn } from '@/shared/lib/cn';
 import { toLocalDateString, toLocalTimeString } from '@/shared/lib/date';
 import { Combobox } from '@/shared/ui/Combobox';
 import { DateField } from '@/shared/ui/DateField';
-import { FIELD_ERROR, FIELD_LABEL } from '@/shared/ui/fieldStyle';
+import { FIELD_ERROR } from '@/shared/ui/fieldStyle';
+import { FieldGroup } from '@/shared/ui/FieldGroup';
 import { FormModal } from '@/shared/ui/FormModal';
 import { Input } from '@/shared/ui/Input';
 import { TimeField } from '@/shared/ui/TimeField';
@@ -192,14 +193,13 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
 
       {/* 마감 일시 — 날짜와 시간이 한 라벨 아래 두 칸으로 나뉜다.
           두 반쪽이 한 칸 전체와 정확히 같은 폭을 채운다 (§4: 콤보박스의 두 폭). */}
-      <div className="flex flex-col gap-2">
-        <label htmlFor={`${fieldId}-due-date`} className={FIELD_LABEL}>
-          마감 일시
-        </label>
+      <FieldGroup label="마감 일시">
         <div className="grid grid-cols-2 gap-4">
-          {/* 라벨이 "마감 일시" 하나뿐이라 시간 칸이 무엇인지는 aria-label로 알린다. */}
+          {/* 두 칸 다 FieldGroup의 "마감 일시"를 이름으로 물려받는다. 시간 칸은
+              그중 어느 쪽인지를 aria-label로 덧붙인다. */}
           <DateField
             id={`${fieldId}-due-date`}
+            ariaLabel="마감 날짜"
             value={dueDate}
             onChange={handleDueDateChange}
             min={minDueDate}
@@ -223,15 +223,13 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
             {dueTimeError}
           </p>
         )}
-      </div>
+      </FieldGroup>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor={`${fieldId}-project`} className={FIELD_LABEL}>
-            강의 (선택)
-          </label>
           <Combobox
             id={`${fieldId}-project`}
+            label="강의 (선택)"
             value={projectId}
             onChange={handleProjectChange}
             options={lectureOptions}
@@ -249,12 +247,10 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor={`${fieldId}-lecture`} className={FIELD_LABEL}>
-            연결된 주차 (선택)
-          </label>
           {/* 강의를 고르기 전에는 고를 주차가 없다. 비활성으로 두어 순서를 알린다. */}
           <Combobox
             id={`${fieldId}-lecture`}
+            label="연결된 주차 (선택)"
             value={lectureId}
             onChange={setLectureId}
             options={chapterOptions}

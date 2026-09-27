@@ -7,6 +7,7 @@ import { toLocalDateString } from '@/shared/lib/date';
 import {
   FIELD_ICON,
   FIELD_ICON_SIZE,
+  FIELD_LABEL,
   FIELD_TRIGGER,
 } from '@/shared/ui/fieldStyle';
 
@@ -53,6 +54,8 @@ function parseValue(value: string): Date {
 
 interface DateFieldProps {
   id: string;
+  /** 칸 위에 서는 이름. 라벨 하나가 칸 여럿을 덮는 자리는 FieldGroup을 쓴다. */
+  label?: string;
   /** 'YYYY-MM-DD'. 비어 있으면 미선택. */
   value: string;
   onChange: (value: string) => void;
@@ -65,6 +68,7 @@ interface DateFieldProps {
 
 export function DateField({
   id,
+  label,
   value,
   onChange,
   disabled,
@@ -211,7 +215,7 @@ export function DateField({
       ? value
       : (monthCells.find((iso) => !isBlocked(iso)) ?? monthCells[0]);
 
-  return (
+  const field = (
     <div className={'relative w-full'}>
       <button
         ref={triggerRef}
@@ -341,6 +345,18 @@ export function DateField({
           </div>
         </div>
       )}
+    </div>
+  );
+
+  if (!label) return field;
+  return (
+    <div className="flex w-full flex-col gap-2">
+      {/* 판의 기준(relative)은 안쪽 래퍼가 갖는다 — 라벨까지 기준에 들어가면
+          달력이 라벨 높이만큼 내려온다. */}
+      <label htmlFor={id} className={FIELD_LABEL}>
+        {label}
+      </label>
+      {field}
     </div>
   );
 }
