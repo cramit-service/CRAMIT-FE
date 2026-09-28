@@ -49,7 +49,18 @@ function StatusMessage({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function TodoChecklist() {
+// 판의 모양. 홈의 카드와 뷰어의 탭 판이 채움·테두리·모서리를 공유하고 높이만 다르다.
+const CARD = 'bg-surface flex flex-col rounded-md border border-gray-100';
+
+interface TodoChecklistProps {
+  /**
+   * 카드 높이를 바깥이 준 만큼으로 바꾼다. 홈에서는 옆 캘린더에 맞춘 고정 높이라야
+   * 두 열의 하단이 맞지만, 학습 뷰어의 탭 자리에서는 판이 남은 공간을 채운다.
+   */
+  fill?: boolean;
+}
+
+export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
   const { data: todos, isLoading, isError } = useTodos();
   const { filter } = useTodoFilter();
 
@@ -94,6 +105,68 @@ export function TodoChecklist() {
   const toggle = (todo: Todo) =>
     setOverrides((prev) => ({ ...prev, [todo.todoId]: !isDone(todo) }));
 
+  const addButton = (
+    // 시험 일정 카드의 추가하기와 같은 부품·같은 라벨이다.
+    <Button onClick={() => setEditing('create')}>추가하기</Button>
+  );
+
+  // 스크롤은 ScrollArea가 맡는다(시험 일정 카드와 같은 부품·같은 규칙) —
+  // 좌우 여백은 판이 아니라 안쪽 목록이 갖고, 막대는 그 여백 위에 선다.
+  const list = (
+    <ScrollArea>
+      {isLoading ? (
+        <StatusMessage>불러오는 중…</StatusMessage>
+      ) : isError || !todos ? (
+        <StatusMessage>
+          할 일을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
+        </StatusMessage>
+      ) : visible.length === 0 ? (
+        <StatusMessage>{emptyMessage}</StatusMessage>
+      ) : (
+        // 행 사이에 선을 긋지 않는다. 완료한 할 일은 제목에 취소선이 그어지는데,
+        // 칸막이까지 있으면 한 화면에 가로선이 스무 개 가까이 깔린다 — 그중 하나만
+        // 뜻(완료)이고 나머지는 칸막이라 같은 회색으로는 둘이 구분되지 않는다.
+        // 경계는 줄마다 왼쪽에 서는 체크박스가 이미 만든다.
+        <ul className="px-6">
+          {visible.map((todo) => (
+            <TodoRow
+              key={todo.todoId}
+              todo={todo}
+              done={isDone(todo)}
+              onToggle={() => toggle(todo)}
+              onEdit={() => setEditing(todo)}
+            />
+          ))}
+        </ul>
+      )}
+    </ScrollArea>
+  );
+
+  const modal = editing !== null && (
+    <TodoFormModal
+      todo={editing === 'create' ? undefined : editing}
+      onClose={() => setEditing(null)}
+    />
+  );
+
+  // 학습 뷰어의 탭 자리. 판 하나가 전부다 — 크기가 옆 탭과 같아야 해서 제목 줄을
+  // 판 위에 둘 수 없고, 탭 이름이 이미 TODO라 제목도 필요 없다. 보기 선택도 빼서
+  // 판 안에는 추가하기만 선다. 여백은 옆의 요약 탭과 같은 px-6 pt-5다.
+  // 값을 VIEWER_PANEL에서 가져오지는 않는다 — features끼리 import하면 화살표가
+  // 한 방향이 아니게 된다(CLAUDE.md §3).
+  if (fill) {
+    return (
+      <section
+        className={cn(CARD, 'h-full min-h-[590px] pb-2')}
+        aria-label="TODO 체크리스트"
+      >
+        <div className="flex justify-end px-6 pt-5 pb-5">{addButton}</div>
+        {list}
+        {modal}
+      </section>
+    );
+  }
+
   return (
     <section className="flex min-h-0 flex-col">
       {/* 제목 행은 옆의 시험 일정 열과 같은 규칙 — 높이를 고정하지 않고 내용(버튼 28)이 정한다.
@@ -104,53 +177,17 @@ export function TodoChecklist() {
         </h2>
         <div className="flex items-center gap-2">
           <TodoViewSelect />
-          {/* 시험 일정 카드의 추가하기와 같은 부품·같은 라벨이다. */}
-          <Button onClick={() => setEditing('create')}>추가하기</Button>
+          {addButton}
         </div>
       </div>
 
       {/* 카드는 데이터 유무와 무관하게 항상 렌더 — 크기는 여기(div)에 준다. 비어도 안 줄어든다.
-          스크롤은 ScrollArea가 맡는다(시험 일정 카드와 같은 부품·같은 규칙) —
-          좌우 여백은 카드가 아니라 안쪽 목록이 갖고, 막대는 그 여백 위에 선다. */}
-      {/* lg 높이는 옆의 캘린더 카드와 하단이 맞아야 한다. 제목 행 규칙이 두 열에서 같으므로
+          lg 높이는 옆의 캘린더 카드와 하단이 맞아야 한다. 제목 행 규칙이 두 열에서 같으므로
           카드 높이도 캘린더와 같은 654다 — 한쪽을 바꾸면 다른 쪽도 같이 바꿔야 한다.
           예전에는 flex-1로 남는 높이를 채워 뷰포트마다 높이가 달라졌다. */}
-      <div className="bg-surface flex h-124 flex-col rounded-md border border-gray-100 py-2 lg:h-[654px]">
-        <ScrollArea>
-          {isLoading ? (
-            <StatusMessage>불러오는 중…</StatusMessage>
-          ) : isError || !todos ? (
-            <StatusMessage>
-              할 일을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
-            </StatusMessage>
-          ) : visible.length === 0 ? (
-            <StatusMessage>{emptyMessage}</StatusMessage>
-          ) : (
-            // 행 사이에 선을 긋지 않는다. 완료한 할 일은 제목에 취소선이 그어지는데,
-            // 칸막이까지 있으면 한 화면에 가로선이 스무 개 가까이 깔린다 — 그중 하나만
-            // 뜻(완료)이고 나머지는 칸막이라 같은 회색으로는 둘이 구분되지 않는다.
-            // 경계는 줄마다 왼쪽에 서는 체크박스가 이미 만든다.
-            <ul className="px-6">
-              {visible.map((todo) => (
-                <TodoRow
-                  key={todo.todoId}
-                  todo={todo}
-                  done={isDone(todo)}
-                  onToggle={() => toggle(todo)}
-                  onEdit={() => setEditing(todo)}
-                />
-              ))}
-            </ul>
-          )}
-        </ScrollArea>
-      </div>
+      <div className={cn(CARD, 'h-124 py-2 lg:h-[654px]')}>{list}</div>
 
-      {editing !== null && (
-        <TodoFormModal
-          todo={editing === 'create' ? undefined : editing}
-          onClose={() => setEditing(null)}
-        />
-      )}
+      {modal}
     </section>
   );
 }

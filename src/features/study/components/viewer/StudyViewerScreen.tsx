@@ -12,7 +12,8 @@ import { ViewerHeader } from '@/features/study/components/viewer/ViewerHeader';
 import { PdfMaterialTab } from '@/features/study/components/viewer/PdfMaterialTab';
 import { SummaryTab } from '@/features/study/components/viewer/SummaryTab';
 import { ScriptTab } from '@/features/study/components/viewer/ScriptTab';
-import { TabPlaceholder } from '@/features/study/components/viewer/TabPlaceholder';
+import { TodoChecklist } from '@/features/todo/components/TodoChecklist';
+import { TodoFilterProvider } from '@/features/todo/hooks/useTodoFilter';
 import { Resizer } from '@/features/study/components/viewer/Resizer';
 import { Button } from '@/shared/ui/Button';
 import { cn } from '@/shared/lib/cn';
@@ -239,9 +240,17 @@ export function StudyViewerScreen({
             duration={toPlayDuration(material.audioDuration)}
           />
         );
-      // TODO(todo 담당): TODO 탭은 다른 담당 영역이라 자리만 잡아둔다
+      // TODO(백엔드): 지금은 내 할 일 전체가 뜬다. 조회에 강의·주차 필터가 생기면
+      // 이 주차의 것만 남긴다.
       case 'TODO':
-        return <TabPlaceholder label="TODO 탭은 담당자가 구현합니다." />;
+        // 보기(다음/지난/완료/날짜)를 들고 있는 것이 Provider다. 홈에서는 캘린더가
+        // 날짜를 눌러 목록을 거르느라 화면이 갖고 있는데, 여기선 쓰는 쪽이 목록
+        // 하나뿐이라 탭 안에서 감싼다.
+        return (
+          <TodoFilterProvider>
+            <TodoChecklist fill />
+          </TodoFilterProvider>
+        );
     }
   };
 
