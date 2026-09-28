@@ -82,7 +82,7 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
           // 채움이 없다 — 말풍선 안에서 파일 하나를 알려 주는 줄이라 상자가 필요 없고,
           // 표면을 한 단 더 쌓으면 내 말과 AI 말에서 서로 다른 채움을 써야 했다.
           // 글자는 14, 아이콘은 그 옆 4px 단계인 16이다(§3 아이콘 규칙).
-          <div className="mb-1.5 flex max-w-full items-center gap-1.5">
+          <div className="mb-2 flex max-w-full items-center gap-2">
             <span className="flex shrink-0 text-gray-400">
               <Icon name="paperclip" size={16} />
             </span>

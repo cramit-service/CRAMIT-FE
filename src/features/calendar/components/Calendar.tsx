@@ -49,12 +49,12 @@ export function Calendar() {
 
   return (
     <section className="flex min-h-0 flex-col">
-      {/* 제목 행은 시험 일정·TODO 열과 같은 규칙 — text-body-md(20/30) + mb-1.5(6).
+      {/* 제목 행은 시험 일정·TODO 열과 같은 규칙 — text-body-md(20/30) + mb-2(8).
           셋 다 같은 제목 단이라 줄높이와 간격이 어긋나면 나란히 놓였을 때 바로 보인다. */}
       {/* 머리줄 높이를 시험 일정·TODO와 같은 40으로 맞춘다. 전에는 월 이동 버튼이
           21이라 이 줄만 30이었고, 그만큼 캘린더 카드가 옆 TODO 카드보다 10px 위에 떠 있었다.
           (주석은 "두 열의 제목 행 규칙이 같다"고 적어 뒀지만 실제로는 아니었다.) */}
-      <div className="mb-1.5 flex min-h-10 items-center justify-between">
+      <div className="mb-2 flex min-h-10 items-center justify-between">
         <h2 className="text-body-md font-semibold text-gray-800">캘린더</h2>
         <div className="flex items-center gap-2">
           {/* 제목과 같은 칸(20)이다. 18은 §3이 "제목이 아닌 본문"에 준 단이라

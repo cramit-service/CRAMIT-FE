@@ -30,7 +30,7 @@ export function ExamSchedule() {
 
   return (
     <section className="flex min-h-0 flex-col">
-      <div className="mb-1.5 flex min-h-10 items-center justify-between">
+      <div className="mb-2 flex min-h-10 items-center justify-between">
         <h2 className="text-body-md font-semibold text-gray-800">
           다가오는 시험 일정
         </h2>

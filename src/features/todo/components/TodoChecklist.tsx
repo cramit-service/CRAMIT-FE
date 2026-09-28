@@ -171,7 +171,7 @@ export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
     <section className="flex min-h-0 flex-col">
       {/* 제목 행은 옆의 시험 일정 열과 같은 규칙 — 높이를 고정하지 않고 내용(버튼 28)이 정한다.
           고정하면 28짜리 버튼이 가운데 놓이면서 위아래로 빈 자리가 생겨 간격이 그만큼 벌어진다. */}
-      <div className="mb-1.5 flex items-center justify-between">
+      <div className="mb-2 flex items-center justify-between">
         <h2 className="text-body-md font-semibold text-gray-800">
           TODO 체크리스트
         </h2>
@@ -254,7 +254,7 @@ function TodoRow({
               </span>
             </span>
             {todo.memo && (
-              <span className="text-label flex min-w-0 items-center gap-1.5 text-gray-500">
+              <span className="text-label flex min-w-0 items-center gap-2 text-gray-500">
                 <span className="flex shrink-0">
                   <Icon name="memo" size={16} />
                 </span>

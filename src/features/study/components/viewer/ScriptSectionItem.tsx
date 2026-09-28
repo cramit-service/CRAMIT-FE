@@ -32,13 +32,13 @@ export function ScriptSectionItem({
         aria-expanded={open}
         aria-controls={panelId}
       >
-        <span className="flex items-center gap-1.5">
+        <span className="flex items-center gap-2">
           <span className="text-label flex shrink-0 items-center justify-center rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-700">
             PDF P.{String(section.page).padStart(2, '0')}
           </span>
           {/* 폭이 모자라면 시간부터 버린다. 제목이 먼저 잘리면 무슨 구간인지 알 수 없는데,
             시간은 펼치면 세그먼트마다 다시 나오므로 여기서 빠져도 잃는 게 없다. */}
-          <span className="flex shrink-0 items-center gap-1.5 @max-[340px]:hidden">
+          <span className="flex shrink-0 items-center gap-2 @max-[340px]:hidden">
             <span className="text-gray-400">
               <Icon name="time" size={16} />
             </span>

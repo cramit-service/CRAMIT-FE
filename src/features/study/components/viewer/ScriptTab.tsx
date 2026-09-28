@@ -76,7 +76,7 @@ export function ScriptTab({
           녹음본을 텍스트화해서 PPT 페이지별로 정리했어요. 녹음본 재생은 ‘PDF
           강의 자료’를 이용해 주세요.
         </p>
-        <div className="flex shrink-0 items-center gap-1.5 text-gray-500">
+        <div className="flex shrink-0 items-center gap-2 text-gray-500">
           <Icon name="time" size={17} />
           <p className="text-label font-medium tabular-nums">
             {formatPlayTime(currentTime)} / {formatPlayTime(duration)}
