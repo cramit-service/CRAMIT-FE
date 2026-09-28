@@ -14,12 +14,13 @@ import {
 } from '@/features/study/lib/lectureList';
 import { buildSubjectColorMap } from '@/shared/lib/subjectColor';
 import { LectureSection } from './LectureSection';
+import { PAGE_PAD } from '@/shared/ui/pageShell';
 
 // 콘텐츠 폭은 홈과 같은 1512 (CLAUDE.md 4-4). 바깥 여백은 남는 공간이 갖는다.
 // 로딩·에러 문구도 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
 function PageShell({ children }: { children: ReactNode }) {
   return (
-    <div className="px-4 pt-12 pb-12 md:px-8 lg:px-0">
+    <div className={PAGE_PAD}>
       <div className="lg:content-col mx-auto flex w-full flex-col gap-6">
         {children}
       </div>

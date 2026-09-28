@@ -15,9 +15,10 @@ import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
 import { FileDropzone } from './FileDropzone';
 import { RecordingSlot } from './RecordingSlot';
 import { ChapterUploadOverlay } from './ChapterUploadOverlay';
+import { CONTENT_SHELL } from '@/shared/ui/pageShell';
 
 // 로딩·에러 문구도 본문과 같은 폭에 둔다 — 데이터가 도착하는 순간 콘텐츠가 가로로 튀지 않게.
-const PAGE_SHELL = 'mx-auto w-full px-6 pt-10 pb-8 lg:content-col lg:px-0';
+const PAGE_SHELL = CONTENT_SHELL;
 
 interface NewChapterScreenProps {
   projectId: string;

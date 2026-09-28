@@ -22,7 +22,7 @@ import {
 
 // 로딩·에러 문구도 본문과 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
 // 폭은 globals.css의 read-col이 갖는다 — 값과 그 값을 고른 이유가 거기 있다.
-const PAGE_SHELL = 'read-col pt-[83px] pb-[67px]';
+const PAGE_SHELL = 'read-col py-12';
 
 // 요금제 표기. PlanId는 코드값이라 화면에는 사람이 읽는 이름을 쓴다.
 const PLAN_LABEL: Record<PlanId, string> = {

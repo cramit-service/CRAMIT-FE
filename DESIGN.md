@@ -2281,6 +2281,31 @@ argument is exactly what that rule is for. It also failed the case above: at a
 stop being readable beside each other is measured off those panels' contents, and
 the reading column does not depend on the answer.
 
+#### Every page is inset by the same amount
+
+**A page is 48 from the top and 48 from the bottom, on both columns.** The
+column decides the width; this decides only the inset, and it is one number.
+
+The product had four of them. Two screens carried design px straight into the
+code — the home at `68 / 44` and the profile at `83 / 67` — and none of those
+four are on §2's scale, which stops at 24 in fours and then goes 32, 40, 48.
+Two more screens sat on the scale and still disagreed: `48 / 48` on three
+screens against `40 / 32` on two.
+
+**Top and bottom are equal because nothing could say why they differed.** An
+asymmetric page inset is usually the trace of a last element carrying its own
+margin, not a decision, and none of the five files recorded one. 48 wins the
+count as well, three screens to two.
+
+**The focus mode keeps `16 / 16`.** Giving the panels the window is what that
+mode is for, so the inset is the thing it is allowed to spend. It is the one
+exception and it is on the scale.
+
+**Below `lg` the page carries its own side gutter, and above it the leftover
+width does.** `px-4`, then `px-8` from `md`, then nothing — a side padding that
+survives into the wide range eats the column's own width and keeps it off its
+cap (§5's gutter floor is the column's business, not the page's).
+
 ### Responsive Behavior
 
 **Text and controls hold one size across the whole desktop range. Containers

@@ -19,11 +19,12 @@ import { Button } from '@/shared/ui/Button';
 import { cn } from '@/shared/lib/cn';
 import { setSidebarHidden } from '@/shared/ui/Sidebar/sidebarState';
 import type { ViewerTab } from '@/shared/types/api';
+import { CONTENT_SHELL } from '@/shared/ui/pageShell';
 
 // 로딩·에러 문구도 본문과 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
 // 일반 모드는 다른 화면과 같은 콘텐츠 열(content-col)을 쓴다. 바깥 여백은 px-*가 아니라
 // 남는 폭이 갖는다(CLAUDE.md 4-4).
-const PAGE_SHELL = 'w-full px-6 pt-10 pb-8 lg:content-col lg:px-0';
+const PAGE_SHELL = CONTENT_SHELL;
 // 집중 모드 — 위 16 + 탭줄 32 + 간격 12 = 60, 아래 16. 일반 모드의 188에서 76으로 줄어든다.
 const FOCUS_SHELL = 'w-full px-6 pt-4 pb-4';
 
