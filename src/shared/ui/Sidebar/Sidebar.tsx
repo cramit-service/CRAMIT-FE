@@ -8,6 +8,7 @@ import {
   useSyncExternalStore,
 } from 'react';
 import Image from 'next/image';
+import { DEFAULT_AVATAR } from '@/shared/ui/avatar';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Logo } from '@/shared/ui/Logo';
@@ -230,25 +231,31 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
               <span className="bg-lime-action absolute inset-y-0 right-2 left-2 rounded-md" />
             )}
             <span className="relative flex w-[var(--sidebar-rail)] shrink-0 justify-center">
+              {/* 테두리는 두 상태 다 두고 색만 바꾼다. 기본 아바타의 바탕이 #F5F5F5라
+                  레일(frame #f3f1ee) 위에서는 원의 가장자리가 사라지지만, 활성일 때는
+                  연두 알약 위라 이미 가장자리가 있다. 한쪽에서만 테두리를 빼면 상자가
+                  30과 32를 오가며 아바타가 2px 튄다.
+                  글자용이던 text-label·font-medium·text-gray-*와 bg-surface는 지웠다 —
+                  이제 그림이 칸을 꽉 채우므로 그 아래로는 아무것도 안 비친다. */}
               <span
                 className={cn(
-                  'text-label flex size-8 items-center justify-center overflow-hidden rounded-full font-medium',
-                  profileActive
-                    ? 'bg-surface text-gray-800'
-                    : 'border border-gray-200 text-gray-500',
+                  'flex size-8 overflow-hidden rounded-full border',
+                  profileActive ? 'border-transparent' : 'border-gray-200',
                 )}
               >
-                {profile?.imageUrl ? (
-                  <Image
-                    src={profile.imageUrl}
-                    alt=""
-                    width={32}
-                    height={32}
-                    className="size-full object-cover"
-                  />
-                ) : (
-                  (profile?.name?.trim().charAt(0) ?? '')
-                )}
+                {/* 사진이 없으면 기본 그림이다. 이름 첫 글자였는데, 같은 사람이
+                    설정(110)에서는 그림, 여기서는 글자로 보였다.
+                    unoptimized — 설정의 두 아바타와 같은 처리다. 백엔드가 아직
+                    profileImage를 안 주므로 원격 호스트는 next.config의
+                    images.remotePatterns와 함께 그때 정한다. */}
+                <Image
+                  src={profile?.imageUrl ?? DEFAULT_AVATAR}
+                  alt=""
+                  width={32}
+                  height={32}
+                  unoptimized
+                  className="size-full object-cover"
+                />
               </span>
             </span>
             <span

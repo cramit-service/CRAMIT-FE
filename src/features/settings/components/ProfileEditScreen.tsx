@@ -8,6 +8,7 @@ import {
   useMyProfile,
   useUpdateNickname,
 } from '@/features/settings/hooks/useMyProfile';
+import { DEFAULT_AVATAR } from '@/shared/ui/avatar';
 import { Button } from '@/shared/ui/Button';
 import { IconButton } from '@/shared/ui/IconButton';
 import { Input } from '@/shared/ui/Input';
@@ -93,7 +94,7 @@ export function ProfileEditScreen() {
         <div className="size-[110px] overflow-hidden rounded-full">
           {/* 이 화면에서도 아바타가 LCP로 잡힌다 (ProfileScreen과 동일) */}
           <Image
-            src={profile.profileImage ?? '/images/avatar-default.svg'}
+            src={profile.profileImage ?? DEFAULT_AVATAR}
             alt=""
             width={110}
             height={110}

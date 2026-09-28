@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import type { PlanId } from '@/shared/types/api';
+import { DEFAULT_AVATAR } from '@/shared/ui/avatar';
 import { Button } from '@/shared/ui/Button';
 import { ConfirmModal } from '@/shared/ui/ConfirmModal';
 import { Switch } from '@/shared/ui/Switch';
@@ -92,7 +93,7 @@ export function ProfileScreen() {
         {/* 이 화면 최상단이라 아바타가 LCP로 잡힌다. priority로 미리 받아 Next 경고를 없애고
             늦게 채워지는 것도 막는다. (홈 배너 #35와 같은 처리) */}
         <Image
-          src={profile.profileImage ?? '/images/avatar-default.svg'}
+          src={profile.profileImage ?? DEFAULT_AVATAR}
           alt=""
           width={110}
           height={110}
