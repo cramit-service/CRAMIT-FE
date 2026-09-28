@@ -251,6 +251,39 @@
   mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent);
 }
 
+/* ===== 장식 mesh (GradientBackground) =====
+   시안은 «도형»이 아니다 — 연두→하늘 선형 그라디언트를 먹인 괴상한 path를
+   stdDeviation 78로 흐려 놓은 것이고, 그 흐림이 모양을 다 먹는다. 상자에 픽셀을
+   투영하면 색이 그라디언트 축 좌표만의 함수로 정리되고(같은 좌표 안 편차 13~23/255)
+   세로 변화는 남지 않는다. 그래서 남는 손잡이는 축의 각도 하나다.
+   스톱이 퍼센트라 상자 크기를 알아서 따라간다.
+
+   색은 §2의 lime-action·sky-status다. 시안은 #E9FC47/#7FDEF7(옛 팔레트의
+   primary-300·secondary-300)인데, 알파를 다시 맞추면 우리 토큰과 구분되지 않는다 —
+   둘 다 평균 ΔE 1.85로 같은 자리에서 멈춘다.
+
+   보간을 srgb로 못 박는다. 토큰이 oklab()으로 나가는데 그대로 두면 브라우저가
+   oklab에서 보간해 95퍼센타일이 4.6에서 8.4로 벌어진다. */
+
+/* 홈 학습 배너 (시안 24:10161, 839×198). 블롭이 둘이다 — 오른쪽의 큰 쓸기와
+   왼쪽 가장자리의 옅은 연두. 시안 SVG와 평균 ΔE 1.85 · 95퍼센타일 4.6.
+   왼쪽 것은 자기 path가 거의 상자 밖(x −758..11)에 있어 오른쪽 끝자락만 걸치므로
+   원형 하나로 받는다 — 세기가 오른쪽의 1/3(덮인 정도 16 대 48)이다. */
+@utility mesh-banner {
+  background-image:
+    radial-gradient(
+      34% 90% at 0% 74%,
+      --alpha(var(--color-lime-action) / 6%),
+      transparent
+    ),
+    linear-gradient(
+      255.3deg in srgb,
+      --alpha(var(--color-lime-action) / 20%) 0%,
+      --alpha(var(--color-sky-status) / 12%) 40%,
+      transparent 62%
+    );
+}
+
 /* ===== 스크롤바 =====
    시안의 스크롤바는 폭 6px짜리 알약 하나뿐이다(위아래 화살표 버튼이 없다).
    OS 기본 스크롤바는 Windows에서 스텝 버튼이 붙어 나오므로 문서와 모든 스크롤 영역에

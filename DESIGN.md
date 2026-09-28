@@ -252,29 +252,44 @@ waiting for a color.
 #### The decorative wash borrows two colors and takes no role
 
 **The mesh behind the landing, the home banner and the chat dock is lime and blue
-at 20% and 12%, swept across the box on one axis.** It is the only place a color
+laid on at a fifth of their opacity and below.** It is the only place a color
 appears with no role attached, and the way it stays harmless is that it never
-carries an edge, never exceeds a fifth of its own opacity, and sits behind
-everything.
+carries an edge, never reaches a fifth of its own opacity except at its single
+strongest stop, and sits behind everything.
 
-It did not need tokens of its own. The design paints it `#E9FC47 → #7FDEF7`,
-neither of which is in the table above. Refitting the alpha against the design's
-own export lands `lime-action → sky-status` at **mean ΔE 1.21**, where the
-design's own colors at their best fit reach **1.13** — a gap of 0.08, under the
-threshold at which anyone sees a difference. Pale would not do it: `lime-pale →
-sky-pale` cannot get below 2.57, because at a fifth of an opacity what survives is
-hue, and the pale pair has already spent its saturation on lightness.
+It did not need tokens of its own. The design paints it `#E9FC47 → #7FDEF7` —
+which were `primary-300` and `secondary-300`, two steps this section replaced.
+Refitting the alpha, `lime-action → sky-status` reproduces the design's own export
+to **mean ΔE 1.85** — the same figure the design's own two colors reach at their
+own best fit. They stop in the same place because at a fifth of an opacity what
+survives is hue, and the two pairs differ in lightness, so the pair that already
+has a role wins. The pale pair cannot take the job: refitting it as far as it
+goes leaves **2.87, with a 95th percentile of 9.2 against 5.1** — it has already
+spent its saturation on lightness, and there is no alpha that buys hue back.
 
 **What differs between the three places is the angle, not the shape.** The design
 draws one wandering path, fills it with a linear lime-to-blue gradient, and blurs
 it by 78 — and the blur eats the shape. Projecting the banner's export onto its
 own gradient axis leaves color a function of that one coordinate (spread within a
-coordinate: 13–23 of 255) with nothing left across the other. So the component's
-one knob is the axis, and the stops are percentages, which is what lets the same
-wash sit in a 629×198 banner and a full-height hero without being re-placed by
-hand. Measured against the export: **mean ΔE 2.19, 95th percentile 4.8** — the
-remainder is the vertical falloff a single linear sweep cannot carry, on a panel
-whose whole range is ΔE 12 from white.
+coordinate: 13–23 of 255) with nothing left across the other. So a place needs an
+axis and a set of stops, not a drawing, and because the stops are percentages the
+same wash sits in a 839×198 banner and a full-height hero without being re-placed
+by hand.
+
+**A place may take more than one blob, and the extra ones are faint.** The banner
+has two: the sweep, and a second at the left edge whose own path lies almost
+entirely outside the box, so only its far edge lands. At a third of the sweep's
+strength (coverage 16 against 48) and with no direction left to read, it is a
+circle rather than an axis. Measured against the export, the two together reach
+**mean ΔE 1.83, 95th percentile 4.6**; the sweep alone reaches 2.60. The
+remainder is the vertical falloff a linear sweep cannot carry, on a panel whose
+whole range is ΔE 12 from white.
+
+**Interpolation is pinned to sRGB.** Tokens leave the build as `oklab()`, and a
+gradient between two of them interpolates in oklab unless told otherwise, which
+pushes the 95th percentile from 4.6 to 8.4. The values live in `globals.css` as
+one utility per place, because they are colors and colors belong beside the
+tokens they are made of.
 
 #### A subject's color is a bar beside a name and a circle standing alone
 
