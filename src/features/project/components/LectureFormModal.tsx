@@ -51,11 +51,8 @@ export function LectureFormModal({
   const [confirming, setConfirming] = useState(false);
 
   const [title, setTitle] = useState(project?.title ?? '');
-  // 생성 때 교수명을 비우면 "미정"이 채워진다. 수정 화면에서 그게 그대로 보이면
   // 사용자가 직접 쓴 값처럼 보이므로 빈 칸으로 되돌려 준다.
-  const [professor, setProfessor] = useState(
-    project?.professor === '미정' ? '' : (project?.professor ?? ''),
-  );
+  const [professor, setProfessor] = useState(project?.professor ?? '');
   const [formError, setFormError] = useState<string | null>(null);
 
   // 과목 색. 사용자가 고르기 전엔 null이고 기본값은 목록에서 정한다 — 목록이 아직 안 왔을 수
@@ -85,7 +82,7 @@ export function LectureFormModal({
   const changed =
     !isEdit ||
     title.trim() !== project.title ||
-    (professor.trim() || '미정') !== project.professor ||
+    (professor.trim() || null) !== project.professor ||
     colorIndex !== defaultColor;
   const canSubmit = filled && changed && !busy;
 

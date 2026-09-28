@@ -60,19 +60,6 @@ export async function getProjects(): Promise<Project[]> {
   return apiClient.get<Project[]>('/projects');
 }
 
-export async function createProject(title: string): Promise<Project> {
-  if (USE_MOCK) {
-    await delay(300);
-    return {
-      projectId: String(Date.now()),
-      title,
-      createdAt: new Date().toISOString(),
-      colorIndex: null,
-    };
-  }
-  return apiClient.post<Project>('/projects', { title });
-}
-
 // 내 강의 생성 (Figma 1:2614) — 학습하기 목록에 카드 한 장이 늘어난다.
 // 목록이 쓰는 건 Project가 아니라 ProjectSummary(태그용 메타 포함)라 그 형태로 돌려준다.
 // TODO: 백엔드 엔드포인트·응답 형태 확정 시 재확인 필요
@@ -86,8 +73,7 @@ export async function createLecture(
       title: req.title,
       createdAt: new Date().toISOString(),
       // 시안에 교수명은 선택이라 비어 있을 수 있다. 태그는 "OOO 교수님"이라 빈 값이면 어색해서
-      // 목록 카드가 이미 쓰는 표기에 맞춰 "미정"으로 채운다.
-      professor: req.professor ?? '미정',
+      professor: req.professor,
       // 방금 만든 강의라 아직 주차가 없다.
       chapterCount: 0,
       // 모달은 시험 날짜만 받고 시험명은 받지 않는다. D-DAY 태그는 이름과 날짜가 둘 다
@@ -114,7 +100,7 @@ export async function updateLecture(
     const summary: ProjectSummary = {
       ...current,
       title: req.title,
-      professor: req.professor ?? '미정',
+      professor: req.professor,
       examName: req.examDate ? (current.examName ?? '시험') : null,
       examDate: req.examDate,
       colorIndex: req.colorIndex,

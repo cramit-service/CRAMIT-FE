@@ -19,7 +19,7 @@ export function filterLectures(
   return lectures.filter(
     (l) =>
       l.title.toLowerCase().includes(q) ||
-      l.professor.toLowerCase().includes(q),
+      (l.professor ?? '').toLowerCase().includes(q),
   );
 }
 

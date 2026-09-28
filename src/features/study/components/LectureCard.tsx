@@ -6,6 +6,7 @@ import { getDday } from '@/features/study/lib/format';
 import { DdayBadge } from '@/features/exam/components/DdayBadge';
 import type { ProjectSummary } from '@/shared/types/api';
 import { Card } from '@/shared/ui/Card';
+import { lectureMetaLine } from '@/features/study/lib/format';
 
 interface LectureCardProps {
   lecture: ProjectSummary;
@@ -38,7 +39,7 @@ export function LectureCard({ lecture, dotClass }: LectureCardProps) {
           </span>
 
           <span className="text-label truncate text-gray-500">
-            {`${lecture.professor} 교수님 · 강의 ${lecture.chapterCount}개`}
+            {lectureMetaLine(lecture.professor, lecture.chapterCount)}
           </span>
         </span>
 

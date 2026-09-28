@@ -23,65 +23,35 @@ export const SUBJECT_COLOR_COUNT = SUBJECT_COLORS.length;
 // 강의를 안 고른 TODO 등 과목이 없는 일정.
 export const NO_SUBJECT_DOT_CLASS = 'bg-gray-500';
 
-type SubjectColorSource = Pick<
-  Project,
-  'projectId' | 'createdAt' | 'colorIndex'
->;
+type SubjectColorSource = Pick<Project, 'projectId' | 'colorIndex'>;
 
-function isColorIndex(value: number | null): value is number {
-  return (
-    value !== null &&
-    Number.isInteger(value) &&
-    value >= 1 &&
-    value <= SUBJECT_COLOR_COUNT
-  );
+// 범위 검사다. 서버가 늘 번호를 채워 주지만 팔레트 밖의 값(0·99)까지 막아 주지는 않는다.
+function isColorIndex(value: number): boolean {
+  return Number.isInteger(value) && value >= 1 && value <= SUBJECT_COLOR_COUNT;
 }
 
 /** 팔레트 번호 → 점 클래스. 번호가 없거나 범위를 벗어나면 회색. */
 export function subjectDotClassOf(index: number | null | undefined): string {
-  return index !== undefined && isColorIndex(index)
+  return index != null && isColorIndex(index)
     ? SUBJECT_COLORS[index - 1].dot
     : NO_SUBJECT_DOT_CLASS;
 }
 
-/** 아직 안 쓰인 번호 중 가장 앞. 다 쓰였으면 1로 돌아간다.
- *  다 쓰인 경우는 아래 buildSubjectColorMap이 따로 처리하므로 여기서는 안 걸린다 —
- *  새 과목의 기본값은 nextSubjectColorIndex를 쓴다. */
-function firstUnusedColorIndex(used: ReadonlySet<number>): number {
-  for (let i = 1; i <= SUBJECT_COLOR_COUNT; i++) {
-    if (!used.has(i)) return i;
-  }
-  return 1;
-}
-
 /**
- * 과목별 색 번호. 저장된 번호를 먼저 놓고, 없는 과목은 생성 순으로
- * 안 쓰인 번호를 채운다. 화면마다 걸러 보여주기 전의 전체 목록을 넣어야 같은 색이 나온다.
+ * 과목별 색 번호. 화면마다 걸러 보여주기 전의 전체 목록을 넣어야 같은 색이 나온다.
+ *
+ * 전에는 번호가 없는 과목을 생성 순으로 채우는 2차 훑기가 있었다. colorIndex가
+ * 서버에서 늘 채워져 오기로 정해지면서 채울 것이 없어졌고, 그 훑기가 쓰던 생성 시각
+ * 정렬도 같이 사라졌다. 남은 일은 저장된 번호를 지도로 옮기는 것뿐이다.
  */
 export function buildSubjectColorMap(
   projects: readonly SubjectColorSource[] | undefined,
 ): Map<string, number> {
-  const ordered = [...(projects ?? [])].sort((a, b) =>
-    a.createdAt.localeCompare(b.createdAt),
-  );
   const map = new Map<string, number>();
-  const used = new Set<number>();
-
-  for (const p of ordered) {
-    if (map.has(p.projectId) || !isColorIndex(p.colorIndex)) continue;
-    map.set(p.projectId, p.colorIndex);
-    used.add(p.colorIndex);
-  }
-  // 팔레트가 다 차면 생성 순으로 한 바퀴 돌아 겹친다.
-  let overflow = 0;
-  for (const p of ordered) {
-    if (map.has(p.projectId)) continue;
-    const index =
-      used.size < SUBJECT_COLOR_COUNT
-        ? firstUnusedColorIndex(used)
-        : (overflow++ % SUBJECT_COLOR_COUNT) + 1;
-    map.set(p.projectId, index);
-    used.add(index);
+  for (const p of projects ?? []) {
+    if (!map.has(p.projectId) && isColorIndex(p.colorIndex)) {
+      map.set(p.projectId, p.colorIndex);
+    }
   }
   return map;
 }

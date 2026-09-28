@@ -98,3 +98,19 @@ export function getDday(
   if (diffDays === 3) return { label, days: diffDays, tone: 'near' };
   return { label, days: diffDays, tone: 'normal' };
 }
+
+/**
+ * 강의 카드와 강의 헤더가 같이 쓰는 회색 메타 줄.
+ *
+ * 교수명은 비워 둘 수 있는 칸이라(§4의 별표가 없다) 값이 없을 수 있다. 전에는 그
+ * 자리를 "미정"이라는 문자열로 채워 두 화면이 「미정 교수님」을 그렸는데, 그건 null이
+ * 할 일을 문자열이 대신한 것이라 쓰는 쪽·벗기는 쪽·비교하는 쪽 셋에 흩어져 있었다.
+ * 없으면 그 조각을 통째로 뺀다.
+ */
+export function lectureMetaLine(
+  professor: string | null,
+  chapterCount: number,
+): string {
+  const count = `강의 ${chapterCount}개`;
+  return professor ? `${professor} 교수님 · ${count}` : count;
+}

@@ -9,6 +9,7 @@ import type { ProjectDetail } from '@/shared/types/api';
 import { Button } from '@/shared/ui/Button';
 import { IconButton } from '@/shared/ui/IconButton';
 import { LearningProgress } from './LearningProgress';
+import { lectureMetaLine } from '@/features/study/lib/format';
 
 // 주차 목록 상단 헤더: 강의명 + 연필, 그 아래 한 줄에 교수명·강의 수·D-day와
 // 학습 진행률·새 주차 업로드.
@@ -48,7 +49,7 @@ export function ProjectHeader({
             숫자라 알약을 둘러도 눈만 끌고 아무 말도 안 한다 — 강의 카드와 같은 규칙이다.
             집합인 건 시험까지 남은 날 하나뿐이라, 그것만 아래 컨트롤 줄에 남는다. */}
         <p className="text-label text-gray-500">
-          {`${project.professor} 교수님 · 강의 ${project.chapterCount}개`}
+          {lectureMetaLine(project.professor, project.chapterCount)}
         </p>
       </div>
 

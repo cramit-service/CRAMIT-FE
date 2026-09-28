@@ -82,14 +82,14 @@ export interface Project {
   createdAt: string; // ISO 날짜 문자열
   // 과목 색 — 팔레트 번호(1부터). 없으면 화면이 생성 순으로 채운다.
   // TODO: 백엔드 필드명 확정 시 맞춘다.
-  colorIndex: number | null;
+  colorIndex: number; // 과목 색 팔레트 번호(1부터). 서버가 늘 채워 준다
 }
 
 // 학습하기(강의 목록) 카드 한 장에 필요한 메타.
 // Project만으로는 시안의 태그(교수명·강의 수·D-DAY)를 채울 수 없어 목록 응답을 따로 둔다.
 // TODO: 백엔드 목록 응답 스펙 확정 시 필드명 재확인 필요
 export interface ProjectSummary extends Project {
-  professor: string; // 교수명 (태그: "OOO 교수님")
+  professor: string | null; // 교수명 (선택) — 없으면 메타 줄에서 조각째 빠진다
   chapterCount: number; // 강의(챕터) 개수 (태그: "강의 N개")
   examName: string | null; // 시험명 (예: "중간고사")
   examDate: string | null; // 시험일 (YYYY-MM-DD) — D-DAY 계산용
