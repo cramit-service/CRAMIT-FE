@@ -43,12 +43,16 @@ export function ExamSchedule() {
           좌우 여백은 카드가 아니라 안쪽 목록이 갖는다. 막대는 스크롤 칸의 오른쪽 끝에
           서므로, 여백이 카드에 있으면 그 끝이 곧 글자 끝이라 날짜 위에 올라탄다.
           여백을 안쪽으로 옮기면 막대가 그 빈 자리로 들어간다. */}
-      {/* 높이는 1행(배너가 정하는 202)에서 제목 블록 46을 뺀 값이다. 배너와 하단이 맞는다 —
+      {/* 높이는 1행에서 제목 블록 46을 뺀 값이다. 배너와 하단이 맞는다 —
           2행에서 TODO 카드가 캘린더와 맞는 것과 같은 규칙이다.
+          1행 170은 배너(StudyBanner의 SHELL)가 갖고 있다. 배너가 바뀌면 이 숫자도 같이
+          바꿔야 한다 — 156이던 건 배너가 학습하러 가기를 따로 한 줄 들고 있을 때의
+          202에서 온 값이라, 그 줄이 진행률 칸으로 들어간 뒤로는 거꾸로 이쪽이
+          1행을 정하고 있었다.
           몇 행이 보이는지는 정하지 않는다 — 들어가는 만큼 보이고 나머지는 스크롤한다.
           전에는 "행 46 × 3 + 구분선 2 = 140"으로 세 행에 맞춰 두고 행 여백을 7(py-1.75)로
           깎아 뒀는데, 그건 §5가 영역에 금지한 줄 수 고르기고 7은 §2 간격 목록에도 없다. */}
-      <div className="bg-surface flex h-[156px] flex-col rounded-md border border-gray-100 py-2">
+      <div className="bg-surface flex h-[124px] flex-col rounded-md border border-gray-100 py-2">
         <ScrollArea>
           {isLoading ? (
             <StatusMessage>불러오는 중…</StatusMessage>

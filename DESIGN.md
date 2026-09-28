@@ -249,6 +249,33 @@ halves of the argument for it are gone at once.
 **Color is now closed.** Every color in this section has a role, and no role is
 waiting for a color.
 
+#### The decorative wash borrows two colors and takes no role
+
+**The mesh behind the landing, the home banner and the chat dock is lime and blue
+at 20% and 12%, swept across the box on one axis.** It is the only place a color
+appears with no role attached, and the way it stays harmless is that it never
+carries an edge, never exceeds a fifth of its own opacity, and sits behind
+everything.
+
+It did not need tokens of its own. The design paints it `#E9FC47 → #7FDEF7`,
+neither of which is in the table above. Refitting the alpha against the design's
+own export lands `lime-action → sky-status` at **mean ΔE 1.21**, where the
+design's own colors at their best fit reach **1.13** — a gap of 0.08, under the
+threshold at which anyone sees a difference. Pale would not do it: `lime-pale →
+sky-pale` cannot get below 2.57, because at a fifth of an opacity what survives is
+hue, and the pale pair has already spent its saturation on lightness.
+
+**What differs between the three places is the angle, not the shape.** The design
+draws one wandering path, fills it with a linear lime-to-blue gradient, and blurs
+it by 78 — and the blur eats the shape. Projecting the banner's export onto its
+own gradient axis leaves color a function of that one coordinate (spread within a
+coordinate: 13–23 of 255) with nothing left across the other. So the component's
+one knob is the axis, and the stops are percentages, which is what lets the same
+wash sit in a 629×198 banner and a full-height hero without being re-placed by
+hand. Measured against the export: **mean ΔE 2.19, 95th percentile 4.8** — the
+remainder is the vertical falloff a single linear sweep cannot carry, on a panel
+whose whole range is ΔE 12 from white.
+
 #### A subject's color is a bar beside a name and a circle standing alone
 
 **In the calendar the color is a bar, 3 wide and as tall as the line of text it
