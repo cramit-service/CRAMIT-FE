@@ -44,8 +44,10 @@ export function subjectDotClassOf(index: number | null | undefined): string {
     : NO_SUBJECT_DOT_CLASS;
 }
 
-/** 아직 안 쓰인 번호 중 가장 앞. 다 쓰였으면 1로 돌아간다. */
-export function firstUnusedColorIndex(used: ReadonlySet<number>): number {
+/** 아직 안 쓰인 번호 중 가장 앞. 다 쓰였으면 1로 돌아간다.
+ *  다 쓰인 경우는 아래 buildSubjectColorMap이 따로 처리하므로 여기서는 안 걸린다 —
+ *  새 과목의 기본값은 nextSubjectColorIndex를 쓴다. */
+function firstUnusedColorIndex(used: ReadonlySet<number>): number {
   for (let i = 1; i <= SUBJECT_COLOR_COUNT; i++) {
     if (!used.has(i)) return i;
   }
@@ -91,4 +93,32 @@ export function subjectDotClass(
 ): string {
   if (subjectId === null) return NO_SUBJECT_DOT_CLASS;
   return subjectDotClassOf(map.get(subjectId));
+}
+
+/**
+ * 새 과목이 받을 번호 — 지금 가장 적게 쓰인 색, 같으면 앞 번호.
+ *
+ * 안 쓰인 색이 있으면 그 색의 쓰임이 0이라 저절로 뽑힌다. 다 쓰였을 때만 "적게 쓰인 쪽"이
+ * 갈라 준다. 그래서 규칙이 하나다.
+ *
+ * 전에는 firstUnusedColorIndex(taken)을 직접 불렀는데, 그 함수는 여덟이 다 차면 늘 1을
+ * 돌려준다 — 지도의 2차 훑기는 생성순으로 한 바퀴 도는데(9번째 1, 10번째 2, …) 새 과목만
+ * 언제나 빨강으로 시작했다. 같은 상황을 두 규칙이 다르게 답하고 있었다.
+ *
+ * 목록 뒤에 가상의 과목을 붙여 지도를 다시 돌리는 방법도 써 봤는데, 그건 한 번만 맞는다:
+ * 새 과목이 색을 저장하고 나면 1차 훑기에서 바로 배정돼 used가 안 커지고, 오버플로
+ * 카운터가 매번 같은 자리에서 시작해 12번째부터 계속 같은 색이 나온다.
+ */
+export function nextSubjectColorIndex(
+  projects: readonly SubjectColorSource[] | undefined,
+): number {
+  const counts = new Array<number>(SUBJECT_COLOR_COUNT).fill(0);
+  for (const index of buildSubjectColorMap(projects).values()) {
+    counts[index - 1] += 1;
+  }
+  let best = 0;
+  for (let i = 1; i < SUBJECT_COLOR_COUNT; i++) {
+    if (counts[i] < counts[best]) best = i;
+  }
+  return best + 1;
 }

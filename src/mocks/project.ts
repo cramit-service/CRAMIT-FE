@@ -84,7 +84,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 3,
     examName: null,
     examDate: null,
-    colorIndex: null,
+    colorIndex: 7,
   },
   {
     projectId: '8',
@@ -94,7 +94,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 6,
     examName: null,
     examDate: null,
-    colorIndex: null,
+    colorIndex: 8,
   },
   {
     projectId: '9',
@@ -104,7 +104,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 3,
     examName: '중간고사',
     examDate: daysFromNow(4), // D-4 (주의)
-    colorIndex: null,
+    colorIndex: 1,
   },
   {
     projectId: '10',
@@ -114,7 +114,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 6,
     examName: null,
     examDate: null,
-    colorIndex: null,
+    colorIndex: 2,
   },
   {
     projectId: '11',
@@ -124,7 +124,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 6,
     examName: null,
     examDate: null,
-    colorIndex: null,
+    colorIndex: 3,
   },
 ];
 

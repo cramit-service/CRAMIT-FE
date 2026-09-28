@@ -9,7 +9,7 @@ import { FormModal } from '@/shared/ui/FormModal';
 import { Input } from '@/shared/ui/Input';
 import {
   buildSubjectColorMap,
-  firstUnusedColorIndex,
+  nextSubjectColorIndex,
 } from '@/shared/lib/subjectColor';
 import type { ProjectSummary } from '@/shared/types/api';
 import {
@@ -18,7 +18,7 @@ import {
   useUpdateLecture,
 } from '@/features/project/hooks/useLectureMutations';
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
-import { SubjectColorField } from './SubjectColorField';
+import { SubjectColorField } from '@/shared/ui/SubjectColorField';
 
 interface LectureFormModalProps {
   /** 있으면 수정 모드(주차 목록 헤더의 연필), 없으면 생성 모드(1:2614). */
@@ -63,16 +63,13 @@ export function LectureFormModal({
   const [pickedColor, setPickedColor] = useState<number | null>(null);
   const { data: summaries } = useProjectSummaries();
   const colorMap = buildSubjectColorMap(summaries);
-  const taken = new Set(
-    [...colorMap]
-      .filter(([projectId]) => projectId !== project?.projectId)
-      .map(([, index]) => index),
-  );
-  // 수정이면 지금 화면에 보이는 색, 생성이면 아직 안 쓰인 첫 색.
+  // 수정이면 지금 화면에 보이는 색, 생성이면 목록 다음 차례의 색.
+  // "이미 쓰는 색"은 화면에 표시하지 않는다 — 과목이 여덟을 넘으면 색이 겹칠 수밖에
+  // 없어서 그 표시가 뜻을 잃는다. 기본값을 고르는 데만 쓴다.
   const defaultColor = isEdit
     ? (colorMap.get(project.projectId) ?? project.colorIndex)
     : summaries
-      ? firstUnusedColorIndex(taken)
+      ? nextSubjectColorIndex(summaries)
       : null;
   const colorIndex = pickedColor ?? defaultColor;
 
@@ -181,7 +178,6 @@ export function LectureFormModal({
             id={`${fieldId}-color`}
             value={colorIndex}
             onChange={setPickedColor}
-            taken={taken}
             disabled={busy}
           />
           {/* 라벨은 이 줄 위에 하나뿐이라 Input에 넘기지 않는다 — 색 칸과 이름 칸이

@@ -1,8 +1,7 @@
 'use client';
-// src/features/project/components/SubjectColorField.tsx
+// src/shared/ui/SubjectColorField.tsx
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
-import { Icon } from '@/shared/ui/Icon';
 import { FIELD_TRIGGER } from '@/shared/ui/fieldStyle';
 import { SUBJECT_COLORS, subjectDotClassOf } from '@/shared/lib/subjectColor';
 
@@ -11,20 +10,23 @@ interface SubjectColorFieldProps {
   /** 팔레트 번호(1부터). 목록을 아직 못 받아 기본값을 못 정했으면 null. */
   value: number | null;
   onChange: (index: number) => void;
-  /** 다른 과목이 쓰는 번호. 골라도 되지만 겹친다는 걸 알려 준다. */
-  taken: ReadonlySet<number>;
   disabled?: boolean;
 }
 
-const COLUMNS = 3;
+// 여덟 색을 4×2로 놓는다. 3×3이면 마지막 줄에 하나만 남아 판이 세로로 길어진다.
+const COLUMNS = 4;
 
-// 강의명 칸 왼쪽의 색 점. 누르면 팔레트 판이 열린다. 시안에 없는 UI라 2026-09-21 프리뷰로 정했다.
-// 바깥 클릭·Escape·포커스 복귀는 ModalDateField와 같은 규칙이다.
+// 팔레트 번호 하나를 고르는 칸. 누르면 색 판이 열린다. 시안에 없는 UI라 2026-09-21
+// 프리뷰로 정했다. 바깥 클릭·Escape·포커스 복귀는 DateField와 같은 규칙이다.
+//
+// features가 아니라 여기 있다. FIELD_TRIGGER를 쓰는 다섯 번째 칸이고(Combobox·DateField·
+// TimeField·Select와 같은 트리거), 도메인은 모른다 — 번호와 «이미 쓰인 번호 집합»만 받는다.
+// «어느 색이 쓰이고 있나»는 강의 목록을 불러와 색 지도를 만드는 쪽(LectureFormModal)이
+// 알고, 그 결과만 taken으로 넘어온다. 팔레트 자체는 이미 shared/lib에 있다.
 export function SubjectColorField({
   id,
   value,
   onChange,
-  taken,
   disabled,
 }: SubjectColorFieldProps) {
   const [open, setOpen] = useState(false);
@@ -79,7 +81,7 @@ export function SubjectColorField({
     close();
   };
 
-  // 화살표로 칩 사이를 옮긴다. 3열 격자라 위아래는 3칸씩.
+  // 화살표로 칩 사이를 옮긴다. 4열 격자라 위아래는 4칸씩.
   const handleGridKeyDown = (e: React.KeyboardEvent) => {
     const step =
       e.key === 'ArrowLeft'
@@ -151,22 +153,17 @@ export function SubjectColorField({
           // 안쪽 제목도 뺐다. 네 개의 다른 목록판도 제목이 없고, 트리거가 바로 위에서
           // 현재 색을 보여 주고 있다 — dialog 이름은 aria-label이 갖는다.
           // w-max — absolute는 부모(트리거 폭)를 상한으로 줄어들어 칩이 겹친다.
-          className="bg-surface shadow-near absolute top-full left-0 z-10 mt-1 w-max rounded-md p-4"
+          className="bg-surface shadow-near absolute top-full left-0 z-10 mt-1 w-max rounded-md p-3"
         >
           <div
             ref={gridRef}
             onKeyDown={handleGridKeyDown}
-            className="grid grid-cols-3 gap-4 p-1"
+            // p-1 — 고른 칩의 링(ring-2 + offset-2)이 판 가장자리에서 잘리지 않게.
+            className="grid grid-cols-4 gap-3 p-1"
           >
             {SUBJECT_COLORS.map((color, i) => {
               const index = i + 1;
               const selected = index === value;
-              const isTaken = !selected && taken.has(index);
-              const state = selected
-                ? ' · 선택됨'
-                : isTaken
-                  ? ' · 다른 과목이 쓰는 색'
-                  : '';
               return (
                 <button
                   key={color.dot}
@@ -175,9 +172,9 @@ export function SubjectColorField({
                   tabIndex={index === focusIndex ? 0 : -1}
                   onClick={() => select(index)}
                   aria-pressed={selected}
-                  aria-label={`${color.name}${state}`}
+                  aria-label={`${color.name}${selected ? ' · 선택됨' : ''}`}
                   className={cn(
-                    'flex size-8 items-center justify-center rounded-full outline-none',
+                    'size-8 rounded-full outline-none',
                     color.dot,
                     // 링 색이 ring-white·ring-secondary-400이었다. 둘 다 토큰에 없어서
                     // 고른 색의 링도 포커스 링도 렌더되지 않았다 — 포커스는 §4가 유일하게
@@ -187,14 +184,7 @@ export function SubjectColorField({
                     !selected &&
                       'focus-visible:ring-sky-ink focus-visible:ring-offset-surface focus-visible:ring-2 focus-visible:ring-offset-2',
                   )}
-                >
-                  {/* ✓는 "이미 골라진 색". 고른 색은 링만으로 알린다 — 둘 다 ✓면 구분이 안 된다. */}
-                  {isTaken && (
-                    <span className="text-gray-800">
-                      <Icon name="check" size={16} />
-                    </span>
-                  )}
-                </button>
+                />
               );
             })}
           </div>
