@@ -184,7 +184,7 @@ export function ProfileScreen() {
         open={withdrawOpen}
         question="정말 탈퇴할까요?"
         detail="탈퇴하면 만든 강의와 학습 기록이 모두 사라지고 되돌릴 수 없어요."
-        confirmLabel="탈퇴하기"
+        confirmLabel={leaving ? '탈퇴 중…' : '탈퇴하기'}
         danger
         busy={leaving}
         onConfirm={() =>

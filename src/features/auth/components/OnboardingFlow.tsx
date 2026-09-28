@@ -126,7 +126,7 @@ export function OnboardingFlow() {
 
         {step === 'plan' ? (
           <Button disabled={isSubmitting} onClick={handleComplete}>
-            {isSubmitting ? '등록 중…' : '시작하기'}
+            {isSubmitting ? '시작 중…' : '시작하기'}
           </Button>
         ) : (
           <Button disabled={!canGoNext} onClick={handleNext}>

@@ -119,10 +119,10 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
 
   const submitLabel = isEdit
     ? update.isPending
-      ? '저장 중…'
+      ? '수정 중…'
       : '수정하기'
     : create.isPending
-      ? '만드는 중…'
+      ? '생성 중…'
       : '생성하기';
 
   return (

@@ -17,7 +17,7 @@ import { Textarea } from '@/shared/ui/Textarea';
 const PANEL = cn(VIEWER_PANEL, 'flex flex-col');
 
 // AI 강의 요약 탭. 조회(Markdown 렌더) ↔ 편집(textarea) 두 모드를 오간다.
-// 편집 중 내용이 원본과 달라지면 "수정취소"가 "수정완료"로 바뀐다 (Figma 3상태).
+// 편집 모드에서는 취소·수정하기가 나란히 서고, 고친 것이 없으면 수정하기가 잠긴다.
 export function SummaryTab({ chapterId }: { chapterId: string }) {
   const summaryQuery = useLectureSummary(chapterId);
   const updateMutation = useUpdateLectureSummary(chapterId);
@@ -39,7 +39,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
 
   const summary = summaryQuery.data;
   const markdown = summary?.markdown ?? '';
-  // 원본과 달라졌는지 — 버튼이 "수정취소"인지 "수정완료"인지를 가르는 기준
+  // 원본과 달라졌는지 — 저장 버튼이 눌리는지를 가르는 기준
   const isDirty = mode === 'edit' && draft !== markdown;
 
   const handleCopy = async () => {
@@ -134,31 +134,44 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
               >
                 PDF로 다운로드
               </Button>
-              <Button
-                size="sm"
+              {/* 글자가 아니라 글리프다. §6이 확정 버튼을 전부 `~하기`로 모으면서
+                  «편집기를 여는 것»과 «고친 것을 저장하는 것»이 같은 자리에서 같은
+                  말을 하게 됐다. 여는 쪽을 아이콘으로 내리면 겹침이 사라지고,
+                  보기 모드에는 확정할 것이 없으니 연두도 없어진다 — 이 줄은 셋 다
+                  도구고, 진짜 확정은 편집 모드의 `수정하기` 하나뿐이다.
+                  glyph 16은 size-8이라 옆 size="sm"(h-8)과 높이가 맞는다. */}
+              <IconButton
+                name="edit"
+                glyph={16}
+                rank="secondary"
+                aria-label="요약 수정하기"
                 onClick={() => {
                   setDraft(markdown);
                   setMode('edit');
                 }}
+              />
+            </>
+          ) : (
+            /* 시안은 셋을 한 자리에서 갈아 끼웠다(수정하기 → 수정취소 → 수정완료).
+               그래서 한 글자라도 고치면 되돌릴 버튼이 사라졌다. 둘을 나란히 세워
+               나가는 길이 늘 남아 있게 한다 — FormModal 푸터와 같은 취소·확정 순이다. */
+            <>
+              <Button
+                rank="secondary"
+                size="sm"
+                disabled={updateMutation.isPending}
+                onClick={() => setMode('view')}
               >
-                수정하기
+                취소
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleSave}
+                disabled={!isDirty || updateMutation.isPending}
+              >
+                {updateMutation.isPending ? '수정 중…' : '수정하기'}
               </Button>
             </>
-          ) : /* Figma 대조 결과: 변경이 생기면 "수정취소"가 사라지고 "수정완료"로 '교체'된다
-                 (두 버튼이 함께 있는 시안은 없음). 그래서 한 번 고치면 되돌릴 버튼이 없는데,
-                 시안 그대로 두었다. 취소 경로가 필요하면 디자인 확인 후 추가한다. */
-          isDirty ? (
-            <Button
-              size="sm"
-              onClick={handleSave}
-              disabled={updateMutation.isPending}
-            >
-              {updateMutation.isPending ? '저장 중…' : '수정완료'}
-            </Button>
-          ) : (
-            <Button rank="secondary" size="sm" onClick={() => setMode('view')}>
-              수정취소
-            </Button>
           )}
         </div>
       </div>

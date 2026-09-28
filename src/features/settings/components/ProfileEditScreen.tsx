@@ -47,7 +47,7 @@ export function ProfileEditScreen() {
   // null이면 아직 손대지 않은 것 — 서버 값을 그대로 보여준다.
   const value = nickname ?? profile.nickname;
   const changed = value.trim() !== profile.nickname;
-  // 시안에서는 "사용 중"인데도 수정 완료가 켜져 있지만, 그대로 저장하면 서버가 거절한다.
+  // 시안에서는 "사용 중"인데도 수정하기가 켜져 있지만, 그대로 저장하면 서버가 거절한다.
   // 온보딩과 같이 중복확인을 통과해야 저장을 연다.
   const canSubmit =
     changed && status === 'available' && !updateMutation.isPending;
@@ -174,10 +174,10 @@ export function ProfileEditScreen() {
           onClick={() => router.push('/settings/profile')}
           disabled={updateMutation.isPending}
         >
-          뒤로 가기
+          취소
         </Button>
         <Button type="submit" disabled={!canSubmit}>
-          {updateMutation.isPending ? '저장 중…' : '수정 완료'}
+          {updateMutation.isPending ? '수정 중…' : '수정하기'}
         </Button>
       </div>
     </form>
