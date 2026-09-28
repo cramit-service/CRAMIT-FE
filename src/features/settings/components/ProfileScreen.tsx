@@ -21,10 +21,8 @@ import {
 } from '@/features/settings/components/SettingRow';
 
 // 로딩·에러 문구도 본문과 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
-// 설정은 content-col을 쓰지 않는다. 다른 화면은 패널을 나란히 놓는 작업 열이라 폭이
-// 넓을수록 이득이지만, 이 화면은 한 열로 읽어 내려가는 곳이라 넓히면 글줄만 길어진다.
-// 읽기 폭 747은 시안값 그대로다. (DESIGN.md 5절 「설정은 읽기 폭을 갖는다」)
-const PAGE_SHELL = 'mx-auto w-full max-w-[747px] px-6 pt-[83px] pb-[67px]';
+// 폭은 globals.css의 read-col이 갖는다 — 값과 그 값을 고른 이유가 거기 있다.
+const PAGE_SHELL = 'read-col pt-[83px] pb-[67px]';
 
 // 요금제 표기. PlanId는 코드값이라 화면에는 사람이 읽는 이름을 쓴다.
 const PLAN_LABEL: Record<PlanId, string> = {

@@ -2,14 +2,14 @@
 // src/shared/ui/GradientBackground.tsx
 import { cn } from '@/shared/lib/cn';
 
-type Variant = 'default' | 'banner';
+type Variant = 'default' | 'banner' | 'login';
 
 interface GradientBackgroundProps {
   // true면 부모를 꽉 채우는 배경 레이어가 된다 (부모에 relative 필요).
   // false면 스스로 relative 컨테이너가 되어 children을 감싼다.
   layer?: boolean;
-  // 'default'는 세로로 큰 영역(랜딩·로그인)용 — 아래 블롭 넷.
-  // 'banner'는 홈 학습 배너용 — 그 아래 «쓸기» 하나.
+  // 'default'는 아직 안 옮긴 랜딩용 — 아래 블롭 넷.
+  // 'banner'·'login'은 각자 globals.css의 mesh-* 유틸리티를 쓴다.
   variant?: Variant;
   className?: string;
   children?: React.ReactNode;
@@ -35,7 +35,7 @@ const DEFAULT_BLOBS = [
 // 그 유틸리티가 §2 토큰을 직접 부르므로 색이 여기로 새지 않는다.
 // 구역마다 다른 건 도형이 아니라 그라디언트 축의 각도다. 랜딩·챗독을 옮길 때
 // 각자 mesh-* 유틸리티를 하나씩 갖고, 이 표에 한 줄씩 붙는다.
-const SWEEP = { banner: 'mesh-banner' } as const;
+const SWEEP = { banner: 'mesh-banner', login: 'mesh-login' } as const;
 
 export function GradientBackground({
   layer = false,
@@ -43,23 +43,24 @@ export function GradientBackground({
   className,
   children,
 }: GradientBackgroundProps) {
-  const isBanner = variant === 'banner';
+  // 표면을 부르는 쪽이 갖는 변형들. default만 아직 스스로 바탕을 칠한다.
+  const mesh = variant === 'default' ? null : SWEEP[variant];
   return (
     // position은 cn()이 병합해주지 않으므로 className으로 덮지 말고 layer로 분기한다.
     <div
       className={cn(
         'overflow-hidden',
         layer ? 'absolute inset-0' : 'relative',
-        isBanner
-          ? // 표면은 부르는 쪽(카드)이 갖는다. 쓸기는 그 위에 얹는 옅은 판이라
-            // 여기서 바탕을 칠하면 카드의 표면을 가린다.
-            SWEEP.banner
+        mesh
+          ? // 표면은 부르는 쪽이 갖는다. mesh는 그 위에 얹는 옅은 판이라
+            // 여기서 바탕을 칠하면 그 표면을 가린다.
+            mesh
           : // isolate로 스택 컨텍스트를 만들어 -z-10 블롭이 부모 배경 뒤로 빠지지 않게 한다.
             'bg-canvas isolate',
         className,
       )}
     >
-      {!isBanner && (
+      {!mesh && (
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
           {DEFAULT_BLOBS.map((blob) => (
             <div

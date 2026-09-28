@@ -2185,18 +2185,50 @@ continuously instead of failing at a point, so there is nothing to declare broke
 > is measured off the panels' contents, not off the frame, and it is a different
 > question from the one the gutters answered.
 
-#### Settings has a reading width, not a work width
+#### A screen that reads down one column takes the modal's width
 
-**Settings keeps 747 and does not follow the content column.** It is the one
-screen that reads down a single column, and widening it only lengthens the lines.
-Every other screen sets things beside each other — material against summary,
-calendar against TODO — and there a wider column is more of what the screen is
-for.
+**Two column widths, and which one a screen takes is settled by whether anything
+stands beside anything.** The content column is for screens that lay work out
+side by side — material against summary, calendar against TODO — and there a
+wider column is more of what the screen is for. Settings and onboarding read down
+a single column, and widening those only lengthens the lines.
 
-So the column's width is not one number for the product; it is one number for
-screens that lay work out side by side. If a second reading screen appears, the
-747 becomes a rule rather than an exception. With one, it stays an exception and
-says so at the two files that use it.
+**The reading column is 655, which is the width §4 already gave both modals.** A
+modal is this product's existing one-column reading surface: one column, fields
+and short lines, nothing beside anything. Settings and onboarding are the same
+situation, so the number is not chosen again — the decision is reused. It lives
+in `globals.css` as `read-col`, the way the content column does.
+
+**What settles it is the window being halved.** People run this beside their
+material: the lecture file on one side, the product on the other. Halving the
+1920 the frame is drawn for leaves a 960 viewport, the open rail takes 216, and
+744 remains. The reading column plus the gutter floor is 655 + 80 = **735**, so
+it fits with 9 to spare, and it fits whether the rail is open or closed because
+closed only gives it more.
+
+| Viewport      | Rail | Available | Column | Right gutter |
+| ------------- | ---: | --------: | -----: | -----------: |
+| 1920          |  216 |      1704 |    655 |          528 |
+| 1280          |  216 |      1064 |    655 |          208 |
+| 960 (1920 ÷2) |  216 |       744 |    655 |           48 |
+| 840           |  216 |       624 |    538 |           46 |
+
+Below that it narrows continuously rather than failing at a width, which is the
+same answer the gutter floor gave the content column. The plan cards are what
+would break first, and they hold their line count down to a 600 column and lose
+one at 560 — the floor reaches 560 only under a 640 viewport.
+
+**747 is retired, and the reason is worth recording.** It was never derived. It
+appeared in this section twice and nowhere else, and what it actually measured
+was the settings _row_ in the design file — a row's width read backwards into a
+screen's. §7 puts the design file outside the sources and says to read a citation
+as provenance rather than as somewhere to go back to; a number carried in with no
+argument is exactly what that rule is for. It also failed the case above: at a
+960 viewport it left a 6px gutter, and the chat tab is 32.
+
+**This does not settle the study split.** The width at which material and summary
+stop being readable beside each other is measured off those panels' contents, and
+the reading column does not depend on the answer.
 
 ### Responsive Behavior
 

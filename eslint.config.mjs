@@ -28,6 +28,9 @@ const UI = [
 // 됐지만 rounded-[10px]로 되돌리는 길이 열려 있으면 지운 의미가 없다.
 const ARBITRARY = String.raw`(?:text|leading|tracking|font|fill|stroke|decoration)-\[|(?:bg|border|ring|shadow|from|via|to)-\[#|\brounded(?:-[a-z]{1,2})?-\[`;
 
+// 브랜드 색을 허락한 파일에서도 타이포·모서리 임의값은 막는다 (색만 뺀 ARBITRARY).
+const TYPO_ONLY = String.raw`(?:text|leading|tracking|font|fill|stroke|decoration)-\[|\brounded(?:-[a-z]{1,2})?-\[`;
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -207,6 +210,47 @@ const eslintConfig = defineConfig([
               message: '아이콘은 <Icon name="…" />로 부릅니다 (DESIGN.md 4절).',
             },
           ],
+        },
+      ],
+    },
+  },
+  {
+    // 소셜 로그인 버튼에서만 브랜드 규정색과 날것 button을 허락한다.
+    // 카카오 #FFE812와 구글 흰 알약은 각 회사의 규정색이라 우리가 고를 수 있는 값이
+    // 아니다 — §2에 넣으면 다음 사람이 "토큰에 있으니 다른 데서도 쓰자"로 읽는다.
+    // Button의 순위는 primary·secondary·danger 셋뿐이고, 거기에 brand를 더하면
+    // 남의 색이 shared/ui로 들어온다. 그래서 이 파일이 자기 버튼을 그린다.
+    // 나머지 넷과 타이포 임의값은 그대로 막는다.
+    files: ['src/features/auth/components/SocialButton.tsx'],
+    rules: {
+      'react/forbid-elements': [
+        'error',
+        {
+          forbid: [
+            { element: 'input', message: '@/shared/ui/Input을 쓰세요.' },
+            {
+              element: 'select',
+              message: '@/shared/ui/ModalCombobox 등 공통 부품을 쓰세요.',
+            },
+            {
+              element: 'textarea',
+              message:
+                '공통 부품이 없으면 shared/ui에 먼저 PR을 올리세요 (CONTRIBUTING.md).',
+            },
+            {
+              element: 'svg',
+              message: '아이콘은 <Icon name="…" />로 부릅니다 (DESIGN.md 4절).',
+            },
+          ],
+        },
+      ],
+      // 브랜드 채움만 허락한다. 타이포·모서리 임의값은 그대로 막는다.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: `Literal[value=/${TYPO_ONLY}/]`,
+          message:
+            '색·타이포·모서리는 임의값을 쓰지 않습니다. 브랜드 규정색만 예외입니다 (DESIGN.md 2·3절).',
         },
       ],
     },
