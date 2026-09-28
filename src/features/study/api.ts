@@ -56,7 +56,6 @@ export async function getProjectSummaries(
   return apiClient.get<ProjectSummary[]>('/projects', { signal });
 }
 
-// 프로젝트 상세(헤더 메타) 조회
 export async function getProjectDetail(
   projectId: string,
   signal?: AbortSignal,
@@ -78,7 +77,6 @@ export async function getProjectDetail(
   return apiClient.get<ProjectDetail>(`/projects/${projectId}`, { signal });
 }
 
-// 챕터(단계별 학습) 목록 조회
 export async function getChapters(
   projectId: string,
   signal?: AbortSignal,

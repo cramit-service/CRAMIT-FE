@@ -52,7 +52,6 @@ async function mockUpload(
   }
 }
 
-// 프로젝트 목록 조회
 export async function getProjects(): Promise<Project[]> {
   if (USE_MOCK) {
     await delay(300); // 로딩 상태 확인용
@@ -61,7 +60,6 @@ export async function getProjects(): Promise<Project[]> {
   return apiClient.get<Project[]>('/projects');
 }
 
-// 프로젝트 생성
 export async function createProject(title: string): Promise<Project> {
   if (USE_MOCK) {
     await delay(300);

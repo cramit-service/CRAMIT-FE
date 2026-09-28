@@ -49,7 +49,6 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
     );
   }
 
-  // 학습 진행률 = 완료 챕터 / 전체 챕터
   const doneCount = chapters.filter((c) => c.status === 'DONE').length;
   const progress = chapters.length ? (doneCount / chapters.length) * 100 : 0;
 

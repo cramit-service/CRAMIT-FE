@@ -97,7 +97,6 @@ export interface ProjectSummary extends Project {
 
 /* ===== Chapter / 단계별 학습 (이슈 A) ===== */
 
-// 챕터 학습 상태: 학습 전 / 학습 중 / 완료
 export type ChapterStatus = 'BEFORE' | 'IN_PROGRESS' | 'DONE';
 
 export interface Chapter {

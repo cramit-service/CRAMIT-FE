@@ -5,7 +5,6 @@ import { checkNickname } from '@/features/auth/api';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 
-// 중복확인 결과 상태
 export type NicknameStatus = 'idle' | 'available' | 'taken';
 
 interface NicknameStepProps {

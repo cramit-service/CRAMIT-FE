@@ -57,7 +57,6 @@ export function toPlayDuration(value: number | undefined): number {
     : 0;
 }
 
-// D-DAY 계산 결과 (태그 텍스트 + 긴급도)
 export interface Dday {
   label: string; // 예: "중간고사 D-3", "중간고사 D-DAY", "중간고사 종료"
   days: number; // 남은 일수. 뱃지(DdayBadge)가 라벨 대신 이것을 받는다

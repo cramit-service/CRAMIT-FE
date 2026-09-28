@@ -17,7 +17,6 @@ const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 // 소셜 로그인 제공자. User.provider에서 이메일을 뺀 값과 항상 일치시킨다.
 export type SocialProvider = Exclude<User['provider'], 'EMAIL'>;
 
-// 소셜 로그인 시작
 export async function startSocialLogin(
   provider: SocialProvider,
 ): Promise<LoginResponse> {
@@ -33,7 +32,6 @@ export async function startSocialLogin(
   throw new Error(`${provider} 소셜 로그인은 백엔드 연동 준비 중이에요.`);
 }
 
-// 닉네임 중복 확인
 export async function checkNickname(
   nickname: string,
 ): Promise<NicknameCheckResponse> {

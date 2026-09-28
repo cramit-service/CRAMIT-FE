@@ -14,7 +14,6 @@ function getAccessToken(): string | null {
   return localStorage.getItem('accessToken');
 }
 
-// 핵심 요청 함수
 async function request<T>(
   method: string,
   path: string,
@@ -180,7 +179,6 @@ function uploadRequest<T>(
   });
 }
 
-// 실제로 화면에서 쓸 메서드들
 export const apiClient = {
   get: <T>(path: string, options?: RequestOptions) =>
     request<T>('GET', path, undefined, options),
