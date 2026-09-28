@@ -160,6 +160,7 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
         onChange={setProjectId}
         options={lectureOptions}
         disabled={isPending}
+        required
       />
 
       <DateField
@@ -169,14 +170,15 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
         onChange={setExamDate}
         min={minDate}
         disabled={isPending}
+        required
       />
 
       <Input
         id={`${fieldId}-memo`}
-        label="메모 작성 (선택)"
+        label="메모"
         value={memo}
         onChange={(e) => setMemo(e.target.value)}
-        placeholder="메모를 작성해 주세요."
+        placeholder="메모를 입력해 주세요."
         disabled={isPending}
       />
 

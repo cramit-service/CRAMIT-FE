@@ -131,6 +131,7 @@ export function ProfileEditScreen() {
           <Input
             id="profile-nickname"
             label="닉네임"
+            required
             value={value}
             onChange={(e) => {
               setNickname(e.target.value);

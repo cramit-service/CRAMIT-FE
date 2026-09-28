@@ -8,10 +8,10 @@ import {
   FIELD_BOX,
   FIELD_ICON,
   FIELD_ICON_SIZE,
-  FIELD_LABEL,
   FIELD_ERROR,
   FIELD_INVALID,
 } from '@/shared/ui/fieldStyle';
+import { FieldLabel } from '@/shared/ui/FieldLabel';
 import { Icon, type IconName } from '@/shared/ui/Icon';
 
 // 라벨과 앞아이콘은 같은 일을 한다 — 이 칸이 무엇을 받는지 말하는 것. 둘을 함께 주면
@@ -33,6 +33,8 @@ export function Input({
   error,
   id,
   disabled,
+  // 라벨의 별표와 <input required>를 하나가 몬다. 꺼내 쓰되 input에도 그대로 넘긴다.
+  required,
   ...props
 }: InputProps) {
   const autoId = useId();
@@ -42,9 +44,9 @@ export function Input({
   return (
     <div className="flex w-full flex-col gap-2">
       {label && (
-        <label htmlFor={inputId} className={FIELD_LABEL}>
+        <FieldLabel htmlFor={inputId} required={required}>
           {label}
-        </label>
+        </FieldLabel>
       )}
 
       {/* 채움과 테두리는 칸이 갖고 input은 그 안에서 투명하다. 아이콘이 칸 안에 서려면
@@ -76,6 +78,7 @@ export function Input({
         <input
           id={inputId}
           disabled={disabled}
+          required={required}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           className={cn(

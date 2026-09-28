@@ -193,7 +193,7 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
 
       {/* 마감 일시 — 날짜와 시간이 한 라벨 아래 두 칸으로 나뉜다.
           두 반쪽이 한 칸 전체와 정확히 같은 폭을 채운다 (§4: 콤보박스의 두 폭). */}
-      <FieldGroup label="마감 일시">
+      <FieldGroup label="마감 일시" required>
         <div className="grid grid-cols-2 gap-4">
           {/* 두 칸 다 FieldGroup의 "마감 일시"를 이름으로 물려받는다. 시간 칸은
               그중 어느 쪽인지를 aria-label로 덧붙인다. */}
@@ -204,10 +204,11 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
             onChange={handleDueDateChange}
             min={minDueDate}
             disabled={busy}
+            required
           />
           <TimeField
             id={`${fieldId}-due-time`}
-            ariaLabel="마감 시간 (선택)"
+            ariaLabel="마감 시간"
             value={dueTime}
             onChange={handleDueTimeChange}
             disabled={busy}
@@ -226,62 +227,50 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
       </FieldGroup>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col gap-2">
-          <Combobox
-            id={`${fieldId}-project`}
-            label="강의 (선택)"
-            value={projectId}
-            onChange={handleProjectChange}
-            options={lectureOptions}
-            disabled={busy}
-            // 로딩은 칸 아래 문구가 아니라 placeholder로 알린다. 문구는 로딩이 끝나면
-            // 사라지면서 모달 높이를 줄여 화면이 출렁였다.
-            placeholder={isLecturesPending ? '불러오는 중이에요' : '선택 없음'}
-            clearable
-          />
-          {isLecturesError && (
-            <p role="alert" className={FIELD_ERROR}>
-              강의 목록을 불러오지 못했어요.
-            </p>
-          )}
-        </div>
+        <Combobox
+          id={`${fieldId}-project`}
+          label="강의"
+          value={projectId}
+          onChange={handleProjectChange}
+          options={lectureOptions}
+          disabled={busy}
+          // 로딩은 칸 아래 문구가 아니라 placeholder로 알린다. 문구는 로딩이 끝나면
+          // 사라지면서 모달 높이를 줄여 화면이 출렁였다.
+          placeholder={isLecturesPending ? '불러오는 중…' : '선택 없음'}
+          clearable
+          error={isLecturesError ? '강의 목록을 불러오지 못했어요.' : undefined}
+        />
 
-        <div className="flex flex-col gap-2">
-          {/* 강의를 고르기 전에는 고를 주차가 없다. 비활성으로 두어 순서를 알리고,
-              그 이유는 칸 안(placeholder)에서 말한다 — 칸 아래 문구로 두면 옆 칸과
-              높이가 달라지고, 강의를 고르는 순간 사라지면서 모달이 출렁였다. */}
-          <Combobox
-            id={`${fieldId}-lecture`}
-            label="주차"
-            value={lectureId}
-            onChange={setLectureId}
-            options={chapterOptions}
-            disabled={busy || projectId === NONE}
-            placeholder={
-              projectId === NONE
-                ? '강의를 먼저 고르세요'
-                : isChaptersLoading
-                  ? '불러오는 중이에요'
-                  : '선택 없음'
-            }
-            clearable
-          />
-          {/* 실패는 안내가 아니라 사고라 칸 밖에 남긴다 — placeholder로 두면
-              "고를 게 없다"와 "못 불러왔다"가 같은 자리에서 같은 말투가 된다. */}
-          {isChaptersError && (
-            <p role="alert" className={FIELD_ERROR}>
-              주차 목록을 불러오지 못했어요.
-            </p>
-          )}
-        </div>
+        {/* 강의를 고르기 전에는 고를 주차가 없다. 비활성으로 두어 순서를 알리고,
+            그 이유는 칸 안(placeholder)에서 말한다 — 칸 아래 문구로 두면 옆 칸과
+            높이가 달라지고, 강의를 고르는 순간 사라지면서 모달이 출렁였다.
+            실패는 안내가 아니라 사고라 칸 밖에 남긴다 — placeholder로 두면
+            "고를 게 없다"와 "못 불러왔다"가 같은 자리에서 같은 말투가 된다. */}
+        <Combobox
+          id={`${fieldId}-lecture`}
+          label="주차"
+          value={lectureId}
+          onChange={setLectureId}
+          options={chapterOptions}
+          disabled={busy || projectId === NONE}
+          placeholder={
+            projectId === NONE
+              ? '강의를 먼저 골라 주세요'
+              : isChaptersLoading
+                ? '불러오는 중…'
+                : '선택 없음'
+          }
+          clearable
+          error={isChaptersError ? '주차 목록을 불러오지 못했어요.' : undefined}
+        />
       </div>
 
       <Input
         id={`${fieldId}-memo`}
-        label="메모 작성 (선택)"
+        label="메모"
         value={memo}
         onChange={(e) => setMemo(e.target.value)}
-        placeholder="메모를 작성해 주세요."
+        placeholder="메모를 입력해 주세요."
         disabled={busy}
       />
 

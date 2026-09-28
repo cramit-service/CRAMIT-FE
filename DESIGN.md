@@ -1442,6 +1442,57 @@ a mouse: `:focus-visible` leaves that to the browser, which gives the ring to
 keyboard navigation — and to text fields always, since a caret has to be
 findable.
 
+#### A required field is marked, an optional one is not
+
+**A field that cannot be left empty carries a `red-ink` `*` after its label.**
+Nothing is added to the others.
+
+The product marked the opposite before, and marked it twice. Modals suffixed
+the optional fields — `강의 (선택)`, `교수명 (선택)`, `메모 작성 (선택)` — while
+onboarding baked a `*` into the label string, in the label's own gray. **Two
+conventions pointing opposite ways, and the same form could not be read by
+either rule alone.**
+
+**The count argues the other way, and loses anyway.** Of the thirteen labelled
+fields in the three form modals and the two nickname screens, **eight are
+required and five are not** — so this rule paints eight marks where the old one
+painted five. It wins on where the mark lands, not on how many there are: a
+person who misses `(선택)` has learned nothing, while a person who misses `*` is
+about to meet a disabled submit button with no reason given. The mark belongs on
+the field that can stop them.
+
+It also survives the form growing. Optional fields are the ones a form adds —
+memo, professor, a second date — so marking them is the count that keeps
+rising.
+
+**The color is borrowed, not owned.** §2 gives `red-ink` to «wrong», and a
+field that has not been filled in yet is not wrong. It is taken anyway: the red
+asterisk is the one form convention that needs no legend, and inventing a
+quieter mark would spend a screen's worth of learning to avoid borrowing a
+color for one glyph. The mark is a glyph, never a border or a fill, so it
+cannot be mistaken for the invalid state above.
+
+**The asterisk is `aria-hidden`, and required is told separately.** Read aloud
+it turns the field's name into `제목 별표`. What carries the meaning is the
+control's own attribute, and the controls differ:
+
+| Control      | How required is told    |
+| ------------ | ----------------------- |
+| `Input`      | native `required`       |
+| `Combobox`   | `aria-required`         |
+| `DateField`  | **nothing — see below** |
+| `FieldGroup` | the fields inside it    |
+
+`DateField`'s trigger is a `button`, which is not a form control and which ARIA
+does not let carry `aria-required`. So its asterisk is for sighted users only,
+and the empty value is caught by the form's own submit gate instead. **This is
+a known gap, not an oversight**, and it closes if the trigger ever becomes a
+real input.
+
+**The mark lives in one place.** Four components draw a field label, so the
+asterisk belongs to none of them — `FieldLabel` draws it, and the four pass
+`required` through.
+
 #### An icon in a field stands in front of it
 
 **The leading slot says what the field takes. The trailing slot says what

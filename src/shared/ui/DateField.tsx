@@ -5,10 +5,10 @@ import { cn } from '@/shared/lib/cn';
 import { Icon } from '@/shared/ui/Icon';
 import { IconButton } from '@/shared/ui/IconButton';
 import { toLocalDateString } from '@/shared/lib/date';
+import { FieldLabel } from '@/shared/ui/FieldLabel';
 import {
   FIELD_ICON,
   FIELD_ICON_SIZE,
-  FIELD_LABEL,
   FIELD_TRIGGER,
 } from '@/shared/ui/fieldStyle';
 
@@ -67,6 +67,8 @@ interface DateFieldProps {
   ariaLabel?: string;
   /** 'YYYY-MM-DD'. 이 날 이전은 고를 수 없다. 지난 날짜 차단용. */
   min?: string;
+  /** 비워 둘 수 없는 칸. 라벨에 별표만 선다 — 아래 트리거 주석 참고. */
+  required?: boolean;
 }
 
 export function DateField({
@@ -77,6 +79,7 @@ export function DateField({
   disabled,
   ariaLabel,
   min,
+  required = false,
 }: DateFieldProps) {
   const gridId = useId();
   const [open, setOpen] = useState(false);
@@ -230,7 +233,8 @@ export function DateField({
         aria-expanded={open}
         aria-label={ariaLabel}
         // button은 폼 검증 대상이 아니라 required를 걸 수 없다(aria-required도 role=button엔
-        // 안 맞는다). 빈 날짜로 제출되는 건 각 모달의 canSubmit이 막는다.
+        // 안 맞는다). 그래서 required는 라벨의 별표까지만 가고, 빈 날짜로 제출되는 건
+        // 각 모달의 canSubmit이 막는다.
         className={cn(
           FIELD_TRIGGER,
           'flex w-full items-center gap-2 text-left disabled:cursor-not-allowed disabled:opacity-50',
@@ -370,9 +374,9 @@ export function DateField({
     <div className="flex w-full flex-col gap-2">
       {/* 판의 기준(relative)은 안쪽 래퍼가 갖는다 — 라벨까지 기준에 들어가면
           달력이 라벨 높이만큼 내려온다. */}
-      <label htmlFor={id} className={FIELD_LABEL}>
+      <FieldLabel htmlFor={id} required={required}>
         {label}
-      </label>
+      </FieldLabel>
       {field}
     </div>
   );

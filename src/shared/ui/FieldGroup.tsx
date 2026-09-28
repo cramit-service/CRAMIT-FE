@@ -1,10 +1,11 @@
 'use client';
 // src/shared/ui/FieldGroup.tsx
 import { useId } from 'react';
-import { FIELD_LABEL } from '@/shared/ui/fieldStyle';
+import { FieldLabel } from '@/shared/ui/FieldLabel';
 
 interface FieldGroupProps {
   label: string;
+  required?: boolean;
   children: React.ReactNode;
 }
 
@@ -16,14 +17,19 @@ interface FieldGroupProps {
 // 그 이름을 물려받는다.
 //
 // 칸 하나에 라벨 하나면 이게 아니라 그 부품의 label prop을 쓴다.
-export function FieldGroup({ label, children }: FieldGroupProps) {
+export function FieldGroup({
+  label,
+  required = false,
+  children,
+}: FieldGroupProps) {
   const labelId = useId();
 
   return (
     <div role="group" aria-labelledby={labelId} className="flex flex-col gap-2">
-      <span id={labelId} className={FIELD_LABEL}>
+      {/* 필수는 안쪽 칸이 자기 required로 알린다 — group에는 aria-required가 없다. */}
+      <FieldLabel id={labelId} required={required}>
         {label}
-      </span>
+      </FieldLabel>
       {children}
     </div>
   );

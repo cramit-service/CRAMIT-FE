@@ -3,11 +3,13 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import { Icon } from '@/shared/ui/Icon';
+import { FieldLabel } from '@/shared/ui/FieldLabel';
 import {
   FIELD_BOX,
+  FIELD_ERROR,
+  FIELD_INVALID,
   FIELD_ICON,
   FIELD_ICON_SIZE,
-  FIELD_LABEL,
   FIELD_PLACEHOLDER,
   OPTION_LIST,
   OPTION_ROW,
@@ -32,9 +34,13 @@ interface ComboboxProps {
   options: ComboboxOption[];
   disabled?: boolean;
   placeholder?: string;
-  /** 미선택으로 되돌릴 수 있는지 (TODO의 "강의 (선택)"). */
+  /** 미선택으로 되돌릴 수 있는지 (TODO의 선택 칸들). */
   clearable?: boolean;
   width?: string;
+  /** 비워 둘 수 없는 칸. 라벨에 별표가 서고 칸이 aria-required를 갖는다. */
+  required?: boolean;
+  /** 틀렸다는 말. 테두리를 빨갛게 만들고 아래에 그대로 적는다 (Input과 같다). */
+  error?: string;
 }
 
 export function Combobox({
@@ -47,8 +53,11 @@ export function Combobox({
   placeholder = '검색해서 선택',
   clearable = false,
   width = 'w-full',
+  required = false,
+  error,
 }: ComboboxProps) {
   const listId = useId();
+  const errorId = `${id}-error`;
   const [open, setOpen] = useState(false);
   // null이면 "고른 항목을 그대로 보여주는 중", 문자열이면 사용자가 입력한 검색어.
   const [query, setQuery] = useState<string | null>(null);
@@ -149,7 +158,12 @@ export function Combobox({
           투명하게 깔린다. 화살표를 absolute로 띄우면 글자의 오른쪽 여백을
           18+16+8로 박아야 하는데 42는 §2 간격 목록에 없다. */}
       <div
-        className={cn(FIELD_BOX, disabled && 'cursor-not-allowed opacity-50')}
+        className={cn(
+          FIELD_BOX,
+          // 채움이 필드다. 테두리는 할 말이 있을 때만 나온다 (Input과 같은 규칙).
+          error && FIELD_INVALID,
+          disabled && 'cursor-not-allowed opacity-50',
+        )}
       >
         <input
           ref={inputRef}
@@ -158,6 +172,10 @@ export function Combobox({
           role="combobox"
           aria-expanded={open}
           aria-controls={listId}
+          // role=combobox는 aria-required를 받는다 (role=button인 DateField와 다르다).
+          aria-required={required || undefined}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
           aria-autocomplete="list"
           aria-activedescendant={
             open && filtered[highlight]
@@ -257,15 +275,22 @@ export function Combobox({
     </div>
   );
 
-  if (!label) return field;
+  if (!label && !error) return field;
   return (
     <div className={cn('flex flex-col gap-2', width)}>
       {/* 팝오버의 기준(relative)은 안쪽 래퍼가 갖는다 — 라벨까지 기준에 들어가면
           목록이 라벨 높이만큼 내려온다. */}
-      <label htmlFor={id} className={FIELD_LABEL}>
-        {label}
-      </label>
+      {label && (
+        <FieldLabel htmlFor={id} required={required}>
+          {label}
+        </FieldLabel>
+      )}
       {field}
+      {error && (
+        <p id={errorId} role="alert" className={FIELD_ERROR}>
+          {error}
+        </p>
+      )}
     </div>
   );
 }

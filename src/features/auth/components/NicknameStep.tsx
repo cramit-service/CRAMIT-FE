@@ -60,7 +60,8 @@ export function NicknameStep({
         <div className="min-w-0 flex-1">
           <Input
             id="nickname"
-            label="닉네임*"
+            label="닉네임"
+            required
             value={nickname}
             onChange={(e) => onNicknameChange(e.target.value)}
             placeholder="닉네임을 입력해 주세요."

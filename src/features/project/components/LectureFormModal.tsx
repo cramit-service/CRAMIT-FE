@@ -78,7 +78,7 @@ export function LectureFormModal({
     updateMutation.isPending ||
     deleteMutation.isPending;
 
-  // 필수는 강의명 하나다. 교수명은 (선택)이고, 시험 날짜는 이 모달에서 빠졌다 —
+  // 필수는 강의명 하나다(라벨의 별표). 교수명은 비워도 되고, 시험 날짜는 이 모달에서 빠졌다 —
   // 시험은 강의에 딸린 별개 자료라 홈의 시험 일정에서 다룬다.
   const filled = title.trim() !== '';
   // 수정 모드에서는 바꾼 게 있어야 저장을 연다.
@@ -172,8 +172,8 @@ export function LectureFormModal({
       onSubmit={handleSubmit}
     >
       {/* 색 점이 강의명 왼쪽에 붙는다 — 이름과 색이 한 줄에 있어야 "이 과목의 색"으로 읽힌다. */}
-      <FieldGroup label="강의">
-        <div className="flex gap-3">
+      <FieldGroup label="강의" required>
+        <div className="flex gap-4">
           <SubjectColorField
             id={`${fieldId}-color`}
             value={colorIndex}
@@ -197,7 +197,7 @@ export function LectureFormModal({
 
       <Input
         id={`${fieldId}-professor`}
-        label="교수명 (선택)"
+        label="교수명"
         value={professor}
         onChange={(e) => setProfessor(e.target.value)}
         placeholder="교수명을 입력해 주세요."
