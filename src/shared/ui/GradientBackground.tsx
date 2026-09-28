@@ -2,14 +2,14 @@
 // src/shared/ui/GradientBackground.tsx
 import { cn } from '@/shared/lib/cn';
 
-type Variant = 'default' | 'banner' | 'login';
+type Variant = 'default' | 'banner' | 'login' | 'dock';
 
 interface GradientBackgroundProps {
   // true면 부모를 꽉 채우는 배경 레이어가 된다 (부모에 relative 필요).
   // false면 스스로 relative 컨테이너가 되어 children을 감싼다.
   layer?: boolean;
   // 'default'는 아직 안 옮긴 랜딩용 — 아래 블롭 넷.
-  // 'banner'·'login'은 각자 globals.css의 mesh-* 유틸리티를 쓴다.
+  // 'banner'·'login'·'dock'은 각자 globals.css의 mesh-* 유틸리티를 쓴다.
   variant?: Variant;
   className?: string;
   children?: React.ReactNode;
@@ -35,7 +35,11 @@ const DEFAULT_BLOBS = [
 // 그 유틸리티가 §2 토큰을 직접 부르므로 색이 여기로 새지 않는다.
 // 구역마다 다른 건 도형이 아니라 그라디언트 축의 각도다. 랜딩·챗독을 옮길 때
 // 각자 mesh-* 유틸리티를 하나씩 갖고, 이 표에 한 줄씩 붙는다.
-const SWEEP = { banner: 'mesh-banner', login: 'mesh-login' } as const;
+const SWEEP = {
+  banner: 'mesh-banner',
+  login: 'mesh-login',
+  dock: 'mesh-dock',
+} as const;
 
 export function GradientBackground({
   layer = false,

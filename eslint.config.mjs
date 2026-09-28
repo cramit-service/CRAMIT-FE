@@ -255,6 +255,37 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    // 챗독의 세로 탭에서만 날것 button을 허락한다. Toggle(알약)이 상태를 드는 컨트롤이지만
+    // 모양이 다르다 — 가로 알약에 컨트롤 높이를 쓰는 것과, 창 오른쪽 변에 붙어
+    // 32×107로 서서 글자가 세로로 흐르는 것은 같은 부품이 될 수 없다.
+    // 열림 상태의 계약(aria-expanded·이름)은 그 파일이 직접 지킨다.
+    // 나머지 넷과 색·타이포 임의값은 그대로 막는다.
+    files: ['src/features/chat/components/ChatDock.tsx'],
+    rules: {
+      'react/forbid-elements': [
+        'error',
+        {
+          forbid: [
+            { element: 'input', message: '@/shared/ui/Input을 쓰세요.' },
+            {
+              element: 'select',
+              message: '@/shared/ui/ModalCombobox 등 공통 부품을 쓰세요.',
+            },
+            {
+              element: 'textarea',
+              message:
+                '공통 부품이 없으면 shared/ui에 먼저 PR을 올리세요 (CONTRIBUTING.md).',
+            },
+            {
+              element: 'svg',
+              message: '아이콘은 <Icon name="…" />로 부릅니다 (DESIGN.md 4절).',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;

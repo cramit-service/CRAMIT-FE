@@ -308,6 +308,44 @@
    봉우리가 둘이고(위와 60~85%) 원형 하나로는 그 굴곡을 못 낸다. 평평한 구간을 주거나
    반지름을 키우는 쪽은 전부 더 나빠졌으니, 더 맞추려면 덩이를 넷보다 늘려야 한다.
    판 전체가 바탕에서 ΔE 20쯤밖에 안 떨어지는 옅은 판이라 눈으로는 묻힌다. */
+/* 챗봇 패널 (시안 697×1073, blur 158). 블롭 하나인데 축(327.5°)만으로는 정리되지
+   않는다 — 축 좌표로 묶으면 같은 좌표 안 편차가 28/255까지 벌어진다. 상자보다 훨씬 큰
+   path가 한쪽에 걸쳐서, 배너처럼 «쓸기»가 아니라 로그인처럼 색 덩이로 읽힌다.
+   연두는 오른쪽 아래(81%,61%), 하늘은 왼쪽 위(25%,16%)다.
+
+   시안이 준 CSS(rotate(147.46deg) + blur(158.427px))가 이 기하를 교차 검증해 준다 —
+   147.46 + 180 = 327.46이 SVG 축 벡터에서 환산한 각도와 맞는다.
+
+   시안 SVG와 평균 ΔE 2.2 · 95퍼센타일 4.4. 흰 패널 위에 합성해서 잰 값이다. */
+/* 챗봇 열기·닫기 탭 (시안 32×107, blur 17). 상자가 좁아서 이 블롭은 축(347.8°)이
+   거의 수직이고, 가로 편차가 거의 없다(y=53에서 #eefbec → #e6f9dc) — 그래서 덩이가
+   아니라 «쓸기» 하나다. 아래가 연두, 위가 하늘이고 가운데가 한 번 옅어진다.
+   시안이 준 CSS(rotate(167.8deg))가 여기서도 맞는다 — 167.8 + 180 = 347.8.
+
+   시안 SVG와 평균 ΔE 3.6 · 95퍼센타일 8.8. 흰 탭 위에 합성해서 잰 값이다. */
+@utility mesh-tab {
+  background-image: linear-gradient(
+    348deg in srgb,
+    --alpha(var(--color-lime-action) / 18%) 0%,
+    --alpha(var(--color-lime-action) / 12%) 35%,
+    --alpha(var(--color-sky-status) / 26%) 100%
+  );
+}
+
+@utility mesh-dock {
+  background-image:
+    radial-gradient(
+      75% 75% at 25% 16%,
+      --alpha(var(--color-sky-status) / 14%),
+      transparent
+    ),
+    radial-gradient(
+      70% 50% at 81% 61%,
+      --alpha(var(--color-lime-action) / 20%),
+      transparent
+    );
+}
+
 @utility mesh-login {
   background-image:
     radial-gradient(
