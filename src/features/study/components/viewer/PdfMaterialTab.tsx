@@ -74,7 +74,7 @@ export function PdfMaterialTab({ material, audio }: PdfMaterialTabProps) {
   if (pageCount < 1) {
     return (
       <section className={cn(VIEWER_PANEL, 'flex items-center justify-center')}>
-        <p className="text-gray-500">표시할 PDF 자료가 없습니다.</p>
+        <p className="text-gray-500">표시할 PDF 자료가 없어요.</p>
       </section>
     );
   }

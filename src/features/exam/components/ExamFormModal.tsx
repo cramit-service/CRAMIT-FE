@@ -147,7 +147,7 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
         disabled={isPending}
         error={
           isTitleTooLong
-            ? `${TITLE_MAX}자 이내의 제목을 작성해 주세요.`
+            ? `${TITLE_MAX}자 이내의 제목을 입력해 주세요.`
             : undefined
         }
       />

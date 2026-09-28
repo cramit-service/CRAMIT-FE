@@ -107,7 +107,7 @@ export async function getChapter(
     if (!found) {
       throw new ApiRequestError(
         'CHAPTER_NOT_FOUND',
-        '챕터를 찾을 수 없습니다.',
+        '챕터를 찾을 수 없어요.',
         404,
       );
     }
@@ -250,7 +250,7 @@ export async function setChapterReviewCount(
     if (!found) {
       throw new ApiRequestError(
         'CHAPTER_NOT_FOUND',
-        '챕터를 찾을 수 없습니다.',
+        '챕터를 찾을 수 없어요.',
         404,
       );
     }

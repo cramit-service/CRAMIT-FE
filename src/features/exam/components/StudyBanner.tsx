@@ -155,10 +155,10 @@ function EmptyExamBanner() {
       {/* 글이 가운데 서므로 낙서는 왼쪽으로 비켜 둔다(채워진 쪽은 67%). */}
       <BannerDecor doodleAt="left-[10%]" />
       <p className="text-heading-sm relative font-semibold text-gray-800">
-        예정된 시험 일정이 없습니다.
+        예정된 시험 일정이 없어요.
       </p>
       <p className="text-body relative text-gray-500">
-        새로운 시험이 등록되면 이곳에 표시됩니다.
+        새로운 시험이 등록되면 이곳에 표시돼요.
       </p>
     </div>
   );

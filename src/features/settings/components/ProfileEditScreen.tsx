@@ -61,7 +61,7 @@ export function ProfileEditScreen() {
       setStatus(available ? 'available' : 'taken');
     } catch {
       setStatus('idle');
-      setFormError('중복 확인에 실패했어요. 잠시 후 다시 시도해 주세요.');
+      setFormError('중복을 확인하지 못했어요. 잠시 후 다시 시도해 주세요.');
     } finally {
       isChecking.current = false;
     }
@@ -75,7 +75,7 @@ export function ProfileEditScreen() {
       onSuccess: () => router.push('/settings/profile'),
       onError: (error) =>
         setFormError(
-          error.message || '저장에 실패했어요. 잠시 후 다시 시도해 주세요.',
+          error.message || '저장하지 못했어요. 잠시 후 다시 시도해 주세요.',
         ),
     });
   };
@@ -137,9 +137,9 @@ export function ProfileEditScreen() {
               // 글자가 바뀌면 이전 확인 결과는 더 이상 이 닉네임의 것이 아니다.
               setStatus('idle');
             }}
-            placeholder="닉네임을 작성해주세요."
+            placeholder="닉네임을 입력해 주세요."
             disabled={updateMutation.isPending}
-            error={status === 'taken' ? '사용 중인 닉네임입니다.' : undefined}
+            error={status === 'taken' ? '사용 중인 닉네임이에요.' : undefined}
           />
         </div>
         <Button
@@ -155,7 +155,7 @@ export function ProfileEditScreen() {
           틀림(사용 중)은 Input이 자기 error로 그린다. */}
       {status === 'available' && (
         <p role="status" className="text-body-sm text-sky-ink mt-2">
-          사용 가능한 닉네임입니다.
+          사용 가능한 닉네임이에요.
         </p>
       )}
 

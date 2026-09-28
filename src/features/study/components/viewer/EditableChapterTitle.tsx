@@ -20,7 +20,7 @@ export function EditableChapterTitle({ chapter }: { chapter: Chapter }) {
         saving={updateChapter.isPending}
         error={
           updateChapter.isError
-            ? '제목을 저장하지 못했어요. 다시 시도해 주세요.'
+            ? '제목을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.'
             : undefined
         }
         onCancel={() => updateChapter.reset()}

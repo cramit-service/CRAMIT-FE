@@ -66,7 +66,7 @@ export function OnboardingFlow() {
     } catch (error) {
       // TODO: 공통 에러 토스트가 생기면 이 안내를 그쪽으로 옮긴다
       console.error('온보딩 프로필 등록 실패', error);
-      setFormError('등록에 실패했어요. 잠시 후 다시 시도해 주세요.');
+      setFormError('등록하지 못했어요. 잠시 후 다시 시도해 주세요.');
       isSubmittingRef.current = false;
       setIsSubmitting(false);
     }

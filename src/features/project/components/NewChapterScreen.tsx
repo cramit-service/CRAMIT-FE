@@ -115,7 +115,7 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
     return (
       <div className={cn(PAGE_SHELL, 'flex flex-col items-start gap-4')}>
         <p className="text-gray-700">
-          강의 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+          강의 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
         <Button
           rank="secondary"
@@ -172,7 +172,7 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
             이번 주차 학습을 시작해요
           </p>
           <p className="text-body-sm mt-3 text-gray-500">
-            강의 자료와 녹음이 모이면 AI가 요약과 원문 스크립트를 만들어 줍니다.
+            강의 자료와 녹음이 모이면 AI가 요약과 원문 스크립트를 만들어 줘요.
           </p>
         </div>
 
@@ -207,10 +207,10 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
         <div className="text-label space-y-1 text-center text-gray-500">
           <p>
             강의 자료를 함께 올리면 전공 용어를 먼저 뽑아{' '}
-            <span className="text-gray-700">원문 스크립트가 정확해집니다.</span>
+            <span className="text-gray-700">원문 스크립트가 정확해져요.</span>
           </p>
           <p>
-            강의 자료만 먼저 올려 두고, 수업 시간에 다시 들어와 붙여도 됩니다.
+            강의 자료만 먼저 올려 두고, 수업 시간에 다시 들어와 붙여도 돼요.
           </p>
         </div>
 
@@ -223,7 +223,7 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
 
       {isPending && (
         <ChapterUploadOverlay
-          message="새로운 주차를 업로드 중입니다..."
+          message="새로운 주차를 업로드 중이에요…"
           progress={progress}
           onCancel={() => abortRef.current?.abort()}
         />

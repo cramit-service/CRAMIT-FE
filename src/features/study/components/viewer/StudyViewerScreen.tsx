@@ -196,7 +196,7 @@ export function StudyViewerScreen({
     return (
       <div className={`${PAGE_SHELL} flex flex-col items-start gap-4`}>
         <p className="text-gray-700">
-          학습 자료를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+          학습 자료를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
         <Button
           rank="secondary"
@@ -216,7 +216,7 @@ export function StudyViewerScreen({
   if (!project || !chapter || !material) {
     return (
       <div className={`${PAGE_SHELL} text-gray-500`}>
-        표시할 학습 자료가 없습니다.
+        표시할 학습 자료가 없어요.
       </div>
     );
   }

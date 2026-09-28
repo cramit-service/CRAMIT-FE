@@ -39,7 +39,7 @@ export function ScriptTab({
     return (
       <section className={cn(PANEL, 'items-center justify-center')}>
         <p className="text-label text-gray-400">
-          녹음을 텍스트로 변환하고 있습니다. 완료되면 자동으로 표시됩니다.
+          녹음을 텍스트로 변환하고 있어요. 완료되면 자동으로 표시돼요.
         </p>
       </section>
     );
@@ -57,15 +57,10 @@ export function ScriptTab({
     return (
       <section className={cn(PANEL, 'items-center justify-center gap-4')}>
         <p className="text-label text-gray-400">
-          원문 스크립트를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+          원문 스크립트를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
-        {/* 재시도 중에 버튼이 그대로면 눌린 줄 모르고 계속 누르게 된다 */}
-        <Button
-          rank="secondary"
-          onClick={() => scriptQuery.refetch()}
-          disabled={scriptQuery.isFetching}
-        >
-          {scriptQuery.isFetching ? '다시 시도 중…' : '다시 시도'}
+        <Button rank="secondary" onClick={() => scriptQuery.refetch()}>
+          다시 시도
         </Button>
       </section>
     );
@@ -78,7 +73,7 @@ export function ScriptTab({
       {/* 상단: 안내문 + 재생 위치 (재생 컨트롤은 PDF 탭에만 둔다) */}
       <div className="flex shrink-0 items-start justify-between gap-4">
         <p className="text-label font-medium text-gray-700">
-          녹음본을 텍스트화해서 PPT 페이지별로 정리했습니다. 녹음본 재생은 ‘PDF
+          녹음본을 텍스트화해서 PPT 페이지별로 정리했어요. 녹음본 재생은 ‘PDF
           강의 자료’를 이용해 주세요.
         </p>
         <div className="flex shrink-0 items-center gap-1.5 text-gray-500">
@@ -91,7 +86,7 @@ export function ScriptTab({
 
       {sections.length === 0 ? (
         <p className="text-label flex flex-1 items-center justify-center text-gray-500">
-          아직 생성된 스크립트가 없습니다.
+          아직 생성된 스크립트가 없어요.
         </p>
       ) : (
         // 목록은 패널 안에서만 스크롤한다. 하단 페이드와 막대는 ScrollArea가 갖는다 —

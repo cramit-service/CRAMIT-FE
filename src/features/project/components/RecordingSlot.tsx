@@ -33,7 +33,7 @@ export function RecordingSlot() {
         <p className="text-label text-gray-500">
           끝나면 그대로 요약·스크립트까지
           <br />
-          이어집니다
+          이어져요
         </p>
       </div>
     </div>

@@ -39,7 +39,7 @@ export function LoginScreen() {
     } catch (error) {
       // TODO: 공통 에러 토스트가 생기면 그쪽으로 옮긴다
       console.error('소셜 로그인 실패', error);
-      setErrorMessage('로그인에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      setErrorMessage('로그인하지 못했어요. 잠시 후 다시 시도해 주세요.');
     } finally {
       isRunning.current = false;
       setPending(null);

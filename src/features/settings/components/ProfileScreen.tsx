@@ -158,7 +158,7 @@ export function ProfileScreen() {
             onClick={() =>
               leave(
                 logout,
-                '로그아웃에 실패했어요. 잠시 후 다시 시도해 주세요.',
+                '로그아웃하지 못했어요. 잠시 후 다시 시도해 주세요.',
               )
             }
           />
@@ -188,7 +188,7 @@ export function ProfileScreen() {
         danger
         busy={leaving}
         onConfirm={() =>
-          leave(withdraw, '탈퇴에 실패했어요. 잠시 후 다시 시도해 주세요.')
+          leave(withdraw, '탈퇴하지 못했어요. 잠시 후 다시 시도해 주세요.')
         }
         onClose={() => setWithdrawOpen(false)}
       />

@@ -63,8 +63,8 @@ export function NicknameStep({
             label="닉네임*"
             value={nickname}
             onChange={(e) => onNicknameChange(e.target.value)}
-            placeholder="닉네임을 작성해주세요."
-            error={status === 'taken' ? '사용 중인 닉네임입니다.' : undefined}
+            placeholder="닉네임을 입력해 주세요."
+            error={status === 'taken' ? '사용 중인 닉네임이에요.' : undefined}
           />
         </div>
         <Button rank="secondary" onClick={handleCheck} disabled={!canCheck}>
@@ -76,7 +76,7 @@ export function NicknameStep({
           틀림(사용 중)은 Input이 자기 error로 그린다. */}
       {status === 'available' && (
         <p role="status" className="text-body-sm text-sky-ink mt-2">
-          사용 가능한 닉네임입니다.
+          사용 가능한 닉네임이에요.
         </p>
       )}
     </div>

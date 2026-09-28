@@ -2347,6 +2347,16 @@ back.
 than settling it**: `수정완료` and `수정 완료` were the same label written two
 ways in two files, and the string ceases to exist.
 
+**A button that stands alone is outside this rule.** The reason above is a
+width reason — it exists so that a confirming action and the way out of the
+modal do not come out the same size. `다시 시도` stands in an error block with
+nothing beside it, in all six places it appears. There is no width to keep
+apart, so `~하기` would buy nothing and cost two characters.
+
+This is the boundary, not a list of exceptions: **the rule applies wherever two
+buttons share a footer**, which is every modal, the profile form, and the
+summary editor's toolbar.
+
 #### A pressed button drops `하기` and takes `중…`
 
 **While a button is working it says its own word plus `중…`.** `생성하기`
@@ -2373,6 +2383,51 @@ button's own word.**
 `불러오는 중…` is outside this rule. Nothing was pressed — it is a load that
 began by itself, so there is no label to take a word from, and the verb form
 stays.
+
+**A retry sits on the seam, and `불러오는 중…` is still what it says.** It is
+pressed, so the first reading gives `다시 시도 중…`; it loads, so the second
+gives `불러오는 중…`. The screen settles it, and not in the label's favour:
+**the button is gone by the time the text would change.** Asking again for data
+that never arrived puts the query back into its first-load state, so the error
+block — sentence and button together — is replaced by `불러오는 중…` for as
+long as the attempt runs. There is no button left to relabel.
+
+So the feedback for a pressed retry is **the whole block changing**, which is
+louder than a word inside a 32px button, and this rule has nothing to add to
+it. Two files carried `다시 시도 중…` and a disabled state on the assumption
+that the button survives the press; neither ever rendered.
+
+**This holds only while the six error blocks are shaped as they are** — the
+loading branch first, the error branch second. That shape is not settled: it
+was built against mocks, and how a failure reaches the screen is one of the
+things the backend contract will decide. If a retry ever keeps its button, this
+paragraph is what to revisit.
+
+#### A failure names the verb that failed
+
+**Every failure message is `~하지 못했어요`.** 불러오지 못했어요, 저장하지
+못했어요, 삭제하지 못했어요, 로그인하지 못했어요.
+
+The alternative is `~에 실패했어요`, and it is the more common one in the
+product today — ten strings against four. It loses anyway, on the same test
+that ruled out 합니다체: **it cannot cover one of the cases the product has.**
+Nine messages report a read that failed and all nine say `불러오지 못했어요`.
+To write those with 실패 you need a noun for the read — `조회에 실패했어요`,
+`로딩에 실패했어요` — and neither word appears anywhere in this product.
+`~하지 못했어요` covers reads and writes with one grammar.
+
+It also agrees with the button rule two subsections up, which chose the verb
+over the noun (`생성하기`, not `생성`). `저장에 실패했어요` turns that verb back
+into a noun and hangs a postposition on it. **The same action is now the same
+word in both places** — the button says `저장하기`, the failure says
+`저장하지 못했어요`.
+
+**The sentence that follows is fixed: `잠시 후 다시 시도해 주세요.`** Not
+shortened, not dropped. Two strings omit `잠시 후` today and one omits the full
+stop, for no reason either file records.
+
+**What this costs.** Ten strings, and it retires a split the product had no
+rule for.
 
 #### Two smaller rules
 

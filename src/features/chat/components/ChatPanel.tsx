@@ -115,14 +115,10 @@ export function ChatPanel({
           ) : chatQuery.isError ? (
             <div className="flex flex-col items-center gap-3 pt-10">
               <p className="text-body-sm text-center text-gray-700">
-                대화를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+                대화를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
               </p>
-              <Button
-                rank="secondary"
-                onClick={() => chatQuery.refetch()}
-                disabled={chatQuery.isFetching}
-              >
-                {chatQuery.isFetching ? '다시 시도 중…' : '다시 시도'}
+              <Button rank="secondary" onClick={() => chatQuery.refetch()}>
+                다시 시도
               </Button>
             </div>
           ) : messages.length === 0 ? (
@@ -194,7 +190,7 @@ export function ChatPanel({
           >
             <span className="min-w-0 flex-1">
               <span className="text-body-sm text-red-ink block break-keep">
-                질문을 보내지 못했습니다.
+                질문을 보내지 못했어요.
               </span>
               <span className="text-label block truncate text-gray-500">
                 {failedLabel}

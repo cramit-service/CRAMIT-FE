@@ -45,14 +45,14 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
   const handleCopy = async () => {
     // 보안 컨텍스트(https/localhost)가 아니면 clipboard API 자체가 없다.
     if (!navigator.clipboard) {
-      setNotice('이 브라우저에서는 복사할 수 없습니다');
+      setNotice('이 브라우저에서는 복사할 수 없어요');
       return;
     }
     try {
       await navigator.clipboard.writeText(mode === 'edit' ? draft : markdown);
-      setNotice('Markdown을 복사했습니다');
+      setNotice('Markdown을 복사했어요');
     } catch {
-      setNotice('복사에 실패했습니다');
+      setNotice('복사하지 못했어요');
     }
   };
 
@@ -65,7 +65,8 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
     updateMutation.mutate(draft, {
       onSuccess: () => setMode('view'),
       // 실패를 알리지 않으면 저장된 줄 알고 화면을 떠나게 된다
-      onError: () => setNotice('저장에 실패했습니다. 다시 시도해 주세요'),
+      onError: () =>
+        setNotice('저장하지 못했어요. 잠시 후 다시 시도해 주세요.'),
     });
   };
 
@@ -74,7 +75,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
     return (
       <section className={cn(PANEL, 'items-center justify-center')}>
         <p className="text-label text-gray-400">
-          AI가 요약을 생성하고 있습니다. 완료되면 자동으로 표시됩니다.
+          AI가 요약을 생성하고 있어요. 완료되면 자동으로 표시돼요.
         </p>
       </section>
     );
@@ -92,7 +93,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
     return (
       <section className={cn(PANEL, 'items-center justify-center gap-4')}>
         <p className="text-label text-gray-400">
-          요약을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+          요약을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
         <Button rank="secondary" onClick={() => summaryQuery.refetch()}>
           다시 시도
@@ -130,7 +131,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
                 rank="secondary"
                 size="sm"
                 // TODO(백엔드/라이브러리): 실제 PDF 생성이 필요해 아직 동작하지 않는다.
-                onClick={() => setNotice('PDF 다운로드는 준비 중입니다')}
+                onClick={() => setNotice('PDF 다운로드는 준비 중이에요')}
               >
                 PDF로 다운로드
               </Button>
@@ -187,7 +188,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
               ) : (
                 // 생성 중(PROCESSING)은 위에서 따로 걸러내므로 여기는 '생성됐지만 비어 있음'이다
                 <p className="text-label text-gray-500">
-                  아직 생성된 요약이 없습니다.
+                  아직 생성된 요약이 없어요.
                 </p>
               )}
             </div>
