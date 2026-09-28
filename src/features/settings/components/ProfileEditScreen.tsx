@@ -3,13 +3,14 @@
 import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/shared/lib/cn';
 import { checkNickname } from '@/features/auth/api';
 import {
   useMyProfile,
   useUpdateNickname,
 } from '@/features/settings/hooks/useMyProfile';
-import { Icon } from '@/shared/ui/Icon';
+import { Button } from '@/shared/ui/Button';
+import { IconButton } from '@/shared/ui/IconButton';
+import { Input } from '@/shared/ui/Input';
 
 // 로딩·에러 문구도 본문과 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
 // 설정은 content-col을 쓰지 않는다. 다른 화면은 패널을 나란히 놓는 작업 열이라 폭이
@@ -19,13 +20,6 @@ const PAGE_SHELL = 'mx-auto w-full max-w-[747px] px-6 py-12';
 
 // 중복확인 결과 (온보딩 NicknameStep과 같은 3상태)
 type NicknameStatus = 'idle' | 'available' | 'taken';
-
-// 시안 입력 747×76. 상태에 따라 테두리 색만 갈린다.
-const BORDER_BY_STATUS: Record<NicknameStatus, string> = {
-  idle: 'border-gray-800',
-  available: 'border-secondary-400',
-  taken: 'border-error',
-};
 
 // 대시보드-프로필-수정 화면. 시안: Figma 1:5164 / 1:5196.
 export function ProfileEditScreen() {
@@ -108,51 +102,36 @@ export function ProfileEditScreen() {
             className="size-full object-cover"
           />
         </div>
-        {/* 시안 33×33. 이미지 업로드 플로우가 시안에 없어 상태만 알린다. */}
-        <button
-          type="button"
-          onClick={() => setNotice('프로필 사진 변경은 준비 중이에요.')}
-          aria-label="프로필 사진 변경"
-          className="absolute right-0 bottom-0.5 flex size-[33px] items-center justify-center rounded-full bg-gray-800 text-gray-100 transition-colors hover:bg-gray-700"
-        >
-          <Icon name="edit" size={16} />
-        </button>
+        {/* 시안은 33px 어두운 원이었다. §2에 어두운 표면이 없어 2순위(흰 바탕 + 테두리)로
+            간다 — 아바타 위에 얹히는 자리라 테두리가 경계를 만들어 준다.
+            크기는 IconButton이 정한다: 글리프 16의 두 배인 32(§4). 이미지 업로드
+            플로우가 시안에 없어 눌러도 상태만 알린다. */}
+        <div className="absolute right-0 bottom-0">
+          <IconButton
+            name="edit"
+            aria-label="프로필 사진 변경"
+            rank="secondary"
+            onClick={() => setNotice('프로필 사진 변경은 준비 중이에요.')}
+          />
+        </div>
       </div>
       {notice && (
-        <p role="status" className="text-body mt-4 self-center text-gray-600">
+        <p
+          role="status"
+          className="text-body-sm mt-4 self-center text-gray-500"
+        >
           {notice}
         </p>
       )}
 
-      {/* 닉네임 */}
-      <div className="mt-[58px] flex flex-col gap-1.5">
-        <div className="flex items-baseline justify-between gap-4">
-          <label
-            htmlFor="profile-nickname"
-            className="text-body font-medium text-gray-700"
-          >
-            닉네임
-          </label>
-          {status === 'available' && (
-            <p className="text-secondary-400 text-body font-medium">
-              사용 가능한 닉네임입니다.
-            </p>
-          )}
-          {status === 'taken' && (
-            <p role="alert" className="text-error text-body font-medium">
-              사용 중인 닉네임입니다.
-            </p>
-          )}
-        </div>
-
-        <div
-          className={cn(
-            'flex h-[76px] items-center gap-3.5 rounded-md border bg-gray-800 px-5 transition-colors',
-            BORDER_BY_STATUS[status],
-          )}
-        >
-          <input
+      {/* 닉네임 — 칸과 중복확인은 형제다. 시안은 버튼을 칸 안에 넣었는데, §4가 필드의
+          채움을 필드 자체로 정해 둬서 그 안에 채움을 하나 더 넣으면 무엇이 칸인지
+          흐려진다. Input은 라벨과 틀림 문구까지 들고 있으므로 배치만 여기서 한다. */}
+      <div className="mt-12 flex items-end gap-3">
+        <div className="min-w-0 flex-1">
+          <Input
             id="profile-nickname"
+            label="닉네임"
             value={value}
             onChange={(e) => {
               setNickname(e.target.value);
@@ -161,43 +140,46 @@ export function ProfileEditScreen() {
             }}
             placeholder="닉네임을 작성해주세요."
             disabled={updateMutation.isPending}
-            className="text-body-sm min-w-0 flex-1 bg-transparent font-medium text-gray-100 placeholder:text-gray-500 focus:outline-none"
+            error={status === 'taken' ? '사용 중인 닉네임입니다.' : undefined}
           />
-          {/* 시안 93×46 */}
-          <button
-            type="button"
-            onClick={handleCheck}
-            disabled={!changed || updateMutation.isPending}
-            className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 text-body flex h-[46px] w-[93px] shrink-0 items-center justify-center rounded-md font-medium transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-600 disabled:text-gray-400"
-          >
-            중복확인
-          </button>
         </div>
+        <Button
+          rank="secondary"
+          onClick={handleCheck}
+          disabled={!changed || updateMutation.isPending}
+        >
+          중복확인
+        </Button>
       </div>
 
+      {/* 쓸 수 있다는 말은 틀림이 아니라 상태다 — §2의 sky-ink가 "글자만으로 된 상태"다.
+          틀림(사용 중)은 Input이 자기 error로 그린다. */}
+      {status === 'available' && (
+        <p role="status" className="text-body-sm text-sky-ink mt-2">
+          사용 가능한 닉네임입니다.
+        </p>
+      )}
+
       {formError && (
-        <p role="alert" className="text-error text-body mt-3">
+        <p role="alert" className="text-body-sm text-red-ink mt-3">
           {formError}
         </p>
       )}
 
-      {/* 시안 366×76 두 개, 간격 15 */}
-      <div className="mt-[58px] grid grid-cols-2 gap-[15px]">
-        <button
-          type="button"
+      {/* 시안은 366×76 두 개가 폭을 반씩 나눈다. §4는 버튼 폭을 라벨이 정한다고 두었고
+          (순위는 채움과 위치가 말한다), 이 앱의 모든 폼이 오른쪽 끝에 취소·확정 순으로
+          선다 — FormModal의 푸터와 같은 줄이다. */}
+      <div className="mt-12 flex items-center justify-end gap-3">
+        <Button
+          rank="secondary"
           onClick={() => router.push('/settings/profile')}
           disabled={updateMutation.isPending}
-          className="text-body-lg flex h-[76px] items-center justify-center rounded-md border border-gray-400 bg-gray-100 font-medium text-gray-900 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-60"
         >
           뒤로 가기
-        </button>
-        <button
-          type="submit"
-          disabled={!canSubmit}
-          className="enabled:bg-secondary-400 enabled:hover:bg-secondary-500 text-body-lg flex h-[76px] items-center justify-center rounded-md font-medium transition-colors enabled:text-gray-950 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-gray-100"
-        >
+        </Button>
+        <Button type="submit" disabled={!canSubmit}>
           {updateMutation.isPending ? '저장 중…' : '수정 완료'}
-        </button>
+        </Button>
       </div>
     </form>
   );

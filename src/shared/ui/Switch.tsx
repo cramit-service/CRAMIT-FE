@@ -38,11 +38,22 @@ export function Switch({
         disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
       )}
     >
-      {/* 손잡이. left를 애니메이션하면 매 프레임 레이아웃이 다시 계산된다 — transform만 움직인다. */}
+      {/* 손잡이. left를 애니메이션하면 매 프레임 레이아웃이 다시 계산된다 — transform만 움직인다.
+
+          bg-white였다. §2가 프레임워크 팔레트를 지우면서 white도 같이 사라져 손잡이가
+          투명하게 렌더되고 있었다 — 알약만 보이고 원이 없었다. surface가 §2에서 흰 표면의
+          이름이다.
+
+          켜짐에서 흰 손잡이는 연두 위 1.13:1이라 WCAG 1.4.11(3:1)을 못 넘는다. 알고
+          그대로 둔다 — 손잡이에 gray-400 테두리를 두르거나(3.26:1) 켜짐 손잡이를
+          gray-800으로 바꾸면(14.74:1) 넘지만, 시안의 흰 원을 지키기로 했다.
+          켜짐 트랙(lime-action)도 흰 카드 위에서 1.13:1이라 알약의 윤곽 자체가 흐리다.
+          §4는 Toggle만 정하고 Switch를 정한 적이 없다 — Toggle은 안에 든 라벨(연두 위
+          gray-800, 14.74:1)이 상태와 폭을 둘 다 말해 주는데 스위치에는 그 라벨이 없다. */}
       <span
         aria-hidden
         className={cn(
-          'absolute left-[2px] size-[19px] rounded-full bg-white transition-transform duration-150',
+          'bg-surface absolute left-[2px] size-[19px] rounded-full transition-transform duration-150',
           checked ? 'translate-x-[17px]' : 'translate-x-0',
         )}
       />

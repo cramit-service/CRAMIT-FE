@@ -2,12 +2,11 @@
 // src/features/settings/components/ProfileScreen.tsx
 import { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import type { PlanId } from '@/shared/types/api';
 import { Button } from '@/shared/ui/Button';
-import { Modal } from '@/shared/ui/Modal';
+import { ConfirmModal } from '@/shared/ui/ConfirmModal';
 import { Switch } from '@/shared/ui/Switch';
 import { logout, withdraw } from '@/features/settings/api';
 import {
@@ -102,18 +101,17 @@ export function ProfileScreen() {
           className="size-full object-cover"
         />
       </div>
-      <h1 className="text-heading-md mt-2 font-semibold text-gray-950">
+      <h1 className="text-heading-md mt-2 font-semibold text-gray-800">
         {profile.nickname}
       </h1>
-      {/* 시안은 gray-400 바탕에 밝은 글자인데, 그 조합이 1.56:1이라 글자가 안 읽히고
-          비활성 버튼과 구분도 안 됐다. 바탕은 시안대로 두고 글자만 어둡게 한다(10.5:1).
-          눌리는 버튼이라는 게 드러나도록 hover도 더했다. */}
-      <Link
-        href="/settings/profile/edit"
-        className="text-body-sm mt-6 flex h-[44px] w-25 items-center justify-center rounded-md bg-gray-400 font-medium text-gray-900 transition-colors hover:bg-gray-500"
-      >
-        내 정보 수정
-      </Link>
+      {/* 시안은 gray-400 채움이었다. §4는 회색 채움을 비활성에만 허락한다 —
+          강의 목록에서 같은 채움을 이미 걷어냈다. 이 화면에서 유일한 이동이라
+          2순위(테두리)가 맞다. 폭은 라벨이 정한다(§4). */}
+      <div className="mt-6">
+        <Button href="/settings/profile/edit" rank="secondary">
+          내 정보 수정
+        </Button>
+      </div>
 
       <div className="mt-10 flex w-full flex-col gap-6">
         <SettingSection title="알림 설정">
@@ -132,7 +130,7 @@ export function ProfileScreen() {
             />
           </SettingRow>
           {notificationMutation.isError && (
-            <p role="alert" className="text-error text-body">
+            <p role="alert" className="text-body-sm text-red-ink">
               알림 설정을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.
             </p>
           )}
@@ -140,14 +138,11 @@ export function ProfileScreen() {
 
         <SettingSection title="요금제">
           <SettingRow label={PLAN_LABEL[profile.plan]}>
-            {/* 시안 97×46 */}
-            <button
-              type="button"
-              onClick={() => setPlanNotice(true)}
-              className="bg-secondary-400 hover:bg-secondary-500 text-body flex h-[46px] w-[97px] items-center justify-center rounded-md font-medium text-gray-950 transition-colors"
-            >
+            {/* 채움이 bg-secondary-400이라 토큰에 없어 투명하게 렌더되고, 글자도
+                gray-950이 죽어 어두운 판 위에서 1.38:1이었다 — 버튼이 사실상 없었다. */}
+            <Button rank="secondary" onClick={() => setPlanNotice(true)}>
               플랜 변경
-            </button>
+            </Button>
           </SettingRow>
           {/* 요금제 변경 화면이 시안에 없다. 버튼은 시안대로 두고 눌렀을 때 상태만 알린다. */}
           {planNotice && (
@@ -175,47 +170,29 @@ export function ProfileScreen() {
             onClick={() => setWithdrawOpen(true)}
           />
           {actionError && (
-            <p role="alert" className="text-error text-body">
+            <p role="alert" className="text-body-sm text-red-ink">
               {actionError}
             </p>
           )}
         </SettingSection>
       </div>
 
-      {/* 시안에 확인 단계가 없지만 되돌릴 수 없는 동작이라 한 번 묻는다. */}
-      <Modal
+      {/* 시안에 확인 단계가 없지만 되돌릴 수 없는 동작이라 한 번 묻는다.
+          Modal을 직접 쓰고 제목·여백·버튼을 손으로 그리고 있었다 — ConfirmModal이
+          정확히 이 모양(물음 하나 + 취소 + 되돌릴 수 없는 동작)이고, §4가 정한
+          여백 48과 물음 24도 그쪽이 들고 있다. */}
+      <ConfirmModal
         open={withdrawOpen}
-        onClose={() => !leaving && setWithdrawOpen(false)}
-        labelledBy="withdraw-title"
-      >
-        <h2
-          id="withdraw-title"
-          className="text-body font-semibold text-gray-950"
-        >
-          정말 탈퇴할까요?
-        </h2>
-        <p className="text-label mt-2 text-gray-600">
-          탈퇴하면 만든 강의와 학습 기록이 모두 사라지고 되돌릴 수 없어요.
-        </p>
-        <div className="mt-6 flex justify-end gap-2">
-          <Button
-            rank="secondary"
-            disabled={leaving}
-            onClick={() => setWithdrawOpen(false)}
-          >
-            취소
-          </Button>
-          <Button
-            rank="danger"
-            disabled={leaving}
-            onClick={() =>
-              leave(withdraw, '탈퇴에 실패했어요. 잠시 후 다시 시도해 주세요.')
-            }
-          >
-            {leaving ? '처리 중…' : '탈퇴하기'}
-          </Button>
-        </div>
-      </Modal>
+        question="정말 탈퇴할까요?"
+        detail="탈퇴하면 만든 강의와 학습 기록이 모두 사라지고 되돌릴 수 없어요."
+        confirmLabel="탈퇴하기"
+        danger
+        busy={leaving}
+        onConfirm={() =>
+          leave(withdraw, '탈퇴에 실패했어요. 잠시 후 다시 시도해 주세요.')
+        }
+        onClose={() => setWithdrawOpen(false)}
+      />
     </div>
   );
 }
