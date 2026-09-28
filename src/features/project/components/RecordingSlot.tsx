@@ -13,7 +13,7 @@ import { Icon } from '@/shared/ui/Icon';
 
 export function RecordingSlot() {
   return (
-    <div className="flex min-w-0 flex-col gap-[22px]">
+    <div className="flex min-w-0 flex-col gap-5">
       <p className="text-body-md flex items-center gap-2 text-gray-700">
         바로 녹음하기
         <span className="text-label rounded-full bg-gray-200 px-2 py-0.5 text-gray-700">
@@ -24,10 +24,10 @@ export function RecordingSlot() {
       <div
         aria-disabled
         title="준비 중이에요"
-        className="bg-well flex h-[270px] w-full flex-col items-center justify-center gap-2 rounded-md border border-dashed border-gray-300 px-[22px] text-center opacity-60"
+        className="bg-well flex h-[270px] w-full flex-col items-center justify-center gap-2 rounded-md border border-dashed border-gray-300 px-6 text-center opacity-60"
       >
         <span className="text-gray-500">
-          <Icon name="mic" size={22} />
+          <Icon name="mic" size={16} />
         </span>
         <p className="text-body-sm text-gray-700">수업을 들으면서 녹음</p>
         <p className="text-label text-gray-500">

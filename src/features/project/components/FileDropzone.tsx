@@ -61,7 +61,10 @@ export function FileDropzone({
   };
 
   return (
-    <div className="flex min-w-0 flex-col gap-[22px]">
+    // 라벨과 상자 사이는 20이고, 칸 셋 사이는 24다(격자의 gap-6). 안쪽이 바깥쪽보다
+    // 좁아야 라벨이 자기 상자에 붙는다 — 같으면 라벨이 옆 칸의 것으로도 읽힌다.
+    // 22였는데 §2 간격 목록에 없는 값이다.
+    <div className="flex min-w-0 flex-col gap-5">
       {/* 라벨은 시안 20px. */}
       <p className="text-body-md text-gray-700">{label}</p>
 
@@ -76,7 +79,7 @@ export function FileDropzone({
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
         className={cn(
-          'bg-well relative flex h-[270px] w-full flex-col items-center justify-center gap-2 rounded-md border border-dashed px-[22px] text-center transition-colors',
+          'bg-well relative flex h-[270px] w-full flex-col items-center justify-center gap-2 rounded-md border border-dashed px-6 text-center transition-colors',
           // 파일을 끌고 오면 테두리로 "여기에 놓으면 된다"를 알린다.
           dragging ? 'border-sky-ink bg-sky-pale' : 'border-gray-300',
           'focus-within:border-sky-ink',
@@ -96,7 +99,7 @@ export function FileDropzone({
         {file ? (
           <>
             <span className="text-gray-700">
-              <Icon name="cloud-upload" size={22} />
+              <Icon name="cloud-upload" size={16} />
             </span>
             <p className="text-body-sm max-w-full truncate text-gray-800">
               {file.name}
@@ -108,7 +111,7 @@ export function FileDropzone({
         ) : (
           <>
             <span className="text-body-sm flex items-center gap-2 text-gray-700">
-              <Icon name="cloud-upload" size={22} />
+              <Icon name="cloud-upload" size={16} />
               파일 선택
             </span>
             <span className="text-label text-gray-500">

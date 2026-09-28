@@ -11,6 +11,11 @@ import { Icon } from '@/shared/ui/Icon';
 // 시안(1:5259 "로딩 화면-ver2")의 진행 표시는 CRAMIT 심볼 10개가 왼쪽부터 차오르는 모양이다.
 const DOT_COUNT = 10;
 
+// 시안 상단 바 높이. 아래 여백이 같은 값을 써야 마스코트 묶음이 화면 정중앙에 선다 —
+// 둘이 한 상수를 보게 두어 한쪽만 바뀌는 일을 막는다. 고른 값이 아니라 시안에서 온
+// 치수라 §2 간격 목록의 대상이 아니다(§5 "컴포넌트 내부 치수는 시안 px").
+const TOP_BAR_HEIGHT = 124;
+
 interface ChapterUploadOverlayProps {
   /** 화면 한가운데 문구. 생성/수정에 따라 달라진다. */
   message: string;
@@ -76,14 +81,21 @@ export function ChapterUploadOverlay({
         <GradientBackground layer />
 
         <div className="relative flex h-full flex-col">
-          {/* 시안 상단 바 124px. 워드마크는 다른 화면과 같은 22px로 둔다. */}
-          <div className="flex h-[124px] shrink-0 items-center justify-center">
+          {/* 워드마크는 다른 화면과 같은 22px로 둔다. */}
+          <div
+            style={{ height: TOP_BAR_HEIGHT }}
+            className="flex shrink-0 items-center justify-center"
+          >
             <Logo height={22} />
           </div>
 
           {/* 시안에서 마스코트~심볼 묶음은 화면 정중앙이다. 위 로고 바만큼을 아래 여백으로
-            돌려줘야 그 중심이 유지된다. 묶음 사이 간격은 시안 30px. */}
-          <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-[30px] pb-[124px]">
+            돌려줘야 그 중심이 유지된다.
+            묶음 사이는 시안 30인데 §2 간격 목록에 없어 32로 올린다. */}
+          <div
+            style={{ paddingBottom: TOP_BAR_HEIGHT }}
+            className="flex min-h-0 flex-1 flex-col items-center justify-center gap-8"
+          >
             {/* 시안 188.366×148. 리포에 이미 있는 마스코트 원본과 같은 벡터다. */}
             <Image
               src="/images/Crait_Cat.svg"
@@ -108,7 +120,10 @@ export function ChapterUploadOverlay({
               aria-valuemax={100}
               aria-valuetext={`${percent}% 완료`}
               aria-label={message}
-              className="flex items-center gap-[9.636px]"
+              // 시안은 심볼 31에 간격 9.636이다. 둘 다 체계 밖이라 32와 8로 옮긴다 —
+              // 31은 4px 배수가 아니라 스트로크가 반픽셀에 걸리고(§3), 9.636은 §2
+              // 간격 목록에 없다. 줄 전체 폭은 396.7 → 392로 5px만 줄어든다.
+              className="flex items-center gap-2"
             >
               {Array.from({ length: DOT_COUNT }, (_, index) => (
                 <span
@@ -118,7 +133,7 @@ export function ChapterUploadOverlay({
                     index < filled ? 'text-gray-800' : 'text-gray-100',
                   )}
                 >
-                  <Icon name="bolt" size={31} />
+                  <Icon name="bolt" size={32} />
                 </span>
               ))}
             </div>

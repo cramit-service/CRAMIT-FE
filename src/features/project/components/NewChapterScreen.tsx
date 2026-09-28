@@ -143,11 +143,16 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
         <h1 className="text-heading-md flex min-w-0 items-baseline font-semibold text-gray-800">
           <span className="min-w-0 truncate">{projectQuery.data.title}</span>
           {/* 간격을 gap이 아니라 진짜 공백으로 둔다 — gap이면 보조기기가 두 span을
-              붙여 "알고리즘7주차"로 읽는다. */}
-          <span className="shrink-0"> {nextCount}</span>
+              붙여 "알고리즘7주차"로 읽는다.
+              whitespace-pre가 그 공백을 지킨다. h1이 flex라 두 span이 플렉스 아이템이
+              되는데, 플렉스 아이템의 선행 공백은 지워진다 — textContent에는 남아서
+              보조기기는 "알고리즘 7"로 읽고 화면에서만 붙어 있었다. */}
+          <span className="shrink-0 whitespace-pre"> {nextCount}</span>
         </h1>
 
-        <div className="mt-7">
+        {/* 28이었다. §2 간격 목록에 없고, 뷰어가 같은 자리(제목 블록 → 탭 줄)에
+            쓰는 값이 24다 — 자료가 들어오면 이 화면이 그대로 뷰어가 되므로 같은 값을 쓴다. */}
+        <div className="mt-6">
           <ViewerTabs activeTabs={[]} onToggle={() => {}} locked />
         </div>
       </header>
@@ -158,7 +163,8 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
       <section
         className={cn(
           VIEWER_PANEL,
-          'flex flex-col items-center justify-center gap-9 px-8 py-10',
+          // 36이었다. §2 간격 목록에 없어서 32로 내린다.
+          'flex flex-col items-center justify-center gap-8 px-8 py-10',
         )}
       >
         <div className="text-center">
