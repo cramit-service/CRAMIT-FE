@@ -21,7 +21,7 @@ import { PAGE_PAD } from '@/shared/ui/pageShell';
 function PageShell({ children }: { children: ReactNode }) {
   return (
     <div className={PAGE_PAD}>
-      <div className="lg:content-col mx-auto flex w-full flex-col gap-6">
+      <div className="lg:content-col mx-auto flex w-full flex-col gap-2">
         {children}
       </div>
     </div>

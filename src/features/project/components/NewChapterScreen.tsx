@@ -165,7 +165,7 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
         className={cn(
           VIEWER_PANEL,
           // 36이었다. §2 간격 목록에 없어서 32로 내린다.
-          'flex flex-col items-center justify-center gap-8 px-8 py-10',
+          'mt-2 flex flex-col items-center justify-center gap-8 px-8 py-10',
         )}
       >
         <div className="text-center">

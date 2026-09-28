@@ -65,7 +65,7 @@ export function ChapterDetailScreen({ projectId }: { projectId: string }) {
       {/* 섹션 제목("단계별 학습")을 뺐다 — 상태 셋이 회독 수로 바뀌면서 밟을 단계가
           없어졌고, 이 화면에 목록이 하나뿐이라 그건 섹션 이름이 아니라 화면 이름이었다.
           화면 이름은 위 ProjectHeader의 강의명이 이미 맡고 있다. */}
-      <section className="mt-8 flex flex-col gap-2">
+      <section className="mt-2 flex flex-col gap-2">
         {ordered.length === 0 ? (
           // 아직 주차를 올리지 않은 프로젝트는 빈 영역 대신 안내를 보여준다.
           <p className="text-body bg-surface rounded-md px-6 py-12 text-center text-gray-500">

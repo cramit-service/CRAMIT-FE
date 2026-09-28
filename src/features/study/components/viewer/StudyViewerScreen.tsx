@@ -271,10 +271,7 @@ export function StudyViewerScreen({
         onToggleFocus={toggleFocus}
       />
 
-      <div
-        ref={areaRef}
-        className={cn('flex min-h-0 flex-1 flex-col', focus ? 'mt-3' : 'mt-5')}
-      >
+      <div ref={areaRef} className="mt-2 flex min-h-0 flex-1 flex-col">
         {isSplit ? (
           // 이분할 — 좌우 패널 사이 핸들을 끌어 폭을 나눈다.
           // 핸들이 간격을 겸하므로 flex gap은 주지 않는다(주면 간격이 두 번 생긴다).
