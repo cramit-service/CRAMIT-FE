@@ -24,39 +24,40 @@ export function ProjectHeader({
   const [editOpen, setEditOpen] = useState(false);
 
   return (
-    <header className="flex flex-col gap-2">
-      <div className="flex min-w-0 items-center gap-2">
-        <h1 className="text-heading-md min-w-0 truncate font-semibold text-gray-800">
-          {project.title}
-        </h1>
-        {/* 라벨 없이 제목 옆에 서는 연필. 글자를 안 가진 컨트롤이라 이름은 aria-label이
+    <header className="flex flex-col gap-6">
+      {/* 타이틀 — 제목 줄과 그 아래 회색 세부. 네 작업 화면이 같은 뼈대를 쓴다. */}
+      <div className="flex flex-col gap-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <h1 className="text-heading-md min-w-0 truncate font-semibold text-gray-800">
+            {project.title}
+          </h1>
+          {/* 라벨 없이 제목 옆에 서는 연필. 글자를 안 가진 컨트롤이라 이름은 aria-label이
             준다(§4가 IconButton의 계약으로 못 박은 것). shrink-0은 감싼 span이 갖는다 —
             IconButton은 className을 받지 않는다. */}
-        <span className="shrink-0">
-          <IconButton
-            name="edit"
-            aria-label={`${project.title} 수정`}
-            glyph={20}
-            onClick={() => setEditOpen(true)}
-          />
-        </span>
-      </div>
+          <span className="shrink-0">
+            <IconButton
+              name="edit"
+              aria-label={`${project.title} 수정`}
+              glyph={20}
+              onClick={() => setEditOpen(true)}
+            />
+          </span>
+        </div>
 
-      {/* 넷이 제목 아래 한 줄에 선다 — 왼쪽은 이 강의가 무엇인가(읽는 것),
-          오른쪽은 어디까지 했고 무엇을 더할 수 있는가(재는 것과 누르는 것).
-          items-end — 진행바·버튼·메타의 밑변이 같은 선에 온다.
-          좁아지면 오른쪽 묶음이 통째로 아래 줄로 내려가고, ml-auto 덕에 그때도 오른쪽에 붙는다. */}
-      <div className="flex flex-wrap items-end gap-4">
         {/* §4: 값이 유한한 집합에서 올 때만 뱃지다. 교수명은 자유 텍스트, 강의 수는
             숫자라 알약을 둘러도 눈만 끌고 아무 말도 안 한다 — 강의 카드와 같은 규칙이다.
-            집합인 건 시험까지 남은 날 하나뿐이고 §2가 색을 정해 뒀다.
-            D-day가 왼쪽에 남는 이유는 오른쪽이 누르는 것들의 자리라서다. */}
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <p className="text-label text-gray-500">
-            {`${project.professor} 교수님 · 강의 ${project.chapterCount}개`}
-          </p>
-          {dday && <DdayBadge days={dday.days} />}
-        </div>
+            집합인 건 시험까지 남은 날 하나뿐이라, 그것만 아래 컨트롤 줄에 남는다. */}
+        <p className="text-label text-gray-500">
+          {`${project.professor} 교수님 · 강의 ${project.chapterCount}개`}
+        </p>
+      </div>
+
+      {/* 컨트롤 줄. 왼쪽은 남은 날(재는 것), 오른쪽은 진행률과 새 주차(재는 것과 누르는 것).
+          items-end — 배지·진행바·버튼의 밑변이 같은 선에 온다.
+          좁아지면 오른쪽 묶음이 통째로 아래 줄로 내려가고, ml-auto 덕에 그때도 오른쪽에 붙는다.
+          D-day가 왼쪽에 남는 이유는 오른쪽이 누르는 것들의 자리라서다. */}
+      <div className="flex flex-wrap items-end gap-4">
+        {dday && <DdayBadge days={dday.days} />}
 
         <div className="ml-auto flex items-end gap-4">
           <div className="w-full max-w-[280px] min-w-[160px]">

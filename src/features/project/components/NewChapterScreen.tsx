@@ -135,7 +135,7 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
     <form onSubmit={handleSubmit} className={cn(PAGE_SHELL, 'block')}>
       {/* 학습 뷰어와 같은 2단 헤더다 — 자료가 들어오면 이 화면이 그대로 뷰어가 된다.
           탭은 아직 열 게 없어 잠가 두지만, 무엇이 생길지는 미리 보여준다. */}
-      <header>
+      <header className="flex flex-col gap-6">
         {/* 여기 적힌 것이 곧 이 주차의 제목이 된다 — 업로드가 끝나면 학습 화면 헤더에
             같은 글자가 들어가 있고, 거기서 눌러 고친다. 전에는 "Chapter N"을 보여주고
             제목은 빈 값으로 만들어서, 학습 화면이 "제목 추가"부터 시작했다.
@@ -151,9 +151,9 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
           <span className="shrink-0 whitespace-pre"> {nextCount}</span>
         </h1>
 
-        {/* 28이었다. §2 간격 목록에 없고, 뷰어가 같은 자리(제목 블록 → 탭 줄)에
-            쓰는 값이 24다 — 자료가 들어오면 이 화면이 그대로 뷰어가 되므로 같은 값을 쓴다. */}
-        <div className="mt-6">
+        {/* 타이틀 → 컨트롤 24는 header의 gap이 갖는다. 세부 줄이 없는 화면이라
+            자식에게 마진을 주면 그 마진이 첫 자식에게 남는다. */}
+        <div>
           <ViewerTabs activeTabs={[]} onToggle={() => {}} locked />
         </div>
       </header>

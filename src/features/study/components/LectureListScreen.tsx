@@ -67,7 +67,7 @@ export function LectureListScreen() {
       {/* 화면 제목이 열의 왼쪽 위에 선다 — 주차 내부(ProjectHeader)의 제목과 같은 자리다.
           목록 섹션이 자기 머리에 제목을 들고 있었는데, 섹션이 하나뿐이라 그건 섹션
           제목이 아니라 화면 제목이었다. */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
         <h1 className="text-heading-md font-semibold text-gray-800">내 강의</h1>
 
         {/* 목록을 다루는 셋이 한 줄에 선다 — 찾기(검색), 순서(정렬), 늘리기(추가).
