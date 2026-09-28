@@ -4,7 +4,7 @@
 language: 'ko-KR'
 
 # 250자 제한이 있어 짧게 유지합니다.
-tone_instructions: '백엔드 경험자로 구성된, 프론트엔드는 처음인 팀입니다. 일반적인 설계 원칙 설명은 생략하고 React/Next.js 고유의 함정을 짚어주세요. PR 제목의 타입([DESIGN]/[FEAT]/[FIX]/[REFACTOR])에 따라 볼 것이 다릅니다. 문서(DESIGN.md·CLAUDE.md·CONTRIBUTING.md)가 이미 정한 규칙과 어긋나는지를 먼저 보고, 문서에 없는 취향은 말하지 마세요.'
+tone_instructions: '규칙은 DESIGN.md·CLAUDE.md·CONTRIBUTING.md가 갖습니다. 문서와 어긋나는지를 먼저 보고, 문서에 없는 취향은 말하지 마세요. 일반적인 설계 원칙 설명은 생략하고 React/Next.js 고유의 함정을 짚어주세요. PR 제목의 타입([DESIGN]/[FEAT]/[FIX]/[REFACTOR])마다 볼 것이 다릅니다. 백엔드 연동 전이라 목이 항상 성공합니다 — 실패·로딩·빈 상태가 빠진 곳을 적극적으로 짚어주세요.'
 
 reviews:
   # 새 스택을 익히는 중이라 지적이 많은 쪽이 학습에 유리합니다.
