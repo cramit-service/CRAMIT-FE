@@ -449,7 +449,7 @@
 
 /* 스크롤바를 레이아웃에서 완전히 뺀다. 자리를 비워 두지도 않으므로 내용이 상자 폭을
    그대로 쓴다 — 그 대신 "얼마나 남았는지"를 알릴 방법이 사라지니, 쓰는 쪽이 막대를
-   따로 그린다(shared/ui/Sidebar/NavScroll). */
+   따로 그린다(shared/ui/ScrollArea). */
 @utility scrollbar-hidden {
   scrollbar-width: none;
   &::-webkit-scrollbar {

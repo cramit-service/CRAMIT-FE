@@ -7,17 +7,17 @@ const UI = [
   'Button',
   'Card',
   'Checkbox',
+  'Combobox',
+  'DateField',
   'FormModal',
   'GradientBackground',
   'Icon',
   'Input',
   'Logo',
   'Modal',
-  'ModalCombobox',
-  'ModalDateField',
-  'ModalTimeField',
   'Sidebar',
   'Switch',
+  'TimeField',
   'Tooltip',
 ];
 
@@ -143,7 +143,7 @@ const eslintConfig = defineConfig([
             { element: 'input', message: '@/shared/ui/Input을 쓰세요.' },
             {
               element: 'select',
-              message: '@/shared/ui/ModalCombobox 등 공통 부품을 쓰세요.',
+              message: '@/shared/ui/Select·Combobox 등 공통 부품을 쓰세요.',
             },
             {
               element: 'textarea',
@@ -198,7 +198,7 @@ const eslintConfig = defineConfig([
             { element: 'input', message: '@/shared/ui/Input을 쓰세요.' },
             {
               element: 'select',
-              message: '@/shared/ui/ModalCombobox 등 공통 부품을 쓰세요.',
+              message: '@/shared/ui/Select·Combobox 등 공통 부품을 쓰세요.',
             },
             {
               element: 'textarea',
@@ -230,7 +230,7 @@ const eslintConfig = defineConfig([
             { element: 'input', message: '@/shared/ui/Input을 쓰세요.' },
             {
               element: 'select',
-              message: '@/shared/ui/ModalCombobox 등 공통 부품을 쓰세요.',
+              message: '@/shared/ui/Select·Combobox 등 공통 부품을 쓰세요.',
             },
             {
               element: 'textarea',
@@ -270,7 +270,7 @@ const eslintConfig = defineConfig([
             { element: 'input', message: '@/shared/ui/Input을 쓰세요.' },
             {
               element: 'select',
-              message: '@/shared/ui/ModalCombobox 등 공통 부품을 쓰세요.',
+              message: '@/shared/ui/Select·Combobox 등 공통 부품을 쓰세요.',
             },
             {
               element: 'textarea',

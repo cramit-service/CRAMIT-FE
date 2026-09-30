@@ -63,7 +63,7 @@ export const OPTION_ROW = `${control()} flex cursor-pointer items-center px-4.5 
  *  고름과 호버가 둘 다 채움인데 부딪히지 않는다 — §2의 누름 규칙이 합성되기 때문이다.
  *  lime-action 위의 검정 8%가 lime-hover와 같은 값이라, 고른 줄에 커서가 올라간 상태는
  *  나머지 둘 어느 쪽도 아니면서 자기 값을 따로 정할 필요가 없다.
- *  TODO: 흰 줄 위의 8%는 #ebebeb인데 토큰이 없다. well(#f0f1f1)로 근사해 뒀다. */
+ *  TODO: 흰 줄 위의 8%는 #ebebeb인데 토큰이 없다. well로 근사해 뒀다. */
 export function optionStateClass({
   selected,
   active,
