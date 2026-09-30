@@ -1323,8 +1323,8 @@ Where a modal needs a name, it shows it.
 
 #### What two modals remove
 
-`FormModal` exports seventeen names today, eleven of them class strings that
-screens paste onto their own elements. None of them survive as exports:
+`FormModal` exported seventeen names, eleven of them class strings that
+screens pasted onto their own elements. None of them survived as exports:
 
 | Where it goes      | What                                                                              |
 | ------------------ | --------------------------------------------------------------------------------- |
