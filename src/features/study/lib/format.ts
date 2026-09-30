@@ -28,7 +28,12 @@ export function formatChapterDay(iso: string): string {
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
-  return `${yyyy}. ${mm}. ${dd}. (${WEEKDAYS[d.getDay()]})`;
+  // 시·분까지 보여준다. 이 값은 사람이 고른 날짜가 아니라 주차를 만든 시각이라,
+  // 같은 날 여러 주차를 올렸을 때 날짜만으로는 어느 것이 먼저인지 알 수 없다.
+  // 모달에서 받는 값이면 분까지 물을 이유가 없지만, 이건 물어본 적 없는 값이다.
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mi = String(d.getMinutes()).padStart(2, '0');
+  return `${yyyy}. ${mm}. ${dd}. (${WEEKDAYS[d.getDay()]}) ${hh}:${mi}`;
 }
 
 // 오디오 재생 시간 표시: 725 → "12:05", 3662 → "61:02", 0 → "00:00"
@@ -52,9 +57,9 @@ export function toPlayDuration(value: number | undefined): number {
     : 0;
 }
 
-// D-DAY 계산 결과 (태그 텍스트 + 긴급도)
 export interface Dday {
   label: string; // 예: "중간고사 D-3", "중간고사 D-DAY", "중간고사 종료"
+  days: number; // 남은 일수. 뱃지(DdayBadge)가 라벨 대신 이것을 받는다
   // 가까울수록 진하게 — 홈 DdayBadge와 같은 단계. D-DAY·D-1 / D-2 / D-3 / 여유 / 지남
   tone: 'urgent' | 'soon' | 'near' | 'normal' | 'past';
 }
@@ -82,12 +87,30 @@ export function getDday(
     (target.getTime() - today.getTime()) / 86_400_000,
   );
 
-  if (diffDays < 0) return { label: `${examName} 종료`, tone: 'past' };
-  if (diffDays === 0) return { label: `${examName} D-DAY`, tone: 'urgent' };
+  if (diffDays < 0)
+    return { label: `${examName} 종료`, days: diffDays, tone: 'past' };
+  if (diffDays === 0)
+    return { label: `${examName} D-DAY`, days: diffDays, tone: 'urgent' };
 
   const label = `${examName} D-${diffDays}`;
-  if (diffDays <= 1) return { label, tone: 'urgent' };
-  if (diffDays === 2) return { label, tone: 'soon' };
-  if (diffDays === 3) return { label, tone: 'near' };
-  return { label, tone: 'normal' };
+  if (diffDays <= 1) return { label, days: diffDays, tone: 'urgent' };
+  if (diffDays === 2) return { label, days: diffDays, tone: 'soon' };
+  if (diffDays === 3) return { label, days: diffDays, tone: 'near' };
+  return { label, days: diffDays, tone: 'normal' };
+}
+
+/**
+ * 강의 카드와 강의 헤더가 같이 쓰는 회색 메타 줄.
+ *
+ * 교수명은 비워 둘 수 있는 칸이라(§4의 별표가 없다) 값이 없을 수 있다. 전에는 그
+ * 자리를 "미정"이라는 문자열로 채워 두 화면이 「미정 교수님」을 그렸는데, 그건 null이
+ * 할 일을 문자열이 대신한 것이라 쓰는 쪽·벗기는 쪽·비교하는 쪽 셋에 흩어져 있었다.
+ * 없으면 그 조각을 통째로 뺀다.
+ */
+export function lectureMetaLine(
+  professor: string | null,
+  chapterCount: number,
+): string {
+  const count = `강의 ${chapterCount}개`;
+  return professor ? `${professor} 교수님 · ${count}` : count;
 }

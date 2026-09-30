@@ -8,20 +8,16 @@ import {
   useSyncExternalStore,
 } from 'react';
 import Image from 'next/image';
+import { DEFAULT_AVATAR } from '@/shared/ui/avatar';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Logo } from '@/shared/ui/Logo';
 import { cn } from '@/shared/lib/cn';
 import { Tooltip } from '@/shared/ui/Tooltip';
-import { useMyProfile } from '@/features/settings/hooks/useMyProfile';
 import { SidebarItem } from './SidebarItem';
 import { CourseNav } from './CourseNav';
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  HouseIcon,
-  ListIcon,
-} from './icons';
+import type { NavData } from './types';
+import { Icon } from '@/shared/ui/Icon';
 
 // 접은 직후 chevron을 잠깐 보여 주는 시간. "어디로 갔는지" 한 번 알려 주는 용도다.
 const PEEK_MS = 1500;
@@ -34,13 +30,15 @@ interface SidebarProps {
   // 폭 상태는 MainShell이 갖는다 — main의 좌패딩이 같은 값을 따라가야 해서다.
   expanded: boolean;
   onToggle: () => void;
+  /** 강의 목록과 프로필. 가져오는 일은 features가 한다 (CLAUDE.md 3절). */
+  nav: NavData;
 }
 
 // 로그인 후 모든 화면이 공유하는 좌측 사이드바 골격.
 // 접힘(아이콘만) / 펼침(아이콘+라벨+과목 목록) 두 상태를 토글로 전환한다.
-export function Sidebar({ expanded, onToggle }: SidebarProps) {
+export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
   const pathname = usePathname();
-  const { data: profile } = useMyProfile();
+  const { profile } = nav;
   // 접힘에서 chevron을 띄우는 조건 — 엣지/헤더 hover, 그리고 접은 직후 잠깐
   const [hovering, setHovering] = useState(false);
   const [justCollapsed, setJustCollapsed] = useState(false);
@@ -98,7 +96,7 @@ export function Sidebar({ expanded, onToggle }: SidebarProps) {
     href !== '#' && (pathname === href || pathname.startsWith(`${href}/`));
 
   const profileActive = isActive('/settings/profile');
-  const profileName = profile?.nickname ?? '내 프로필';
+  const profileName = profile?.name ?? '내 프로필';
   const chord = isMac ? '⌘B' : 'Ctrl+B';
   const toggleLabel = expanded
     ? `사이드바 접기 (${chord})`
@@ -118,7 +116,7 @@ export function Sidebar({ expanded, onToggle }: SidebarProps) {
       // 봐야 펼칠 때 셋이 따로 놀지 않는다(MainShell이 정한다).
       // 엣지 스트립과 chevron이 우측 경계 밖으로 나가야 해서 여기서는 자르지 않는다.
       // 라벨을 자르는 건 헤더·nav·하단 세 칸이 각자 맡는다.
-      className="z-nav fixed top-0 left-0 flex h-screen w-[var(--sidebar-w)] flex-col bg-gray-950 text-gray-300 transition-[width] duration-200 ease-out"
+      className="z-nav bg-frame fixed top-0 left-0 flex h-screen w-[var(--sidebar-w)] flex-col text-gray-700 transition-[width] duration-200 ease-out"
     >
       {/* 헤더 — 높이(92)는 두 상태가 같아야 한다. 접힘에서 토글을 로고 아래 한 줄로 두면
           그 줄이 아래 항목 전부를 밀어 내려 전환이 점프처럼 보인다(그래서 엣지로 뺐다).
@@ -134,13 +132,13 @@ export function Sidebar({ expanded, onToggle }: SidebarProps) {
       <div
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
-        className="flex h-23 shrink-0 [scrollbar-gutter:stable] items-center overflow-hidden pt-[33px] pr-2 pb-6"
+        className="flex h-23 shrink-0 items-center overflow-hidden pt-[33px] pr-2 pb-6"
       >
-        <span className="flex w-22.5 shrink-0 justify-center">
+        <span className="flex w-[var(--sidebar-rail)] shrink-0 justify-center">
           {/* 높이는 호출처가 정한다 — Logo는 기본 크기를 갖지 않는다 */}
           <Logo variant="symbol" className="h-[35px]" />
         </span>
-        <Logo className={cn('h-[19px] shrink-0 text-white', labelClass)} />
+        <Logo className={cn('h-[19px] shrink-0 text-gray-800', labelClass)} />
         {expanded && (
           <Tooltip label={toggleLabel}>
             <button
@@ -149,9 +147,9 @@ export function Sidebar({ expanded, onToggle }: SidebarProps) {
               aria-label={toggleLabel}
               aria-expanded={expanded}
               aria-controls={NAV_ID}
-              className="focus-visible:ring-secondary-400 ml-auto flex size-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-100 focus-visible:ring-2 focus-visible:outline-none"
+              className="focus-visible:ring-sky-ink ml-auto flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 focus-visible:ring-2 focus-visible:outline-none"
             >
-              <ChevronLeftIcon className="size-5" />
+              <Icon name="arrow-left" size={20} />
             </button>
           </Tooltip>
         )}
@@ -168,7 +166,7 @@ export function Sidebar({ expanded, onToggle }: SidebarProps) {
             onMouseLeave={() => setHovering(false)}
             className="group/edge absolute inset-y-0 -right-1 w-2 cursor-pointer"
           >
-            <span className="absolute inset-y-0 left-1 w-px bg-gray-700 opacity-0 transition-opacity duration-150 ease-out group-hover/edge:opacity-100" />
+            <span className="absolute inset-y-0 left-1 w-px bg-gray-300 opacity-0 transition-opacity duration-150 ease-out group-hover/edge:opacity-100" />
           </div>
           <Tooltip label={toggleLabel}>
             <button
@@ -181,7 +179,7 @@ export function Sidebar({ expanded, onToggle }: SidebarProps) {
               onMouseLeave={() => setHovering(false)}
               // 세로 중심은 로고 행 중앙(헤더 92의 절반=46). 가로는 경계에 걸친다.
               className={cn(
-                'focus-visible:ring-secondary-400 absolute top-11.5 right-0 flex size-6 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-gray-700 bg-gray-800 text-gray-100 transition-opacity duration-150 ease-out hover:bg-gray-700 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:outline-none',
+                'focus-visible:ring-sky-ink bg-surface shadow-near absolute top-11.5 right-0 flex size-6 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-gray-100 text-gray-700 transition-opacity duration-150 ease-out hover:bg-gray-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:outline-none',
                 // hover가 없는 입력(터치)에서는 hover 상태를 만들 수 없다. 그러면 8px 엣지
                 // 스트립만으로 펼쳐야 해서 사실상 못 편다 — 그 환경에서는 상시로 띄운다.
                 '[@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100',
@@ -190,44 +188,32 @@ export function Sidebar({ expanded, onToggle }: SidebarProps) {
                   : 'pointer-events-none opacity-0',
               )}
             >
-              <ChevronRightIcon className="size-4" />
+              <Icon name="arrow-right" size={16} />
             </button>
           </Tooltip>
         </>
       )}
 
-      {/* 메인 메뉴 */}
-      {/* 짧은 화면에서는 이 칸만 스크롤해 하단 메뉴(강의 관리·프로필)를 항상 남긴다.
-          min-h-0이 없으면 세로 flex 자식의 min-height: auto가 콘텐츠 높이 아래로 줄어드는 걸
-          막아 overflow-y-auto가 걸릴 일이 없다. 주축이 세로라 여기선 min-h-0이 필요하다.
-          overflow-x-hidden은 세로 스크롤바가 생겼을 때 90px 아이콘 칸이 6px 넘치며
-          가로 스크롤이 따라 생기는 걸 막는다(한 축이 visible이 아니면 다른 축은 auto가 된다). */}
-      <nav
-        id={NAV_ID}
-        className="scrollbar-dark fade-bottom flex min-h-0 flex-1 [scrollbar-gutter:stable] flex-col gap-1 overflow-x-hidden overflow-y-auto overscroll-contain"
-      >
+      {/* 메인 메뉴 — 홈과 "내 강의" 제목은 제자리에 고정이고, 스크롤은 그 아래
+          과목 목록 안에서만 일어난다. nav 전체를 스크롤러로 두면 홈까지 같이 밀린다. */}
+      <nav id={NAV_ID} className="flex min-h-0 flex-1 flex-col gap-1">
         <SidebarItem
-          icon={<HouseIcon className="size-6" />}
+          icon={<Icon name="house" size={24} />}
           label="홈"
           href="/home"
           active={isActive('/home')}
           expanded={expanded}
         />
-        <CourseNav expanded={expanded} />
+        <CourseNav
+          expanded={expanded}
+          mine={nav.mine}
+          pending={nav.pending}
+          error={nav.error}
+        />
       </nav>
 
       {/* 하단 메뉴 — 과목 수와 무관하게 늘 같은 자리에 있어야 하는 것들 */}
-      <div className="flex shrink-0 [scrollbar-gutter:stable] flex-col gap-1 overflow-hidden pt-2 pb-6">
-        {/* 강의 등록·삭제·학기 정리. 진입은 대부분 위 목록에서 하므로 여기는 관리 자리다.
-            prefix 매칭을 쓰면 과목 상세(/projects/1)에서도 활성으로 남아 위 목록과 둘 다
-            켜진다 — 목록이 그 자리를 맡으므로 여기는 정확히 일치할 때만 켠다. */}
-        <SidebarItem
-          icon={<ListIcon className="size-6" />}
-          label="강의 관리"
-          href="/projects"
-          active={pathname === '/projects'}
-          expanded={expanded}
-        />
+      <div className="flex shrink-0 flex-col gap-1 overflow-hidden pt-2 pb-6">
         {/* "설정" 라벨을 프로필이 대신한다 — 목적지가 프로필 화면이라 아바타와 이름이
             어디로 가는지를 라벨보다 잘 말한다. 아바타 칸은 과목 배지와 같은 열이다. */}
         <Tooltip label={profileName} disabled={expanded}>
@@ -235,35 +221,41 @@ export function Sidebar({ expanded, onToggle }: SidebarProps) {
             href="/settings/profile"
             aria-label={expanded ? undefined : profileName}
             className={cn(
-              'focus-visible:ring-secondary-400 relative flex items-center py-3 transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
+              'focus-visible:ring-sky-ink relative flex items-center py-3 transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
               profileActive
-                ? 'text-primary-400'
-                : 'text-gray-200 hover:text-white',
+                ? 'text-gray-800'
+                : 'text-gray-700 hover:text-gray-800',
             )}
           >
             {profileActive && (
-              <span className="absolute inset-y-0 right-2 left-2 rounded-lg bg-gray-800" />
+              <span className="bg-lime-action absolute inset-y-0 right-2 left-2 rounded-md" />
             )}
-            <span className="relative flex w-22.5 shrink-0 justify-center">
+            <span className="relative flex w-[var(--sidebar-rail)] shrink-0 justify-center">
+              {/* 테두리는 두 상태 다 두고 색만 바꾼다. 기본 아바타의 바탕이 #F5F5F5라
+                  레일(frame #f3f1ee) 위에서는 원의 가장자리가 사라지지만, 활성일 때는
+                  연두 알약 위라 이미 가장자리가 있다. 한쪽에서만 테두리를 빼면 상자가
+                  30과 32를 오가며 아바타가 2px 튄다.
+                  글자용이던 text-label·font-medium·text-gray-*와 bg-surface는 지웠다 —
+                  이제 그림이 칸을 꽉 채우므로 그 아래로는 아무것도 안 비친다. */}
               <span
                 className={cn(
-                  'text-label flex size-8 items-center justify-center overflow-hidden rounded-full font-medium',
-                  profileActive
-                    ? 'bg-primary-400 text-gray-950'
-                    : 'border border-gray-700 text-gray-300',
+                  'flex size-8 overflow-hidden rounded-full border',
+                  profileActive ? 'border-transparent' : 'border-gray-200',
                 )}
               >
-                {profile?.profileImage ? (
-                  <Image
-                    src={profile.profileImage}
-                    alt=""
-                    width={32}
-                    height={32}
-                    className="size-full object-cover"
-                  />
-                ) : (
-                  (profile?.nickname?.trim().charAt(0) ?? '')
-                )}
+                {/* 사진이 없으면 기본 그림이다. 이름 첫 글자였는데, 같은 사람이
+                    설정(110)에서는 그림, 여기서는 글자로 보였다.
+                    unoptimized — 설정의 두 아바타와 같은 처리다. 백엔드가 아직
+                    profileImage를 안 주므로 원격 호스트는 next.config의
+                    images.remotePatterns와 함께 그때 정한다. */}
+                <Image
+                  src={profile?.imageUrl ?? DEFAULT_AVATAR}
+                  alt=""
+                  width={32}
+                  height={32}
+                  unoptimized
+                  className="size-full object-cover"
+                />
               </span>
             </span>
             <span

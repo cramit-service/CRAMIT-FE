@@ -15,20 +15,32 @@ interface LogoProps {
   variant?: LogoVariant;
   // appIcon 전용: 다크 파비콘 / 연두 파비콘
   tone?: AppIconTone;
-  // 크기는 className으로 조절한다. 워드마크는 높이만 주면 비율이 유지된다(h-6 등).
+  /** 높이(px). 폭은 비율로 따라온다. Icon의 size와 같은 계약이다 — 크기는 이 prop,
+   *  색은 감싼 쪽의 text-*(기본은 gray-800). */
+  height?: number;
+  /** shared/ui 안에서만 쓴다(사이드바의 접힘 전환 등). 화면에서는 린트가 막는다. */
   className?: string;
 }
 
 // CRAMIT 심볼 마크. 실제 로고 에셋(public/logo-symbol.png)을 그대로 사용한다.
 // 연두·하늘 두 알약이 겹치는 반투명 표현이 원본 디자인이라 이미지로 넣는다.
 // 크기(높이)는 호출처가 정한다.
-function SymbolMark({ className }: { className?: string }) {
+function SymbolMark({
+  className,
+  height,
+}: {
+  className?: string;
+  height?: number;
+}) {
   return (
     <Image
       src="/logo-symbol.png"
       alt="CRAMIT"
       width={34}
       height={48}
+      // 폭은 비율로 따라온다. height가 오면 클래스 높이(h-11)를 이기도록 style로 준다 —
+      // next/image가 height 속성을 자기 것으로 쓰기 때문에 속성으로는 못 덮는다.
+      style={height ? { height } : undefined}
       className={cn('w-auto select-none', className)}
     />
   );
@@ -36,21 +48,23 @@ function SymbolMark({ className }: { className?: string }) {
 
 // CRAMIT 워드마크. Figma에서 내보낸 벡터를 그대로 옮겼다(전용 서체라 폰트로 대체 불가).
 // 글자는 fill-current라 부모의 text-* 색을 따르고, 마침표(dot)는 dotClassName으로 색을 준다.
-// 기본 마침표 색은 시그니처 연두(primary-400)이고, 연두 배경 위에서는 어둡게 덮어쓴다.
+// 기본 마침표 색은 시그니처 연두(lime-action)이고, 연두 배경 위에서는 어둡게 덮어쓴다.
 //
-// 크기·색은 호출처가 정한다. 기본 높이는 height 속성(24)으로만 주고 — 클래스가 속성을
-// 이기므로 호출처가 h-* 하나만 주면 그 값이 이긴다. 색은 부모 text-*(currentColor)를 물려받는다.
+// 크기·색은 호출처가 정한다. 높이는 height 속성으로 주고 — 클래스가 속성을 이기므로
+// shared/ui 안에서 h-*를 주면 그쪽이 이긴다. 색은 부모 text-*(currentColor)를 물려받는다.
 function Wordmark({
   className,
-  dotClassName = 'fill-primary-400',
+  height = 24,
+  dotClassName = 'fill-lime-action',
 }: {
   className?: string;
+  height?: number;
   dotClassName?: string;
 }) {
   return (
     <svg
       viewBox="0 0 336 68"
-      height={24}
+      height={height}
       fill="none"
       role="img"
       aria-label="CRAMIT"
@@ -101,7 +115,7 @@ function Lockup({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'inline-flex flex-col items-center gap-3 text-gray-950',
+        'inline-flex flex-col items-center gap-3 text-gray-800',
         className,
       )}
       role="img"
@@ -114,7 +128,8 @@ function Lockup({ className }: { className?: string }) {
 }
 
 // 둥근 사각 앱 아이콘 / 파비콘 (Figma "파비콘")
-// dark : gray-900 배경 · 흰 글자 · 연두 마침표 / lime : primary-400 배경 · 검정 글자·마침표
+// 앱 아이콘은 UI 표면이 아니라 이미지 자산이다 — §2의 "어두운 표면 없음"이 여기까지 오지 않는다.
+// dark : gray-800 배경 · 밝은 글자 · 연두 마침표 / lime : lime-action 배경 · 검정 글자·마침표
 function AppIcon({
   tone = 'dark',
   className,
@@ -126,9 +141,12 @@ function AppIcon({
   return (
     <div
       className={cn(
+        // 앱 아이콘은 UI 사각형이 아니라 이미지 자산이라 §2의 6이 닿지 않는다 —
+        // 파비콘은 어느 크기로 내보내도 같게 보여야 해서 코너가 비율이다(시안 200에 40).
+        // eslint-disable-next-line no-restricted-syntax
         'inline-flex items-center justify-center rounded-[22%]',
         // Figma: 200px 박스에 코너 40px(≈20%). 글자색은 배경 대비로 결정한다.
-        isLime ? 'bg-primary-400 text-gray-950' : 'bg-gray-900 text-gray-100',
+        isLime ? 'bg-lime-action text-gray-800' : 'bg-gray-800 text-gray-100',
         'size-12',
         className,
       )}
@@ -139,24 +157,31 @@ function AppIcon({
         // 높이는 컨테이너 폭(82%)에 맞춰 자동, 글자색은 컨테이너 text-*를 물려받는다
         className="h-auto w-[82%]"
         // 연두 배경에선 마침표도 어둡게, 다크 배경에선 시그니처 연두 유지
-        dotClassName={isLime ? 'fill-gray-950' : 'fill-primary-400'}
+        dotClassName={isLime ? 'fill-gray-800' : 'fill-lime-action'}
       />
     </div>
   );
 }
 
 // CRAMIT 로고. 기본은 워드마크.
-export function Logo({ variant = 'wordmark', tone, className }: LogoProps) {
+export function Logo({
+  variant = 'wordmark',
+  tone,
+  height,
+  className,
+}: LogoProps) {
   switch (variant) {
     case 'symbol':
       // 기본 높이는 여기서만 주고(호출처가 안 주면 h-11), 리프 SymbolMark엔 두지 않아 충돌을 막는다
-      return <SymbolMark className={cn('h-11', className)} />;
+      return <SymbolMark className={cn('h-11', className)} height={height} />;
     case 'lockup':
       return <Lockup className={className} />;
     case 'appIcon':
       return <AppIcon tone={tone} className={className} />;
     default:
       // 워드마크 기본 글자색만 여기서 준다(호출처는 높이만 주므로 색 충돌 없음)
-      return <Wordmark className={cn('text-gray-950', className)} />;
+      return (
+        <Wordmark className={cn('text-gray-800', className)} height={height} />
+      );
   }
 }

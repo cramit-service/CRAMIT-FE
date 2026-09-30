@@ -41,9 +41,9 @@ const delay = (ms: number, signal?: AbortSignal) =>
     );
   });
 
-// 학습하기(강의 목록) 조회 — 내 강의와 공유 강의를 한 번에 받아 화면에서 나눈다.
-// TODO: 백엔드 목록 응답에 태그용 필드(professor/chapterCount/examName/examDate/sharedBy)가
-//       포함되는지, 내 강의/공유 강의를 따로 내려주는지 확정 시 재확인 필요.
+// 학습하기(강의 목록) 조회.
+// TODO: 백엔드 목록 응답에 태그용 필드(professor/chapterCount/examName/examDate)가
+//       포함되는지 확정 시 재확인 필요.
 export async function getProjectSummaries(
   signal?: AbortSignal,
 ): Promise<ProjectSummary[]> {
@@ -56,7 +56,6 @@ export async function getProjectSummaries(
   return apiClient.get<ProjectSummary[]>('/projects', { signal });
 }
 
-// 프로젝트 상세(헤더 메타) 조회
 export async function getProjectDetail(
   projectId: string,
   signal?: AbortSignal,
@@ -73,16 +72,11 @@ export async function getProjectDetail(
       ...summary,
       projectId,
       chapterCount: mockChapters.length,
-      // 공유받은 강의면 공유 게시판이 붙는다.
-      isShared: summary
-        ? summary.sharedBy !== null
-        : mockProjectDetail.isShared,
     };
   }
   return apiClient.get<ProjectDetail>(`/projects/${projectId}`, { signal });
 }
 
-// 챕터(단계별 학습) 목록 조회
 export async function getChapters(
   projectId: string,
   signal?: AbortSignal,
@@ -111,7 +105,7 @@ export async function getChapter(
     if (!found) {
       throw new ApiRequestError(
         'CHAPTER_NOT_FOUND',
-        '챕터를 찾을 수 없습니다.',
+        '챕터를 찾을 수 없어요.',
         404,
       );
     }
@@ -235,6 +229,36 @@ export async function updateLectureSummary(
   return apiClient.patch<LectureSummary>(
     `/chapters/${chapterId}/summary`,
     { markdown },
+    { signal },
+  );
+}
+
+// 회독 수를 세팅한다. 올리고 내리는 두 엔드포인트가 아니라 값을 하나 넣는 쪽이다 —
+// 증가 전용으로 두면 한 번 잘못 누른 것을 되돌릴 수 없고, DESIGN.md §4가 그걸
+// "기록이 아니라 오기"라고 부른다.
+// TODO(백엔드): 경로 확정 필요. PATCH /chapters/{id} 의 부분 수정으로 갈 수도 있다.
+export async function setChapterReviewCount(
+  chapterId: string,
+  reviewCount: number,
+  signal?: AbortSignal,
+): Promise<Chapter> {
+  if (USE_MOCK) {
+    await delay(200, signal);
+    const found = mockChapters.find((c) => c.chapterId === chapterId);
+    if (!found) {
+      throw new ApiRequestError(
+        'CHAPTER_NOT_FOUND',
+        '챕터를 찾을 수 없어요.',
+        404,
+      );
+    }
+    // 목에서도 실제로 값을 바꿔 둔다. 안 그러면 무효화 뒤 옛 값이 돌아와 화면이 튄다.
+    found.reviewCount = reviewCount;
+    return { ...found };
+  }
+  return apiClient.patch<Chapter>(
+    `/chapters/${chapterId}/review-count`,
+    { reviewCount },
     { signal },
   );
 }

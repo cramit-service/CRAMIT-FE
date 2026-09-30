@@ -5,12 +5,9 @@ import type { MockAudio } from '@/features/study/hooks/useMockAudio';
 import { toPlayDuration } from '@/features/study/lib/format';
 import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
 import { AudioPlayer } from '@/features/study/components/viewer/AudioPlayer';
-import {
-  LIST_MAX_WIDTH,
-  LIST_MIN_WIDTH,
-  PageList,
-} from '@/features/study/components/viewer/PageList';
-import { PageListToggle } from '@/features/study/components/viewer/PageListToggle';
+import { checkerStyle } from '@/features/study/components/viewer/PdfPlaceholder';
+import { PdfThumbnail } from '@/features/study/components/viewer/PdfThumbnail';
+import { LIST_WIDTH, PageList } from '@/shared/ui/PageList';
 import { PdfPagePreview } from '@/features/study/components/viewer/PdfPlaceholder';
 import { usePdfDocument } from '@/features/study/hooks/usePdfDocument';
 import { cn } from '@/shared/lib/cn';
@@ -29,8 +26,9 @@ export function PdfMaterialTab({ material, audio }: PdfMaterialTabProps) {
   const [selectedPage, setSelectedPage] = useState(1);
   // 가운데 버튼으로 좌측 목록을 최소 ↔ 최대로 바꾼다.
   // 좁으면 썸네일 대신 페이지 번호만 보이는 형태가 된다 (Figma 두 시안).
-  const [wideList, setWideList] = useState(true);
-  const listWidth = wideList ? LIST_MAX_WIDTH : LIST_MIN_WIDTH;
+  // 목록은 켜고 끈다. 좁혀서 번호만 남기는 중간 상태는 두지 않는다 —
+  // 옆 미리보기가 필요할 땐 통째로 접는 편이 자리를 더 준다.
+  const [listOpen, setListOpen] = useState(true);
 
   // 페이지 수는 열어 본 문서가 정답이다. API의 pdfPageCount는 로딩 중 자리를 잡는 용도라,
   // 실제 파일과 어긋나 있으면 목록이 문서보다 길거나 짧아진다.
@@ -76,7 +74,7 @@ export function PdfMaterialTab({ material, audio }: PdfMaterialTabProps) {
   if (pageCount < 1) {
     return (
       <section className={cn(VIEWER_PANEL, 'flex items-center justify-center')}>
-        <p className="text-gray-500">표시할 PDF 자료가 없습니다.</p>
+        <p className="text-gray-500">표시할 PDF 자료가 없어요.</p>
       </section>
     );
   }
@@ -87,6 +85,8 @@ export function PdfMaterialTab({ material, audio }: PdfMaterialTabProps) {
       <AudioPlayer
         currentPage={currentPage}
         pageCount={pageCount}
+        listOpen={listOpen}
+        onToggleList={() => setListOpen((v) => !v)}
         isPlaying={audio.isPlaying}
         onTogglePlay={audio.toggle}
         currentTime={audio.currentTime}
@@ -94,19 +94,23 @@ export function PdfMaterialTab({ material, audio }: PdfMaterialTabProps) {
         onSeek={audio.seek}
       />
 
-      <div className="flex min-h-0 flex-1 px-8 pb-5">
-        <PageList
-          doc={doc}
-          ratio={ratio}
-          pageCount={pageCount}
-          currentPage={currentPage}
-          onSelect={setSelectedPage}
-          width={listWidth}
-        />
-        <PageListToggle
-          wide={wideList}
-          onToggle={() => setWideList((v) => !v)}
-        />
+      <div className="flex min-h-0 flex-1 px-6 pb-5">
+        {/* 목록은 PDF를 모른다 — 미리보기 한 칸만 여기서 그려 넘긴다 (CLAUDE.md 3절).
+            체크무늬는 자리표시다. 페이지가 그려지면 종이 뒤로 무늬가 비쳐 보인다.
+            비율은 문서가 오면 첫 페이지 것으로 갈아탄다 — 강의자료는 A4 세로도 흔하다. */}
+        {listOpen && (
+          <PageList
+            pageCount={pageCount}
+            currentPage={currentPage}
+            onSelect={setSelectedPage}
+            width={LIST_WIDTH}
+            renderPreview={(page) => <PdfThumbnail doc={doc} page={page} />}
+            previewRatio={ratio ?? undefined}
+            previewPlaceholder={
+              doc ? { backgroundColor: 'var(--color-well)' } : checkerStyle(12)
+            }
+          />
+        )}
         <PdfPagePreview
           doc={doc}
           page={currentPage}

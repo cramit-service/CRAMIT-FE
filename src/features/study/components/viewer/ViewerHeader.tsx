@@ -1,21 +1,15 @@
 'use client';
 // src/features/study/components/viewer/ViewerHeader.tsx
-import { useRouter } from 'next/navigation';
-import { Tag } from '@/features/study/components/Tag';
-import { ChevronLeftIcon } from '@/features/study/components/icons';
 import { ViewerTabs } from '@/features/study/components/viewer/ViewerTabs';
 import { EditableChapterTitle } from '@/features/study/components/viewer/EditableChapterTitle';
-import {
-  CollapseIcon,
-  ExpandIcon,
-} from '@/features/study/components/viewer/icons';
-import { cn } from '@/shared/lib/cn';
+import { ReviewStepper } from '@/features/study/components/viewer/ReviewStepper';
+import { Toggle } from '@/shared/ui/Toggle';
 import { formatChapterDay } from '@/features/study/lib/format';
-import type { Chapter, ProjectDetail, ViewerTab } from '@/shared/types/api';
+import type { Chapter, ViewerTab } from '@/shared/types/api';
+import { Icon } from '@/shared/ui/Icon';
 
 interface ViewerHeaderProps {
   chapter: Chapter;
-  project: ProjectDetail;
   activeTabs: ViewerTab[];
   onTabToggle: (tab: ViewerTab) => void;
   // 집중 모드에서는 이전으로·제목·태그를 접고 탭줄만 남긴다
@@ -27,37 +21,28 @@ interface ViewerHeaderProps {
 // Figma 2단 구성: 위 = 뒤로가기 / Chapter 제목, 아래 = 탭 / 강의명·교수·날짜.
 export function ViewerHeader({
   chapter,
-  project,
   activeTabs,
   onTabToggle,
   focus,
   onToggleFocus,
 }: ViewerHeaderProps) {
-  const router = useRouter();
-
   // 두 모드가 같은 자리(탭줄 오른쪽 끝)에서 켜고 끈다
   const focusButton = (
-    <button
-      type="button"
+    // 탭과 같은 줄에 서므로 같은 칸을 쓴다. aria-pressed를 들고 있으니 토글이다.
+    <Toggle
+      pressed={focus}
+      size="sm"
       onClick={onToggleFocus}
-      aria-pressed={focus}
       title={focus ? '집중 모드 끄기 (Esc)' : '집중 모드'}
       aria-label={focus ? '집중 모드 끄기' : '집중 모드'}
-      // 탭과 같은 줄에 서므로 높이·모양·테두리 굵기를 탭(ViewerTabs)에 맞춘다.
-      // py로 높이를 만들면 줄높이(22)에 얹혀 36이 되어 탭보다 4px 커진다.
-      className={cn(
-        'text-label focus-visible:ring-secondary-400 flex h-8 shrink-0 items-center gap-1.5 rounded-full px-4 font-medium whitespace-nowrap transition-colors',
-        'border-[0.5px] border-gray-500 text-gray-700 hover:border-gray-600 hover:text-gray-900',
-        'focus-visible:ring-2 focus-visible:outline-none',
-      )}
     >
       {focus ? (
-        <CollapseIcon className="size-4" />
+        <Icon name="collapse" size={16} />
       ) : (
-        <ExpandIcon className="size-4" />
+        <Icon name="expand" size={16} />
       )}
       {focus ? '나가기' : '집중 모드'}
-    </button>
+    </Toggle>
   );
 
   // 집중 모드 — 탭줄 한 줄만 남긴다. 제목·태그는 지금 보고 있는 걸 다시 말해 줄 뿐이라
@@ -72,31 +57,40 @@ export function ViewerHeader({
   }
 
   return (
-    <header>
-      {/* 1단: 이전으로(챕터 상세로) + 우측 Chapter 제목 */}
-      <div className="flex items-center justify-between gap-4">
-        <button
-          type="button"
-          // router.back()은 새 탭·직접 URL 진입 시 프로젝트 밖으로 나가버린다.
-          // 항상 챕터 목록(프로젝트 상세)으로 되돌아가도록 경로를 고정한다.
-          onClick={() => router.push(`/projects/${chapter.projectId}`)}
-          className="inline-flex shrink-0 items-center gap-1.5 text-gray-950 transition-colors hover:text-gray-700"
-        >
-          <ChevronLeftIcon className="size-5" />
-          <span className="text-label font-medium">이전으로</span>
-        </button>
-        <EditableChapterTitle chapter={chapter} />
+    // 네 작업 화면이 같은 뼈대를 쓴다 — 타이틀(제목 + 회색 세부) · 컨트롤 · 본문.
+    // 바깥 24가 타이틀과 컨트롤을 가르고, 안쪽 8이 제목과 세부를 묶는다. 컨트롤과
+    // 본문은 8이라(화면이 갖는다) 컨트롤이 자기가 조작하는 것에 붙어 읽힌다.
+    // 여백은 자식의 mt-*가 아니라 부모의 gap이 갖는다 — 세부 줄이 없는 화면(내 강의·
+    // 새 주차)에서 첫 자식이 마진을 들고 있게 되는 일이 없다.
+    <header className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        {/* 1단: 제목과 회독.
+          뒤로가기를 두지 않는다. 사이드바가 늘 그 강의를 켜 두고 있어서 나가는 길이
+          이미 있고, §4가 모달의 ×를 뺀 것과 같은 이유다 — 길이 있는데 출구를 하나 더
+          두면 사람이 가장 늦게 찾는 구석에 두 번째 출구가 생긴다. */}
+        <div className="relative flex flex-wrap items-center gap-x-4 gap-y-3">
+          <EditableChapterTitle chapter={chapter} />
+          {/* 회독. 제목 반대편 끝에 선다 — 제목은 무엇을 보는지고, 이건 몇 번 봤는지다. */}
+          <div className="ml-auto">
+            <ReviewStepper
+              projectId={chapter.projectId}
+              chapterId={chapter.chapterId}
+              reviewCount={chapter.reviewCount}
+            />
+          </div>
+        </div>
+
+        {/* 날짜. 태그였는데 글자로 내린다 — §4가 Tag를 폐기했고, 유한한 집합에서 온 값이
+            아니면 배지가 형식만 빌려 오고 아무 말도 하지 않는다. */}
+        <p className="text-label text-gray-500">
+          {formatChapterDay(chapter.createdAt)}
+        </p>
       </div>
 
-      {/* 2단: 좌측 탭 4개 + 우측 강의명·교수 태그·날짜 태그 */}
-      <div className="mt-7 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+      {/* 2단: 좌측 탭 4개 + 우측 집중 모드 */}
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         <ViewerTabs activeTabs={activeTabs} onToggle={onTabToggle} />
-        <div className="flex flex-wrap items-center gap-2">
-          {focusButton}
-          <p className="text-label text-gray-950">{project.title}</p>
-          <Tag tone="dark">{project.professor} 교수님</Tag>
-          <Tag tone="outline">{formatChapterDay(chapter.createdAt)}</Tag>
-        </div>
+        {focusButton}
       </div>
     </header>
   );

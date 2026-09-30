@@ -1,11 +1,16 @@
 'use client';
 // src/features/study/components/viewer/AudioPlayer.tsx
 import { formatPlayTime } from '@/features/study/lib/format';
-import { PauseIcon, PlayIcon } from '@/features/study/components/viewer/icons';
+import { IconButton } from '@/shared/ui/IconButton';
+import { Slider } from '@/shared/ui/Slider';
+import { Toggle } from '@/shared/ui/Toggle';
 
 interface AudioPlayerProps {
   currentPage: number;
   pageCount: number;
+  /** 옆의 페이지 목록이 열려 있는지. 몇 쪽인지를 말하는 자리가 곧 그 스위치다. */
+  listOpen: boolean;
+  onToggleList: () => void;
   isPlaying: boolean;
   onTogglePlay: () => void;
   currentTime: number; // 초
@@ -19,31 +24,32 @@ interface AudioPlayerProps {
 export function AudioPlayer({
   currentPage,
   pageCount,
+  listOpen,
+  onToggleList,
   isPlaying,
   onTogglePlay,
   currentTime,
   duration,
   onSeek,
 }: AudioPlayerProps) {
-  const percent = duration > 0 ? (currentTime / duration) * 100 : 0;
-
-  // 진행바를 클릭한 가로 위치를 재생 위치로 환산한다
-  const handleSeek = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    if (rect.width === 0) return;
-    onSeek(((e.clientX - rect.left) / rect.width) * duration);
-  };
-
   return (
     // 이분할에서 이 줄이 가장 먼저 좁아진다. 창이 아니라 줄 자체의 폭을 봐야 해서
     // @container를 건다(스크립트 구간 머리글과 같은 방식).
-    <div className="@container flex h-[70px] shrink-0 items-center justify-between gap-4 pr-11 pl-8">
-      {/* 어느 자료의 몇 페이지인지가 이 줄에서 가장 중요하다. 웬만하면 줄이지 않는다.
-          다만 재생 버튼·시간까지 합쳐도 안 들어가는 폭(280 미만)에서는 이쪽이 양보한다.
-          끝까지 안 줄이면 컨트롤이 밖으로 밀려나 결국 라벨 위를 덮는다. */}
-      <p className="text-label shrink-0 font-medium whitespace-nowrap text-white @max-[280px]:min-w-0 @max-[280px]:shrink @max-[280px]:truncate">
-        PDF 강의자료 ({currentPage}/{pageCount})
-      </p>
+    <div className="@container flex h-[70px] shrink-0 items-center justify-between gap-4 pr-9 pl-6">
+      {/* 몇 쪽인지 말하는 자리를 그대로 스위치로 쓴다. 무슨 자료인지는 위의 탭이
+          이미 말하고 있어서 "PDF 강의자료"는 같은 말을 두 번 하는 것이었다.
+          목록의 배지와 같은 말(P.01)을 써서 둘이 같은 것을 가리킨다는 게 드러난다. */}
+      <span className="shrink-0">
+        <Toggle
+          pressed={listOpen}
+          size="sm"
+          onClick={onToggleList}
+          aria-label={listOpen ? '페이지 목록 닫기' : '페이지 목록 열기'}
+        >
+          P.{String(currentPage).padStart(String(pageCount).length, '0')} /{' '}
+          {pageCount}
+        </Toggle>
+      </span>
 
       {/* 우측: 재생/일시정지 + 진행바 + 시간. 폭이 모자라면 이쪽이 진행바를 줄여 양보한다.
           flex-1(basis 0)이면 남는 폭을 다 가져가 라벨이 대신 눌리고,
@@ -51,39 +57,31 @@ export function AudioPlayer({
           ml-auto도 못 쓴다 — 자동 마진이 붙으면 폭이 모자라도 줄지 않고 오른쪽으로
           넘쳐버린다. 그래서 우측 정렬은 부모의 justify-between으로 만든다. */}
       <div className="flex flex-1 items-center justify-end gap-5">
-        <button
-          type="button"
-          onClick={onTogglePlay}
+        {/* 연두는 글리프가 아니라 채움이다 (§2). */}
+        <IconButton
+          name={isPlaying ? 'pause' : 'play'}
+          rank="primary"
           aria-label={isPlaying ? '일시정지' : '재생'}
-          className="text-primary-400 flex size-7 shrink-0 items-center justify-center rounded-full transition-opacity hover:opacity-80"
-        >
-          {isPlaying ? (
-            <PauseIcon className="size-5" />
-          ) : (
-            <PlayIcon className="size-5" />
-          )}
-        </button>
+          onClick={onTogglePlay}
+        />
 
-        <button
-          type="button"
-          onClick={handleSeek}
-          aria-label="재생 위치 이동"
-          // 폭을 w-[276px]로 못 박으면 그 값이 부모 그룹의 자동 최소 크기가 돼서,
-          // min-w를 줘도 그룹이 그 밑으로 줄지 못하고 통째로 오른쪽으로 넘친다.
-          // 고정 폭 대신 "남는 만큼 늘리되 276까지"로 두면 필요할 때 알아서 줄어든다.
-          // 그래도 안 들어가는 구간(라벨 137 + 최소 우측 223 = 360)부터는 아예 뺀다.
-          className="max-w-[276px] min-w-[80px] flex-1 basis-0 py-2 @max-[380px]:hidden"
-        >
-          <span className="block h-[3px] w-full rounded-full bg-gray-500">
-            {/* 진행분은 연두(primary) — 시그니처 강조 역할 */}
-            <span
-              className="bg-primary-400 block h-full rounded-full"
-              style={{ width: `${percent}%` }}
-            />
-          </span>
-        </button>
+        {/* 폭을 w-[276px]로 못 박으면 그 값이 부모 그룹의 자동 최소 크기가 돼서,
+            min-w를 줘도 그룹이 그 밑으로 줄지 못하고 통째로 오른쪽으로 넘친다.
+            고정 폭 대신 "남는 만큼 늘리되 276까지"로 두면 필요할 때 알아서 줄어든다.
+            그래도 안 들어가는 구간(라벨 137 + 최소 우측 223 = 360)부터는 아예 뺀다.
+            연두는 글리프가 아니라 채움이라는 §2 규칙은 Slider 안에 있다. */}
+        <div className="max-w-[276px] min-w-[80px] flex-1 basis-0 @max-[380px]:hidden">
+          <Slider
+            value={currentTime}
+            max={duration}
+            onChange={onSeek}
+            aria-label="재생 위치 이동"
+            // 초 단위 숫자를 그대로 읽으면 "137"이 된다.
+            aria-valuetext={`${formatPlayTime(currentTime)} / ${formatPlayTime(duration)}`}
+          />
+        </div>
 
-        <p className="text-label font-medium whitespace-nowrap text-white tabular-nums">
+        <p className="text-label font-medium whitespace-nowrap text-gray-700 tabular-nums">
           {formatPlayTime(currentTime)} / {formatPlayTime(duration)}
         </p>
       </div>

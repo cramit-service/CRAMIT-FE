@@ -30,14 +30,18 @@ export function TermsStep({ agreedIds, onChange }: TermsStepProps) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-md">
-      <p className="font-bold text-gray-900">서비스 약관에 동의해 주세요.</p>
+    <div className="read-col">
+      <h1 className="text-heading-md font-semibold text-gray-800">
+        서비스 약관에 동의해 주세요.
+      </h1>
 
       <div className="mt-8">
         <Checkbox
           checked={isAllAgreed}
           onChange={toggleAll}
-          label={<span className="font-medium">전체 동의하기</span>}
+          label={
+            <span className="text-body-sm font-medium">전체 동의하기</span>
+          }
         />
 
         <div className="mt-5 flex flex-col items-start gap-3 pl-6">
@@ -46,7 +50,7 @@ export function TermsStep({ agreedIds, onChange }: TermsStepProps) {
               key={term.id}
               checked={agreedIds.includes(term.id)}
               onChange={(checked) => toggleOne(term.id, checked)}
-              label={<span className="text-sm">{term.label}</span>}
+              label={<span className="text-label">{term.label}</span>}
             />
           ))}
         </div>

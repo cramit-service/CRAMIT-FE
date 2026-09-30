@@ -1,121 +1,86 @@
 'use client';
 // src/features/study/components/ProjectHeader.tsx
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/shared/lib/cn';
+import { useState } from 'react';
 import { LectureFormModal } from '@/features/project/components/LectureFormModal';
-import { ShareProjectModal } from '@/features/share/components/ShareProjectModal';
-import { Tag } from './Tag';
-import { ChevronLeftIcon, PencilIcon, ShareIcon, PlusIcon } from './icons';
 import { getDday } from '@/features/study/lib/format';
+import { DdayBadge } from '@/features/exam/components/DdayBadge';
 import type { ProjectDetail } from '@/shared/types/api';
+import { Button } from '@/shared/ui/Button';
+import { IconButton } from '@/shared/ui/IconButton';
+import { LearningProgress } from './LearningProgress';
+import { lectureMetaLine } from '@/features/study/lib/format';
 
-// 헤더 우측 액션 2종(공유하기·새 주차 업로드)의 공통 골격.
-// 높이·타이포를 한 곳에 두어 두 버튼이 서로 어긋나지 않게 한다.
-// Button 컴포넌트를 쓰지 않는 이유: size 스케일에 이 헤더에 맞는 단계가 없다
-// (xs 28px/12px, sm 46px/16px).
-// Figma: 공유하기 40 / 새 주차 업로드 44. 나란히 놓이는 버튼이라 큰 쪽에 맞춰 같은 높이로 둔다.
-const HEADER_ACTION =
-  'inline-flex h-11 shrink-0 items-center gap-2 rounded-md px-4 text-label leading-none font-medium transition-colors';
-
-// 챕터 상세 상단 헤더: 뒤로가기 + 과목명/태그 + 우측 액션(공유/업로드)을 한 줄로 배치.
-export function ProjectHeader({ project }: { project: ProjectDetail }) {
+// 주차 목록 상단 헤더: 강의명 + 연필, 그 아래 한 줄에 교수명·강의 수·D-day와
+// 학습 진행률·새 주차 업로드.
+export function ProjectHeader({
+  project,
+  percent,
+}: {
+  project: ProjectDetail;
+  percent: number;
+}) {
   const router = useRouter();
   const dday = getDday(project.examName, project.examDate);
-  const [shareOpen, setShareOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
   return (
-    <header className="relative flex flex-wrap items-center gap-x-4 gap-y-3">
-      {/* 강의 목록으로 뒤로가기.
-          Figma: 콘텐츠 열(과목명/섹션/카드) 왼쪽 바깥으로 걸어(outdent)
-          제목·섹션·카드가 같은 정렬선을 갖게 한다.
-          다만 걸 자리(좌측 여백)는 콘텐츠 열이 82.57%로 자리잡은 뒤 남는 8.7%다. 이 폭이
-          버튼(약 110px)보다 좁아지면 사이드바 밑으로 들어가 잘리므로 흐름 안으로 내린다.
-          사이드바를 펼치면 그 여백을 사이드바가 가져가므로 접힘(rail)일 때만 건다. */}
-      <button
-        type="button"
-        // router.back()을 쓰면 방금 나온 학습 뷰어로 되돌아간다.
-        // 뷰어의 '이전으로'가 push라 /projects/{id}가 히스토리에 중복으로 쌓이기 때문이다.
-        // 뷰어(ViewerHeader)와 같은 규칙으로 상위 경로를 고정해 항상 강의 목록으로 나간다.
-        onClick={() => router.push('/projects')}
-        className="group-data-[sidebar=rail]/shell:min-[1410px]:outdent-left mb-3 inline-flex items-center gap-1.5 whitespace-nowrap text-gray-950 transition-colors hover:text-gray-700"
-      >
-        <ChevronLeftIcon className="size-5" />
-        <span className="text-label font-medium">이전으로</span>
-      </button>
+    <header className="flex flex-col gap-6">
+      {/* 타이틀 — 제목 줄과 그 아래 회색 세부. 네 작업 화면이 같은 뼈대를 쓴다. */}
+      <div className="flex flex-col gap-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <h1 className="text-heading-md min-w-0 truncate font-semibold text-gray-800">
+            {project.title}
+          </h1>
+          {/* 라벨 없이 제목 옆에 서는 연필. 글자를 안 가진 컨트롤이라 이름은 aria-label이
+            준다(§4가 IconButton의 계약으로 못 박은 것). shrink-0은 감싼 span이 갖는다 —
+            IconButton은 className을 받지 않는다. */}
+          <span className="shrink-0">
+            <IconButton
+              name="edit"
+              aria-label={`${project.title} 수정`}
+              glyph={20}
+              onClick={() => setEditOpen(true)}
+            />
+          </span>
+        </div>
 
-      {/* 과목명 + 정보 태그들 */}
-      <h1 className="text-heading-sm font-semibold text-gray-950">
-        {project.title}
-      </h1>
-      <Tag tone="dark">{project.professor} 교수님</Tag>
-      <Tag tone="outline">강의 {project.chapterCount}개</Tag>
-      {dday && <Tag tone={dday.tone}>{dday.label}</Tag>}
-      {/* 공유받은 강의일 때만 공유자 태그를 노출한다 (내 강의면 sharedBy가 null) */}
-      {project.sharedBy && (
-        <Tag tone="shared">{project.sharedBy} 님의 공유</Tag>
-      )}
-
-      {/* 공유받은 강의는 내가 고칠 수 없다 — 버튼 자체를 감춘다 (새 주차 업로드와 같은 기준).
-          hidden 속성은 inline-flex 클래스에 덮이므로 렌더 자체를 막는다. */}
-      {!project.sharedBy && (
-        <button
-          type="button"
-          onClick={() => setEditOpen(true)}
-          className="text-button-sm inline-flex items-center gap-1 text-gray-700 transition-colors hover:text-gray-900"
-        >
-          <PencilIcon className="size-3" />
-          수정하기
-        </button>
-      )}
-
-      {/* 우측: 공유 / 새 주차 업로드 (모달은 각 담당) */}
-      <div className="ml-auto flex shrink-0 items-center gap-2">
-        {/* Figma: 테두리 0.5px gray-500, 글자 gray-600 */}
-        <button
-          type="button"
-          onClick={() => setShareOpen(true)}
-          className={cn(
-            HEADER_ACTION,
-            'border-[0.5px] border-gray-500 text-gray-700 hover:bg-gray-200',
-          )}
-        >
-          공유하기
-          <ShareIcon className="size-3.5" />
-        </button>
-        {/* 공유받은 강의(sharedBy 있음)에는 주차를 올릴 수 없다. 버튼 자체를 감춘다.
-            모달의 강의 셀렉트도 같은 기준으로 내 강의만 보여준다.
-            Figma: bg #2b2e36(gray-800) */}
-        {!project.sharedBy && (
-          <button
-            type="button"
-            // 모달을 띄우지 않고 학습 화면 자리로 바로 들어간다 — 수업을 들으면서
-            // 쓰는 동선이라 모달에 갇히지 않는 게 중요하다(#107).
-            onClick={() =>
-              router.push(`/projects/${project.projectId}/chapters/new`)
-            }
-            className={cn(
-              HEADER_ACTION,
-              'bg-gray-800 text-white hover:bg-gray-700',
-            )}
-          >
-            새 주차 업로드
-            <PlusIcon className="size-4" />
-          </button>
-        )}
+        {/* §4: 값이 유한한 집합에서 올 때만 뱃지다. 교수명은 자유 텍스트, 강의 수는
+            숫자라 알약을 둘러도 눈만 끌고 아무 말도 안 한다 — 강의 카드와 같은 규칙이다.
+            집합인 건 시험까지 남은 날 하나뿐이라, 그것만 아래 컨트롤 줄에 남는다. */}
+        <p className="text-label text-gray-500">
+          {lectureMetaLine(project.professor, project.chapterCount)}
+        </p>
       </div>
 
-      {shareOpen && (
-        <ShareProjectModal
-          projectId={project.projectId}
-          onClose={() => setShareOpen(false)}
-        />
-      )}
+      {/* 컨트롤 줄. 왼쪽은 남은 날(재는 것), 오른쪽은 진행률과 새 주차(재는 것과 누르는 것).
+          items-end — 배지·진행바·버튼의 밑변이 같은 선에 온다.
+          좁아지면 오른쪽 묶음이 통째로 아래 줄로 내려가고, ml-auto 덕에 그때도 오른쪽에 붙는다.
+          D-day가 왼쪽에 남는 이유는 오른쪽이 누르는 것들의 자리라서다. */}
+      <div className="flex flex-wrap items-end gap-4">
+        {dday && <DdayBadge days={dday.days} />}
+
+        <div className="ml-auto flex items-end gap-4">
+          <div className="w-full max-w-[280px] min-w-[160px]">
+            <LearningProgress percent={percent} />
+          </div>
+          {/* 모달을 띄우지 않고 학습 화면 자리로 바로 들어간다 — 수업을 들으면서
+              쓰는 동선이라 모달에 갇히지 않는 게 중요하다(#107).
+              목적지가 있으므로 버튼이 아니라 링크다(§4). Button이 href를 받으면 <a>를
+              내므로 생김새가 다른 버튼과 한 부품에서 나온다. */}
+          <Button href={`/projects/${project.projectId}/chapters/new`}>
+            새 주차 업로드
+          </Button>
+        </div>
+      </div>
+
       {editOpen && (
         <LectureFormModal
           project={project}
           onClose={() => setEditOpen(false)}
+          // 지운 강의의 화면에 남아 있으면 조회가 실패한 빈 페이지가 된다.
+          // replace라 뒤로 가기가 없어진 강의로 돌아오지 않는다.
+          onDeleted={() => router.replace('/projects')}
         />
       )}
     </header>

@@ -2,26 +2,19 @@
 // src/features/project/components/ChapterUploadOverlay.tsx
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
+import { Button } from '@/shared/ui/Button';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
 import { Logo } from '@/shared/ui/Logo';
 import { cn } from '@/shared/lib/cn';
+import { Icon } from '@/shared/ui/Icon';
 
 // 시안(1:5259 "로딩 화면-ver2")의 진행 표시는 CRAMIT 심볼 10개가 왼쪽부터 차오르는 모양이다.
 const DOT_COUNT = 10;
 
-// 심볼 한 개. 시안 그룹 export(300.364×31에 10개가 31px 간격)에서 글리프 하나를 그대로 떼어냈다.
-function BoltGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 21.364 31"
-      fill="currentColor"
-      className={className}
-      aria-hidden
-    >
-      <path d="M6.77647 0.855505C8.87141 -0.620313 11.7944 -0.138827 13.3058 1.9307L19.714 10.7061C20.4833 11.3577 21.0499 12.2591 21.2696 13.3194C21.3415 13.666 21.3707 14.0115 21.3644 14.3506C21.3968 15.8137 20.723 17.2638 19.4259 18.1778C18.5218 18.8148 17.4634 19.0859 16.4308 19.0235L12.7501 19.7588L15.6466 23.7246C17.1576 25.7942 16.6847 28.6686 14.5899 30.1446C12.495 31.6207 9.57108 31.139 8.05967 29.0694L1.36436 19.9014C0.742407 19.2788 0.288078 18.476 0.0967829 17.5528C0.0290198 17.2257 -0.00188412 16.8998 0.00010318 16.5791C-0.0095861 15.1401 0.663328 13.7216 1.93956 12.8223C2.65226 12.3201 3.46117 12.0441 4.27745 11.9805L8.53428 11.1299L5.71983 7.27543C4.20847 5.2058 4.68152 2.33159 6.77647 0.855505Z" />
-    </svg>
-  );
-}
+// 시안 상단 바 높이. 아래 여백이 같은 값을 써야 마스코트 묶음이 화면 정중앙에 선다 —
+// 둘이 한 상수를 보게 두어 한쪽만 바뀌는 일을 막는다. 고른 값이 아니라 시안에서 온
+// 치수라 §2 간격 목록의 대상이 아니다(§5 "컴포넌트 내부 치수는 시안 px").
+const TOP_BAR_HEIGHT = 124;
 
 interface ChapterUploadOverlayProps {
   /** 화면 한가운데 문구. 생성/수정에 따라 달라진다. */
@@ -88,14 +81,21 @@ export function ChapterUploadOverlay({
         <GradientBackground layer />
 
         <div className="relative flex h-full flex-col">
-          {/* 시안 상단 바 124px. 워드마크는 다른 화면과 같은 22px로 둔다. */}
-          <div className="flex h-[124px] shrink-0 items-center justify-center">
-            <Logo className="h-[22px] text-gray-950" />
+          {/* 워드마크는 다른 화면과 같은 22px로 둔다. */}
+          <div
+            style={{ height: TOP_BAR_HEIGHT }}
+            className="flex shrink-0 items-center justify-center"
+          >
+            <Logo height={22} />
           </div>
 
           {/* 시안에서 마스코트~심볼 묶음은 화면 정중앙이다. 위 로고 바만큼을 아래 여백으로
-            돌려줘야 그 중심이 유지된다. 묶음 사이 간격은 시안 30px. */}
-          <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-[30px] pb-[124px]">
+            돌려줘야 그 중심이 유지된다.
+            묶음 사이는 시안 30인데 §2 간격 목록에 없어 32로 올린다. */}
+          <div
+            style={{ paddingBottom: TOP_BAR_HEIGHT }}
+            className="flex min-h-0 flex-1 flex-col items-center justify-center gap-8"
+          >
             {/* 시안 188.366×148. 리포에 이미 있는 마스코트 원본과 같은 벡터다. */}
             <Image
               src="/images/Crait_Cat.svg"
@@ -120,29 +120,34 @@ export function ChapterUploadOverlay({
               aria-valuemax={100}
               aria-valuetext={`${percent}% 완료`}
               aria-label={message}
-              className="flex items-center gap-[9.636px]"
+              // 시안은 심볼 31에 간격 9.636이다. 둘 다 체계 밖이라 32와 8로 옮긴다 —
+              // 31은 4px 배수가 아니라 스트로크가 반픽셀에 걸리고(§3), 9.636은 §2
+              // 간격 목록에 없다. 줄 전체 폭은 396.7 → 392로 5px만 줄어든다.
+              className="flex items-center gap-2"
             >
               {Array.from({ length: DOT_COUNT }, (_, index) => (
-                <BoltGlyph
+                <span
                   key={index}
                   className={cn(
-                    'h-[31px] w-[21.364px] transition-colors duration-300',
-                    index < filled ? 'text-gray-950' : 'text-gray-100',
+                    'transition-colors duration-300',
+                    index < filled ? 'text-gray-800' : 'text-gray-100',
                   )}
-                />
+                >
+                  <Icon name="bolt" size={32} />
+                </span>
               ))}
             </div>
 
             {/* 시안에는 없지만 필요하다 — 이게 없으면 큰 파일을 잘못 골랐을 때
               업로드가 끝날 때까지 화면을 벗어날 방법이 아예 없다. */}
-            <button
+            <Button
               ref={cancelRef}
-              type="button"
+              rank="secondary"
+              size="sm"
               onClick={onCancel}
-              className="text-label focus-visible:ring-secondary-400 mt-2 rounded-sm px-2 py-1 text-gray-600 underline underline-offset-4 transition-colors hover:text-gray-800 focus-visible:ring-2 focus-visible:outline-none"
             >
               업로드 취소
-            </button>
+            </Button>
           </div>
         </div>
       </div>

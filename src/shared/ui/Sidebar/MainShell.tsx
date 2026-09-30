@@ -2,6 +2,7 @@
 // src/shared/ui/Sidebar/MainShell.tsx
 import { useCallback, useSyncExternalStore } from 'react';
 import { Sidebar } from './Sidebar';
+import type { NavData } from './types';
 import {
   getSidebarExpanded,
   getSidebarExpandedOnServer,
@@ -18,7 +19,14 @@ import {
 //
 // 펼침이 기본이다. 과목 목록이 주 동선이라 늘 보여야 한다 — 시안이 접힌 레일(90) 기준으로
 // 그려진 건 그대로여서, 접으면 콘텐츠 열·여백이 시안과 정확히 같아진다.
-export function MainShell({ children }: { children: React.ReactNode }) {
+export function MainShell({
+  nav,
+  children,
+}: {
+  /** 강의 목록과 프로필. 가져오는 일은 features가 한다 (CLAUDE.md 3절). */
+  nav: NavData;
+  children: React.ReactNode;
+}) {
   const expanded = useSyncExternalStore(
     subscribeSidebar,
     getSidebarExpanded,
@@ -36,16 +44,16 @@ export function MainShell({ children }: { children: React.ReactNode }) {
     setSidebarExpanded(!getSidebarExpanded());
   }, []);
 
-  const railWidth = hidden ? '0px' : expanded ? '256px' : '90px';
+  // 접힘 폭은 globals.css의 --sidebar-rail 하나가 정한다 — 아이콘 칸도 같은 값을 본다.
+  // 펼침 216은 그 세 배이고, 남는 자리(216 - 72 - 20)가 강의명 10.3글자다(한글 12px/자).
+  const railWidth = hidden ? '0px' : expanded ? '216px' : 'var(--sidebar-rail)';
 
   return (
     <div
-      className="bg-canvas group/shell min-h-screen"
-      // 콘텐츠 열 바깥에 거는 요소(outdent-left)가 여백이 남는지 알아야 한다
-      data-sidebar={hidden ? 'hidden' : expanded ? 'wide' : 'rail'}
+      className="bg-canvas min-h-screen"
       style={{ '--sidebar-w': railWidth } as React.CSSProperties}
     >
-      {!hidden && <Sidebar expanded={expanded} onToggle={toggle} />}
+      {!hidden && <Sidebar expanded={expanded} onToggle={toggle} nav={nav} />}
       {/* 사이드바 폭 전환과 같은 200ms로 밀려야 둘이 따로 놀지 않는다 */}
       <main className="pl-[var(--sidebar-w)] transition-[padding] duration-200 ease-out">
         {children}

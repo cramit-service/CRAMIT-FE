@@ -48,30 +48,35 @@ export function OnboardingFlow() {
     setStep(step === 'terms' ? 'nickname' : 'plan');
   };
 
-  const handleComplete = async (plan: PlanId) => {
+  const handleComplete = async () => {
     if (isSubmittingRef.current) return;
     isSubmittingRef.current = true;
     setIsSubmitting(true);
     setFormError(null);
-    setSelectedPlan(plan);
 
     try {
-      await registerOnboardingProfile({ nickname, agreedTermIds, plan });
+      await registerOnboardingProfile({
+        nickname,
+        agreedTermIds,
+        plan: selectedPlan,
+      });
       router.push('/home');
       // 성공하면 제출 상태를 풀지 않는다. 이동이 끝날 때까지 이 화면이 남아 있어서,
       // 여기서 풀면 '시작하기'가 잠깐 다시 눌리는 상태가 되고 등록이 두 번 나갈 수 있다.
     } catch (error) {
       // TODO: 공통 에러 토스트가 생기면 이 안내를 그쪽으로 옮긴다
       console.error('온보딩 프로필 등록 실패', error);
-      setFormError('등록에 실패했어요. 잠시 후 다시 시도해 주세요.');
+      setFormError('등록하지 못했어요. 잠시 후 다시 시도해 주세요.');
       isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col px-6 py-8">
-      <Logo className="mx-auto h-6 shrink-0 text-gray-950" />
+    <div className="flex min-h-screen flex-col py-8">
+      <span className="mx-auto shrink-0">
+        <Logo height={24} />
+      </span>
 
       <div className="flex flex-1 flex-col justify-center py-16">
         {step === 'terms' && (
@@ -92,30 +97,25 @@ export function OnboardingFlow() {
         )}
 
         {step === 'plan' && (
-          <PlanStep
-            selectedPlan={selectedPlan}
-            onSelect={setSelectedPlan}
-            onComplete={handleComplete}
-            isSubmitting={isSubmitting}
-          />
+          <PlanStep selectedPlan={selectedPlan} onSelect={setSelectedPlan} />
         )}
       </div>
 
       {formError && (
         <p
           role="alert"
-          className="text-error mx-auto mb-4 w-full max-w-5xl shrink-0 text-sm font-medium"
+          className="text-body-sm text-red-ink read-col mb-4 shrink-0 font-medium"
         >
           {formError}
         </p>
       )}
 
-      {/* 요금제 스텝은 카드의 '시작하기'가 완료를 맡으므로 '다음'을 두지 않는다 */}
-      <div className="mx-auto flex w-full max-w-5xl shrink-0 items-center justify-between gap-4">
+      {/* 요금제 스텝의 확정 버튼도 여기 선다. 전에는 카드마다 '시작하기'가 하나씩
+          있었는데, 카드가 Card(=button)로 바뀌면서 그 안에 버튼을 넣을 수 없게 됐다.
+          세 스텝이 같은 자리에서 끝나는 쪽이 읽기도 쉽다. */}
+      <div className="read-col flex shrink-0 items-center justify-between gap-4">
         <Button
-          variant="outline"
-          size="lg"
-          className="w-full max-w-xs"
+          rank="secondary"
           // 제출 중에는 스텝을 벗어나지 못하게 막는다. 나간 뒤에 등록이 성공하면
           // router.push('/home')가 사용자가 직접 한 이동을 덮어쓴다.
           disabled={isSubmitting}
@@ -124,13 +124,12 @@ export function OnboardingFlow() {
           이전
         </Button>
 
-        {step !== 'plan' && (
-          <Button
-            size="lg"
-            className="w-full max-w-xs"
-            disabled={!canGoNext}
-            onClick={handleNext}
-          >
+        {step === 'plan' ? (
+          <Button disabled={isSubmitting} onClick={handleComplete}>
+            {isSubmitting ? '시작 중…' : '시작하기'}
+          </Button>
+        ) : (
+          <Button disabled={!canGoNext} onClick={handleNext}>
             다음
           </Button>
         )}

@@ -80,25 +80,23 @@ export interface Project {
   projectId: string;
   title: string;
   createdAt: string; // ISO 날짜 문자열
-  // 과목 색 — 팔레트 번호(1부터). 없으면 화면이 생성 순으로 채운다(공유 강의 등).
-  // TODO: 백엔드 필드명 확정 시 맞춘다. 공유 강의도 내 색으로 보여야 해서 사용자-강의 쌍 저장을 요청했다.
-  colorIndex: number | null;
+  // 과목 색 — 팔레트 번호(1부터). 없으면 화면이 생성 순으로 채운다.
+  // TODO: 백엔드 필드명 확정 시 맞춘다.
+  colorIndex: number; // 과목 색 팔레트 번호(1부터). 서버가 늘 채워 준다
 }
 
 // 학습하기(강의 목록) 카드 한 장에 필요한 메타.
-// Project만으로는 시안의 태그(교수명·강의 수·D-DAY·공유자)를 채울 수 없어 목록 응답을 따로 둔다.
+// Project만으로는 시안의 태그(교수명·강의 수·D-DAY)를 채울 수 없어 목록 응답을 따로 둔다.
 // TODO: 백엔드 목록 응답 스펙 확정 시 필드명 재확인 필요
 export interface ProjectSummary extends Project {
-  professor: string; // 교수명 (태그: "OOO 교수님")
+  professor: string | null; // 교수명 (선택) — 없으면 메타 줄에서 조각째 빠진다
   chapterCount: number; // 강의(챕터) 개수 (태그: "강의 N개")
   examName: string | null; // 시험명 (예: "중간고사")
   examDate: string | null; // 시험일 (YYYY-MM-DD) — D-DAY 계산용
-  sharedBy: string | null; // 공유자 이름 (태그: "OOO 님의 공유"). 내 강의면 null
 }
 
 /* ===== Chapter / 단계별 학습 (이슈 A) ===== */
 
-// 챕터 학습 상태: 학습 전 / 학습 중 / 완료
 export type ChapterStatus = 'BEFORE' | 'IN_PROGRESS' | 'DONE';
 
 export interface Chapter {
@@ -108,6 +106,11 @@ export interface Chapter {
   title: string; // 카드 본문 한 줄 (예: "알고리즘 기초 알아보기")
   createdAt: string; // ISO 날짜 문자열
   status: ChapterStatus;
+  // 이 주차를 몇 번 읽었는지. 뷰어의 스테퍼가 올리고 내린다.
+  // 올라가기만 하는 값이 아니라는 게 중요하다 — 한 번 잘못 누른 것이 학기 내내 남으면
+  // 기록이 아니라 오기가 된다. 백엔드는 증가 전용이 아니라 값을 세팅하는 엔드포인트를
+  // 내야 한다 (DESIGN.md §4 "A 회독 is raised by a stepper, and lowered by the same one").
+  reviewCount: number;
   // 아래 둘은 "주차 정보 수정하기" 모달이 기존 값을 채우는 데 쓴다.
   // TODO(백엔드): 챕터 조회 응답에 lectureDate·professor를 포함해 달라고 요청해야 한다.
   //   없으면 수정 모달이 빈 날짜를 저장해 기존 값을 덮어쓴다.
@@ -143,12 +146,10 @@ export interface UpdateChapterRequest extends CreateChapterRequest {
   chapterId: string;
 }
 
-// 프로젝트 상세 헤더에 필요한 메타.
-// 목록 카드와 같은 태그를 쓰므로 ProjectSummary를 그대로 물려받고, 상세에서만 쓰는 필드를 더한다.
+// 프로젝트 상세 헤더에 필요한 메타. 공유가 빠지면서 목록 응답과 같은 모양이 됐지만,
+// 다른 엔드포인트의 응답이라 이름은 남긴다 — 상세에만 있는 필드가 생기면 여기서 갈라진다.
 // TODO: 백엔드 프로젝트 상세 응답 스펙 확정 시 필드명 재확인 필요
-export interface ProjectDetail extends ProjectSummary {
-  isShared: boolean; // 공유 강의 여부 (공유 게시판 노출 여부)
-}
+export type ProjectDetail = ProjectSummary;
 
 /* ===== 학습 뷰어 / 강의자료 (이슈 B) ===== */
 
@@ -304,20 +305,4 @@ export interface CreateProjectRequest {
 // 강의 수정 (강의 상세 헤더의 연필 버튼). 시안에 전용 프레임이 없어 생성 모달의 수정 모드로 쓴다.
 export interface UpdateProjectRequest extends CreateProjectRequest {
   projectId: string;
-}
-
-/* ===== 공유하기 (기획서 8.6) ===== */
-
-export interface ShareMember {
-  userId: string;
-  nickname: string;
-  email: string;
-}
-
-// 강의 하나의 공유 상태. 시안 헤더가 "공유 중인 사용자 현재 (2/3)"라 상한도 함께 받는다.
-// TODO: 백엔드 공유 조회 스펙 확정 시 필드명 재확인 필요
-export interface ProjectShare {
-  projectId: string;
-  members: ShareMember[];
-  maxMembers: number;
 }

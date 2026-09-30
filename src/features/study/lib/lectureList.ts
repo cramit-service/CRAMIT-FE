@@ -19,7 +19,7 @@ export function filterLectures(
   return lectures.filter(
     (l) =>
       l.title.toLowerCase().includes(q) ||
-      l.professor.toLowerCase().includes(q),
+      (l.professor ?? '').toLowerCase().includes(q),
   );
 }
 
@@ -36,3 +36,9 @@ export function sortLectures(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 }
+
+// 드롭다운이 그대로 받는 모양. 순서는 시안대로 등록순이 먼저다.
+export const SORT_OPTIONS = [
+  { value: 'REGISTERED', label: SORT_LABEL.REGISTERED },
+  { value: 'NAME', label: SORT_LABEL.NAME },
+] as const satisfies readonly { value: SortKey; label: string }[];

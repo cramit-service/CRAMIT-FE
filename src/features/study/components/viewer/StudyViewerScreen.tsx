@@ -12,17 +12,19 @@ import { ViewerHeader } from '@/features/study/components/viewer/ViewerHeader';
 import { PdfMaterialTab } from '@/features/study/components/viewer/PdfMaterialTab';
 import { SummaryTab } from '@/features/study/components/viewer/SummaryTab';
 import { ScriptTab } from '@/features/study/components/viewer/ScriptTab';
-import { TabPlaceholder } from '@/features/study/components/viewer/TabPlaceholder';
+import { TodoChecklist } from '@/features/todo/components/TodoChecklist';
+import { TodoFilterProvider } from '@/features/todo/hooks/useTodoFilter';
 import { Resizer } from '@/features/study/components/viewer/Resizer';
 import { Button } from '@/shared/ui/Button';
 import { cn } from '@/shared/lib/cn';
 import { setSidebarHidden } from '@/shared/ui/Sidebar/sidebarState';
 import type { ViewerTab } from '@/shared/types/api';
+import { CONTENT_SHELL } from '@/shared/ui/pageShell';
 
 // 로딩·에러 문구도 본문과 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
 // 일반 모드는 다른 화면과 같은 콘텐츠 열(content-col)을 쓴다. 바깥 여백은 px-*가 아니라
 // 남는 폭이 갖는다(CLAUDE.md 4-4).
-const PAGE_SHELL = 'w-full px-6 pt-10 pb-8 lg:content-col lg:px-0';
+const PAGE_SHELL = CONTENT_SHELL;
 // 집중 모드 — 위 16 + 탭줄 32 + 간격 12 = 60, 아래 16. 일반 모드의 188에서 76으로 줄어든다.
 const FOCUS_SHELL = 'w-full px-6 pt-4 pb-4';
 
@@ -32,7 +34,7 @@ interface StudyViewerScreenProps {
 }
 
 // 이분할일 때 두 패널 사이 간격 = 드래그 핸들 폭(Resizer의 w-3).
-// 시안은 14px(×0.72 ≈ 10)이지만 패널 안쪽 핸들과 같은 잡는 폭을 유지하려고 12px로 둔다.
+// 시안은 14px이지만 패널 안쪽 핸들과 같은 잡는 폭을 유지하려고 12px로 둔다.
 // 여기 값이 핸들 실제 폭과 어긋나면 좌우 비율 계산이 그만큼 밀린다.
 const SPLIT_GAP = 12;
 // 패널이 이보다 좁아지면 어느 탭이든 내용을 읽을 수 없다.
@@ -196,11 +198,10 @@ export function StudyViewerScreen({
     return (
       <div className={`${PAGE_SHELL} flex flex-col items-start gap-4`}>
         <p className="text-gray-700">
-          학습 자료를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+          학습 자료를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
         <Button
-          variant="outline"
-          size="sm"
+          rank="secondary"
           onClick={() => queries.forEach((q) => q.refetch())}
         >
           다시 시도
@@ -217,7 +218,7 @@ export function StudyViewerScreen({
   if (!project || !chapter || !material) {
     return (
       <div className={`${PAGE_SHELL} text-gray-500`}>
-        표시할 학습 자료가 없습니다.
+        표시할 학습 자료가 없어요.
       </div>
     );
   }
@@ -240,9 +241,17 @@ export function StudyViewerScreen({
             duration={toPlayDuration(material.audioDuration)}
           />
         );
-      // TODO(todo 담당): TODO 탭은 다른 담당 영역이라 자리만 잡아둔다
+      // TODO(백엔드): 지금은 내 할 일 전체가 뜬다. 조회에 강의·주차 필터가 생기면
+      // 이 주차의 것만 남긴다.
       case 'TODO':
-        return <TabPlaceholder label="TODO 탭은 담당자가 구현합니다." />;
+        // 보기(다음/지난/완료/날짜)를 들고 있는 것이 Provider다. 홈에서는 캘린더가
+        // 날짜를 눌러 목록을 거르느라 화면이 갖고 있는데, 여기선 쓰는 쪽이 목록
+        // 하나뿐이라 탭 안에서 감싼다.
+        return (
+          <TodoFilterProvider>
+            <TodoChecklist fill />
+          </TodoFilterProvider>
+        );
     }
   };
 
@@ -256,17 +265,13 @@ export function StudyViewerScreen({
     >
       <ViewerHeader
         chapter={chapter}
-        project={project}
         activeTabs={activeTabs}
         onTabToggle={toggleTab}
         focus={focus}
         onToggleFocus={toggleFocus}
       />
 
-      <div
-        ref={areaRef}
-        className={cn('flex min-h-0 flex-1 flex-col', focus ? 'mt-3' : 'mt-5')}
-      >
+      <div ref={areaRef} className="mt-2 flex min-h-0 flex-1 flex-col">
         {isSplit ? (
           // 이분할 — 좌우 패널 사이 핸들을 끌어 폭을 나눈다.
           // 핸들이 간격을 겸하므로 flex gap은 주지 않는다(주면 간격이 두 번 생긴다).

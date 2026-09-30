@@ -9,15 +9,16 @@ import { Button } from '@/shared/ui/Button';
 import { useProjectDetail } from '@/features/study/hooks/useProjectDetail';
 import { useChapters } from '@/features/study/hooks/useChapters';
 import { useCreateChapter } from '@/features/project/hooks/useCreateChapter';
-import { ChevronLeftIcon } from '@/features/study/components/icons';
-import { Tag } from '@/features/study/components/Tag';
+
 import { ViewerTabs } from '@/features/study/components/viewer/ViewerTabs';
+import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
 import { FileDropzone } from './FileDropzone';
 import { RecordingSlot } from './RecordingSlot';
 import { ChapterUploadOverlay } from './ChapterUploadOverlay';
+import { CONTENT_SHELL } from '@/shared/ui/pageShell';
 
 // 로딩·에러 문구도 본문과 같은 폭에 둔다 — 데이터가 도착하는 순간 콘텐츠가 가로로 튀지 않게.
-const PAGE_SHELL = 'mx-auto w-full px-6 pt-10 pb-8 lg:content-col lg:px-0';
+const PAGE_SHELL = CONTENT_SHELL;
 
 interface NewChapterScreenProps {
   projectId: string;
@@ -26,8 +27,8 @@ interface NewChapterScreenProps {
 // 새 주차 등록 화면. 모달을 띄우는 대신 학습 화면 자리로 바로 들어와서, 여기서 자료를 올린다.
 // 수업을 들으면서 쓰는 동선이라 모달에 갇히지 않는 게 중요하다(#107).
 //
-// 제목·수강 날짜·교수명은 묻지 않는다 — 제목은 비워 두고(뷰어 헤더에서 눌러 붙인다),
-// 날짜는 오늘, 교수명은 강의에 적힌 값을 그대로 쓴다.
+// 제목·수강 날짜·교수명은 묻지 않는다 — 제목은 "강의명 N"을 기본값으로 붙여 두고
+// (학습 화면 헤더에서 눌러 고친다), 날짜는 오늘, 교수명은 강의에 적힌 값을 그대로 쓴다.
 export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
   const router = useRouter();
   const projectQuery = useProjectDetail(projectId);
@@ -47,9 +48,15 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
   useEffect(() => () => abortRef.current?.abort(), []);
 
   const chapters = chaptersQuery.data ?? [];
-  // 번호는 서버가 매기지만 화면에는 미리 보여줘야 해서 같은 규칙으로 짐작한다.
-  const nextNumber =
-    chapters.reduce((max, c) => Math.max(max, c.chapterNumber), 0) + 1;
+  // 제목에 붙는 숫자 = 지금 있는 주차 갯수 + 1.
+  // 서버가 매기는 chapterNumber와는 다른 값일 수 있다. 이 숫자는 순서를 주장하지 않는
+  // 라벨이고, 제목 자체가 사람이 눌러 고치는 값이라 어긋나도 한 번의 클릭으로 끝난다.
+  const nextCount = chapters.length + 1;
+  // 제목 기본값. 화면의 제목과 저장되는 제목이 같은 조각에서 나와야 한다 —
+  // 제목 줄은 긴 강의명을 자르느라 둘로 쪼개 그리지만 값은 이 하나다.
+  const defaultTitle = projectQuery.data
+    ? `${projectQuery.data.title} ${nextCount}`
+    : '';
 
   const isPending = createChapter.isPending;
   const canSubmit =
@@ -70,7 +77,7 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
     createChapter.mutate(
       {
         projectId,
-        title: '',
+        title: defaultTitle,
         lectureDate: toLocalDateString(new Date()),
         professor: projectQuery.data?.professor ?? null,
         materialFile,
@@ -109,11 +116,10 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
     return (
       <div className={cn(PAGE_SHELL, 'flex flex-col items-start gap-4')}>
         <p className="text-gray-700">
-          강의 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+          강의 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
         <Button
-          variant="outline"
-          size="sm"
+          rank="secondary"
           onClick={() => {
             void projectQuery.refetch();
             void chaptersQuery.refetch();
@@ -129,49 +135,53 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
     <form onSubmit={handleSubmit} className={cn(PAGE_SHELL, 'block')}>
       {/* 학습 뷰어와 같은 2단 헤더다 — 자료가 들어오면 이 화면이 그대로 뷰어가 된다.
           탭은 아직 열 게 없어 잠가 두지만, 무엇이 생길지는 미리 보여준다. */}
-      <header>
-        <div className="flex items-center justify-between gap-4">
-          <button
-            type="button"
-            onClick={() => router.push(`/projects/${projectId}`)}
-            className="inline-flex shrink-0 items-center gap-1.5 text-gray-950 transition-colors hover:text-gray-700"
-          >
-            <ChevronLeftIcon className="size-5" />
-            <span className="text-label font-medium">이전으로</span>
-          </button>
-          <h1 className="text-heading-sm min-w-0 truncate text-right font-semibold text-gray-950">
-            Chapter {nextNumber}
-          </h1>
-        </div>
+      <header className="flex flex-col gap-6">
+        {/* 여기 적힌 것이 곧 이 주차의 제목이 된다 — 업로드가 끝나면 학습 화면 헤더에
+            같은 글자가 들어가 있고, 거기서 눌러 고친다. 전에는 "Chapter N"을 보여주고
+            제목은 빈 값으로 만들어서, 학습 화면이 "제목 추가"부터 시작했다.
+            강의명을 제목이 말하므로 오른쪽 끝의 강의명·교수명·날짜 줄은 지웠다.
+            숫자를 강의명과 한 덩어리로 자르면 긴 강의명에서 숫자가 먼저 잘린다. */}
+        <h1 className="text-heading-md flex min-w-0 items-baseline font-semibold text-gray-800">
+          <span className="min-w-0 truncate">{projectQuery.data.title}</span>
+          {/* 간격을 gap이 아니라 진짜 공백으로 둔다 — gap이면 보조기기가 두 span을
+              붙여 "알고리즘7주차"로 읽는다.
+              whitespace-pre가 그 공백을 지킨다. h1이 flex라 두 span이 플렉스 아이템이
+              되는데, 플렉스 아이템의 선행 공백은 지워진다 — textContent에는 남아서
+              보조기기는 "알고리즘 7"로 읽고 화면에서만 붙어 있었다. */}
+          <span className="shrink-0 whitespace-pre"> {nextCount}</span>
+        </h1>
 
-        <div className="mt-7 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        {/* 타이틀 → 컨트롤 24는 header의 gap이 갖는다. 세부 줄이 없는 화면이라
+            자식에게 마진을 주면 그 마진이 첫 자식에게 남는다. */}
+        <div>
           <ViewerTabs activeTabs={[]} onToggle={() => {}} locked />
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-label text-gray-950">
-              {projectQuery.data.title}
-            </p>
-            {projectQuery.data.professor && (
-              <Tag tone="dark">{projectQuery.data.professor} 교수님</Tag>
-            )}
-            {/* 실제 날짜를 렌더에서 만들면 서버·브라우저 시각이 갈릴 때 하이드레이션이
-                어긋난다. 아직 만들지 않은 주차라 "오늘"이 더 정확하기도 하다. */}
-            <Tag tone="outline">오늘</Tag>
-          </div>
         </div>
       </header>
 
-      {/* 학습 화면과 같은 어두운 패널이다 — 자료가 들어오면 이 자리가 그대로 뷰어가 된다. */}
-      <section className="mt-5 flex min-h-[590px] flex-col items-center justify-center gap-9 rounded-md bg-gray-900 px-8 py-10">
+      {/* 자료가 들어오면 이 자리가 그대로 뷰어가 되므로 판도 뷰어의 것을 그대로 쓴다.
+          어두운 판(bg-gray-900)이었는데 §2에 어두운 표면이 없다 — 같은 상수를 부르면
+          "그대로 뷰어가 된다"는 말이 주석이 아니라 코드가 된다. */}
+      <section
+        className={cn(
+          VIEWER_PANEL,
+          // 36이었다. §2 간격 목록에 없어서 32로 내린다.
+          'mt-2 flex flex-col items-center justify-center gap-8 px-8 py-10',
+        )}
+      >
         <div className="text-center">
-          <p className="text-heading-sm font-semibold text-white">
-            Chapter {nextNumber} 학습을 시작해요
+          <p className="text-heading-sm font-semibold text-gray-800">
+            이번 주차 학습을 시작해요
           </p>
-          <p className="text-body-sm mt-3 text-gray-400">
-            강의 자료와 녹음이 모이면 AI가 요약과 원문 스크립트를 만들어 줍니다.
+          <p className="text-body-sm mt-3 text-gray-500">
+            강의 자료와 녹음이 모이면 AI가 요약과 원문 스크립트를 만들어 줘요.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-start justify-center gap-6">
+        {/* 칸 셋의 폭은 판이 나눈다. 전에는 폭을 아무도 안 줘서 안내 문구 길이가
+            각자 폭을 정했고(264·253·221), 파일을 고르면 파일명이 그 폭을 다시
+            정했다 — 짧은 이름엔 182로 줄고 긴 이름엔 659로 벌어졌다.
+            grid라 셋이 늘 같고, 폭이 정해지니 안에서 truncate가 비로소 동작한다. */}
+        <div className="grid w-full grid-cols-3 items-start gap-6">
           <FileDropzone
             kind="material"
             label="강의 자료 업로드"
@@ -198,23 +208,23 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
         <div className="text-label space-y-1 text-center text-gray-500">
           <p>
             강의 자료를 함께 올리면 전공 용어를 먼저 뽑아{' '}
-            <span className="text-gray-300">원문 스크립트가 정확해집니다.</span>
+            <span className="text-gray-700">원문 스크립트가 정확해져요.</span>
           </p>
           <p>
-            강의 자료만 먼저 올려 두고, 수업 시간에 다시 들어와 붙여도 됩니다.
+            강의 자료만 먼저 올려 두고, 수업 시간에 다시 들어와 붙여도 돼요.
           </p>
         </div>
 
-        {formError && <p className="text-label text-error">{formError}</p>}
+        {formError && <p className="text-label text-red-ink">{formError}</p>}
 
-        <Button type="submit" size="lg" disabled={!canSubmit}>
+        <Button type="submit" disabled={!canSubmit}>
           업로드하기
         </Button>
       </section>
 
       {isPending && (
         <ChapterUploadOverlay
-          message="새로운 주차를 업로드 중입니다..."
+          message="새로운 주차를 업로드 중이에요…"
           progress={progress}
           onCancel={() => abortRef.current?.abort()}
         />

@@ -1,10 +1,10 @@
 'use client';
 // src/features/auth/components/NicknameStep.tsx
 import { useRef } from 'react';
-import { cn } from '@/shared/lib/cn';
 import { checkNickname } from '@/features/auth/api';
+import { Button } from '@/shared/ui/Button';
+import { Input } from '@/shared/ui/Input';
 
-// 중복확인 결과 상태
 export type NicknameStatus = 'idle' | 'available' | 'taken';
 
 interface NicknameStepProps {
@@ -13,15 +13,6 @@ interface NicknameStepProps {
   onNicknameChange: (value: string) => void;
   onStatusChange: (status: NicknameStatus) => void;
 }
-
-// 어두운 입력 필드라 shared/ui/Input과 스타일이 다르고, 필드 안에 버튼이 들어간다.
-// Input은 기본값에 border-gray-400이 박혀 있어 className으로 덮으면 cn()이 병합하지 못해
-// 색이 충돌한다. 그래서 이 화면 전용으로 두되 상태별 분기 방식은 Input과 맞춘다.
-const borderByStatus: Record<NicknameStatus, string> = {
-  idle: 'border-gray-800',
-  available: 'border-secondary-400',
-  taken: 'border-error',
-};
 
 export function NicknameStep({
   nickname,
@@ -51,68 +42,43 @@ export function NicknameStep({
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
-      <h1 className="text-3xl leading-snug font-bold text-gray-900 md:text-5xl">
+    <div className="read-col">
+      <h1 className="text-heading-md font-semibold text-gray-800">
         맞춤 학습 설정을 위한
         <br />
         마지막 단계예요.
       </h1>
 
-      <div className="mt-24">
-        <div className="flex items-end justify-between gap-4">
-          <label
-            htmlFor="nickname"
-            className="text-sm font-medium text-gray-900"
-          >
-            닉네임*
-          </label>
-
-          {status === 'available' && (
-            <p className="text-secondary-400 text-sm font-medium">
-              사용 가능한 닉네임입니다.
-            </p>
-          )}
-          {status === 'taken' && (
-            <p role="alert" className="text-error text-sm font-medium">
-              사용 중인 닉네임입니다.
-            </p>
-          )}
-        </div>
-
-        <div
-          className={cn(
-            'mt-2 flex items-center gap-3 rounded-md border bg-gray-800 px-5 py-3 transition-colors',
-            borderByStatus[status],
-          )}
-        >
-          <input
+      {/* 설정의 프로필 수정과 같은 화면이다(닉네임 + 중복확인 + 3상태). 같은 모양으로 둔다.
+          전에는 어두운 판(bg-gray-800) 안에 칸과 버튼이 함께 들어 있었다. §2에 어두운
+          표면이 없고, §4는 필드의 채움을 필드 자체로 정해서 그 안에 채움을 하나 더 넣으면
+          무엇이 칸인지 흐려진다.
+          "Input은 기본값에 border-gray-400이 박혀 있어 덮을 수 없다"는 주석이 붙어 있었는데,
+          그 사이 Input이 error prop과 FIELD_BOX를 갖게 돼서 이유가 사라졌다. */}
+      <div className="mt-12 flex items-end gap-3">
+        <div className="min-w-0 flex-1">
+          <Input
             id="nickname"
+            label="닉네임"
+            required
             value={nickname}
             onChange={(e) => onNicknameChange(e.target.value)}
-            placeholder="닉네임을 작성해주세요."
-            className="min-w-0 flex-1 bg-transparent py-1 text-gray-100 placeholder:text-gray-500 focus:outline-none"
+            placeholder="닉네임을 입력해 주세요."
+            error={status === 'taken' ? '사용 중인 닉네임이에요.' : undefined}
           />
-
-          {/*
-            어두운 필드 위라 채운 하늘색 판 + 검정 글자는 바 위에 다른 바를 덧댄 것처럼 보인다.
-            판을 없애고 글자·테두리만 밝게 둬서 필드 안의 액션으로 읽히게 한다.
-            (호버에서만 채워 눌리는 대상임을 알린다.)
-          */}
-          <button
-            type="button"
-            onClick={handleCheck}
-            disabled={!canCheck}
-            className={cn(
-              'shrink-0 rounded-md border px-4 py-1.5 text-sm font-medium transition-colors',
-              canCheck
-                ? 'border-secondary-400 text-secondary-400 hover:bg-secondary-400 hover:text-gray-950'
-                : 'cursor-not-allowed border-gray-600 text-gray-600',
-            )}
-          >
-            중복확인
-          </button>
         </div>
+        <Button rank="secondary" onClick={handleCheck} disabled={!canCheck}>
+          중복확인
+        </Button>
       </div>
+
+      {/* 쓸 수 있다는 말은 틀림이 아니라 상태다 — §2의 sky-ink가 "글자만으로 된 상태"다.
+          틀림(사용 중)은 Input이 자기 error로 그린다. */}
+      {status === 'available' && (
+        <p role="status" className="text-body-sm text-sky-ink mt-2">
+          사용 가능한 닉네임이에요.
+        </p>
+      )}
     </div>
   );
 }

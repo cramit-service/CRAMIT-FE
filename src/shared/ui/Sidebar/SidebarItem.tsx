@@ -13,9 +13,6 @@ interface SidebarItemProps {
   // 사이드바 펼침 여부. 접힘이면 아이콘만 가운데 정렬.
   expanded: boolean;
   onClick?: () => void;
-  // 동작이 아직 정해지지 않은 항목. 눌리지 않고 흐리게 그린다.
-  // href가 있는 항목에는 쓰지 않는다 — Link는 비활성화할 수 없다.
-  disabled?: boolean;
 }
 
 // 사이드바 단일 메뉴 항목. 홈/학습하기/내 정보 수정/더보기에 공용으로 쓴다.
@@ -26,36 +23,30 @@ export function SidebarItem({
   active = false,
   expanded,
   onClick,
-  disabled = false,
 }: SidebarItemProps) {
-  // 준비 중 항목은 아이콘까지 함께 흐려야 하는데, 사이드바 아이콘은 PNG <Image>라
-  // text-* 색이 먹지 않는다. 그래서 색이 아니라 항목 전체의 opacity로 낮춘다.
-  // 낮춘 대비(약 4:1)는 WCAG 1.4.3의 비활성 컨트롤 예외에 해당해 문제가 되지 않는다.
   const className = cn(
-    'focus-visible:ring-secondary-400 focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none relative flex items-center py-4.5 transition-colors',
-    // 활성: 연두 강조 / 비활성: 라벨은 밝게 (덮어쓰기 금지 → 삼항 분기)
-    disabled
-      ? 'cursor-not-allowed text-gray-200 opacity-50'
-      : active
-        ? 'text-primary-400'
-        : 'text-gray-200 hover:text-white',
+    'focus-visible:ring-sky-ink group focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none relative flex items-center py-4.5 text-gray-800',
   );
 
   const inner = (
     <>
       {/* 활성 배경. 접힘·펼침이 같은 언어를 쓰도록 좌측 탭 대신 항목 자체를 칠한다.
-          레일 안쪽으로 8px 들여 양끝을 살린다 — 꽉 채우면 잘린 것처럼 보인다. */}
-      {active && (
-        <span className="absolute inset-y-0 right-2 left-2 rounded-lg bg-gray-800" />
-      )}
-      {/* 아이콘 칸 폭은 사이드바 접힘 폭(Sidebar의 w-22.5)과 같다. 그래서 아이콘 중심이
-          펼침·접힘 모두 같은 x에 있고, 폭이 줄어드는 동안에도 제자리에 머문다.
-          (justify-center로 분기하면 "가운데"가 애니메이션 중인 부모 폭을 따라 같이 움직인다)
-          비활성 아이콘은 라벨보다 살짝 어둡게 — 활성이면 연두를 상속한다. */}
+          레일 안쪽으로 8px 들여 양끝을 살린다 — 꽉 채우면 잘린 것처럼 보인다.
+          hover도 같은 자리를 쓴다. 글자가 이미 잉크의 맨 끝(gray-800)이라 색으로는
+          더 진해질 데가 없어서, 커서가 왔다는 건 채움이 말한다. */}
       <span
         className={cn(
-          'relative flex w-22.5 shrink-0 justify-center',
-          !active && 'text-gray-400',
+          'absolute inset-y-0 right-2 left-2 rounded-md transition-colors',
+          active ? 'bg-lime-action' : 'group-hover:bg-gray-100',
+        )}
+      />
+      {/* 아이콘 칸 폭은 접힘 레일과 같은 --sidebar-rail이다. 그래서 아이콘 중심이
+          펼침·접힘 모두 같은 x에 있고, 폭이 줄어드는 동안에도 제자리에 머문다.
+          (justify-center로 분기하면 "가운데"가 애니메이션 중인 부모 폭을 따라 같이 움직인다)
+          아이콘과 라벨은 같은 것을 가리키므로 같은 단(gray-800)에 선다. */}
+      <span
+        className={cn(
+          'relative flex w-[var(--sidebar-rail)] shrink-0 justify-center',
         )}
       >
         {icon}
@@ -77,14 +68,9 @@ export function SidebarItem({
   // 접힘 상태에선 라벨이 안 보이므로 접근성용 이름을 따로 준다.
   const a11y = expanded ? {} : { 'aria-label': label };
   // 툴팁 — 접힘이면 무슨 항목인지, 준비 중이면 왜 안 눌리는지. 둘 다면 함께 보여준다.
-  // 흐린 색만으로는 "고장인지 준비 중인지"를 알 수 없다.
-  const tooltip = [expanded ? null : label, disabled ? '준비 중이에요' : null]
-    .filter(Boolean)
-    .join(' — ');
-
   if (href) {
     return (
-      <Tooltip label={tooltip} disabled={!tooltip}>
+      <Tooltip label={label} disabled={expanded}>
         <Link href={href} className={className} onClick={onClick} {...a11y}>
           {inner}
         </Link>
@@ -93,12 +79,11 @@ export function SidebarItem({
   }
 
   return (
-    <Tooltip label={tooltip} disabled={!tooltip}>
+    <Tooltip label={label} disabled={expanded}>
       <button
         type="button"
         className={cn('w-full', className)}
         onClick={onClick}
-        disabled={disabled}
         {...a11y}
       >
         {inner}

@@ -14,7 +14,6 @@ function daysFromNow(days: number): string {
 }
 
 // 학습하기(강의 목록) mock.
-// sharedBy가 null이면 내 강의, 값이 있으면 공유받은 강의로 갈린다.
 // D-DAY tone 4종(임박·주의·여유·없음)과 검색(제목/교수명)을 모두 확인할 수 있게 구성했다.
 export const mockProjectSummaries: ProjectSummary[] = [
   {
@@ -25,7 +24,6 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 6,
     examName: '중간고사',
     examDate: daysFromNow(0), // D-DAY (임박)
-    sharedBy: null,
     colorIndex: 1,
   },
   {
@@ -36,7 +34,6 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 6,
     examName: null,
     examDate: null,
-    sharedBy: null,
     colorIndex: 2,
   },
   {
@@ -47,7 +44,6 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 3,
     examName: '중간고사',
     examDate: daysFromNow(3), // D-3 (임박)
-    sharedBy: null,
     colorIndex: 3,
   },
   {
@@ -58,7 +54,6 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 6,
     examName: '기말고사',
     examDate: daysFromNow(13), // D-13 (여유)
-    sharedBy: null,
     colorIndex: 4,
   },
   {
@@ -69,7 +64,6 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 6,
     examName: '중간고사',
     examDate: daysFromNow(5), // D-5 (주의)
-    sharedBy: null,
     colorIndex: 5,
   },
   {
@@ -80,7 +74,6 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 6,
     examName: null,
     examDate: null,
-    sharedBy: null,
     colorIndex: 6,
   },
   {
@@ -91,8 +84,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 3,
     examName: null,
     examDate: null,
-    sharedBy: '김한양',
-    colorIndex: null,
+    colorIndex: 7,
   },
   {
     projectId: '8',
@@ -102,8 +94,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 6,
     examName: null,
     examDate: null,
-    sharedBy: '김한양',
-    colorIndex: null,
+    colorIndex: 8,
   },
   {
     projectId: '9',
@@ -113,8 +104,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 3,
     examName: '중간고사',
     examDate: daysFromNow(4), // D-4 (주의)
-    sharedBy: '김한양',
-    colorIndex: null,
+    colorIndex: 1,
   },
   {
     projectId: '10',
@@ -124,8 +114,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 6,
     examName: null,
     examDate: null,
-    sharedBy: '오지훈',
-    colorIndex: null,
+    colorIndex: 2,
   },
   {
     projectId: '11',
@@ -135,8 +124,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     chapterCount: 6,
     examName: null,
     examDate: null,
-    sharedBy: '오지훈',
-    colorIndex: null,
+    colorIndex: 3,
   },
 ];
 
@@ -165,6 +153,14 @@ export function updateMockProjectSummary(summary: ProjectSummary): void {
   );
   if (index === -1) throw new Error('수정할 강의를 찾지 못했어요.');
   mockProjectSummaries[index] = summary;
+}
+
+// mock 전용: 목록에서 지운다. (removeMockExam·removeMockTodo와 같은 모양)
+export function removeMockProjectSummary(projectId: string): void {
+  const index = mockProjectSummaries.findIndex(
+    (p) => p.projectId === projectId,
+  );
+  if (index !== -1) mockProjectSummaries.splice(index, 1);
 }
 
 export function findMockProjectSummary(

@@ -14,7 +14,6 @@ function getAccessToken(): string | null {
   return localStorage.getItem('accessToken');
 }
 
-// 핵심 요청 함수
 async function request<T>(
   method: string,
   path: string,
@@ -63,7 +62,7 @@ function parseBody<T>(ok: boolean, status: number, text: string): T {
       if (ok) {
         throw new ApiRequestError(
           'INVALID_RESPONSE',
-          '서버 응답을 해석할 수 없습니다.',
+          '서버 응답을 해석할 수 없어요.',
           status,
         );
       }
@@ -75,7 +74,7 @@ function parseBody<T>(ok: boolean, status: number, text: string): T {
     const errorData = data as ApiError;
     throw new ApiRequestError(
       errorData?.error?.code ?? 'UNKNOWN',
-      errorData?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
+      errorData?.error?.message ?? '요청을 처리하지 못했어요.',
       status,
     );
   }
@@ -180,7 +179,6 @@ function uploadRequest<T>(
   });
 }
 
-// 실제로 화면에서 쓸 메서드들
 export const apiClient = {
   get: <T>(path: string, options?: RequestOptions) =>
     request<T>('GET', path, undefined, options),

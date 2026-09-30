@@ -6,6 +6,7 @@ import { formatPlayTime } from '@/features/study/lib/format';
 import { ScriptSectionItem } from '@/features/study/components/viewer/ScriptSectionItem';
 import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
 import { cn } from '@/shared/lib/cn';
+import { ScrollArea } from '@/shared/ui/ScrollArea';
 import { Button } from '@/shared/ui/Button';
 import { Icon } from '@/shared/ui/Icon';
 
@@ -38,7 +39,7 @@ export function ScriptTab({
     return (
       <section className={cn(PANEL, 'items-center justify-center')}>
         <p className="text-label text-gray-400">
-          녹음을 텍스트로 변환하고 있습니다. 완료되면 자동으로 표시됩니다.
+          녹음을 텍스트로 변환하고 있어요. 완료되면 자동으로 표시돼요.
         </p>
       </section>
     );
@@ -56,16 +57,10 @@ export function ScriptTab({
     return (
       <section className={cn(PANEL, 'items-center justify-center gap-4')}>
         <p className="text-label text-gray-400">
-          원문 스크립트를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+          원문 스크립트를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
-        {/* 재시도 중에 버튼이 그대로면 눌린 줄 모르고 계속 누르게 된다 */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => scriptQuery.refetch()}
-          disabled={scriptQuery.isFetching}
-        >
-          {scriptQuery.isFetching ? '다시 시도 중…' : '다시 시도'}
+        <Button rank="secondary" onClick={() => scriptQuery.refetch()}>
+          다시 시도
         </Button>
       </section>
     );
@@ -74,14 +69,14 @@ export function ScriptTab({
   const { sections } = scriptQuery.data;
 
   return (
-    <section className={cn(PANEL, 'px-8 pt-5')}>
+    <section className={cn(PANEL, 'px-6 pt-5')}>
       {/* 상단: 안내문 + 재생 위치 (재생 컨트롤은 PDF 탭에만 둔다) */}
       <div className="flex shrink-0 items-start justify-between gap-4">
-        <p className="text-label font-medium text-white">
-          녹음본을 텍스트화해서 PPT 페이지별로 정리했습니다. 녹음본 재생은 ‘PDF
+        <p className="text-label font-medium text-gray-700">
+          녹음본을 텍스트화해서 PPT 페이지별로 정리했어요. 녹음본 재생은 ‘PDF
           강의 자료’를 이용해 주세요.
         </p>
-        <div className="text-primary-400 flex shrink-0 items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-2 text-gray-500">
           <Icon name="time" size={17} />
           <p className="text-label font-medium tabular-nums">
             {formatPlayTime(currentTime)} / {formatPlayTime(duration)}
@@ -91,25 +86,24 @@ export function ScriptTab({
 
       {sections.length === 0 ? (
         <p className="text-label flex flex-1 items-center justify-center text-gray-500">
-          아직 생성된 스크립트가 없습니다.
+          아직 생성된 스크립트가 없어요.
         </p>
       ) : (
-        // 목록은 패널 안에서만 스크롤한다. 아래 끝은 시안대로 배경색으로 흐려지게 덮는다.
-        <div className="relative mt-6 min-h-0 flex-1">
-          {/* 아래 여백은 페이드 높이와 같게 준다 — 끝까지 내렸을 때 마지막 구간이
-              페이드에 덮여 흐려지지 않도록 밀어 올린다 */}
-          <ul className="flex h-full [scrollbar-width:none] flex-col gap-7 overflow-y-auto overscroll-contain pb-[73px] [&::-webkit-scrollbar]:hidden">
-            {sections.map((section) => (
-              <ScriptSectionItem
-                key={section.page}
-                section={section}
-                open={openPages.includes(section.page)}
-                onToggle={() => toggle(section.page)}
-              />
-            ))}
-          </ul>
-          {/* 스크롤이 남았음을 알리는 하단 페이드. 클릭을 막지 않도록 pointer-events 해제 */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[73px] bg-linear-to-b from-transparent to-gray-900 to-55%" />
+        // 목록은 패널 안에서만 스크롤한다. 하단 페이드와 막대는 ScrollArea가 갖는다 —
+        // 전에는 73px짜리 그라디언트 div를 손으로 얹고 목록에 같은 크기의 아래 여백을 줬다.
+        <div className="mt-6 flex min-h-0 flex-1 flex-col">
+          <ScrollArea>
+            <ul className="flex flex-col gap-1 pr-3">
+              {sections.map((section) => (
+                <ScriptSectionItem
+                  key={section.page}
+                  section={section}
+                  open={openPages.includes(section.page)}
+                  onToggle={() => toggle(section.page)}
+                />
+              ))}
+            </ul>
+          </ScrollArea>
         </div>
       )}
     </section>

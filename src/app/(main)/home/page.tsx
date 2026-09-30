@@ -4,6 +4,7 @@ import { ExamSchedule } from '@/features/exam/components/ExamSchedule';
 import { Calendar } from '@/features/calendar/components/Calendar';
 import { TodoChecklist } from '@/features/todo/components/TodoChecklist';
 import { TodoFilterProvider } from '@/features/todo/hooks/useTodoFilter';
+import { PAGE_PAD } from '@/shared/ui/pageShell';
 
 // 2×2 그리드: [배너 | 시험 일정] / [캘린더 | TODO].
 // 시안(Figma 24:9523, 1920×1080)의 절대 좌표를 그대로 옮긴다:
@@ -28,7 +29,7 @@ import { TodoFilterProvider } from '@/features/todo/hooks/useTodoFilter';
 // 생긴 여백이다. 어디로 보낼지는 시안을 봐야 정할 수 있다.
 export default function HomePage() {
   return (
-    <div className="px-4 pt-10 pb-5 md:px-8 lg:min-h-dvh lg:px-0 lg:pt-[68px] lg:pb-11">
+    <div className={`${PAGE_PAD} lg:min-h-dvh`}>
       {/* 캘린더에서 고른 날짜를 TODO 체크리스트가 알아야 한다. 둘은 격자에서 형제라
           서로를 모르므로 공통 조상인 여기서 Context로 묶는다. page는 조립만 하고
           상태는 훅이 들고 있어 'use client'가 필요 없다. */}

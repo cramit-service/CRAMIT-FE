@@ -19,6 +19,7 @@ import {
   addMockProjectSummary,
   findMockProjectSummary,
   mockProjectsFromSummaries,
+  removeMockProjectSummary,
   updateMockProjectSummary,
 } from '@/mocks/project';
 import {
@@ -51,27 +52,12 @@ async function mockUpload(
   }
 }
 
-// 프로젝트 목록 조회
 export async function getProjects(): Promise<Project[]> {
   if (USE_MOCK) {
     await delay(300); // 로딩 상태 확인용
     return mockProjectsFromSummaries();
   }
   return apiClient.get<Project[]>('/projects');
-}
-
-// 프로젝트 생성
-export async function createProject(title: string): Promise<Project> {
-  if (USE_MOCK) {
-    await delay(300);
-    return {
-      projectId: String(Date.now()),
-      title,
-      createdAt: new Date().toISOString(),
-      colorIndex: null,
-    };
-  }
-  return apiClient.post<Project>('/projects', { title });
 }
 
 // 내 강의 생성 (Figma 1:2614) — 학습하기 목록에 카드 한 장이 늘어난다.
@@ -87,15 +73,13 @@ export async function createLecture(
       title: req.title,
       createdAt: new Date().toISOString(),
       // 시안에 교수명은 선택이라 비어 있을 수 있다. 태그는 "OOO 교수님"이라 빈 값이면 어색해서
-      // 목록 카드가 이미 쓰는 표기에 맞춰 "미정"으로 채운다.
-      professor: req.professor ?? '미정',
+      professor: req.professor,
       // 방금 만든 강의라 아직 주차가 없다.
       chapterCount: 0,
       // 모달은 시험 날짜만 받고 시험명은 받지 않는다. D-DAY 태그는 이름과 날짜가 둘 다
       // 있어야 뜨므로(getDday), 날짜를 넣었으면 중립적인 이름을 붙여 태그가 보이게 한다.
       examName: req.examDate ? '시험' : null,
       examDate: req.examDate,
-      sharedBy: null,
       colorIndex: req.colorIndex,
     };
     addMockProjectSummary(summary);
@@ -112,11 +96,11 @@ export async function updateLecture(
     await delay(300);
     const current = findMockProjectSummary(req.projectId);
     if (!current) throw new Error('수정할 강의를 찾지 못했어요.');
-    // 챕터 수·공유자처럼 모달이 건드리지 않는 값은 그대로 둔다.
+    // 챕터 수처럼 모달이 건드리지 않는 값은 그대로 둔다.
     const summary: ProjectSummary = {
       ...current,
       title: req.title,
-      professor: req.professor ?? '미정',
+      professor: req.professor,
       examName: req.examDate ? (current.examName ?? '시험') : null,
       examDate: req.examDate,
       colorIndex: req.colorIndex,
@@ -125,6 +109,20 @@ export async function updateLecture(
     return summary;
   }
   return apiClient.patch<ProjectSummary>(`/projects/${req.projectId}`, req);
+}
+
+// 강의 삭제 — 수정 모달 왼쪽 아래의 "삭제하기". 되돌릴 수 없으므로 화면이 먼저
+// ConfirmModal로 묻고, 그 답이 온 뒤에만 여기 닿는다.
+export async function deleteLecture(projectId: string): Promise<void> {
+  if (USE_MOCK) {
+    await delay(300);
+    if (!findMockProjectSummary(projectId)) {
+      throw new Error('삭제할 강의를 찾지 못했어요.');
+    }
+    removeMockProjectSummary(projectId);
+    return;
+  }
+  await apiClient.delete<void>(`/projects/${projectId}`);
 }
 
 // 새 주차(챕터) 업로드.
@@ -145,6 +143,7 @@ export async function createChapter(
       // STT·요약이 끝나기 전이라 아직 아무도 학습하지 않은 상태다.
       createdAt: new Date().toISOString(),
       status: 'BEFORE',
+      reviewCount: 0, // 새로 만든 주차는 아직 아무도 안 읽었다
       lectureDate: req.lectureDate,
       professor: req.professor,
       materialFileName: req.materialFile?.name ?? null,

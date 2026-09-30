@@ -1,96 +1,64 @@
 'use client';
 // src/features/study/components/ChapterCard.tsx
+// DESIGN.md §4 "A chapter row has one slot, and no button".
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
 import { formatChapterDate } from '@/features/study/lib/format';
-import { useLongPress } from '@/features/study/hooks/useLongPress';
-import { CalendarIcon, ChevronRightIcon, RefreshIcon } from './icons';
-import type { Chapter, ChapterStatus } from '@/shared/types/api';
+import type { Chapter } from '@/shared/types/api';
+import { Card } from '@/shared/ui/Card';
+import { Icon } from '@/shared/ui/Icon';
 
-// 액션 버튼 라벨이 곧 상태다 — 상태 3종(학습 전/중/완료)과 1:1로 대응한다.
-const actionLabel: Record<ChapterStatus, string> = {
-  BEFORE: '학습하기',
-  IN_PROGRESS: '이어서 학습',
-  DONE: '복습하기',
-};
-
-// 액션 버튼 색(Figma): 학습 전 하늘(secondary-400/border secondary-500)
-// / 학습 중 노랑(#ffde65=level-02) / 완료 회색(#e7e7e8=gray-300/border #cecfd1=gray-400)
-// 채움은 시안 그대로 두고 글자만 어둡게 바꿨다 — 시안의 흰 글자는 셋 다 밝은 채움 위라
-// 1.24~1.67:1이었다. 완료만 gray-700인 건 다 끝낸 항목이 진행 중보다 앞서 보이지 않게 하려는 것.
-const actionStyle: Record<ChapterStatus, string> = {
-  BEFORE:
-    'border-[0.5px] border-secondary-500 bg-secondary-400 text-gray-950 hover:bg-secondary-500',
-  IN_PROGRESS: 'bg-level-02 text-gray-950 hover:opacity-90',
-  DONE: 'border-[0.5px] border-gray-400 bg-gray-300 text-gray-700 hover:bg-gray-400',
-};
-
-interface ChapterCardProps {
-  chapter: Chapter;
-  /** 카드를 꾹 눌렀을 때 (주차 정보 수정). 없으면 제스처를 걸지 않는다. */
-  onLongPress?: (chapter: Chapter) => void;
+// 학습은 세는 것이고 단계를 밟는 게 아니다. 0은 낱말, 나머지는 수 —
+// 제품이 D-day에서 이미 그렇게 센다(D-1 다음이 D-DAY이고 D-0이 아니다).
+// 두 라벨이 같은 세 글자라서 D-day처럼 폭을 고정할 필요가 없다.
+function reviewLabel(count: number): string {
+  return count <= 0 ? '학습 전' : `${count}회독`;
 }
 
-export function ChapterCard({ chapter, onLongPress }: ChapterCardProps) {
+export function ChapterCard({ chapter }: { chapter: Chapter }) {
   const router = useRouter();
-  // 시안에 수정 버튼이 따로 없다 — 카드를 꾹 눌러서 주차 정보 수정으로 들어간다.
-  const longPress = useLongPress(
-    () => onLongPress?.(chapter),
-    onLongPress !== undefined,
-  );
-
-  const goStudy = () => {
-    // 학습 뷰어(PDF 강의 자료 / AI 요약 / 원문 스크립트 / TODO)로 이동한다.
-    router.push(`/projects/${chapter.projectId}/chapters/${chapter.chapterId}`);
-  };
 
   return (
-    // Figma 시안 높이 152 / 패딩 40·24.
-    // 꾹 누르는 동안 글자가 드래그 선택되면 제스처처럼 안 보여서 select-none을 둔다.
-    <div
-      {...longPress}
-      className="flex min-h-[152px] items-center justify-between gap-[22px] rounded-md bg-white px-10 py-6 select-none"
+    // 행 자체가 타깃이다. 여기 있던 버튼 셋(학습하기·이어서 학습·복습하기)은 각각
+    // 하늘·노랑·회색 채움이었는데 §2가 연두를 누를 수 있는 것에, 주황을 줄어드는 것에
+    // 주고 §4가 회색 채움을 비활성에 묶어 놔서 셋 다 이미 정해진 것과 부딪혔다.
+    // 노랑은 §2가 아예 없앤 색이었다(level-02, "Nothing replaces them").
+    // 버튼을 걷으면 세 충돌이 한 번에 사라지고, Card가 이미 누름 규칙을 갖고 있어
+    // 행이 타깃이 되는 대가가 없다.
+    <Card
+      press="navigates"
+      onClick={() =>
+        router.push(
+          `/projects/${chapter.projectId}/chapters/${chapter.chapterId}`,
+        )
+      }
     >
-      {/* 좌측: Chapter 번호(제목) + 설명 + 날짜 */}
-      <div className="flex min-w-0 flex-col gap-2">
-        <div className="flex flex-col gap-0.5">
-          <p className="text-body-sm text-gray-950">
-            Chapter {chapter.chapterNumber}
-          </p>
-          {/* 제목은 등록 때 받지 않는다 — 붙이기 전까지는 빈 줄 대신 자리를 보여준다 */}
-          <p
+      <span className="flex items-center gap-3">
+        <span className="flex min-w-0 flex-1 flex-col gap-2">
+          {/* 주차를 부르는 이름은 제목이다. Chapter 번호는 정렬에만 쓰고 적지 않는다.
+              제목은 등록 때 받지 않아서 빈 값이 올 수 있다 — 그때는 필드의
+              placeholder와 같은 gray-500으로 "아직 안 붙었다"를 말한다. */}
+          <span
             className={cn(
-              'text-label font-medium',
-              chapter.title === '' ? 'text-gray-700' : 'text-gray-800',
+              'text-body-md truncate font-semibold',
+              chapter.title === '' ? 'text-gray-500' : 'text-gray-800',
             )}
           >
             {chapter.title === '' ? '제목 없음' : chapter.title}
-          </p>
-        </div>
-        <p className="text-button-sm text-gray-650 flex items-center gap-1 font-medium">
-          <CalendarIcon className="size-3.5" />
-          {formatChapterDate(chapter.createdAt)}
-        </p>
-      </div>
+          </span>
 
-      {/* 우측: 액션 버튼.
-          상태 텍스트("학습 전/중/완료")를 따로 두지 않는다 — 버튼 라벨이
-          학습하기/이어서 학습/복습하기로 상태와 1:1이라 같은 말을 두 번 하는 자리였다. */}
-      <button
-        type="button"
-        onClick={goStudy}
-        className={cn(
-          'text-label flex h-11 w-[140px] shrink-0 items-center justify-center gap-1.5 rounded-md px-3 font-medium transition-colors',
-          actionStyle[chapter.status],
-        )}
-      >
-        {actionLabel[chapter.status]}
-        {chapter.status === 'DONE' ? (
-          <RefreshIcon className="size-4" />
-        ) : (
-          <ChevronRightIcon className="size-4" />
-        )}
-      </button>
-    </div>
+          <span className="text-label flex items-center gap-1 text-gray-500">
+            <Icon name="calendar" size={16} />
+            {formatChapterDate(chapter.createdAt)}
+          </span>
+        </span>
+
+        {/* 버튼이 있던 자리에 한 마디. 처리 중·실패도 여기 서는데(§4) 지금은 못 만든다 —
+            ProcessStatus가 READY|PROCESSING뿐이고 그 값이 Chapter에 실려 오지 않는다. */}
+        <span className="text-label shrink-0 font-medium text-gray-700">
+          {reviewLabel(chapter.reviewCount)}
+        </span>
+      </span>
+    </Card>
   );
 }

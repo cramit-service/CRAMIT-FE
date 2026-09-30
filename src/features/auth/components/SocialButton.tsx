@@ -8,11 +8,14 @@ interface SocialButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement
   provider: SocialProvider;
 }
 
-// 브랜드 색상 — 카카오·구글 규정색이라 예외적으로 하드코딩한다 (디자인 토큰 아님).
-// Figma: 카카오 #FFE812 채움 / 구글 흰색 채움, 둘 다 테두리 없음.
+// 브랜드 색 — 카카오·구글 규정색이라 §2 바깥이다. 이 파일만 임의 색을 허락한다
+// (eslint.config.mjs). 규정색은 우리가 고를 수 있는 값이 아니라서, 토큰으로 옮기면
+// 다음 사람이 "§2에 있으니 다른 데서도 써도 되겠다"로 읽는다.
+// 구글은 흰 채움인데 bg-white가 토큰에서 지워져 투명하게 렌더되고 있었다 —
+// 흰 표면의 이름은 surface다. 호버는 §2의 8%를 채움에 곱하는 방식으로 통일한다.
 const providerStyles: Record<SocialProvider, string> = {
-  KAKAO: 'bg-[#FFE812] hover:brightness-95',
-  GOOGLE: 'bg-white hover:bg-gray-200',
+  KAKAO: 'bg-[#FFE812] hover:brightness-92',
+  GOOGLE: 'bg-surface hover:brightness-92',
 };
 
 // 아이콘도 브랜드 에셋이라 Figma에서 내보낸 원본 이미지를 그대로 쓴다.
@@ -47,10 +50,10 @@ export function SocialButton({
     <button
       type="button"
       className={cn(
-        'text-button-lg flex w-full items-center justify-center gap-3 rounded-full px-6 py-2.5 font-medium text-gray-950 transition',
+        'text-body-md flex w-full items-center justify-center gap-3 rounded-full px-6 py-2.5 font-medium text-gray-800 transition',
         // 비활성이면 회색만, 아니면 브랜드 색 적용
         disabled
-          ? 'cursor-not-allowed bg-gray-300 text-gray-600'
+          ? 'cursor-not-allowed bg-gray-200 text-gray-500'
           : providerStyles[provider],
         className,
       )}

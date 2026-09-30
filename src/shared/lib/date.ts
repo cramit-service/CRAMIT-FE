@@ -34,11 +34,14 @@ export function formatKoreanDate(dateStr: string): string {
   return `${year}. ${mm}. ${dd}. (${weekday}요일)`;
 }
 
-// 'YYYY-MM-DD' → "9. 10 (목)". 목록처럼 폭이 좁은 자리용 —
-// 연도와 "요일" 글자를 빼고 월·일의 0 채움도 하지 않는다.
+// 'YYYY-MM-DD' → "09.10.(목)". 목록처럼 폭이 좁은 자리용 — 연도와 "요일" 글자를 뺀다.
+// 0을 채우는 이유는 목록이다: 자릿수가 들쭉날쭉하면 오른쪽에 세로로 늘어선 날짜의
+// 끝이 안 맞는다(9.3.(수)와 10.21.(월)).
 export function formatShortDate(dateStr: string): string {
   const [year, month, day] = dateStr.split('-').map(Number);
   const d = new Date(year, month - 1, day);
   const weekday = ['일', '월', '화', '수', '목', '금', '토'][d.getDay()];
-  return `${month}. ${day} (${weekday})`;
+  const mm = String(month).padStart(2, '0');
+  const dd = String(day).padStart(2, '0');
+  return `${mm}.${dd}.(${weekday})`;
 }
