@@ -1,0 +1,170 @@
+// src/mocks/project.ts — 프로젝트 목록 mock
+import type { Project, ProjectSummary } from '@/shared/types/api';
+
+// 시험일을 오늘 기준 상대값으로 만든다.
+// 날짜를 하드코딩하면 며칠만 지나도 전부 "종료" 태그로 굳어버려서
+// D-DAY 색 분기(임박/주의/여유)를 화면에서 확인할 수 없다.
+function daysFromNow(days: number): string {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + days);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
+// 학습하기(강의 목록) mock.
+// D-DAY tone 4종(임박·주의·여유·없음)과 검색(제목/교수명)을 모두 확인할 수 있게 구성했다.
+export const mockProjectSummaries: ProjectSummary[] = [
+  {
+    projectId: '1',
+    title: '알고리즘',
+    createdAt: '2026-03-02T09:00:00',
+    professor: '박지훈',
+    chapterCount: 6,
+    examName: '중간고사',
+    examDate: daysFromNow(0), // D-DAY (임박)
+    colorIndex: 1,
+  },
+  {
+    projectId: '2',
+    title: '운영체제',
+    createdAt: '2026-03-05T09:00:00',
+    professor: '이서연',
+    chapterCount: 6,
+    examName: null,
+    examDate: null,
+    colorIndex: 2,
+  },
+  {
+    projectId: '3',
+    title: '자료구조',
+    createdAt: '2026-03-08T09:00:00',
+    professor: '박지훈',
+    chapterCount: 3,
+    examName: '중간고사',
+    examDate: daysFromNow(3), // D-3 (임박)
+    colorIndex: 3,
+  },
+  {
+    projectId: '4',
+    title: '컴퓨터네트워크',
+    createdAt: '2026-03-11T09:00:00',
+    professor: '최민호',
+    chapterCount: 6,
+    examName: '기말고사',
+    examDate: daysFromNow(13), // D-13 (여유)
+    colorIndex: 4,
+  },
+  {
+    projectId: '5',
+    title: '데이터베이스',
+    createdAt: '2026-03-14T09:00:00',
+    professor: '이서연',
+    chapterCount: 6,
+    examName: '중간고사',
+    examDate: daysFromNow(5), // D-5 (주의)
+    colorIndex: 5,
+  },
+  {
+    projectId: '6',
+    title: '선형대수학',
+    createdAt: '2026-03-17T09:00:00',
+    professor: '한지우',
+    chapterCount: 6,
+    examName: null,
+    examDate: null,
+    colorIndex: 6,
+  },
+  {
+    projectId: '7',
+    title: '알고리즘설계와분석',
+    createdAt: '2026-03-20T09:00:00',
+    professor: '박지훈',
+    chapterCount: 3,
+    examName: null,
+    examDate: null,
+    colorIndex: 7,
+  },
+  {
+    projectId: '8',
+    title: '이산수학',
+    createdAt: '2026-03-23T09:00:00',
+    professor: '정도윤',
+    chapterCount: 6,
+    examName: null,
+    examDate: null,
+    colorIndex: 8,
+  },
+  {
+    projectId: '9',
+    title: '컴퓨터구조',
+    createdAt: '2026-03-26T09:00:00',
+    professor: '최민호',
+    chapterCount: 3,
+    examName: '중간고사',
+    examDate: daysFromNow(4), // D-4 (주의)
+    colorIndex: 1,
+  },
+  {
+    projectId: '10',
+    title: '소프트웨어공학',
+    createdAt: '2026-03-29T09:00:00',
+    professor: '한지우',
+    chapterCount: 6,
+    examName: null,
+    examDate: null,
+    colorIndex: 2,
+  },
+  {
+    projectId: '11',
+    title: '인공지능개론',
+    createdAt: '2026-04-01T09:00:00',
+    professor: '이서연',
+    chapterCount: 6,
+    examName: null,
+    examDate: null,
+    colorIndex: 3,
+  },
+];
+
+// 간단 목록(Project)은 요약 목록에서 깎아 만든다. 두 배열을 따로 들고 있었더니
+// 같은 projectId가 서로 다른 강의를 가리키게 됐다 — 파생시키면 어긋날 수가 없다.
+export function mockProjectsFromSummaries(): Project[] {
+  return mockProjectSummaries.map(
+    ({ projectId, title, createdAt, colorIndex }) => ({
+      projectId,
+      title,
+      createdAt,
+      colorIndex,
+    }),
+  );
+}
+
+// mock 전용: 생성한 강의를 목록 맨 앞에 밀어 넣는다. 새로고침하면 사라진다.
+// 목록의 기본 정렬이 "등록순"이라 맨 앞에 넣어야 방금 만든 게 눈에 보인다.
+export function addMockProjectSummary(summary: ProjectSummary): void {
+  mockProjectSummaries.unshift(summary);
+}
+
+export function updateMockProjectSummary(summary: ProjectSummary): void {
+  const index = mockProjectSummaries.findIndex(
+    (p) => p.projectId === summary.projectId,
+  );
+  if (index === -1) throw new Error('수정할 강의를 찾지 못했어요.');
+  mockProjectSummaries[index] = summary;
+}
+
+// mock 전용: 목록에서 지운다. (removeMockExam·removeMockTodo와 같은 모양)
+export function removeMockProjectSummary(projectId: string): void {
+  const index = mockProjectSummaries.findIndex(
+    (p) => p.projectId === projectId,
+  );
+  if (index !== -1) mockProjectSummaries.splice(index, 1);
+}
+
+export function findMockProjectSummary(
+  projectId: string,
+): ProjectSummary | undefined {
+  return mockProjectSummaries.find((p) => p.projectId === projectId);
+}

@@ -1,0 +1,264 @@
+// src/features/study/api.ts
+import type {
+  Chapter,
+  LectureMaterial,
+  LectureScript,
+  LectureSummary,
+  ProcessStatus,
+  ProjectDetail,
+  ProjectSummary,
+} from '@/shared/types/api';
+import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
+import { getMaterialFileUrl } from '@/mocks/materialStore';
+import {
+  mockChapters,
+  mockLectureMaterial,
+  mockLectureScript,
+  mockLectureSummary,
+  mockProjectDetail,
+} from '@/mocks/study';
+import { findMockProjectSummary, mockProjectSummaries } from '@/mocks/project';
+
+// Mock 사용 여부 스위치 (백엔드 준비되면 false로) — project/api.ts와 동일 패턴
+const USE_MOCK = true;
+
+// 가짜 지연을 흉내내는 헬퍼 (실제 네트워크처럼 잠깐 기다림).
+// 쿼리가 취소되면 실제 fetch처럼 즉시 중단되도록 AbortSignal을 받는다.
+const delay = (ms: number, signal?: AbortSignal) =>
+  new Promise<void>((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(signal.reason);
+      return;
+    }
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timer);
+        reject(signal.reason);
+      },
+      { once: true },
+    );
+  });
+
+// 학습하기(강의 목록) 조회.
+// TODO: 백엔드 목록 응답에 태그용 필드(professor/chapterCount/examName/examDate)가
+//       포함되는지 확정 시 재확인 필요.
+export async function getProjectSummaries(
+  signal?: AbortSignal,
+): Promise<ProjectSummary[]> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    // 강의 생성이 이 배열을 직접 고치므로 복사본을 준다 — 원본을 그대로 주면 캐시에 담긴 것과
+    // 같은 객체라 참조가 안 바뀌고, TanStack Query가 갱신 없음으로 보고 목록을 다시 그리지 않는다.
+    return [...mockProjectSummaries];
+  }
+  return apiClient.get<ProjectSummary[]>('/projects', { signal });
+}
+
+export async function getProjectDetail(
+  projectId: string,
+  signal?: AbortSignal,
+): Promise<ProjectDetail> {
+  if (USE_MOCK) {
+    await delay(300, signal); // 로딩 상태 확인용
+    // 목록에 있는 강의면 그 값을 따른다. 상세 mock 하나를 그대로 돌려주면 어떤 강의를 열어도
+    // 같은 과목명이 나오고, 강의를 수정해도 헤더가 그대로 남는다.
+    const summary = findMockProjectSummary(projectId);
+    // "강의 N개" 태그가 목록과 어긋나지 않게 챕터 수는 mock 목록에서 센다.
+    // (새 주차를 업로드하면 목록과 함께 이 숫자도 늘어야 한다)
+    return {
+      ...mockProjectDetail,
+      ...summary,
+      projectId,
+      chapterCount: mockChapters.length,
+    };
+  }
+  return apiClient.get<ProjectDetail>(`/projects/${projectId}`, { signal });
+}
+
+export async function getChapters(
+  projectId: string,
+  signal?: AbortSignal,
+): Promise<Chapter[]> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    return mockChapters.map((c) => ({ ...c, projectId }));
+  }
+  return apiClient.get<Chapter[]>(`/projects/${projectId}/chapters`, {
+    signal,
+  });
+}
+
+// 챕터 단건 조회 (학습 뷰어 헤더용)
+// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요 (/chapters/{chapterId} 형태 가정)
+export async function getChapter(
+  projectId: string,
+  chapterId: string,
+  signal?: AbortSignal,
+): Promise<Chapter> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    const found = mockChapters.find((c) => c.chapterId === chapterId);
+    // 없는 id를 첫 챕터로 대체하면 잘못된 URL이 정상 화면처럼 보인다.
+    // 실제 404와 같게 던져서 화면이 에러 상태를 타도록 한다.
+    if (!found) {
+      throw new ApiRequestError(
+        'CHAPTER_NOT_FOUND',
+        '챕터를 찾을 수 없어요.',
+        404,
+      );
+    }
+    return { ...found, projectId, chapterId };
+  }
+  return apiClient.get<Chapter>(`/chapters/${chapterId}`, { signal });
+}
+
+// 챕터의 강의자료(PDF 위치·페이지 수·녹음 길이) 조회
+// TODO: audioUrl은 백엔드 확정 후 응답에 추가한다
+export async function getLectureMaterial(
+  chapterId: string,
+  signal?: AbortSignal,
+): Promise<LectureMaterial> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    // 이 챕터에 직접 올린 파일이 있으면 그걸 그린다.
+    const uploaded = await getMaterialFileUrl(chapterId);
+    // 샘플은 mockLectureMaterial이 가리키는 챕터(c4) 하나에만 붙인다. 모든 챕터에 깔면
+    // 어디에 올려도 이미 자료가 있는 것처럼 보여 직접 올린 게 붙었는지 확인할 수가 없다.
+    const sample =
+      chapterId === mockLectureMaterial.chapterId
+        ? mockLectureMaterial.pdfUrl
+        : null;
+    const pdfUrl = uploaded ?? sample;
+    return {
+      ...mockLectureMaterial,
+      chapterId,
+      pdfUrl,
+      // 자료가 없으면 페이지 수도 0이어야 목록이 유령 페이지로 차지 않는다
+      pdfPageCount: pdfUrl ? mockLectureMaterial.pdfPageCount : 0,
+    };
+  }
+  return apiClient.get<LectureMaterial>(`/chapters/${chapterId}/material`, {
+    signal,
+  });
+}
+
+// 챕터의 AI 강의 요약(Markdown 원문) 조회
+// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
+export async function getLectureSummary(
+  chapterId: string,
+  signal?: AbortSignal,
+): Promise<LectureSummary> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    return { ...mockLectureSummary, chapterId };
+  }
+  return apiClient.get<LectureSummary>(`/chapters/${chapterId}/summary`, {
+    signal,
+  });
+}
+
+// 챕터의 원문 스크립트(STT) 조회
+// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
+export async function getLectureScript(
+  chapterId: string,
+  signal?: AbortSignal,
+): Promise<LectureScript> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    return { ...mockLectureScript, chapterId };
+  }
+  return apiClient.get<LectureScript>(`/chapters/${chapterId}/script`, {
+    signal,
+  });
+}
+
+// STT 변환 상태 조회 (녹음 → 텍스트 변환도 비동기라 READY까지 폴링해야 한다)
+// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
+export async function getLectureScriptStatus(
+  chapterId: string,
+  signal?: AbortSignal,
+): Promise<ProcessStatus> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    // mock은 이미 변환이 끝난 챕터를 가정한다. 생성 중 화면을 확인하려면
+    // 잠시 'PROCESSING'을 반환하도록 바꿔서 보면 된다. (요약 상태와 같은 방식)
+    return 'READY';
+  }
+  return apiClient.get<ProcessStatus>(`/chapters/${chapterId}/script/status`, {
+    signal,
+  });
+}
+
+// 요약 생성 상태 조회 (AI 요약은 비동기라 READY까지 폴링해야 한다)
+// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
+export async function getLectureSummaryStatus(
+  chapterId: string,
+  signal?: AbortSignal,
+): Promise<ProcessStatus> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    // mock은 이미 생성이 끝난 챕터를 가정한다. PROCESSING 화면을 확인하려면
+    // 잠시 'PROCESSING'을 반환하도록 바꿔서 보면 된다.
+    return 'READY';
+  }
+  return apiClient.get<ProcessStatus>(`/chapters/${chapterId}/summary/status`, {
+    signal,
+  });
+}
+
+// 요약 Markdown 수정 저장
+// TODO: 백엔드 저장 API가 아직 없다. USE_MOCK을 끄기 전까지는 서버에 반영되지 않고
+//       화면(쿼리 캐시)에만 남는다. 엔드포인트/메서드 확정 시 경로도 재확인 필요.
+export async function updateLectureSummary(
+  chapterId: string,
+  markdown: string,
+  signal?: AbortSignal,
+): Promise<LectureSummary> {
+  if (USE_MOCK) {
+    await delay(300, signal);
+    // updatedAt은 "마지막 수정 시각"이라 mock 값을 그대로 돌려주면 안 된다
+    return {
+      ...mockLectureSummary,
+      chapterId,
+      markdown,
+      updatedAt: new Date().toISOString(),
+    };
+  }
+  return apiClient.patch<LectureSummary>(
+    `/chapters/${chapterId}/summary`,
+    { markdown },
+    { signal },
+  );
+}
+
+// 회독 수를 세팅한다. 올리고 내리는 두 엔드포인트가 아니라 값을 하나 넣는 쪽이다 —
+// 증가 전용으로 두면 한 번 잘못 누른 것을 되돌릴 수 없고, DESIGN.md §4가 그걸
+// "기록이 아니라 오기"라고 부른다.
+// TODO(백엔드): 경로 확정 필요. PATCH /chapters/{id} 의 부분 수정으로 갈 수도 있다.
+export async function setChapterReviewCount(
+  chapterId: string,
+  reviewCount: number,
+  signal?: AbortSignal,
+): Promise<Chapter> {
+  if (USE_MOCK) {
+    await delay(200, signal);
+    const found = mockChapters.find((c) => c.chapterId === chapterId);
+    if (!found) {
+      throw new ApiRequestError(
+        'CHAPTER_NOT_FOUND',
+        '챕터를 찾을 수 없어요.',
+        404,
+      );
+    }
+    // 목에서도 실제로 값을 바꿔 둔다. 안 그러면 무효화 뒤 옛 값이 돌아와 화면이 튄다.
+    found.reviewCount = reviewCount;
+    return { ...found };
+  }
+  return apiClient.patch<Chapter>(
+    `/chapters/${chapterId}/review-count`,
+    { reviewCount },
+    { signal },
+  );
+}

@@ -1,0 +1,544 @@
+@import 'tailwindcss';
+
+@theme {
+  /* ===== Font ===== */
+  --font-sans: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+
+  /* ===== Typography =====
+     Figma의 Typography 변수를 그대로 옮긴다. 굵기는 토큰에 넣지 않는다 — font-medium·font-semibold로 따로 준다.
+     자간은 시안이 전부 -2%다. Heading/Small M만 -2.5%인데 24px에서 0.12px 차이라 -2%로 합쳤다. */
+  --text-heading-lg: 52px; /* Heading/Large */
+  --text-heading-lg--line-height: 74px;
+  --text-heading-lg--letter-spacing: -0.02em;
+
+  --text-heading-md: 32px; /* Heading/Medium B */
+  --text-heading-md--line-height: 44px;
+  --text-heading-md--letter-spacing: -0.02em;
+
+  --text-heading-sm: 24px; /* Heading/Small B·M */
+  --text-heading-sm--line-height: 36px;
+  --text-heading-sm--letter-spacing: -0.02em;
+
+  --text-body-lg: 22px; /* Body/Large M */
+  --text-body-lg--line-height: 32px;
+  --text-body-lg--letter-spacing: -0.02em;
+
+  --text-body-md: 20px; /* Body/Medium, Button/Large2 */
+  --text-body-md--line-height: 30px;
+  --text-body-md--letter-spacing: -0.02em;
+
+  --text-body: 18px; /* Body/Regular1·2, Button/Medium */
+  /* 28이다. 30이던 건 DESIGN.md §3 표(18/28)와 어긋났고, §2의 "격자 밖은 여덟 중 셋"
+     (label 14/22 · body-md 20/30 · heading-lg 52/74)도 거짓으로 만들고 있었다 —
+     30은 4의 배수가 아니라서 넷째가 된다. */
+  --text-body--line-height: 28px;
+  --text-body--letter-spacing: -0.02em;
+
+  --text-body-sm: 16px; /* Body/Small */
+  --text-body-sm--line-height: 24px;
+  --text-body-sm--letter-spacing: -0.02em;
+
+  --text-label: 14px; /* Button/Label2 */
+  --text-label--line-height: 22px;
+  --text-label--letter-spacing: -0.02em;
+
+  /* ===== 색 (DESIGN.md §2) =====
+     값을 고른 이유는 전부 §2에 있다. 여기 옮기는 건 값과, 이 파일을 고칠 때
+     모르면 깨뜨릴 제약뿐이다.
+     연두는 누를 수 있는 것, 하늘은 제품이 알려주는 것. 둘 다인 자리는 연두가 이긴다.
+
+     프레임워크 기본 팔레트를 밑에 깔아 두지 않는다. 안 쓰는 기본색은 중립이 아니다 —
+     이름이 겹치는 칸(gray-900·950)이 우리 토큰을 지워도 살아남아, 비슷한 색으로
+     조용히 렌더되면서 아직 안 옮긴 자리를 맞는 것처럼 보이게 만든다.
+     지우고 나면 이 문서가 허락하지 않은 색은 아무 스타일도 내지 않는다.
+     white·black도 같이 사라진다. §2에 흰색이라는 역할은 없다 — 흰 표면은 surface다. */
+  --color-*: initial;
+
+  /* 표면은 밝기가 아니라 채움으로 나뉜다. 그림자는 떠 있는 것에만 쓴다. */
+  --color-canvas: #fcfaf7; /* 페이지 바탕 */
+  --color-surface: #ffffff; /* 카드·패널·모달·메뉴 */
+  --color-well: #e9e9e9; /* 파인 자리 — 검색칸, 뷰포트 */
+  /* 프레임(사이드바 레일)의 바닥. 표면 사다리 셋과 별개다 — 레일 위에는 카드가 올라앉지
+     않으므로 "무엇이 올라가고 내려가는가"를 정하는 그 사다리에 낄 필요가 없다.
+     크림(canvas)의 색도를 그대로 들고 L*만 98.3 → 95.05로 내렸다. 그 지점이 두 이웃과
+     동시에 가장 멀어지는 자리다(canvas와 ΔE 3.13, well과 3.33 — 문턱 2.35).
+     well보다 어두워지면 회색 램프의 두 문턱이 따라 내려온다. 그래서 위쪽에 둔다. */
+  --color-frame: #f3f1ee;
+
+  /* 연두 = 누를 수 있는 것.
+     hover·pressed는 action 위에 검정을 8%·16% 얹어 계산한 값이다. action을 바꾸면
+     둘도 다시 계산한다 — 손으로 고르면 명도와 함께 색상이 돌아 눌릴 때 올리브가 된다. */
+  --color-lime-pale: #f1ff89; /* 넓은 면의 연두 — 학습 하이라이트 */
+  --color-lime-action: #e3ff00;
+  --color-lime-hover: #d1eb00;
+  --color-lime-pressed: #bfd600;
+
+  /* 하늘 = 상태. 눌리는 게 없어서 hover·pressed가 없다.
+     연두는 채움 전용이지만 하늘은 채움과 글자 둘 다 한다 — 단, 같은 단계로는 아니다.
+     pale 위에 ink를 올리면 4.49:1이라 못 쓴다. pale은 근접 검정을 올리거나 글자를 안 올린다. */
+  --color-sky-pale: #e7f7fa; /* 글자가 안 올라가는 상태면 — 진행 트랙 */
+  --color-sky-status: #4dd8ff; /* 채움. 근접 검정 글자를 올린다 */
+  --color-sky-ink: #0475b9; /* 글자만으로 된 상태 */
+
+  /* 빨강 = 잘못됐거나 잃는 것. 채움색을 글자색으로 대신 못 쓴다 —
+     #ff5d6b는 흰 바탕에서 2.99:1이다. */
+  --color-red-danger: #ff5d6b; /* 되돌릴 수 없는 동작의 채움 */
+  --color-red-ink: #c9182b; /* 오류 글자, 잘못된 입력칸의 선 */
+
+  /* 주황 = 시간. 여긴 진짜 척도라서 번호를 쓴다 — 300에 흰색을 72%·40%·0% 섞은 값이다.
+     띠의 경계는 절반씩 접는다(14 → 7 → 3). 색 단계가 ΔE 29.9·29.0으로 고르니
+     날짜도 고르게 걸어야 하고, 남은 시간은 비율로 느껴진다. D-15부터는 색이 없다. */
+  --color-amber-100: #ffebbd; /* 2주 — D-14~D-8 */
+  --color-amber-200: #ffd572; /* 일주일 — D-7~D-4 */
+  --color-amber-300: #ffb914; /* 사흘 — D-3~D-DAY */
+
+  /* 회색은 잉크다. 표면은 회색이 아니다 — 위의 canvas·surface·well이 따로 있다.
+     L*가 11씩 떨어지는데, 그 간격은 넘어야 할 두 문턱 사이의 거리다.
+     400이 뜻을 지닌 아이콘의 3:1을, 500이 글자의 4.5:1을 세 표면 모두에서 갓 넘는다.
+     그래서 판(well)을 깊게 하면 이 램프도 같이 내려온다 — 세 표면 중 가장 어두운
+     것이 문턱을 정하기 때문이다.
+     300·600은 맡은 일이 없다. 사다리의 중간이라 남겨 둔 칸이고, 집으려면 이유가 필요하다. */
+  --color-gray-100: #dedede; /* 구분선·테두리 */
+  --color-gray-200: #bfbfbf; /* 비활성 글자, 장식 */
+  --color-gray-300: #a1a1a1;
+  --color-gray-400: #858585; /* 뜻을 지닌 아이콘 */
+  --color-gray-500: #696969; /* 물러나 있는 글자 */
+  --color-gray-600: #4f4f4f;
+  --color-gray-700: #363636; /* 본문 */
+  --color-gray-800: #1e1e1e; /* 제목·강조 */
+
+  /* 과목 색 여덟. 색상환을 45°씩 돌고 명도는 두 단을 번갈아 밟는다.
+     명도를 번갈아 밟는 게 핵심이다 — 한 명도로 여덟을 만들면 색각 이상에서 회색 여덟이 된다.
+     순서·개수는 shared/lib/subjectColor.ts와 같아야 한다. 아홉 번째부터 한 바퀴 돌아 겹친다. */
+  --color-subject-1: #b04852;
+  --color-subject-2: #be7d42;
+  --color-subject-3: #66701b;
+  --color-subject-4: #399d68;
+  --color-subject-5: #007d84;
+  --color-subject-6: #0099d4;
+  --color-subject-7: #5466b3;
+  --color-subject-8: #c26fae;
+
+  /* 딤은 하나다. 45%는 surface 패널 대비 3.45:1로 3:1을 넘는 가장 옅은 단이다 —
+     40%는 2.96이라 못 넘고, 60%는 모달을 여닫을 때마다 화면 전체가 출렁인다. */
+  --color-dim: rgb(0 0 0 / 0.45);
+
+  /* 그림자는 두 단이다. 겹칠 수 있는 횟수가 둘이라서다 — 페이지 위에 하나(far),
+     그 위에 작은 것 하나(near). 셋째 층이 필요해 보이면 그건 모달이 아니라 화면이다. */
+  --shadow-far: 0 2px 6px rgb(0 0 0 / 0.05), 0 18px 40px rgb(0 0 0 / 0.12);
+  --shadow-near: 0 1px 2px rgb(0 0 0 / 0.05), 0 4px 10px rgb(0 0 0 / 0.07);
+
+  /* ===== Radius ===== */
+  --radius-md: 6px;
+  --radius-full: 999px;
+
+  /* ===== 배경 mesh 모션 (GradientBackground) =====
+     블롭 4개를 서로 나누어떨어지지 않는 주기로 흔들어 같은 배치로 다시 모이지 않게 한다.
+     transform만 움직인다 — left/width/filter를 건드리면 매 프레임 블러가 다시 그려져
+     프레임이 떨어진다. transform만 쓰면 블러는 한 번만 래스터화되고 GPU가 옮기기만 한다.
+     alternate라 되돌아오며 끝나서 루프 이음매가 보이지 않는다. */
+  --animate-drift-1: drift-1 31s ease-in-out infinite alternate;
+  --animate-drift-2: drift-2 23s ease-in-out infinite alternate;
+  --animate-drift-3: drift-3 37s ease-in-out infinite alternate;
+  --animate-drift-4: drift-4 29s ease-in-out infinite alternate;
+
+  /* 이동 폭은 블롭 자기 크기의 8~11%. 블롭이 화면의 절반쯤이라 화면 기준 5~8%가 된다 */
+  @keyframes drift-1 {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(-10%, 8%, 0) scale(1.06);
+    }
+  }
+  @keyframes drift-2 {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(9%, 10%, 0) scale(1.05);
+    }
+  }
+  @keyframes drift-3 {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(11%, -9%, 0) scale(1.07);
+    }
+  }
+  @keyframes drift-4 {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(-8%, -10%, 0) scale(1.05);
+    }
+  }
+
+  /* ===== 랜딩 스플래시 =====
+     4.2초 중 65%(약 2.7초)를 그대로 머문 뒤 1.5초에 걸쳐 걷힌다.
+     세션당 한 번만 보이므로 조금 길어도 반복해서 기다릴 일은 없다.
+     움직임이 아니라 불투명도만 다루므로 prefers-reduced-motion에서도 그대로 둔다
+     (끄면 스플래시가 영영 안 사라진다). */
+  --animate-splash-out: splash-out 4.2s ease-in-out forwards;
+
+  @keyframes splash-out {
+    0%,
+    65% {
+      opacity: 1;
+      visibility: visible;
+    }
+    100% {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+}
+
+/* ===== 쌓임 순서 =====
+   전역에서 겹치는 fixed·sticky 요소만 여기서 정한다. 부모 안에서만 겹치는
+   드롭다운·닫기 버튼은 지역 z-10을 그대로 둔다. */
+@utility z-dim {
+  z-index: 20; /* 사이드바 펼침 딤 */
+}
+@utility z-nav {
+  z-index: 30; /* 사이드바, 챗독 패널 */
+}
+@utility z-float {
+  z-index: 40; /* 떠 있는 보조 컨트롤 — 맨 위로, 챗독 탭 */
+}
+@utility z-header {
+  z-index: 50; /* 랜딩 sticky 헤더 */
+}
+@utility z-modal {
+  z-index: 60; /* 모달. 헤더와 같은 50이라 어느 쪽이 위인지 우연에 달려 있었다 */
+}
+@utility z-tooltip {
+  z-index: 70; /* 툴팁. 모달 안에서도 떠야 해서 모달 위다 */
+}
+@utility z-splash {
+  z-index: 100; /* 랜딩 스플래시 */
+}
+
+/* ===== 콘텐츠 열 =====
+   시안 열 1511은 시안 레일(90)을 뺀 1830의 82.57%다. 비율과 90은 시안에서 짝으로 나온
+   값이라 같이 움직인다 — 아래 90을 지금 레일 폭(--sidebar-rail)으로 바꾸면 안 된다.
+   그건 다른 숫자다. 레일을 좁힌다고 본문이 넓어질 이유가 없다.
+   100% + var(--sidebar-w)는 vw와 같아서(main의 좌패딩이 곧 --sidebar-w다) 이 식은
+   레일 상태와 무관하다. 접고 펼 때 폭이 달라지는 건 아래 여백 하한 쪽이다.
+   100vw가 아니라 100%(main의 콘텐츠 박스)로 재는 이유는 scrollbar-gutter다. */
+@utility content-col {
+  width: min(1511px, calc((100% + var(--sidebar-w) - 90px) * 0.8257));
+  /* 좌우 여백의 하한. 정하는 건 오른쪽 하나뿐이다 — 챗 탭이 right-0에 32px로 붙어
+     있어서, 여백이 그보다 좁으면 탭이 열 위에 올라탄다(1280에서 11px 겹쳤다).
+     32에 8을 더해 40. 왼쪽은 안 걸린다: 사이드바에서 경계 밖으로 나오는 엣지 스트립(4)과
+     chevron(12)은 접힘 전용이고, 접힘의 여백은 어느 폭에서도 99.5 이상이다.
+     이 하한이 걸리면 열이 그만큼 좁아진다 — 1502 미만에서 그렇다. */
+  max-width: calc(100% - 80px);
+  margin-inline: auto;
+}
+
+/* 스크롤 영역이 항목을 반쯤 자른 채 끝나지 않게 아래쪽을 페이드로 닫는다.
+   내용이 짧아 바닥에 닿지 않으면 빈 자리를 덮어 아무것도 안 보인다 —
+   그래서 스크롤이 실제로 생겼을 때만 눈에 띈다. */
+@utility fade-bottom {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 calc(100% - 20px),
+    transparent
+  );
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent);
+}
+
+/* ===== 읽기 열 =====
+   한 열로 내려 읽는 화면(설정·온보딩)이 쓴다. 옆에 나란히 놓이는 것이 없어서
+   넓혀 봐야 글줄만 길어지는 자리다 — content-col은 판을 나란히 놓는 작업 화면의 폭이다.
+
+   655는 §4가 모달에 정해 둔 폭이다. 모달이 이 제품의 기존 «한 열짜리 읽기 면»이고
+   (한 열, 칸과 짧은 문장, 옆에 아무것도 없음) 이 화면들이 같은 상황이라, 숫자를
+   새로 만들지 않고 그 결정을 그대로 가져온다.
+
+   창을 반으로 나눠 쓰는 경우가 설계 조건이다 — 자료를 한쪽에 띄우고 이 서비스를
+   반대쪽에 두는 식. 1920을 반으로 나누면 뷰포트 960이고, 펼친 사이드바 216을 빼면
+   744가 남는다. 655 + 여백 40×2 = 735로 9px 여유가 있다.
+   (예전 747은 여기서 들어가지 않아 오른쪽 여백이 6px까지 눌렸다.)
+
+   그 아래로는 끊기지 않고 이어서 좁아진다 — §5가 좁은 끝에서 고른 방식이다.
+   여백 하한 40은 content-col과 같은 값을 쓴다. 그 40은 챗 탭(32+8) 때문에 생겼고
+   챗 탭은 chapters/ 안에만 뜨지만, 하한은 최소치라 더 비어도 손해가 없고
+   화면마다 여백 규칙이 갈리는 것보다 하나인 편이 낫다. */
+@utility read-col {
+  width: 655px;
+  /* 여백 하한은 content-col과 같은 40×2다 (그 값을 고른 이유는 위 주석에 있다). */
+  max-width: calc(100% - 80px);
+  margin-inline: auto;
+}
+
+/* ===== 장식 mesh (GradientBackground) =====
+   시안은 «도형»이 아니다 — 연두→하늘 선형 그라디언트를 먹인 괴상한 path를
+   stdDeviation 78로 흐려 놓은 것이고, 그 흐림이 모양을 다 먹는다. 상자에 픽셀을
+   투영하면 색이 그라디언트 축 좌표만의 함수로 정리되고(같은 좌표 안 편차 13~23/255)
+   세로 변화는 남지 않는다. 그래서 남는 손잡이는 축의 각도 하나다.
+   스톱이 퍼센트라 상자 크기를 알아서 따라간다.
+
+   색은 §2의 lime-action·sky-status다. 시안은 #E9FC47/#7FDEF7(옛 팔레트의
+   primary-300·secondary-300)인데, 알파를 다시 맞추면 우리 토큰과 구분되지 않는다 —
+   둘 다 평균 ΔE 1.85로 같은 자리에서 멈춘다.
+
+   보간을 srgb로 못 박는다. 토큰이 oklab()으로 나가는데 그대로 두면 브라우저가
+   oklab에서 보간해 95퍼센타일이 4.6에서 8.4로 벌어진다. */
+
+/* 홈 학습 배너 (시안 24:10161, 839×198). 블롭이 둘이다 — 오른쪽의 큰 쓸기와
+   왼쪽 가장자리의 옅은 연두. 시안 SVG와 평균 ΔE 1.85 · 95퍼센타일 4.6.
+   왼쪽 것은 자기 path가 거의 상자 밖(x −758..11)에 있어 오른쪽 끝자락만 걸치므로
+   원형 하나로 받는다 — 세기가 오른쪽의 1/3(덮인 정도 16 대 48)이다. */
+/* 로그인 (시안 1920×1080). 블롭 둘인데 배너와 달리 blur가 200이라 상자보다 훨씬 크게
+   번지고, 둘 다 축이 상자를 가로지르지 않는다 — 한쪽 끝에 뭉쳐 있다. 그래서 축을 가진
+   «쓸기»가 아니라 색 덩이 넷으로 받는다. 각 덩이의 자리는 시안에서 채널별 무게중심을
+   재서 잡았다: 연두 (88%,19%)·(46%,59%), 하늘 (11%,17%)·(74%,82%).
+
+   첫 블롭의 스톱이 #E3FF00 → #4DD8FF로, §2의 lime-action·sky-status와 값이 같다.
+   두 번째만 배너와 같은 #E9FC47/#7FDEF7인데 알파를 맞추면 구분되지 않는다.
+
+   정답지는 흰색이 아니라 canvas(#fcfaf7) 위에 합성해서 재야 한다 — 이 화면의 바탕이
+   크림이고, 블롭이 반투명이라 바닥색이 결과를 바꾼다.
+
+   시안 SVG와 평균 ΔE 3.8 · 95퍼센타일 11.0. 배너(1.8)보다 크다 — 첫 블롭이 세로로
+   봉우리가 둘이고(위와 60~85%) 원형 하나로는 그 굴곡을 못 낸다. 평평한 구간을 주거나
+   반지름을 키우는 쪽은 전부 더 나빠졌으니, 더 맞추려면 덩이를 넷보다 늘려야 한다.
+   판 전체가 바탕에서 ΔE 20쯤밖에 안 떨어지는 옅은 판이라 눈으로는 묻힌다. */
+/* 챗봇 패널 (시안 697×1073, blur 158). 블롭 하나인데 축(327.5°)만으로는 정리되지
+   않는다 — 축 좌표로 묶으면 같은 좌표 안 편차가 28/255까지 벌어진다. 상자보다 훨씬 큰
+   path가 한쪽에 걸쳐서, 배너처럼 «쓸기»가 아니라 로그인처럼 색 덩이로 읽힌다.
+   연두는 오른쪽 아래(81%,61%), 하늘은 왼쪽 위(25%,16%)다.
+
+   시안이 준 CSS(rotate(147.46deg) + blur(158.427px))가 이 기하를 교차 검증해 준다 —
+   147.46 + 180 = 327.46이 SVG 축 벡터에서 환산한 각도와 맞는다.
+
+   시안 SVG와 평균 ΔE 2.2 · 95퍼센타일 4.4. 흰 패널 위에 합성해서 잰 값이다. */
+/* 챗봇 열기·닫기 탭 (시안 32×107, blur 17). 상자가 좁아서 이 블롭은 축(347.8°)이
+   거의 수직이고, 가로 편차가 거의 없다(y=53에서 #eefbec → #e6f9dc) — 그래서 덩이가
+   아니라 «쓸기» 하나다. 아래가 연두, 위가 하늘이고 가운데가 한 번 옅어진다.
+   시안이 준 CSS(rotate(167.8deg))가 여기서도 맞는다 — 167.8 + 180 = 347.8.
+
+   시안 SVG와 평균 ΔE 3.6 · 95퍼센타일 8.8. 흰 탭 위에 합성해서 잰 값이다. */
+@utility mesh-tab {
+  background-image: linear-gradient(
+    348deg in srgb,
+    --alpha(var(--color-lime-action) / 18%) 0%,
+    --alpha(var(--color-lime-action) / 12%) 35%,
+    --alpha(var(--color-sky-status) / 26%) 100%
+  );
+}
+
+@utility mesh-dock {
+  background-image:
+    radial-gradient(
+      75% 75% at 25% 16%,
+      --alpha(var(--color-sky-status) / 14%),
+      transparent
+    ),
+    radial-gradient(
+      70% 50% at 81% 61%,
+      --alpha(var(--color-lime-action) / 20%),
+      transparent
+    );
+}
+
+@utility mesh-login {
+  background-image:
+    radial-gradient(
+      45% 65% at 11% 17%,
+      --alpha(var(--color-sky-status) / 13%),
+      transparent
+    ),
+    radial-gradient(
+      45% 65% at 40% 65%,
+      --alpha(var(--color-lime-action) / 18%),
+      transparent
+    ),
+    radial-gradient(
+      35% 75% at 94% 13%,
+      --alpha(var(--color-lime-action) / 20%),
+      transparent
+    ),
+    radial-gradient(
+      45% 75% at 74% 82%,
+      --alpha(var(--color-sky-status) / 20%),
+      transparent
+    );
+}
+
+@utility mesh-banner {
+  background-image:
+    radial-gradient(
+      34% 90% at 0% 74%,
+      --alpha(var(--color-lime-action) / 6%),
+      transparent
+    ),
+    linear-gradient(
+      255.3deg in srgb,
+      --alpha(var(--color-lime-action) / 20%) 0%,
+      --alpha(var(--color-sky-status) / 12%) 40%,
+      transparent 62%
+    );
+}
+
+/* ===== 스크롤바 =====
+   시안의 스크롤바는 폭 6px짜리 알약 하나뿐이다(위아래 화살표 버튼이 없다).
+   OS 기본 스크롤바는 Windows에서 스텝 버튼이 붙어 나오므로 문서와 모든 스크롤 영역에
+   한 번에 적용한다. Blink는 scrollbar-width/color가 지정돼 있으면 ::-webkit-scrollbar를
+   통째로 무시하므로, WebKit 경로와 Firefox 경로를 @supports로 갈라 둔다. */
+@layer base {
+  /* 스크롤바가 생겼다 사라질 때(모달의 body overflow:hidden, 목록 필터링, 로딩→데이터)
+     뷰포트가 6px 넓어져 mx-auto 콘텐츠가 3px씩 오른쪽으로 튄다. 자리를 늘 비워 둬 막는다. */
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  /* 사이드바 폭. (main) 레이아웃이 펼침 여부에 따라 덮어쓴다 — 사이드바 자신의 폭,
+     main의 좌패딩, content-col이 모두 이 하나를 본다. */
+  :root {
+    /* 접힘 레일의 폭. 레일 자신과 그 안의 아이콘 칸이 이것만 본다 — 아이콘 칸이
+       레일과 다르면 폭이 바뀌는 동안 아이콘이 제자리에 못 있는다.
+       72는 아이콘(24)의 세 칸이다: 여백 24 + 아이콘 24 + 여백 24.
+       (콘텐츠 열 식의 90은 시안 레일이라 다른 값이다. 위 주석 참고.) */
+    --sidebar-rail: 72px;
+    --sidebar-w: var(--sidebar-rail);
+  }
+
+  /* 표준 scrollbar-width/color는 여기 두면 안 된다. Blink는 그게 지정돼 있으면
+     ::-webkit-scrollbar 규칙을 통째로 무시하고 OS 얇은 스크롤바를 그리는데,
+     Windows에서는 그 모양에 위아래 스텝 버튼이 그대로 남는다.
+     Firefox용 대체는 아래 @supports 블록에서 따로 준다. */
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  /* 페이지 스크롤바는 브라우저에 맡긴다 — 굵기만 6으로 맞추고 트랙은 비워 둔다.
+     안쪽 스크롤 영역(카드·패널·모달·사이드바)은 여기 걸리지 않는다. 그쪽은
+     shared/ui/ScrollArea가 네이티브를 빼고 자기 막대를 그린다. */
+  *::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    border-radius: var(--radius-full);
+    background-color: var(--color-gray-200);
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-gray-300);
+  }
+  /* 위아래 화살표 제거 — 이게 없으면 OS에 따라 스텝 버튼이 그대로 남는다 */
+  *::-webkit-scrollbar-button {
+    display: none;
+  }
+  *::-webkit-scrollbar-corner {
+    background-color: transparent;
+  }
+
+  /* ::-webkit-scrollbar를 모르는 브라우저(Firefox)만 표준 속성으로 근사한다.
+     굵기는 thin까지가 한계라 6px에 정확히 맞출 수는 없다. */
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-gray-200) transparent;
+    }
+  }
+}
+
+/* 스크롤바를 레이아웃에서 완전히 뺀다. 자리를 비워 두지도 않으므로 내용이 상자 폭을
+   그대로 쓴다 — 그 대신 "얼마나 남았는지"를 알릴 방법이 사라지니, 쓰는 쪽이 막대를
+   따로 그린다(shared/ui/ScrollArea). */
+@utility scrollbar-hidden {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* 글자를 받는 요소는 감싼 곳의 글꼴을 물려받는다.
+   input·textarea·select는 UA가 자기 font를 따로 들고 오기 때문에, 제자리 편집처럼
+   제목 안에 놓이는 입력칸이 혼자 작아진다. 화면마다 되돌리면 그때마다 임의값이 되므로
+   여기서 한 번만 맞춘다. */
+@layer base {
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+  }
+}
+
+/* 누를 수 있는 요소는 손가락 커서.
+   Tailwind v4부터 button의 기본 커서가 pointer가 아니라 default라, 화면마다 클래스를
+   붙이지 않으면 클릭 가능한지 커서로 알 수 없다. 여기서 한 번에 되돌린다.
+   - :disabled는 제외한다 (못 누르는데 누를 수 있어 보이면 안 된다)
+   - a[href]는 브라우저 기본값이 이미 pointer라 넣지 않았다
+   - base 레이어라 개별 요소의 cursor-* 유틸리티가 항상 이긴다 (disabled:cursor-not-allowed 유지) */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* 자동완성된 입력칸.
+   Chrome은 자동완성 항목을 고르면 UA 스타일(:-internal-autofill-selected)로 연한 파란 배경을
+   칠한다. 우선순위가 높아 background-color로는 덮이지 않는다. 어두운 바(bg-gray-800) 안의
+   투명한 input에 이게 걸리면 검은 배경 위에 흰 판이 생긴 것처럼 보인다.
+
+   앱의 input은 어디서도 배경을 직접 칠하지 않으므로(전부 bg-transparent) 배경을 글자 영역으로
+   클립해 판 자체를 지운다. 부모의 배경색을 몰라도 되는 방식이라 밝은 화면과 어두운 화면에
+   똑같이 통한다 — box-shadow inset으로 덮는 흔한 방법은 부모 색을 박아야 해서 화면마다 갈린다.
+
+   글자색은 currentColor로 두면 안 된다. UA 규칙이 color를 !important로 덮어써서
+   currentColor가 그 검정을 그대로 물어오고, 어두운 필드 위에서 글자가 사라진다.
+   -webkit-text-fill-color는 UA가 건드리지 않는 속성이라 명시색을 주면 이긴다.
+   기본값은 어두운 잉크다 — DESIGN.md §2가 어두운 표면을 없애서 입력칸은 전부 밝은
+   바탕에 놓인다. 아직 안 옮긴 어두운 필드에서는 이 글자가 안 보이고, 그 자리는
+   부품 교체로 없어진다.
+
+   표준 :autofill과 -webkit- 접두사를 한 셀렉터 목록에 묶으면 한쪽을 모르는 브라우저가
+   규칙 전체를 버리므로 블록을 나눠 둔다. */
+@layer base {
+  :root {
+    --autofill-text: var(--color-gray-800);
+  }
+}
+
+@layer base {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: var(--autofill-text);
+    caret-color: var(--autofill-text);
+  }
+}
+
+@layer base {
+  input:autofill,
+  input:autofill:hover,
+  input:autofill:focus,
+  input:autofill:active {
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: var(--autofill-text);
+    caret-color: var(--autofill-text);
+  }
+}
+
+/* 기본 배경/텍스트 */
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-gray-700);
+}
+
+/* 세션 안에서 스플래시를 이미 봤으면 아예 그리지 않는다.
+   판정은 LandingSplash의 인라인 스크립트가 첫 페인트 전에 끝낸다 */
+html[data-splash='seen'] [data-splash-overlay] {
+  display: none;
+}

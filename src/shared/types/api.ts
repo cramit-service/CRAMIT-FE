@@ -1,0 +1,308 @@
+// src/shared/types/api.ts
+
+/* ===== 공통 ===== */
+
+// 에러 응답 (기획서 10.1)
+export interface ApiError {
+  error: {
+    code: string; // 예: "AUTH_INVALID_TOKEN"
+    message: string; // 사용자에게 보여줄 메시지
+    status: number; // HTTP 상태 코드
+  };
+}
+
+// 비동기 처리 상태 (STT·요약·적용·TODO 생성)
+export type ProcessStatus = 'READY' | 'PROCESSING';
+
+/* ===== User (기획서 7.3) ===== */
+
+export interface User {
+  userId: string;
+  email: string;
+  nickname: string;
+  provider: 'EMAIL' | 'KAKAO' | 'GOOGLE';
+  profileImage: string | null;
+}
+
+/* ===== 인증 (기획서 8.1) ===== */
+
+export interface SignupRequest {
+  email: string;
+  password: string;
+  nickname: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+/* ===== 온보딩 (약관 → 닉네임 → 요금제) ===== */
+
+export type PlanId = 'FREE' | 'STANDARD' | 'PRO';
+
+export interface NicknameCheckResponse {
+  available: boolean;
+}
+
+// TODO: 백엔드 온보딩 등록 스펙 확정 시 필드명 재확인 필요
+export interface OnboardingProfileRequest {
+  nickname: string;
+  agreedTermIds: string[];
+  plan: PlanId;
+}
+
+/* ===== 내 정보 / 설정 (대시보드-프로필) ===== */
+
+// 알림 설정 — 프로필 화면의 토글 두 개.
+// TODO: 백엔드 스펙 확정 시 필드명 재확인 필요
+export interface NotificationSettings {
+  aiAnalysisDone: boolean; // AI 분석 완료 알림
+  todoDueDate: boolean; // TODO 마감일 알림
+}
+
+// 프로필 화면 한 장에 필요한 것 — 계정 정보 + 요금제 + 알림 설정.
+// User만으로는 요금제와 알림을 채울 수 없어 화면용 응답을 따로 둔다
+// (ProjectSummary가 Project를 넓히는 것과 같은 방식).
+export interface MyProfile extends User {
+  plan: PlanId;
+  notifications: NotificationSettings;
+}
+
+/* ===== Project (기획서 7.3, 8.2) ===== */
+
+export interface Project {
+  projectId: string;
+  title: string;
+  createdAt: string; // ISO 날짜 문자열
+  // 과목 색 — 팔레트 번호(1부터). 없으면 화면이 생성 순으로 채운다.
+  // TODO: 백엔드 필드명 확정 시 맞춘다.
+  colorIndex: number; // 과목 색 팔레트 번호(1부터). 서버가 늘 채워 준다
+}
+
+// 학습하기(강의 목록) 카드 한 장에 필요한 메타.
+// Project만으로는 시안의 태그(교수명·강의 수·D-DAY)를 채울 수 없어 목록 응답을 따로 둔다.
+// TODO: 백엔드 목록 응답 스펙 확정 시 필드명 재확인 필요
+export interface ProjectSummary extends Project {
+  professor: string | null; // 교수명 (선택) — 없으면 메타 줄에서 조각째 빠진다
+  chapterCount: number; // 강의(챕터) 개수 (태그: "강의 N개")
+  examName: string | null; // 시험명 (예: "중간고사")
+  examDate: string | null; // 시험일 (YYYY-MM-DD) — D-DAY 계산용
+}
+
+/* ===== Chapter / 단계별 학습 (이슈 A) ===== */
+
+export type ChapterStatus = 'BEFORE' | 'IN_PROGRESS' | 'DONE';
+
+export interface Chapter {
+  chapterId: string;
+  projectId: string;
+  chapterNumber: number;
+  title: string; // 카드 본문 한 줄 (예: "알고리즘 기초 알아보기")
+  createdAt: string; // ISO 날짜 문자열
+  status: ChapterStatus;
+  // 이 주차를 몇 번 읽었는지. 뷰어의 스테퍼가 올리고 내린다.
+  // 올라가기만 하는 값이 아니라는 게 중요하다 — 한 번 잘못 누른 것이 학기 내내 남으면
+  // 기록이 아니라 오기가 된다. 백엔드는 증가 전용이 아니라 값을 세팅하는 엔드포인트를
+  // 내야 한다 (DESIGN.md §4 "A 회독 is raised by a stepper, and lowered by the same one").
+  reviewCount: number;
+  // 아래 둘은 "주차 정보 수정하기" 모달이 기존 값을 채우는 데 쓴다.
+  // TODO(백엔드): 챕터 조회 응답에 lectureDate·professor를 포함해 달라고 요청해야 한다.
+  //   없으면 수정 모달이 빈 날짜를 저장해 기존 값을 덮어쓴다.
+  lectureDate: string; // 주차 수강 날짜 (YYYY-MM-DD)
+  professor: string | null; // 교수명 (선택)
+  // 이미 올려둔 파일의 이름. 수정 모달이 "이 주차에 무엇이 올라가 있는지"를 보여주는 데 쓴다.
+  // 업로드 계약이 "새로 고르지 않으면 기존 파일 유지"라, 이 값이 없으면 화면에는 빈 칸만 보여
+  // 사용자가 파일이 날아간 줄 알고 같은 파일을 다시 올리게 된다.
+  // TODO(백엔드): 챕터 조회 응답에 올라간 파일 이름을 포함해 달라고 요청해야 한다.
+  // 아직 응답에 없을 수 있어 optional이다. 필드가 없는 것(undefined)과 파일이 없는 것(null)은
+  // 뜻이 다르다 — 이 구분이 없으면 "모른다"를 "없다"로 읽어 수정 저장을 막아버린다.
+  materialFileName?: string | null; // 강의 자료(PDF)
+  audioFileName?: string | null; // 음성 파일
+  // 백엔드 확정 후 조정. 필드명 카멜/ID 타입은 기존 방침 따름
+}
+
+// 새 주차(챕터) 업로드 요청.
+// 파일 2종은 선택이며, 실제 전송은 JSON이 아니라 multipart/form-data다.
+// TODO: 백엔드 업로드 스펙 확정 시 필드명/필수 여부 재확인 필요
+export interface CreateChapterRequest {
+  projectId: string; // 어느 강의(프로젝트)에 붙일 주차인지
+  title: string; // 주차 제목 (예: "알고리즘 기초 알아보기")
+  lectureDate: string; // 주차 수강 날짜 (YYYY-MM-DD)
+  professor: string | null; // 교수명 (선택)
+  materialFile: File | null; // 강의 자료 PDF (선택)
+  audioFile: File | null; // 강의 녹음 파일 (선택)
+}
+
+// 주차(챕터) 수정 요청 — "주차 정보 수정하기" 모달.
+// 폼이 칸을 통째로 저장하므로 생성과 같은 필드를 모두 보낸다(부분 수정이 아니다).
+// 파일 2종은 새로 고른 것만 보낸다 — null이면 기존 파일을 그대로 둔다.
+export interface UpdateChapterRequest extends CreateChapterRequest {
+  chapterId: string;
+}
+
+// 프로젝트 상세 헤더에 필요한 메타. 공유가 빠지면서 목록 응답과 같은 모양이 됐지만,
+// 다른 엔드포인트의 응답이라 이름은 남긴다 — 상세에만 있는 필드가 생기면 여기서 갈라진다.
+// TODO: 백엔드 프로젝트 상세 응답 스펙 확정 시 필드명 재확인 필요
+export type ProjectDetail = ProjectSummary;
+
+/* ===== 학습 뷰어 / 강의자료 (이슈 B) ===== */
+
+// 학습 뷰어 탭 4종. 이번 이슈에서 내용을 채우는 건 PDF뿐이고 나머지는 자리만 잡는다.
+export type ViewerTab = 'PDF' | 'SUMMARY' | 'SCRIPT' | 'TODO';
+
+// 챕터 하나에 딸린 강의자료(PDF + 녹음) 메타.
+// TODO: 백엔드 스펙 확정 후 필드명/타입 재확인 필요.
+export interface LectureMaterial {
+  chapterId: string;
+  // 렌더할 PDF 위치. 아직 없는 자료(업로드 전)면 null.
+  // 페이지 수는 문서를 열면 알 수 있으므로 pdfPageCount는 로딩 중 자리를 잡는 데만 쓴다.
+  pdfUrl: string | null;
+  pdfPageCount: number; // PDF 총 페이지 수
+  audioDuration: number; // 녹음 길이(초). 예: 3662 = 61:02
+  // TODO: audioUrl(실제 재생용)과 페이지↔오디오 구간 매핑은
+  //       백엔드에서 내려주는 형태가 확정되면 여기에 추가한다.
+}
+
+/* ===== AI 강의 요약 (이슈 C) ===== */
+
+// AI가 생성한 Markdown 요약본.
+// TODO: 백엔드 스펙 확정 후 필드명/타입 재확인 필요.
+export interface LectureSummary {
+  chapterId: string;
+  fileName: string; // 상단 바에 노출 (예: "알고리즘_Chapter 4 - ..._요약.md")
+  markdown: string; // Markdown 원문 (조회 시 렌더, 편집 시 textarea 내용)
+  updatedAt: string; // ISO 날짜 문자열
+}
+
+/* ===== 원문 스크립트 / STT (이슈 D) ===== */
+
+// 스크립트 한 줄 — 발화가 시작된 시각(초)과 그 내용.
+export interface ScriptSegment {
+  atSec: number;
+  text: string;
+}
+
+// PDF 한 페이지에 대응하는 스크립트 구간.
+// 녹음을 PPT 페이지 단위로 끊어 묶은 것이라 페이지 번호가 곧 구간 식별자다.
+export interface ScriptSection {
+  page: number; // PDF 페이지 번호 (배지 "PDF P.01")
+  startSec: number; // 구간 시작(초)
+  endSec: number; // 구간 끝(초)
+  title: string; // 구간 소제목
+  segments: ScriptSegment[];
+}
+
+// 챕터 하나의 STT 원문 전체.
+// TODO: 백엔드 STT 응답 스펙 확정 시 필드명/타입 재확인 필요.
+export interface LectureScript {
+  chapterId: string;
+  sections: ScriptSection[];
+}
+
+/* ===== AI 챗봇 (기획서 8.7) ===== */
+
+// 말한 쪽. 화면에선 내 말이 오른쪽 연두, AI가 왼쪽 흰 말풍선이다.
+export type ChatRole = 'USER' | 'AI';
+
+// 질문에 딸려 올라간 파일. 서버에 저장된 뒤로는 File 객체가 없으므로
+// 화면에 다시 그리는 데 필요한 최소 정보만 메시지와 함께 내려받는다.
+export interface ChatAttachment {
+  name: string;
+  size: number; // bytes
+  contentType: string;
+}
+
+// 대화 한 줄.
+// TODO: 백엔드 챗봇 응답 스펙 확정 시 필드명/타입 재확인 필요.
+export interface ChatMessage {
+  messageId: string;
+  projectId: string;
+  role: ChatRole;
+  content: string;
+  createdAt: string; // ISO 날짜 문자열
+  // 파일만 보낸 질문도 있어 content가 비고 attachment만 있는 메시지가 존재한다.
+  attachment?: ChatAttachment;
+}
+
+/* ===== Exam / 시험 일정 (기획서 7.3, 8.9) ===== */
+
+export interface Exam {
+  examId: string;
+  projectId: string;
+  title: string;
+  lectureName: string | null;
+  examDate: string; // YYYY-MM-DD
+  memo: string | null;
+  createdAt: string;
+  progress: number; // 학습 진행률 0~100 (홈 학습 배너 표시용, 시험 일정과 함께 내려옴)
+}
+
+// 시험 일정 생성 요청 (홈 "다가오는 시험 일정" 추가하기 모달).
+// lectureName·progress는 보내지 않는다 — projectId만 있으면 서버가 아는 값이다.
+// TODO: 백엔드 엔드포인트·필드명 확정 시 재확인 필요
+export interface CreateExamRequest {
+  projectId: string; // 어느 강의(프로젝트)의 시험인지
+  title: string; // 시험 이름 (예: "중간고사")
+  examDate: string; // 시험일 (YYYY-MM-DD)
+  memo: string | null; // 메모 (선택)
+}
+
+// 시험 일정 수정 요청. 폼이 네 칸을 통째로 저장하므로 생성과 같은 필드를 모두 보낸다.
+// (일부만 보내는 부분 수정이 아니다)
+export interface UpdateExamRequest extends CreateExamRequest {
+  examId: string;
+}
+
+/* ===== Todo (기획서 7.3, 8.8) ===== */
+
+export interface Todo {
+  todoId: string;
+  // 시안의 TODO 모달에서 "강의 (선택)"이라 강의를 안 고른 할 일이 있을 수 있다.
+  projectId: string | null;
+  title: string;
+  lectureName: string | null; // 강의명 — 표시 시 제목 앞에 붙인다 (시험 일정과 동일 규칙)
+  dueDate: string; // YYYY-MM-DD
+  dueTime: string | null;
+  lectureId: string | null; // 연결된 주차(챕터) id
+  memo: string | null;
+  isCompleted: boolean;
+}
+
+// TODO 추가 모달의 입력. 강의와 연결된 주차는 둘 다 선택이라 비어 있을 수 있다.
+// TODO: 백엔드 TODO 등록 스펙 확정 시 필드명 재확인 필요
+export interface CreateTodoRequest {
+  projectId: string | null;
+  title: string;
+  dueDate: string; // YYYY-MM-DD
+  dueTime: string | null; // HH:mm
+  lectureId: string | null;
+  memo: string | null;
+}
+
+export interface UpdateTodoRequest extends CreateTodoRequest {
+  todoId: string;
+}
+
+/* ===== 강의(프로젝트) 생성 ===== */
+
+// 학습하기 화면의 "생성하기" 모달 입력 (Figma 1:2614).
+// 시안에는 "제목"과 "강의" 자유 입력이 나란히 있으나 강의 이름 필드는 title 하나뿐이라
+// "강의"를 title로 받는다. 시험 날짜는 목록 카드의 D-DAY 태그를 채운다.
+// TODO: 백엔드 프로젝트 생성 스펙 확정 시 필드명 재확인 필요
+export interface CreateProjectRequest {
+  title: string; // 강의명 (예: "운영체제")
+  examDate: string | null; // 시험 날짜 (YYYY-MM-DD)
+  professor: string | null; // 교수명 (선택)
+  colorIndex: number; // 과목 색 팔레트 번호(1부터)
+}
+
+// 강의 수정 (강의 상세 헤더의 연필 버튼). 시안에 전용 프레임이 없어 생성 모달의 수정 모드로 쓴다.
+export interface UpdateProjectRequest extends CreateProjectRequest {
+  projectId: string;
+}

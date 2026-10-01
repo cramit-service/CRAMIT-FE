@@ -141,3 +141,13 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# IntelliJ
+.idea
+
+# CLAUDE
+CLAUDE.local.md
+
+# pdf.js 런타임 에셋 (scripts/copy-pdfjs-assets.mjs가 node_modules에서 복사한다)
+public/pdfjs
+.DS_Store

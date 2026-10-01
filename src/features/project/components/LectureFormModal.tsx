@@ -1,0 +1,211 @@
+'use client';
+// src/features/project/components/LectureFormModal.tsx
+import { useId, useState } from 'react';
+import { cn } from '@/shared/lib/cn';
+import { FIELD_ERROR } from '@/shared/ui/fieldStyle';
+import { FieldGroup } from '@/shared/ui/FieldGroup';
+import { ConfirmModal } from '@/shared/ui/ConfirmModal';
+import { FormModal } from '@/shared/ui/FormModal';
+import { Input } from '@/shared/ui/Input';
+import {
+  buildSubjectColorMap,
+  nextSubjectColorIndex,
+} from '@/shared/lib/subjectColor';
+import type { ProjectSummary } from '@/shared/types/api';
+import {
+  useCreateLecture,
+  useDeleteLecture,
+  useUpdateLecture,
+} from '@/features/project/hooks/useLectureMutations';
+import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
+import { SubjectColorField } from '@/shared/ui/SubjectColorField';
+
+interface LectureFormModalProps {
+  /** 있으면 수정 모드(주차 목록 헤더의 연필), 없으면 생성 모드(1:2614). */
+  project?: ProjectSummary;
+  onClose: () => void;
+  /** 지워진 뒤에 할 일. 강의가 사라졌으므로 그 강의의 화면에 머물면 안 된다 —
+   *  어디로 갈지는 부르는 쪽이 안다. 없으면 그냥 닫는다. */
+  onDeleted?: () => void;
+}
+
+// 내 강의 생성·수정 모달.
+// 시안: 생성 `새 강의 생성하기`(1:2614) / 수정 `강의 정보 수정하기`(528:7764, 528:8107).
+// 두 시안의 차이는 제목 문구와 시험 날짜 칸 하나뿐이라 한 폼을 모드로 나눠 쓴다.
+// 시험 날짜는 생성 시안에 없고 수정 시안에만 "(선택)"으로 있다.
+export function LectureFormModal({
+  project,
+  onClose,
+  onDeleted,
+}: LectureFormModalProps) {
+  const fieldId = useId();
+  const isEdit = project !== undefined;
+
+  const createMutation = useCreateLecture();
+  const updateMutation = useUpdateLecture();
+  const deleteMutation = useDeleteLecture();
+  // 삭제를 묻는 중. 확인 판이 이 폼 위에 쌓이지 않고 그 자리를 대신한다 —
+  // Modal이 자기 딤을 그리므로 둘을 겹치면 45%가 두 겹이 되어 69.75%가 된다.
+  // §2가 60%를 "여닫을 때마다 화면 전체가 출렁인다"며 거부한 값보다 어둡다(L* 42.4 → 32.2).
+  // 이 컴포넌트가 언마운트되지 않으므로 취소하고 돌아와도 입력값이 그대로 있다.
+  const [confirming, setConfirming] = useState(false);
+
+  const [title, setTitle] = useState(project?.title ?? '');
+  // 사용자가 직접 쓴 값처럼 보이므로 빈 칸으로 되돌려 준다.
+  const [professor, setProfessor] = useState(project?.professor ?? '');
+  const [formError, setFormError] = useState<string | null>(null);
+
+  // 과목 색. 사용자가 고르기 전엔 null이고 기본값은 목록에서 정한다 — 목록이 아직 안 왔을 수
+  // 있어(강의 상세에서 열 때) 초기 state로 굳히지 않고 매 렌더 파생시킨다.
+  const [pickedColor, setPickedColor] = useState<number | null>(null);
+  const { data: summaries } = useProjectSummaries();
+  const colorMap = buildSubjectColorMap(summaries);
+  // 수정이면 지금 화면에 보이는 색, 생성이면 목록 다음 차례의 색.
+  // "이미 쓰는 색"은 화면에 표시하지 않는다 — 과목이 여덟을 넘으면 색이 겹칠 수밖에
+  // 없어서 그 표시가 뜻을 잃는다. 기본값을 고르는 데만 쓴다.
+  const defaultColor = isEdit
+    ? (colorMap.get(project.projectId) ?? project.colorIndex)
+    : summaries
+      ? nextSubjectColorIndex(summaries)
+      : null;
+  const colorIndex = pickedColor ?? defaultColor;
+
+  const busy =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending;
+
+  // 필수는 강의명 하나다(라벨의 별표). 교수명은 비워도 되고, 시험 날짜는 이 모달에서 빠졌다 —
+  // 시험은 강의에 딸린 별개 자료라 홈의 시험 일정에서 다룬다.
+  const filled = title.trim() !== '';
+  // 수정 모드에서는 바꾼 게 있어야 저장을 연다.
+  const changed =
+    !isEdit ||
+    title.trim() !== project.title ||
+    (professor.trim() || null) !== project.professor ||
+    colorIndex !== defaultColor;
+  const canSubmit = filled && changed && !busy;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!canSubmit) return;
+    setFormError(null);
+
+    const payload = {
+      // 이 모달은 시험 날짜를 묻지 않는다. 수정일 때 기존 값을 그대로 돌려보내 덮어쓰지
+      // 않게 한다 — examDate: string | null 계약이라 없으면 null이다.
+      title: title.trim(),
+      examDate: project?.examDate ?? null,
+      professor: professor.trim() || null,
+      // 목록을 끝내 못 받아 기본값이 없으면 첫 색으로 보낸다.
+      colorIndex: colorIndex ?? 1,
+    };
+
+    const onError = (error: Error) =>
+      setFormError(
+        error.message || '저장하지 못했어요. 잠시 후 다시 시도해 주세요.',
+      );
+
+    if (isEdit) {
+      updateMutation.mutate(
+        { ...payload, projectId: project.projectId },
+        { onSuccess: () => onClose(), onError },
+      );
+      return;
+    }
+    // 목록 맨 앞에 새 카드가 붙으므로 이 화면에 그대로 머물러도 결과가 보인다.
+    createMutation.mutate(payload, { onSuccess: () => onClose(), onError });
+  };
+
+  if (isEdit && confirming) {
+    return (
+      <ConfirmModal
+        open
+        question="이 강의를 삭제할까요?"
+        detail="주차와 학습 기록이 함께 지워지고 되돌릴 수 없어요."
+        // §6: 파괴 버튼도 ~하기로 끝나고, 눌린 동안은 자기 낱말 + 중…
+        confirmLabel={deleteMutation.isPending ? '삭제 중…' : '삭제하기'}
+        danger
+        busy={deleteMutation.isPending}
+        onConfirm={() =>
+          deleteMutation.mutate(project.projectId, {
+            onSuccess: () => (onDeleted ?? onClose)(),
+            onError: (error) => {
+              setConfirming(false);
+              setFormError(
+                error.message ||
+                  '삭제하지 못했어요. 잠시 후 다시 시도해 주세요.',
+              );
+            },
+          })
+        }
+        onClose={() => setConfirming(false)}
+      />
+    );
+  }
+
+  return (
+    <FormModal
+      open
+      title={isEdit ? '강의 정보 수정하기' : '새 강의 생성하기'}
+      // §6: 확정·파괴 버튼은 ~하기로 끝난다. `완료`는 누른 뒤에 참이 되는 말이라
+      // 누르기 직전에 읽히는 버튼의 말이 아니다. 눌린 동안은 자기 낱말 + `중…`이므로
+      // 저장이 아니라 수정이다.
+      submitLabel={
+        isEdit
+          ? busy
+            ? '수정 중…'
+            : '수정하기'
+          : busy
+            ? '생성 중…'
+            : '생성하기'
+      }
+      submitDisabled={!canSubmit}
+      busy={busy}
+      // 수정할 때만 지울 수 있다. FormModal이 푸터 반대쪽 끝(mr-auto)에 세운다 —
+      // 연두와 빨강이 나란히 서면 둘 다 그 줄을 자기 것이라 주장한다(§4).
+      onDelete={isEdit ? () => setConfirming(true) : undefined}
+      onClose={onClose}
+      onSubmit={handleSubmit}
+    >
+      {/* 색 점이 강의명 왼쪽에 붙는다 — 이름과 색이 한 줄에 있어야 "이 과목의 색"으로 읽힌다. */}
+      <FieldGroup label="강의" required>
+        <div className="flex gap-4">
+          <SubjectColorField
+            id={`${fieldId}-color`}
+            value={colorIndex}
+            onChange={setPickedColor}
+            disabled={busy}
+          />
+          {/* 라벨은 이 줄 위에 하나뿐이라 Input에 넘기지 않는다 — 색 칸과 이름 칸이
+              FieldGroup의 "강의"를 같이 이름으로 받는다. */}
+          <div className="min-w-0 flex-1">
+            <Input
+              id={`${fieldId}-title`}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="강의 명을 입력해 주세요."
+              required
+              disabled={busy}
+            />
+          </div>
+        </div>
+      </FieldGroup>
+
+      <Input
+        id={`${fieldId}-professor`}
+        label="교수명"
+        value={professor}
+        onChange={(e) => setProfessor(e.target.value)}
+        placeholder="교수명을 입력해 주세요."
+        disabled={busy}
+      />
+
+      {formError && (
+        <p role="alert" className={cn(FIELD_ERROR, 'text-right')}>
+          {formError}
+        </p>
+      )}
+    </FormModal>
+  );
+}

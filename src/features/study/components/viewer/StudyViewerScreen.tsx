@@ -1,0 +1,310 @@
+'use client';
+// src/features/study/components/viewer/StudyViewerScreen.tsx
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useProjectDetail } from '@/features/study/hooks/useProjectDetail';
+import {
+  useChapter,
+  useLectureMaterial,
+} from '@/features/study/hooks/useLectureMaterial';
+import { useMockAudio } from '@/features/study/hooks/useMockAudio';
+import { toPlayDuration } from '@/features/study/lib/format';
+import { ViewerHeader } from '@/features/study/components/viewer/ViewerHeader';
+import { PdfMaterialTab } from '@/features/study/components/viewer/PdfMaterialTab';
+import { SummaryTab } from '@/features/study/components/viewer/SummaryTab';
+import { ScriptTab } from '@/features/study/components/viewer/ScriptTab';
+import { TodoChecklist } from '@/features/todo/components/TodoChecklist';
+import { TodoFilterProvider } from '@/features/todo/hooks/useTodoFilter';
+import { Resizer } from '@/features/study/components/viewer/Resizer';
+import { Button } from '@/shared/ui/Button';
+import { cn } from '@/shared/lib/cn';
+import { setSidebarHidden } from '@/shared/ui/Sidebar/sidebarState';
+import type { ViewerTab } from '@/shared/types/api';
+import { CONTENT_SHELL } from '@/shared/ui/pageShell';
+
+// 로딩·에러 문구도 본문과 같은 폭에 둔다 — 전체 폭이면 데이터가 도착하는 순간 콘텐츠가 가로로 튄다.
+// 일반 모드는 다른 화면과 같은 콘텐츠 열(content-col)을 쓴다. 바깥 여백은 px-*가 아니라
+// 남는 폭이 갖는다(CLAUDE.md 4-4).
+const PAGE_SHELL = CONTENT_SHELL;
+// 집중 모드 — 위 16 + 탭줄 32 + 간격 12 = 60, 아래 16. 일반 모드의 188에서 76으로 줄어든다.
+const FOCUS_SHELL = 'w-full px-6 pt-4 pb-4';
+
+interface StudyViewerScreenProps {
+  projectId: string;
+  chapterId: string;
+}
+
+// 이분할일 때 두 패널 사이 간격 = 드래그 핸들 폭(Resizer의 w-3).
+// 시안은 14px이지만 패널 안쪽 핸들과 같은 잡는 폭을 유지하려고 12px로 둔다.
+// 여기 값이 핸들 실제 폭과 어긋나면 좌우 비율 계산이 그만큼 밀린다.
+const SPLIT_GAP = 12;
+// 패널이 이보다 좁아지면 어느 탭이든 내용을 읽을 수 없다.
+// 비율(%)로만 막으면 창이 작아질 때 하한도 같이 작아져 결국 그 구간에 들어간다.
+// 그래서 하한은 px로 두고, 비율 범위는 실제 폭에서 매번 역산한다.
+const MIN_PANEL_WIDTH = 400;
+
+// 학습 뷰어(챕터 "학습하기" 진입) 화면. page.tsx는 이 컴포넌트를 조립만 한다.
+export function StudyViewerScreen({
+  projectId,
+  chapterId,
+}: StudyViewerScreenProps) {
+  // 켜져 있는 탭 목록. 1개면 단일, 2개면 이분할이고 배열 순서가 곧 좌→우 순서다.
+  const [activeTabs, setActiveTabs] = useState<ViewerTab[]>(['PDF']);
+  // 집중 모드 — 사이드바와 상단 헤더를 접고 패널이 화면을 다 쓴다
+  const [focus, setFocus] = useState(false);
+  // 좌측 패널이 차지하는 비율(%)
+  const [leftRatio, setLeftRatio] = useState(50);
+  // 드래그 이동량(px)을 비율(%)로 바꾸고, 분할이 가능한 폭인지 판단하는 데 쓴다.
+  // 분할 영역이 아니라 항상 그려지는 바깥 칸을 잰다 — 분할이 풀리면 안쪽 ref가
+  // 떨어지면서 폭이 0이 되고, 그 0 때문에 다시 분할이 켜지는 진동이 생긴다.
+  const [areaWidth, setAreaWidth] = useState(0);
+  const observerRef = useRef<ResizeObserver | null>(null);
+  // useEffect가 아니라 콜백 ref로 붙인다. 아래 로딩·에러 분기 때문에 첫 렌더에는
+  // 이 칸이 없어서, 빈 deps의 useEffect로는 나중에 생긴 노드를 영영 못 잡는다.
+  const areaRef = useCallback((node: HTMLDivElement | null) => {
+    observerRef.current?.disconnect();
+    if (!node) return;
+    const observer = new ResizeObserver(([entry]) =>
+      setAreaWidth(entry.contentRect.width),
+    );
+    observer.observe(node);
+    observerRef.current = observer;
+  }, []);
+
+  // 사이드바는 (main) 레이아웃에 있어 이 화면이 직접 못 지운다. 공유 상태로 알린다.
+  // 화면을 떠날 때 반드시 되돌린다 — 안 그러면 다른 화면에서 사이드바가 사라진 채로 남는다.
+  useEffect(() => {
+    setSidebarHidden(focus);
+    return () => setSidebarHidden(false);
+  }, [focus]);
+
+  // 전체화면 요청은 비동기다. 켜자마자 Esc를 누르면 요청이 끝나기 전이라
+  // fullscreenElement가 아직 없어 종료를 못 하고, 뒤늦게 요청이 완료되면
+  // "레이아웃은 일반인데 전체화면만 남은" 상태가 된다. 의도를 ref로 들고 있다가
+  // 요청이 끝난 뒤에 의도가 풀려 있으면 그때 닫는다.
+  const focusIntent = useRef(false);
+
+  // 나가는 길이 셋(버튼·Esc·브라우저)이라 한곳에 모은다. 레이아웃과 전체화면이
+  // 따로 놀면 "주소창은 돌아왔는데 사이드바만 없는" 어중간한 상태가 남는다.
+  const exitFocus = useCallback(() => {
+    focusIntent.current = false;
+    setFocus(false);
+    if (document.fullscreenElement) void document.exitFullscreen();
+  }, []);
+
+  // 사용자가 F11이나 Esc로 전체화면을 직접 풀면 집중 모드도 같이 풀어야 한다.
+  // 그러지 않으면 주소창은 돌아왔는데 사이드바만 사라진 상태로 남는다.
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      if (document.fullscreenElement) return;
+      focusIntent.current = false;
+      setFocus(false);
+    };
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    return () =>
+      document.removeEventListener('fullscreenchange', onFullscreenChange);
+  }, []);
+
+  // 화면을 떠날 때 전체화면도 같이 푼다 — 다른 화면이 전체화면으로 남으면 안 된다.
+  // 아직 요청이 도는 중일 수 있어 의도부터 내린다(완료 콜백이 그걸 보고 닫는다).
+  useEffect(
+    () => () => {
+      focusIntent.current = false;
+      if (document.fullscreenElement) void document.exitFullscreen();
+    },
+    [],
+  );
+
+  // Esc로 나간다. 모달이 열려 있으면 Esc는 모달 것이다(Sidebar와 같은 판단).
+  // 전체화면일 때는 브라우저가 Esc를 먼저 먹고 fullscreenchange가 대신 처리한다.
+  useEffect(() => {
+    if (!focus) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (document.querySelector('[aria-modal="true"]')) return;
+      exitFocus();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [focus, exitFocus]);
+
+  const projectQuery = useProjectDetail(projectId);
+  const chapterQuery = useChapter(projectId, chapterId);
+  const materialQuery = useLectureMaterial(chapterId);
+
+  // 재생 상태는 탭이 아니라 화면이 쥔다. 탭 안에 두면 탭을 옮길 때마다 언마운트돼
+  // 재생 위치가 초기화되고, 원문 스크립트 탭이 그 값을 읽을 방법도 없다.
+  // 조회 전에는 duration이 0이지만 훅이 읽는 시점에만 잘라내므로 도착하면 복원된다.
+  const audio = useMockAudio(toPlayDuration(materialQuery.data?.audioDuration));
+
+  // 양쪽 다 최소 폭을 가질 수 있을 때만 나눈다. 억지로 나누면 두 패널 모두
+  // 읽을 수 없어져서, 좁은 창에선 탭 두 개를 켜도 마지막 것만 단일로 보여준다.
+  const canSplit = areaWidth >= MIN_PANEL_WIDTH * 2 + SPLIT_GAP;
+  const isSplit = activeTabs.length === 2 && canSplit;
+
+  // 최소 폭(px)을 지금 분할 영역 폭 기준의 비율로 환산한다.
+  const splitInner = Math.max(0, areaWidth - SPLIT_GAP);
+  const minRatio =
+    splitInner > 0 ? Math.min(50, (MIN_PANEL_WIDTH / splitInner) * 100) : 50;
+  const maxRatio = 100 - minRatio;
+  // 창 크기가 바뀌면 저장된 비율이 범위 밖으로 나갈 수 있다.
+  // 상태를 되돌리지 않고 읽는 시점에 자른다(currentPage·재생 위치와 같은 방식).
+  const ratio = Math.min(maxRatio, Math.max(minRatio, leftRatio));
+
+  // 브라우저 크롬(주소창)까지 접으려면 전체화면 API가 필요한데, 이건 클릭 같은
+  // 사용자 동작 안에서만 허용된다 — 이펙트로 미루면 거부된다.
+  // 막히는 환경(권한 정책 등)에서도 레이아웃 집중 모드는 그대로 동작한다.
+  const toggleFocus = () => {
+    if (focus) {
+      exitFocus();
+      return;
+    }
+    focusIntent.current = true;
+    setFocus(true);
+
+    const root = document.documentElement;
+    // 오래된 WebView에는 이 메서드가 아예 없다. 부르면 catch 전에 TypeError가 난다.
+    if (typeof root.requestFullscreen !== 'function') return;
+    root.requestFullscreen().then(
+      () => {
+        // 요청이 도는 동안 이미 나갔다면 지금 닫는다
+        if (!focusIntent.current) void document.exitFullscreen();
+      },
+      // 권한 정책 등으로 막히면 레이아웃 집중 모드만 남는다
+      () => {},
+    );
+  };
+
+  // 탭은 고르는 게 아니라 켜고 끄는 것이다(시안의 이분할 화면에서 둘이 동시에 켜져 있다).
+  const toggleTab = (tab: ViewerTab) =>
+    setActiveTabs((prev) => {
+      // 마지막 하나까지 끄면 빈 화면이 된다. 켜진 게 하나뿐이면 그대로 둔다.
+      if (prev.includes(tab)) {
+        return prev.length === 1 ? prev : prev.filter((t) => t !== tab);
+      }
+      // 새로 켠 탭은 오른쪽에 붙는다(= 보던 탭이 제자리인 왼쪽에 남는다).
+      // 이미 둘이면 가장 먼저 켠 왼쪽을 밀어내 항상 최근 둘만 남긴다.
+      return prev.length < 2 ? [...prev, tab] : [prev[1], tab];
+    });
+
+  const queries = [projectQuery, chapterQuery, materialQuery];
+
+  // 로딩 / 에러 / 빈 데이터를 구분한다.
+  // 셋을 뭉뚱그려 falsy로 판단하면 조회에 실패해도 "불러오는 중…"에서 멈춘다.
+  if (queries.some((q) => q.isPending)) {
+    return <div className={`${PAGE_SHELL} text-gray-500`}>불러오는 중…</div>;
+  }
+
+  if (queries.some((q) => q.isError)) {
+    return (
+      <div className={`${PAGE_SHELL} flex flex-col items-start gap-4`}>
+        <p className="text-gray-700">
+          학습 자료를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
+        </p>
+        <Button
+          rank="secondary"
+          onClick={() => queries.forEach((q) => q.refetch())}
+        >
+          다시 시도
+        </Button>
+      </div>
+    );
+  }
+
+  const project = projectQuery.data;
+  const chapter = chapterQuery.data;
+  const material = materialQuery.data;
+
+  // 성공했는데 본문이 비어 있는 경우 (204 등)
+  if (!project || !chapter || !material) {
+    return (
+      <div className={`${PAGE_SHELL} text-gray-500`}>
+        표시할 학습 자료가 없어요.
+      </div>
+    );
+  }
+
+  // 탭 하나를 그린다. 단일 화면이든 이분할 한 칸이든 내용은 같다.
+  const renderTab = (tab: ViewerTab) => {
+    switch (tab) {
+      case 'PDF':
+        return <PdfMaterialTab material={material} audio={audio} />;
+      // 요약은 이 탭에서만 필요하니 화면 진입 시가 아니라 탭 안에서 따로 조회한다
+      case 'SUMMARY':
+        return <SummaryTab chapterId={chapterId} />;
+      // 스크립트도 같은 이유로 탭 안에서 조회한다. 재생 위치는 읽기 전용으로 넘긴다
+      case 'SCRIPT':
+        return (
+          <ScriptTab
+            chapterId={chapterId}
+            currentTime={audio.currentTime}
+            // 재생 위치를 만든 값과 같은 방식으로 정규화한다(둘이 어긋나면 표기가 달라진다)
+            duration={toPlayDuration(material.audioDuration)}
+          />
+        );
+      // TODO(백엔드): 지금은 내 할 일 전체가 뜬다. 조회에 강의·주차 필터가 생기면
+      // 이 주차의 것만 남긴다.
+      case 'TODO':
+        // 보기(다음/지난/완료/날짜)를 들고 있는 것이 Provider다. 홈에서는 캘린더가
+        // 날짜를 눌러 목록을 거르느라 화면이 갖고 있는데, 여기선 쓰는 쪽이 목록
+        // 하나뿐이라 탭 안에서 감싼다.
+        return (
+          <TodoFilterProvider>
+            <TodoChecklist fill />
+          </TodoFilterProvider>
+        );
+    }
+  };
+
+  return (
+    // 일반 모드는 다른 화면과 같은 콘텐츠 열을 쓰고, 남는 공간을 끝까지 쓰는 건
+    // 집중 모드가 맡는다.
+    // 높이는 h-dvh여야 한다 — min-h-dvh로 두면 높이가 확정되지 않아 패널 안의
+    // h-full(페이지 목록)이 auto가 되고, 썸네일이 전부 펼쳐져 화면이 통째로 늘어난다.
+    <div
+      className={cn(focus ? FOCUS_SHELL : PAGE_SHELL, 'flex h-dvh flex-col')}
+    >
+      <ViewerHeader
+        chapter={chapter}
+        activeTabs={activeTabs}
+        onTabToggle={toggleTab}
+        focus={focus}
+        onToggleFocus={toggleFocus}
+      />
+
+      <div ref={areaRef} className="mt-2 flex min-h-0 flex-1 flex-col">
+        {isSplit ? (
+          // 이분할 — 좌우 패널 사이 핸들을 끌어 폭을 나눈다.
+          // 핸들이 간격을 겸하므로 flex gap은 주지 않는다(주면 간격이 두 번 생긴다).
+          <div className="flex h-full">
+            <div
+              className="min-w-0"
+              // 핸들 폭을 뺀 나머지를 비율로 가른다. 우측은 flex-1로 남는 만큼 채운다.
+              style={{
+                flexBasis: `calc((100% - ${SPLIT_GAP}px) * ${ratio / 100})`,
+                flexGrow: 0,
+                flexShrink: 0,
+              }}
+            >
+              {renderTab(activeTabs[0])}
+            </div>
+            <Resizer
+              label="좌우 패널 너비 조절"
+              value={ratio}
+              min={minRatio}
+              max={maxRatio}
+              onResize={setLeftRatio}
+              // 이동 1px이 몇 %인지. 폭을 재기 전(0)에는 드래그해도 움직이지 않는다.
+              scale={areaWidth > 0 ? 100 / areaWidth : 0}
+              step={2}
+            />
+            <div className="min-w-0 flex-1">{renderTab(activeTabs[1])}</div>
+          </div>
+        ) : (
+          // 나눌 수 없을 땐 가장 최근에 켠 탭을 보여준다. 좁은 창에서 탭을 누르면
+          // 예전처럼 "전환"으로 동작해, 눌렀는데 아무 반응이 없어 보이지 않는다.
+          renderTab(activeTabs[activeTabs.length - 1])
+        )}
+      </div>
+    </div>
+  );
+}
