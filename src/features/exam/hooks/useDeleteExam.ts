@@ -7,7 +7,7 @@ import { deleteExam } from '@/features/exam/api';
 export function useDeleteExam() {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, string>({
+  return useMutation<void, Error, number>({
     mutationFn: (examId) => deleteExam(examId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exams'] });

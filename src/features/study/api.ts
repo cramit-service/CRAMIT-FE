@@ -57,7 +57,7 @@ export async function getProjectSummaries(
 }
 
 export async function getProjectDetail(
-  projectId: string,
+  projectId: number,
   signal?: AbortSignal,
 ): Promise<ProjectDetail> {
   if (USE_MOCK) {
@@ -78,7 +78,7 @@ export async function getProjectDetail(
 }
 
 export async function getChapters(
-  projectId: string,
+  projectId: number,
   signal?: AbortSignal,
 ): Promise<Chapter[]> {
   if (USE_MOCK) {
@@ -93,8 +93,8 @@ export async function getChapters(
 // 챕터 단건 조회 (학습 뷰어 헤더용)
 // TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요 (/chapters/{chapterId} 형태 가정)
 export async function getChapter(
-  projectId: string,
-  chapterId: string,
+  projectId: number,
+  chapterId: number,
   signal?: AbortSignal,
 ): Promise<Chapter> {
   if (USE_MOCK) {
@@ -117,14 +117,14 @@ export async function getChapter(
 // 챕터의 강의자료(PDF 위치·페이지 수·녹음 길이) 조회
 // TODO: audioUrl은 백엔드 확정 후 응답에 추가한다
 export async function getLectureMaterial(
-  chapterId: string,
+  chapterId: number,
   signal?: AbortSignal,
 ): Promise<LectureMaterial> {
   if (USE_MOCK) {
     await delay(300, signal);
     // 이 챕터에 직접 올린 파일이 있으면 그걸 그린다.
     const uploaded = await getMaterialFileUrl(chapterId);
-    // 샘플은 mockLectureMaterial이 가리키는 챕터(c4) 하나에만 붙인다. 모든 챕터에 깔면
+    // 샘플은 mockLectureMaterial이 가리키는 4번 챕터 하나에만 붙인다. 모든 챕터에 깔면
     // 어디에 올려도 이미 자료가 있는 것처럼 보여 직접 올린 게 붙었는지 확인할 수가 없다.
     const sample =
       chapterId === mockLectureMaterial.chapterId
@@ -147,7 +147,7 @@ export async function getLectureMaterial(
 // 챕터의 AI 강의 요약(Markdown 원문) 조회
 // TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
 export async function getLectureSummary(
-  chapterId: string,
+  chapterId: number,
   signal?: AbortSignal,
 ): Promise<LectureSummary> {
   if (USE_MOCK) {
@@ -162,7 +162,7 @@ export async function getLectureSummary(
 // 챕터의 원문 스크립트(STT) 조회
 // TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
 export async function getLectureScript(
-  chapterId: string,
+  chapterId: number,
   signal?: AbortSignal,
 ): Promise<LectureScript> {
   if (USE_MOCK) {
@@ -177,7 +177,7 @@ export async function getLectureScript(
 // STT 변환 상태 조회 (녹음 → 텍스트 변환도 비동기라 READY까지 폴링해야 한다)
 // TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
 export async function getLectureScriptStatus(
-  chapterId: string,
+  chapterId: number,
   signal?: AbortSignal,
 ): Promise<ProcessStatus> {
   if (USE_MOCK) {
@@ -194,7 +194,7 @@ export async function getLectureScriptStatus(
 // 요약 생성 상태 조회 (AI 요약은 비동기라 READY까지 폴링해야 한다)
 // TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
 export async function getLectureSummaryStatus(
-  chapterId: string,
+  chapterId: number,
   signal?: AbortSignal,
 ): Promise<ProcessStatus> {
   if (USE_MOCK) {
@@ -212,7 +212,7 @@ export async function getLectureSummaryStatus(
 // TODO: 백엔드 저장 API가 아직 없다. USE_MOCK을 끄기 전까지는 서버에 반영되지 않고
 //       화면(쿼리 캐시)에만 남는다. 엔드포인트/메서드 확정 시 경로도 재확인 필요.
 export async function updateLectureSummary(
-  chapterId: string,
+  chapterId: number,
   markdown: string,
   signal?: AbortSignal,
 ): Promise<LectureSummary> {
@@ -238,7 +238,7 @@ export async function updateLectureSummary(
 // "기록이 아니라 오기"라고 부른다.
 // TODO(백엔드): 경로 확정 필요. PATCH /chapters/{id} 의 부분 수정으로 갈 수도 있다.
 export async function setChapterReviewCount(
-  chapterId: string,
+  chapterId: number,
   reviewCount: number,
   signal?: AbortSignal,
 ): Promise<Chapter> {

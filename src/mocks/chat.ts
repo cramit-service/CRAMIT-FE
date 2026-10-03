@@ -3,8 +3,8 @@ import type { ChatMessage } from '@/shared/types/api';
 
 // 패널을 처음 열었을 때 이미 놓여 있는 인사말 (시안 문구 그대로).
 export const mockChatGreeting: ChatMessage = {
-  messageId: 'm0',
-  projectId: '1',
+  messageId: 0,
+  projectId: 1,
   role: 'AI',
   content:
     '해석이 필요한 내용이나 문서를 여기에 올려주시면, 제가 바로 분석해서 아주 쉽게 풀어서 설명해 드릴게요. 무엇을 도와드릴까요?',

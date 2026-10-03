@@ -69,7 +69,7 @@ export async function createLecture(
   if (USE_MOCK) {
     await delay(300);
     const summary: ProjectSummary = {
-      projectId: String(Date.now()),
+      projectId: Date.now(),
       title: req.title,
       createdAt: new Date().toISOString(),
       // 시안에 교수명은 선택이라 비어 있을 수 있다. 태그는 "OOO 교수님"이라 빈 값이면 어색해서
@@ -113,7 +113,7 @@ export async function updateLecture(
 
 // 강의 삭제 — 수정 모달 왼쪽 아래의 "삭제하기". 되돌릴 수 없으므로 화면이 먼저
 // ConfirmModal로 묻고, 그 답이 온 뒤에만 여기 닿는다.
-export async function deleteLecture(projectId: string): Promise<void> {
+export async function deleteLecture(projectId: number): Promise<void> {
   if (USE_MOCK) {
     await delay(300);
     if (!findMockProjectSummary(projectId)) {
@@ -136,7 +136,7 @@ export async function createChapter(
     // 파일 크기와 무관하게 늘 같은 시간이 걸리면 업로드 느낌이 안 나서 조금 길게 둔다.
     await mockUpload(options, 2400);
     const chapter: Chapter = {
-      chapterId: `c${Date.now()}`,
+      chapterId: Date.now(),
       projectId: req.projectId,
       chapterNumber: nextMockChapterNumber(),
       title: req.title,

@@ -29,7 +29,7 @@ export function ChatPanel({
   projectId,
   open,
 }: {
-  projectId: string;
+  projectId: number;
   open: boolean;
 }) {
   // 닫혀 있는 동안에는 조회하지 않는다. 도크는 닫혀도 DOM에 남아 있다.
@@ -46,7 +46,7 @@ export function ChatPanel({
   // 서버에 물을 것이 없다(ChatMessage에 chapterId 자체가 없다).
   const params = useParams<{ chapterId?: string }>();
   const chapterId = params?.chapterId;
-  const { data: chapter } = useChapter(projectId, chapterId ?? '');
+  const { data: chapter } = useChapter(projectId, Number(chapterId));
   // 주차 제목이다. 이 대화가 어느 주차에 걸려 있는지 사람이 알아보는 건 번호가 아니라
   // 제목이라서 — 길면 상한에서 잘린다(아래 max-w + truncate).
   const scopeLabel = chapter?.title ?? null;

@@ -17,7 +17,7 @@ function daysFromNow(days: number): string {
 // D-DAY tone 4종(임박·주의·여유·없음)과 검색(제목/교수명)을 모두 확인할 수 있게 구성했다.
 export const mockProjectSummaries: ProjectSummary[] = [
   {
-    projectId: '1',
+    projectId: 1,
     title: '알고리즘',
     createdAt: '2026-03-02T09:00:00',
     professor: '박지훈',
@@ -27,7 +27,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     colorIndex: 1,
   },
   {
-    projectId: '2',
+    projectId: 2,
     title: '운영체제',
     createdAt: '2026-03-05T09:00:00',
     professor: '이서연',
@@ -37,7 +37,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     colorIndex: 2,
   },
   {
-    projectId: '3',
+    projectId: 3,
     title: '자료구조',
     createdAt: '2026-03-08T09:00:00',
     professor: '박지훈',
@@ -47,7 +47,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     colorIndex: 3,
   },
   {
-    projectId: '4',
+    projectId: 4,
     title: '컴퓨터네트워크',
     createdAt: '2026-03-11T09:00:00',
     professor: '최민호',
@@ -57,7 +57,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     colorIndex: 4,
   },
   {
-    projectId: '5',
+    projectId: 5,
     title: '데이터베이스',
     createdAt: '2026-03-14T09:00:00',
     professor: '이서연',
@@ -67,7 +67,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     colorIndex: 5,
   },
   {
-    projectId: '6',
+    projectId: 6,
     title: '선형대수학',
     createdAt: '2026-03-17T09:00:00',
     professor: '한지우',
@@ -77,7 +77,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     colorIndex: 6,
   },
   {
-    projectId: '7',
+    projectId: 7,
     title: '알고리즘설계와분석',
     createdAt: '2026-03-20T09:00:00',
     professor: '박지훈',
@@ -87,7 +87,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     colorIndex: 7,
   },
   {
-    projectId: '8',
+    projectId: 8,
     title: '이산수학',
     createdAt: '2026-03-23T09:00:00',
     professor: '정도윤',
@@ -97,7 +97,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     colorIndex: 8,
   },
   {
-    projectId: '9',
+    projectId: 9,
     title: '컴퓨터구조',
     createdAt: '2026-03-26T09:00:00',
     professor: '최민호',
@@ -107,7 +107,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     colorIndex: 1,
   },
   {
-    projectId: '10',
+    projectId: 10,
     title: '소프트웨어공학',
     createdAt: '2026-03-29T09:00:00',
     professor: '한지우',
@@ -117,7 +117,7 @@ export const mockProjectSummaries: ProjectSummary[] = [
     colorIndex: 2,
   },
   {
-    projectId: '11',
+    projectId: 11,
     title: '인공지능개론',
     createdAt: '2026-04-01T09:00:00',
     professor: '이서연',
@@ -156,7 +156,7 @@ export function updateMockProjectSummary(summary: ProjectSummary): void {
 }
 
 // mock 전용: 목록에서 지운다. (removeMockExam·removeMockTodo와 같은 모양)
-export function removeMockProjectSummary(projectId: string): void {
+export function removeMockProjectSummary(projectId: number): void {
   const index = mockProjectSummaries.findIndex(
     (p) => p.projectId === projectId,
   );
@@ -164,7 +164,7 @@ export function removeMockProjectSummary(projectId: string): void {
 }
 
 export function findMockProjectSummary(
-  projectId: string,
+  projectId: number,
 ): ProjectSummary | undefined {
   return mockProjectSummaries.find((p) => p.projectId === projectId);
 }

@@ -13,7 +13,7 @@ import { Icon } from '@/shared/ui/Icon';
 const PANEL = cn(VIEWER_PANEL, 'flex flex-col');
 
 interface ScriptTabProps {
-  chapterId: string;
+  chapterId: number;
   // 재생 상태는 PDF 탭이 쥐고 있다. 여기선 위치를 보여주기만 한다(시안 안내문 그대로).
   currentTime: number;
   duration: number;

@@ -10,7 +10,8 @@
     "postinstall": "node scripts/copy-pdfjs-assets.mjs",
     "predev": "node scripts/copy-pdfjs-assets.mjs",
     "prebuild": "node scripts/copy-pdfjs-assets.mjs",
-    "check:cn": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-cn.mjs"
+    "check:cn": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-cn.mjs",
+    "test": "node --test --experimental-transform-types \"src/**/*.test.ts\""
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",

@@ -9,8 +9,8 @@ import { dateFromToday } from '@/shared/lib/date';
 // 결정되므로 어긋나면 시험이 다른 과목 색으로 찍힌다.
 export const mockExams: Exam[] = [
   {
-    examId: '1',
-    projectId: '2',
+    examId: 1,
+    projectId: 2,
     title: '중간고사',
     lectureName: '운영체제',
     examDate: dateFromToday(0), // 오늘 → D-DAY (빨강)
@@ -19,8 +19,8 @@ export const mockExams: Exam[] = [
     progress: 85,
   },
   {
-    examId: '2',
-    projectId: '4',
+    examId: 2,
+    projectId: 4,
     title: '퀴즈 2회',
     lectureName: '컴퓨터네트워크',
     examDate: dateFromToday(1), // 내일 → D-1 (노랑)
@@ -29,8 +29,8 @@ export const mockExams: Exam[] = [
     progress: 40,
   },
   {
-    examId: '3',
-    projectId: '3',
+    examId: 3,
+    projectId: 3,
     title: '중간고사',
     lectureName: '자료구조',
     examDate: dateFromToday(3), // D-3 (노랑)
@@ -39,8 +39,8 @@ export const mockExams: Exam[] = [
     progress: 60,
   },
   {
-    examId: '4',
-    projectId: '2',
+    examId: 4,
+    projectId: 2,
     title: '기말 대비 모의고사',
     lectureName: '운영체제',
     examDate: dateFromToday(8), // D-8 (파랑)
@@ -49,8 +49,8 @@ export const mockExams: Exam[] = [
     progress: 20,
   },
   {
-    examId: '5',
-    projectId: '2',
+    examId: 5,
+    projectId: 2,
     title: '쪽지시험',
     lectureName: '운영체제',
     examDate: dateFromToday(-1), // 어제 → "다가오는" 필터에서 제외되어야 함(경계 확인)
@@ -74,7 +74,7 @@ export function updateMockExam(exam: Exam): void {
 }
 
 // mock 전용: 목록에서 지운다.
-export function removeMockExam(examId: string): void {
+export function removeMockExam(examId: number): void {
   const index = mockExams.findIndex((e) => e.examId === examId);
   if (index !== -1) mockExams.splice(index, 1);
 }

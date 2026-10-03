@@ -41,7 +41,7 @@ export function useUpdateLecture() {
 
 export function useDeleteLecture() {
   const invalidate = useInvalidateLectures();
-  return useMutation<void, Error, string>({
+  return useMutation<void, Error, number>({
     mutationFn: deleteLecture,
     onSuccess: invalidate,
   });

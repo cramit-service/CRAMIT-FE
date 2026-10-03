@@ -29,8 +29,8 @@ const PAGE_SHELL = CONTENT_SHELL;
 const FOCUS_SHELL = 'w-full px-6 pt-4 pb-4';
 
 interface StudyViewerScreenProps {
-  projectId: string;
-  chapterId: string;
+  projectId: number;
+  chapterId: number;
 }
 
 // 이분할일 때 두 패널 사이 간격 = 드래그 핸들 폭(Resizer의 w-3).

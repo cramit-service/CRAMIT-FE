@@ -13,7 +13,7 @@ const PANEL_WIDTH = 'min(707px, 36.82vw)';
 
 // 프로젝트 하위 레이아웃에서만 노출되는 채팅 도크.
 // 우측 화면 경계의 세로 탭을 누르면 챗봇 패널이 오버레이로 열린다(시안: 뒤 화면을 밀지 않는다).
-export function ChatDock({ projectId }: { projectId: string }) {
+export function ChatDock({ projectId }: { projectId: number }) {
   const [open, setOpen] = useState(false);
 
   return (

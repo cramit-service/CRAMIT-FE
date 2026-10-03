@@ -27,9 +27,12 @@ interface TodoFormModalProps {
   onClose: () => void;
 }
 
-// "선택 없음" 상태. 빈 문자열을 그대로 쓴다 — useChapters의 enabled 조건이
-// 이 값을 보고 요청을 막고, 저장할 때는 null로 바꿔 보낸다.
+// "선택 없음" 상태. 선택 칸의 값은 문자열이라 빈 문자열로 둔다.
 const NONE = '';
+
+// ID는 숫자다. 폼 안에서는 선택 칸 값(문자열)으로 들고, 폼 밖으로 나갈 때만 바꾼다.
+// "선택 없음"은 null이 된다 — useChapters는 null이면 요청하지 않는다.
+const toId = (value: string) => (value === NONE ? null : Number(value));
 
 // TODO 추가·수정 모달.
 export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
@@ -43,8 +46,12 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
   const [title, setTitle] = useState(todo?.title ?? '');
   const [dueDate, setDueDate] = useState(todo?.dueDate ?? '');
   const [dueTime, setDueTime] = useState(todo?.dueTime ?? '');
-  const [projectId, setProjectId] = useState(todo?.projectId ?? NONE);
-  const [lectureId, setLectureId] = useState(todo?.lectureId ?? NONE);
+  const [projectId, setProjectId] = useState(
+    todo?.projectId?.toString() ?? NONE,
+  );
+  const [lectureId, setLectureId] = useState(
+    todo?.lectureId?.toString() ?? NONE,
+  );
   const [memo, setMemo] = useState(todo?.memo ?? '');
   const [formError, setFormError] = useState<string | null>(null);
   // 지난 시각으로 제출했을 때만 채워진다. 자세한 이유는 handleSubmit 참고.
@@ -55,23 +62,27 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
     isPending: isLecturesPending,
     isError: isLecturesError,
   } = useProjectSummaries();
-  // 강의를 고르기 전에는 주차를 물어볼 대상이 없다 — 훅이 enabled로 요청을 막는다.
-  // isPending이 아니라 isLoading을 본다 — enabled가 false인 동안에도 status는 계속
+  // 강의를 고르기 전에는 주차를 물어볼 대상이 없다 — 훅이 skipToken으로 요청을 막는다.
+  // isPending이 아니라 isLoading을 본다 — 요청을 막아 둔 동안에도 status는 계속
   // 'pending'이라, isPending으로 재면 강의를 고르기 전에도 "불러오는 중"이 뜬다.
   const {
     data: chapters,
     isLoading: isChaptersLoading,
     isError: isChaptersError,
-  } = useChapters(projectId);
+  } = useChapters(toId(projectId));
 
   const lectureOptions = useMemo(
-    () => (lectures ?? []).map((l) => ({ value: l.projectId, label: l.title })),
+    () =>
+      (lectures ?? []).map((l) => ({
+        value: String(l.projectId),
+        label: l.title,
+      })),
     [lectures],
   );
   const chapterOptions = useMemo(
     () =>
       (chapters ?? []).map((c) => ({
-        value: c.chapterId,
+        value: String(c.chapterId),
         label: `Chapter ${c.chapterNumber} · ${c.title}`,
       })),
     [chapters],
@@ -110,8 +121,8 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
     title.trim() !== todo.title ||
     dueDate !== todo.dueDate ||
     (dueTime || null) !== todo.dueTime ||
-    (projectId || null) !== todo.projectId ||
-    (lectureId || null) !== todo.lectureId ||
+    toId(projectId) !== todo.projectId ||
+    toId(lectureId) !== todo.lectureId ||
     (memo.trim() || null) !== todo.memo;
   const canSubmit = filled && changed && !busy;
 
@@ -133,11 +144,11 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
     setDueTimeError(null);
 
     const payload = {
-      projectId: projectId || null,
+      projectId: toId(projectId),
       title: title.trim(),
       dueDate,
       dueTime: dueTime || null,
-      lectureId: lectureId || null,
+      lectureId: toId(lectureId),
       memo: memo.trim() || null,
     };
 
