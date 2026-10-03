@@ -275,7 +275,7 @@ export interface Todo {
 }
 
 // TODO 추가 모달의 입력. 강의와 연결된 주차는 둘 다 선택이라 비어 있을 수 있다.
-// TODO: 백엔드 TODO 등록 스펙 확정 시 필드명 재확인 필요
+// 서버로 보낼 때는 toTodoBody가 TodoBody로 바꾼다.
 export interface CreateTodoRequest {
   projectId: number | null;
   title: string;
@@ -287,6 +287,27 @@ export interface CreateTodoRequest {
 
 export interface UpdateTodoRequest extends CreateTodoRequest {
   todoId: number;
+}
+
+// 서버가 주는 TODO 모양. 화면은 이걸 직접 쓰지 않고 features/todo/api.ts의 toTodo를 거쳐
+// Todo로 받는다 — 서버 계약이 바뀌어도 변환 함수 안에서 끝나게.
+export interface TodoResponse {
+  todoId: number;
+  weekId: number | null; // 연결된 주차. 개인 할 일이면 null
+  content: string;
+  memo: string | null;
+  dueDate: string | null; // LocalDateTime "2026-07-10T13:30:00"
+  todoType: 'USER' | 'AI';
+  isCompleted: boolean;
+  sortOrder: number;
+}
+
+// TODO 생성·수정 요청 본문 (서버 모양).
+export interface TodoBody {
+  weekId: number | null;
+  content: string;
+  dueDate: string; // LocalDateTime
+  memo: string | null;
 }
 
 /* ===== 강의(프로젝트) 생성 ===== */
