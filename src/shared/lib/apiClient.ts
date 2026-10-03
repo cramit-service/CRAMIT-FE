@@ -65,6 +65,9 @@ async function request<T>(
     // 헤더만 오고 본문이 끊기는 경우도 같은 타임아웃이 걸리도록 본문 읽기까지 감싼다.
     text = await res.text();
   } catch (error) {
+    // 호출처가 취소한 것은 실패가 아니다. TanStack Query가 취소로 알아보도록 그대로 던진다.
+    // 타임아웃보다 먼저 본다 — 둘이 함께 끊겨 있으면 호출처는 어차피 결과를 버린다.
+    if (options?.signal?.aborted) throw error;
     if (timeout.aborted) {
       throw new ApiRequestError(
         'TIMEOUT',
@@ -72,8 +75,6 @@ async function request<T>(
         0,
       );
     }
-    // 호출처가 취소한 것은 실패가 아니다. TanStack Query가 취소로 알아보도록 그대로 던진다.
-    if (options?.signal?.aborted) throw error;
     throw new ApiRequestError(
       'NETWORK',
       '네트워크 문제로 요청하지 못했어요.',

@@ -86,3 +86,20 @@ test('응답이 오지 않으면 TIMEOUT', async (t) => {
   timeout.abort(new DOMException('timeout', 'TimeoutError'));
   await assert.rejects(pending, { code: 'TIMEOUT' });
 });
+
+test('호출처 취소와 타임아웃이 겹치면 취소로 본다', async (t) => {
+  const timeout = new AbortController();
+  t.mock.method(AbortSignal, 'timeout', () => timeout.signal);
+  globalThis.fetch = ((_: string, init?: RequestInit) =>
+    new Promise((_, reject) =>
+      init?.signal?.addEventListener('abort', () =>
+        reject(init.signal?.reason),
+      ),
+    )) as typeof fetch;
+  const caller = new AbortController();
+  const pending = apiClient.get('/todos', { signal: caller.signal });
+  // catch가 돌기 전에 둘 다 끊긴다.
+  caller.abort();
+  timeout.abort(new DOMException('timeout', 'TimeoutError'));
+  await assert.rejects(pending, (error) => !(error instanceof ApiRequestError));
+});
