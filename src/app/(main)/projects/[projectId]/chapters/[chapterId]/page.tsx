@@ -10,5 +10,10 @@ export default async function StudyViewerPage({
   params: Promise<{ projectId: string; chapterId: string }>;
 }) {
   const { projectId, chapterId } = await params;
-  return <StudyViewerScreen projectId={projectId} chapterId={chapterId} />;
+  return (
+    <StudyViewerScreen
+      projectId={Number(projectId)}
+      chapterId={Number(chapterId)}
+    />
+  );
 }

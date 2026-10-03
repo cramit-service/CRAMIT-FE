@@ -10,5 +10,5 @@ export default async function NewChapterPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  return <NewChapterScreen projectId={projectId} />;
+  return <NewChapterScreen projectId={Number(projectId)} />;
 }

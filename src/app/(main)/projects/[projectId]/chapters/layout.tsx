@@ -24,7 +24,7 @@ export default async function ChaptersLayout({
     <>
       {children}
       {/* 탭과 패널이 둘 다 fixed라 children의 폭에도 흐름에도 영향이 없다. */}
-      <ChatDock projectId={projectId} />
+      <ChatDock projectId={Number(projectId)} />
     </>
   );
 }

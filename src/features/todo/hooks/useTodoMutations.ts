@@ -34,7 +34,7 @@ export function useUpdateTodo() {
 
 export function useDeleteTodo() {
   const invalidate = useInvalidateTodos();
-  return useMutation<void, Error, string>({
+  return useMutation<void, Error, number>({
     mutationFn: deleteTodo,
     onSuccess: invalidate,
   });

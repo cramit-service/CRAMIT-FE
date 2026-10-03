@@ -9,5 +9,5 @@ export default async function ProjectDetailPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  return <ChapterDetailScreen projectId={projectId} />;
+  return <ChapterDetailScreen projectId={Number(projectId)} />;
 }

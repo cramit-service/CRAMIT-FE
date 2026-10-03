@@ -33,7 +33,11 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
   const fieldId = useId();
   const { data: lectures } = useProjectSummaries();
   const lectureOptions = useMemo(
-    () => (lectures ?? []).map((l) => ({ value: l.projectId, label: l.title })),
+    () =>
+      (lectures ?? []).map((l) => ({
+        value: String(l.projectId),
+        label: l.title,
+      })),
     [lectures],
   );
 
@@ -47,7 +51,7 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
   const isPending = create.isPending || update.isPending || remove.isPending;
 
   const [title, setTitle] = useState(exam?.title ?? '');
-  const [projectId, setProjectId] = useState(exam?.projectId ?? '');
+  const [projectId, setProjectId] = useState(exam?.projectId.toString() ?? '');
   const [examDate, setExamDate] = useState(exam?.examDate ?? '');
   const [memo, setMemo] = useState(exam?.memo ?? '');
   const [formError, setFormError] = useState<string | null>(null);
@@ -67,7 +71,7 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
   const changed =
     !isEdit ||
     trimmedTitle !== exam.title ||
-    projectId !== exam.projectId ||
+    Number(projectId) !== exam.projectId ||
     examDate !== exam.examDate ||
     (memo.trim() || null) !== exam.memo;
   const canSubmit = filled && changed && !isPending;
@@ -83,7 +87,7 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
     setFormError(null);
 
     const fields = {
-      projectId,
+      projectId: Number(projectId),
       title: trimmedTitle,
       examDate,
       memo: memo.trim() || null,
