@@ -67,7 +67,7 @@ function toTodo(r: TodoResponse): Todo {
     title: r.content,
     dueDate: due[1],
     dueTime: due[2] === NO_TIME ? null : due[2],
-    lectureId: r.weekId,
+    chapterId: r.weekId,
     memo: r.memo,
     isCompleted: r.isCompleted,
   };
@@ -76,7 +76,7 @@ function toTodo(r: TodoResponse): Todo {
 // 화면 → 요청.
 function toTodoBody(req: CreateTodoRequest): TodoBody {
   return {
-    weekId: req.lectureId,
+    weekId: req.chapterId,
     content: req.title,
     dueDate: `${req.dueDate}T${req.dueTime ?? NO_TIME}:00`,
     memo: req.memo,

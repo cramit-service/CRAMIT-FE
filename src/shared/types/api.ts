@@ -269,7 +269,7 @@ export interface Todo {
   lectureName: string | null; // 강의명 — 표시 시 제목 앞에 붙인다 (시험 일정과 동일 규칙)
   dueDate: string; // YYYY-MM-DD
   dueTime: string | null;
-  lectureId: number | null; // 연결된 주차(챕터) id
+  chapterId: number | null; // 연결된 주차
   memo: string | null;
   isCompleted: boolean;
 }
@@ -281,7 +281,7 @@ export interface CreateTodoRequest {
   title: string;
   dueDate: string; // YYYY-MM-DD
   dueTime: string | null; // HH:mm
-  lectureId: number | null;
+  chapterId: number | null;
   memo: string | null;
 }
 
