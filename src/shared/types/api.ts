@@ -296,7 +296,7 @@ export interface TodoResponse {
   weekId: number | null; // 연결된 주차. 개인 할 일이면 null
   content: string;
   memo: string | null;
-  dueDate: string | null; // LocalDateTime "2026-07-10T13:30:00"
+  dueDate: string; // LocalDateTime "2026-07-10T13:30:00"
   todoType: 'USER' | 'AI';
   isCompleted: boolean;
   sortOrder: number;
