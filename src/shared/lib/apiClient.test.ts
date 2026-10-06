@@ -87,6 +87,27 @@ test('응답이 오지 않으면 TIMEOUT', async (t) => {
   await assert.rejects(pending, { code: 'TIMEOUT' });
 });
 
+test('AbortSignal.any가 없는 브라우저에서도 호출처 signal과 타임아웃을 함께 건다', async (t) => {
+  const timeout = new AbortController();
+  t.mock.method(AbortSignal, 'timeout', () => timeout.signal);
+  const realAny = AbortSignal.any;
+  // @ts-expect-error Safari 17.3 이하를 흉내 낸다
+  delete AbortSignal.any;
+  t.after(() => {
+    AbortSignal.any = realAny;
+  });
+  globalThis.fetch = ((_: string, init?: RequestInit) =>
+    new Promise((_, reject) =>
+      init?.signal?.addEventListener('abort', () =>
+        reject(init.signal?.reason),
+      ),
+    )) as typeof fetch;
+  const caller = new AbortController();
+  const pending = apiClient.get('/todos', { signal: caller.signal });
+  timeout.abort(new DOMException('timeout', 'TimeoutError'));
+  await assert.rejects(pending, { code: 'TIMEOUT' });
+});
+
 test('호출처 취소와 타임아웃이 겹치면 취소로 본다', async (t) => {
   const timeout = new AbortController();
   t.mock.method(AbortSignal, 'timeout', () => timeout.signal);

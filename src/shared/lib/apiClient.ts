@@ -23,6 +23,23 @@ function getAccessToken(): string | null {
   return localStorage.getItem('accessToken');
 }
 
+// AbortSignal.any 대신 쓴다. any는 Safari 17.4+라 Next 16 지원 범위(16.4+)에서 없는 기기가 있고,
+// 없으면 try 밖에서 TypeError가 나 모든 조회가 실패한다.
+// 브라우저마다 갈리지 않도록 지원 여부와 상관없이 이것 하나만 쓴다.
+function anySignal(...signals: AbortSignal[]): AbortSignal {
+  const controller = new AbortController();
+  for (const s of signals) {
+    if (s.aborted) {
+      controller.abort(s.reason);
+      break;
+    }
+    s.addEventListener('abort', () => controller.abort(s.reason), {
+      once: true,
+    });
+  }
+  return controller.signal;
+}
+
 async function request<T>(
   method: string,
   path: string,
@@ -45,9 +62,7 @@ async function request<T>(
 
   // 호출처의 signal(쿼리 취소)을 덮어쓰지 않고 타임아웃과 함께 건다.
   const timeout = AbortSignal.timeout(TIMEOUT_MS);
-  const signal = options?.signal
-    ? AbortSignal.any([options.signal, timeout])
-    : timeout;
+  const signal = options?.signal ? anySignal(options.signal, timeout) : timeout;
 
   let res: Response;
   let text: string;
