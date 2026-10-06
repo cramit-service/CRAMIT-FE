@@ -13,7 +13,7 @@ export const mockLoginResponse: LoginResponse = {
 };
 
 export const mockUser: User = {
-  userId: '1',
+  userId: 1,
   email: 'test@cramit.com',
   nickname: '김진우',
   provider: 'EMAIL',

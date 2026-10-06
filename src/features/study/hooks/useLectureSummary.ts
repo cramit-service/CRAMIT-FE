@@ -11,12 +11,12 @@ import { useProcessStatus } from '@/shared/hooks/useProcessStatus';
 import type { LectureSummary } from '@/shared/types/api';
 
 // 저장 후 캐시를 직접 덮어써야 해서 키를 한 곳에서 만든다 (조회/저장이 어긋나지 않게)
-const summaryKey = (chapterId: string) => ['lecture-summary', chapterId];
+const summaryKey = (chapterId: number) => ['lecture-summary', chapterId];
 
 // AI 강의 요약 조회 훅.
 // 요약 생성은 비동기라 /status를 공통 훅으로 폴링하고, READY가 되면 본문을 다시 가져온다.
 // 그래야 탭을 열어둔 채 생성이 끝나도 화면이 저절로 채워진다.
-export function useLectureSummary(chapterId: string) {
+export function useLectureSummary(chapterId: number) {
   const queryClient = useQueryClient();
 
   const { status, isProcessing } = useProcessStatus({
@@ -46,7 +46,7 @@ export function useLectureSummary(chapterId: string) {
 // 요약 수정 저장 훅.
 // TODO(백엔드): 저장 API가 아직 없다. 지금은 응답을 쿼리 캐시에 덮어써서 화면에만 반영되고,
 //               새로고침하면 mock 원문으로 되돌아간다. 실제 API가 붙으면 invalidate로 바꾼다.
-export function useUpdateLectureSummary(chapterId: string) {
+export function useUpdateLectureSummary(chapterId: number) {
   const queryClient = useQueryClient();
 
   return useMutation({

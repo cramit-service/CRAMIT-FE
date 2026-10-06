@@ -18,7 +18,7 @@ const PANEL = cn(VIEWER_PANEL, 'flex flex-col');
 
 // AI 강의 요약 탭. 조회(Markdown 렌더) ↔ 편집(textarea) 두 모드를 오간다.
 // 편집 모드에서는 취소·수정하기가 나란히 서고, 고친 것이 없으면 수정하기가 잠긴다.
-export function SummaryTab({ chapterId }: { chapterId: string }) {
+export function SummaryTab({ chapterId }: { chapterId: number }) {
   const summaryQuery = useLectureSummary(chapterId);
   const updateMutation = useUpdateLectureSummary(chapterId);
 

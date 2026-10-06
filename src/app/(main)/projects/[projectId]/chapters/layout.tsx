@@ -1,4 +1,5 @@
 import { ChatDock } from '@/features/chat/components/ChatDock';
+import { toRouteId } from '@/shared/lib/routeId';
 
 // 챗봇 도크는 주차 안에서만 뜬다 — 새 주차 등록과 학습 뷰어다.
 // 주차 목록(/projects/[projectId])에는 없다: 물어볼 자료가 아직 화면에 없고,
@@ -24,7 +25,7 @@ export default async function ChaptersLayout({
     <>
       {children}
       {/* 탭과 패널이 둘 다 fixed라 children의 폭에도 흐름에도 영향이 없다. */}
-      <ChatDock projectId={projectId} />
+      <ChatDock projectId={toRouteId(projectId)} />
     </>
   );
 }

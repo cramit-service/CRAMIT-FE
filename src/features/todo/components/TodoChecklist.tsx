@@ -36,7 +36,7 @@ const EMPTY_MESSAGE: Record<TodoFilter['kind'], string> = {
 
 // 화면에 보이는 완료 여부. 로컬 overrides가 서버 값을 덮어쓴다.
 // 목록을 거를 때와 행을 그릴 때가 같은 값을 봐야 해서 한 곳에 둔다.
-function isTodoDone(todo: Todo, overrides: Record<string, boolean>): boolean {
+function isTodoDone(todo: Todo, overrides: Record<number, boolean>): boolean {
   return overrides[todo.todoId] ?? todo.isCompleted;
 }
 
@@ -65,7 +65,7 @@ export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
   const { filter } = useTodoFilter();
 
   // 완료 토글은 로컬만 반영한다(mock이라 서버 저장 없음). todoId → 덮어쓴 완료값.
-  const [overrides, setOverrides] = useState<Record<string, boolean>>({});
+  const [overrides, setOverrides] = useState<Record<number, boolean>>({});
   // null이면 닫힘. 'create'는 추가, Todo면 그 할 일의 상세보기(수정).
   // 닫을 때 통째로 언마운트해 입력값이 다음 열기까지 남지 않게 한다.
   const [editing, setEditing] = useState<Todo | 'create' | null>(null);

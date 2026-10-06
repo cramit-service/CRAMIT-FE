@@ -21,7 +21,7 @@ import { CONTENT_SHELL } from '@/shared/ui/pageShell';
 const PAGE_SHELL = CONTENT_SHELL;
 
 interface NewChapterScreenProps {
-  projectId: string;
+  projectId: number;
 }
 
 // 새 주차 등록 화면. 모달을 띄우는 대신 학습 화면 자리로 바로 들어와서, 여기서 자료를 올린다.

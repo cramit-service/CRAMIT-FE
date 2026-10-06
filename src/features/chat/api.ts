@@ -28,7 +28,7 @@ const delay = (ms: number, signal?: AbortSignal) =>
 // 프로젝트의 대화 내역 조회.
 // TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요.
 export async function getChatMessages(
-  projectId: string,
+  projectId: number,
   signal?: AbortSignal,
 ): Promise<ChatMessage[]> {
   if (USE_MOCK) {
@@ -45,7 +45,7 @@ export async function getChatMessages(
 // 질문 전송 → AI 답변 한 줄을 돌려받는다. 파일 1개를 함께 보낼 수 있다.
 // TODO: 백엔드가 붙으면 스트리밍 여부에 따라 반환 형태를 다시 정한다.
 export async function sendChatMessage(
-  projectId: string,
+  projectId: number,
   content: string,
   file?: File | null,
   signal?: AbortSignal,
@@ -54,7 +54,7 @@ export async function sendChatMessage(
     // 답변이 즉시 튀어나오면 "생각 중" 상태를 확인할 수 없어 조금 길게 준다.
     await delay(900, signal);
     return {
-      messageId: `m-ai-${Date.now()}`,
+      messageId: Date.now(),
       projectId,
       role: 'AI',
       content: mockChatReply(content, file?.name),

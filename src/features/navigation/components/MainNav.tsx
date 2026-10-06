@@ -21,7 +21,7 @@ export function MainNav({ children }: { children: React.ReactNode }) {
     // 같은 과목이 화면마다 다른 색이 된다.
     const dots = buildSubjectColorMap(data);
     const toNav = (p: (typeof courses)[number]): NavCourse => ({
-      id: p.projectId,
+      id: String(p.projectId),
       label: p.title,
       colorClass: subjectDotClass(dots, p.projectId),
     });

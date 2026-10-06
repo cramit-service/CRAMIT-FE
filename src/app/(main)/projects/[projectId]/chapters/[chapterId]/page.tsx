@@ -1,5 +1,6 @@
 // src/app/(main)/projects/[projectId]/chapters/[chapterId]/page.tsx
 import { StudyViewerScreen } from '@/features/study/components/viewer/StudyViewerScreen';
+import { toRouteId } from '@/shared/lib/routeId';
 
 // 학습 뷰어(PDF/요약/원문/TODO) 페이지. 얇게 유지하고 조립만 한다.
 // projects/[projectId] 하위라 프로젝트 레이아웃(채팅 도크)이 그대로 적용된다.
@@ -10,5 +11,10 @@ export default async function StudyViewerPage({
   params: Promise<{ projectId: string; chapterId: string }>;
 }) {
   const { projectId, chapterId } = await params;
-  return <StudyViewerScreen projectId={projectId} chapterId={chapterId} />;
+  return (
+    <StudyViewerScreen
+      projectId={toRouteId(projectId)}
+      chapterId={toRouteId(chapterId)}
+    />
+  );
 }

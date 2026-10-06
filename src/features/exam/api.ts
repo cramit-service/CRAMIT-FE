@@ -16,7 +16,7 @@ import { mockProjectSummaries } from '@/mocks/project';
 
 // 강의명은 원래 서버가 projectId로 채워 내려주는 값이다. mock이 그 역할을 대신해야
 // USE_MOCK을 꺼도 화면(examName)이 그대로 동작한다. (getExams의 필터·정렬과 같은 이유)
-const mockLectureName = (projectId: string): string | null =>
+const mockLectureName = (projectId: number): string | null =>
   mockProjectSummaries.find((p) => p.projectId === projectId)?.title ?? null;
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로)
@@ -71,7 +71,7 @@ export async function createExam(req: CreateExamRequest): Promise<Exam> {
   if (USE_MOCK) {
     await delay(300);
     const exam: Exam = {
-      examId: `e${Date.now()}`,
+      examId: Date.now(),
       projectId: req.projectId,
       title: req.title,
       lectureName: mockLectureName(req.projectId),
@@ -112,7 +112,7 @@ export async function updateExam(req: UpdateExamRequest): Promise<Exam> {
 }
 
 // 시험 일정 삭제. 시안에 확인 단계가 없어 누르는 즉시 지운다.
-export async function deleteExam(examId: string): Promise<void> {
+export async function deleteExam(examId: number): Promise<void> {
   if (USE_MOCK) {
     await delay(300);
     removeMockExam(examId);

@@ -11,8 +11,8 @@ import { dateFromToday } from '@/shared/lib/date';
 // 바꾸지 않고 저장하는 것만으로 화면의 강의명이 다른 과목으로 바뀐다.
 export const mockTodos: Todo[] = [
   {
-    todoId: '1',
-    projectId: '2',
+    todoId: 1,
+    projectId: 2,
     title: '2주차 복습하기',
     lectureName: '운영체제',
     dueDate: dateFromToday(1),
@@ -22,8 +22,8 @@ export const mockTodos: Todo[] = [
     isCompleted: true,
   },
   {
-    todoId: '2',
-    projectId: '4',
+    todoId: 2,
+    projectId: 4,
     title: 'TCP/IP 계층 정리',
     lectureName: '컴퓨터네트워크',
     dueDate: dateFromToday(2),
@@ -33,8 +33,8 @@ export const mockTodos: Todo[] = [
     isCompleted: false,
   },
   {
-    todoId: '3',
-    projectId: '3',
+    todoId: 3,
+    projectId: 3,
     title: '과제 제출',
     lectureName: '자료구조',
     dueDate: dateFromToday(3),
@@ -44,8 +44,8 @@ export const mockTodos: Todo[] = [
     isCompleted: false,
   },
   {
-    todoId: '4',
-    projectId: '2',
+    todoId: 4,
+    projectId: 2,
     title: '중간고사 오답노트 작성',
     lectureName: '운영체제',
     dueDate: dateFromToday(5),
@@ -55,8 +55,8 @@ export const mockTodos: Todo[] = [
     isCompleted: true,
   },
   {
-    todoId: '5',
-    projectId: '4',
+    todoId: 5,
+    projectId: 4,
     title: '실습 예습',
     lectureName: '컴퓨터네트워크',
     dueDate: dateFromToday(6),
@@ -66,8 +66,8 @@ export const mockTodos: Todo[] = [
     isCompleted: false,
   },
   {
-    todoId: '6',
-    projectId: '2',
+    todoId: 6,
+    projectId: 2,
     title: '3주차 예습',
     lectureName: '운영체제',
     dueDate: dateFromToday(7),
@@ -77,8 +77,8 @@ export const mockTodos: Todo[] = [
     isCompleted: false,
   },
   {
-    todoId: '7',
-    projectId: '3',
+    todoId: 7,
+    projectId: 3,
     title: '이진트리 정리',
     lectureName: '자료구조',
     dueDate: dateFromToday(8),
@@ -88,8 +88,8 @@ export const mockTodos: Todo[] = [
     isCompleted: false,
   },
   {
-    todoId: '8',
-    projectId: '4',
+    todoId: 8,
+    projectId: 4,
     title: '라우팅 알고리즘 복습',
     lectureName: '컴퓨터네트워크',
     dueDate: dateFromToday(9),
@@ -99,8 +99,8 @@ export const mockTodos: Todo[] = [
     isCompleted: true,
   },
   {
-    todoId: '9',
-    projectId: '2',
+    todoId: 9,
+    projectId: 2,
     title: '프로세스 스케줄링 정리',
     lectureName: '운영체제',
     dueDate: dateFromToday(4),
@@ -110,8 +110,8 @@ export const mockTodos: Todo[] = [
     isCompleted: false,
   },
   {
-    todoId: '10',
-    projectId: '3',
+    todoId: 10,
+    projectId: 3,
     title: '해시테이블 실습',
     lectureName: '자료구조',
     dueDate: dateFromToday(10),
@@ -124,8 +124,8 @@ export const mockTodos: Todo[] = [
   // mockExams에 D-3·D-8 시험이 있어 이 날짜가 각각 3개(+1)·4개(+2) 칸이 된다.
   // 날짜를 옮기면 두 상태 중 하나가 화면에서 사라진다.
   {
-    todoId: '11',
-    projectId: '3',
+    todoId: 11,
+    projectId: 3,
     title: '실습 코드 리팩터링',
     lectureName: '자료구조',
     dueDate: dateFromToday(3),
@@ -135,8 +135,8 @@ export const mockTodos: Todo[] = [
     isCompleted: false,
   },
   {
-    todoId: '12',
-    projectId: '5',
+    todoId: 12,
+    projectId: 5,
     title: '정규화 연습문제',
     lectureName: '데이터베이스',
     dueDate: dateFromToday(8),
@@ -146,8 +146,8 @@ export const mockTodos: Todo[] = [
     isCompleted: false,
   },
   {
-    todoId: '13',
-    projectId: '6',
+    todoId: 13,
+    projectId: 6,
     title: '고유값 계산 연습',
     lectureName: '선형대수학',
     dueDate: dateFromToday(8),
@@ -159,8 +159,8 @@ export const mockTodos: Todo[] = [
   // 마감이 지난 항목 — 보기 드롭다운의 "지난 할 일"을 확인하려면 과거 날짜가 있어야 한다.
   // 완료/미완료를 섞어 두어 지나고도 안 한 것이 눈에 띄는지 볼 수 있게 한다.
   {
-    todoId: '14',
-    projectId: '2',
+    todoId: 14,
+    projectId: 2,
     title: '1주차 퀴즈 응시',
     lectureName: '운영체제',
     dueDate: dateFromToday(-1),
@@ -170,8 +170,8 @@ export const mockTodos: Todo[] = [
     isCompleted: true,
   },
   {
-    todoId: '15',
-    projectId: '4',
+    todoId: 15,
+    projectId: 4,
     title: '서브넷 마스크 계산 연습',
     lectureName: '컴퓨터네트워크',
     dueDate: dateFromToday(-4),
@@ -181,8 +181,8 @@ export const mockTodos: Todo[] = [
     isCompleted: false,
   },
   {
-    todoId: '16',
-    projectId: '3',
+    todoId: 16,
+    projectId: 3,
     title: '오리엔테이션 자료 읽기',
     lectureName: '자료구조',
     dueDate: dateFromToday(-9),
@@ -205,7 +205,7 @@ export function updateMockTodo(todo: Todo): void {
   mockTodos[index] = todo;
 }
 
-export function removeMockTodo(todoId: string): void {
+export function removeMockTodo(todoId: number): void {
   const index = mockTodos.findIndex((t) => t.todoId === todoId);
   if (index === -1) throw new Error('삭제할 할 일을 찾지 못했어요.');
   mockTodos.splice(index, 1);

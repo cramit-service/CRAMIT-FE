@@ -18,7 +18,7 @@ function PageShell({ children }: { children: ReactNode }) {
 }
 
 // 주차 목록 화면. page.tsx는 이 컴포넌트를 조립만 한다.
-export function ChapterDetailScreen({ projectId }: { projectId: string }) {
+export function ChapterDetailScreen({ projectId }: { projectId: number }) {
   const {
     data: project,
     isLoading: projectLoading,

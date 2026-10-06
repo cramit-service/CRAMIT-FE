@@ -4,6 +4,15 @@ import type { ApiError } from '@/shared/types/api';
 // 백엔드 base URL. 환경변수로 관리하고, 없으면 로컬 기본값 사용
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 
+// API 경로는 모두 /api 아래에 있다. 환경변수는 서버 주소(origin)로 두고 여기서 붙인다 —
+// OAuth 리다이렉트처럼 /api 밖의 경로도 같은 변수를 쓰고, 이미 origin만 적어 둔
+// .env.local이 조용히 /api를 잃지 않게 하기 위해서다.
+const API_URL = `${BASE_URL}/api`;
+
+// 일반 요청의 타임아웃. STT·요약 같은 긴 작업은 폴링이라 요청 하나는 짧다.
+// 응답이 영영 오지 않으면 mutation이 settle되지 않아 FormModal의 busy 잠금이 풀리지 않는다.
+const TIMEOUT_MS = 15_000;
+
 // 요청 옵션 (fetch 옵션 그대로). 우리 옵션을 더할 땐 교차 타입으로 확장한다.
 // (빈 interface extends는 supertype과 같아 lint에 걸린다)
 type RequestOptions = RequestInit;
@@ -12,6 +21,23 @@ type RequestOptions = RequestInit;
 function getAccessToken(): string | null {
   if (typeof window === 'undefined') return null; // 서버에서는 없음
   return localStorage.getItem('accessToken');
+}
+
+// AbortSignal.any 대신 쓴다. any는 Safari 17.4+라 Next 16 지원 범위(16.4+)에서 없는 기기가 있고,
+// 없으면 try 밖에서 TypeError가 나 모든 조회가 실패한다.
+// 브라우저마다 갈리지 않도록 지원 여부와 상관없이 이것 하나만 쓴다.
+function anySignal(...signals: AbortSignal[]): AbortSignal {
+  const controller = new AbortController();
+  for (const s of signals) {
+    if (s.aborted) {
+      controller.abort(s.reason);
+      break;
+    }
+    s.addEventListener('abort', () => controller.abort(s.reason), {
+      once: true,
+    });
+  }
+  return controller.signal;
 }
 
 async function request<T>(
@@ -34,17 +60,44 @@ async function request<T>(
     ...options?.headers,
   };
 
-  // options를 먼저 펼치고 method·headers·body를 뒤에 둔다.
-  // 반대로 두면 호출처가 options.headers를 넘겼을 때 위에서 합쳐둔 헤더
-  // (Authorization·Content-Type)가 통째로 교체된다. signal 같은 나머지 옵션은 그대로 살아난다.
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    method,
-    headers,
-    ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {}),
-  });
+  // 호출처의 signal(쿼리 취소)을 덮어쓰지 않고 타임아웃과 함께 건다.
+  const timeout = AbortSignal.timeout(TIMEOUT_MS);
+  const signal = options?.signal ? anySignal(options.signal, timeout) : timeout;
 
-  return parseBody<T>(res.ok, res.status, await res.text());
+  let res: Response;
+  let text: string;
+  try {
+    // options를 먼저 펼치고 method·headers·body를 뒤에 둔다.
+    // 반대로 두면 호출처가 options.headers를 넘겼을 때 위에서 합쳐둔 헤더
+    // (Authorization·Content-Type)가 통째로 교체된다.
+    res = await fetch(`${API_URL}${path}`, {
+      ...options,
+      method,
+      headers,
+      signal,
+      ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {}),
+    });
+    // 헤더만 오고 본문이 끊기는 경우도 같은 타임아웃이 걸리도록 본문 읽기까지 감싼다.
+    text = await res.text();
+  } catch (error) {
+    // 호출처가 취소한 것은 실패가 아니다. TanStack Query가 취소로 알아보도록 그대로 던진다.
+    // 타임아웃보다 먼저 본다 — 둘이 함께 끊겨 있으면 호출처는 어차피 결과를 버린다.
+    if (options?.signal?.aborted) throw error;
+    if (timeout.aborted) {
+      throw new ApiRequestError(
+        'TIMEOUT',
+        '서버 응답이 늦어요. 잠시 후 다시 시도해 주세요.',
+        0,
+      );
+    }
+    throw new ApiRequestError(
+      'NETWORK',
+      '네트워크 문제로 요청하지 못했어요.',
+      0,
+    );
+  }
+
+  return parseBody<T>(res.ok, res.status, text);
 }
 
 // 응답 본문 파싱 + 에러 판정 (204 No Content 등 빈 응답 대비).
@@ -79,7 +132,18 @@ function parseBody<T>(ok: boolean, status: number, text: string): T {
     );
   }
 
-  return data as T;
+  // 빈 본문(204 No Content)은 꺼낼 것이 없다.
+  if (data === null) return data as T;
+
+  // 성공 응답은 { data: ... }로 감싸져 온다. 키가 없으면 계약과 다른 응답이다.
+  if (typeof data !== 'object' || !('data' in data)) {
+    throw new ApiRequestError(
+      'INVALID_RESPONSE',
+      '서버 응답을 해석할 수 없어요.',
+      status,
+    );
+  }
+  return data.data as T;
 }
 
 // 커스텀 에러 클래스 (에러 코드·메시지·상태를 담아 던짐)
@@ -109,6 +173,8 @@ export interface UploadOptions {
 // fetch를 쓰지 않는 이유: fetch는 "응답을 받는" 진행률만 관측할 수 있고 "보내는" 진행률을
 // 알려주지 않는다. 200MB짜리 녹음을 올리는 동안 화면에 아무것도 못 그리게 되므로
 // 이 경로만 XMLHttpRequest를 쓴다(upload.onprogress). 나머지 요청은 그대로 fetch를 탄다.
+// 타임아웃은 두지 않는다. 큰 녹음은 느린 회선에서 어떤 고정 시간도 넘길 수 있고,
+// 새 주차 업로드 화면에는 사용자가 직접 멈추는 버튼(signal)이 있다.
 function uploadRequest<T>(
   method: string,
   path: string,
@@ -126,7 +192,7 @@ function uploadRequest<T>(
     }
 
     const xhr = new XMLHttpRequest();
-    xhr.open(method, `${BASE_URL}${path}`);
+    xhr.open(method, `${API_URL}${path}`);
 
     // FormData의 multipart 경계(boundary)는 브라우저가 붙인다 — Content-Type을 직접 넣으면
     // 경계가 빠져 서버가 본문을 파싱하지 못한다 (fetch 경로와 같은 이유).
@@ -168,13 +234,6 @@ function uploadRequest<T>(
         ),
       );
     xhr.onabort = () => settle(() => reject(aborted()));
-    xhr.ontimeout = () =>
-      settle(() =>
-        reject(
-          new ApiRequestError('TIMEOUT', '업로드가 시간을 초과했어요.', 0),
-        ),
-      );
-
     xhr.send(form);
   });
 }

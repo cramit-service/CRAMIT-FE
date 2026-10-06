@@ -49,7 +49,7 @@ export async function getTodos(signal?: AbortSignal): Promise<Todo[]> {
 }
 
 // 강의명은 서버가 projectId로 채워 내려주는 값이다. mock도 같은 자리에서 채운다. (exam/api.ts와 동일)
-function mockLectureName(projectId: string | null): string | null {
+function mockLectureName(projectId: number | null): string | null {
   if (!projectId) return null;
   return (
     mockProjectSummaries.find((p) => p.projectId === projectId)?.title ?? null
@@ -62,7 +62,7 @@ export async function createTodo(req: CreateTodoRequest): Promise<Todo> {
   if (USE_MOCK) {
     await delay(300);
     const todo: Todo = {
-      todoId: `t${Date.now()}`,
+      todoId: Date.now(),
       projectId: req.projectId,
       title: req.title,
       lectureName: mockLectureName(req.projectId),
@@ -102,7 +102,7 @@ export async function updateTodo(req: UpdateTodoRequest): Promise<Todo> {
 }
 
 // TODO 삭제
-export async function deleteTodo(todoId: string): Promise<void> {
+export async function deleteTodo(todoId: number): Promise<void> {
   if (USE_MOCK) {
     await delay(300);
     removeMockTodo(todoId);

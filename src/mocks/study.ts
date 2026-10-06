@@ -12,9 +12,9 @@ import type {
 // createdAt은 타임존(Z) 없이 두어 로컬 시각 그대로 "16:03"으로 표시되게 한다.
 export const mockChapters: Chapter[] = [
   {
-    chapterId: 'c1',
+    chapterId: 1,
     reviewCount: 0,
-    projectId: '1',
+    projectId: 1,
     chapterNumber: 1,
     title: '알고리즘과 복잡도 개요',
     createdAt: '2026-07-01T16:03:00',
@@ -25,9 +25,9 @@ export const mockChapters: Chapter[] = [
     audioFileName: '강의녹음.m4a',
   },
   {
-    chapterId: 'c2',
+    chapterId: 2,
     reviewCount: 1,
-    projectId: '1',
+    projectId: 1,
     chapterNumber: 2,
     title: '정렬 알고리즘',
     createdAt: '2026-07-04T16:03:00',
@@ -38,9 +38,9 @@ export const mockChapters: Chapter[] = [
     audioFileName: '강의녹음.m4a',
   },
   {
-    chapterId: 'c3',
+    chapterId: 3,
     reviewCount: 3,
-    projectId: '1',
+    projectId: 1,
     chapterNumber: 3,
     title: '분할 정복',
     createdAt: '2026-07-08T16:03:00',
@@ -51,9 +51,9 @@ export const mockChapters: Chapter[] = [
     audioFileName: '강의녹음.m4a',
   },
   {
-    chapterId: 'c4',
+    chapterId: 4,
     reviewCount: 2,
-    projectId: '1',
+    projectId: 1,
     chapterNumber: 4,
     title: '알고리즘 기초 알아보기',
     createdAt: '2026-07-14T16:03:00',
@@ -64,9 +64,9 @@ export const mockChapters: Chapter[] = [
     audioFileName: '강의녹음.m4a',
   },
   {
-    chapterId: 'c5',
+    chapterId: 5,
     reviewCount: 0,
-    projectId: '1',
+    projectId: 1,
     chapterNumber: 5,
     title: '그래프 탐색',
     createdAt: '2026-07-16T16:03:00',
@@ -77,9 +77,9 @@ export const mockChapters: Chapter[] = [
     audioFileName: '강의녹음.m4a',
   },
   {
-    chapterId: 'c6',
+    chapterId: 6,
     reviewCount: 1,
-    projectId: '1',
+    projectId: 1,
     chapterNumber: 6,
     title: '최단 경로',
     createdAt: '2026-07-18T16:03:00',
@@ -104,7 +104,7 @@ export function addMockChapter(chapter: Chapter): void {
 }
 
 // mock 전용: 주차 하나를 찾는다.
-export function findMockChapter(chapterId: string): Chapter | undefined {
+export function findMockChapter(chapterId: number): Chapter | undefined {
   return mockChapters.find((c) => c.chapterId === chapterId);
 }
 
@@ -116,7 +116,7 @@ export function updateMockChapter(chapter: Chapter): void {
 
 // 프로젝트 상세 헤더 mock (과목명·교수·시험 D-DAY 등)
 export const mockProjectDetail: ProjectDetail = {
-  projectId: '1',
+  projectId: 1,
   title: '알고리즘',
   createdAt: '2026-03-02T09:00:00Z',
   professor: '박지훈',
@@ -128,7 +128,7 @@ export const mockProjectDetail: ProjectDetail = {
 
 // 학습 뷰어(PDF 강의 자료 탭) mock — Figma 시안값 그대로 12페이지 / 61:02.
 export const mockLectureMaterial: LectureMaterial = {
-  chapterId: 'c4',
+  chapterId: 4,
   // 백엔드가 pdfUrl을 내려주기 전까지 쓰는 샘플 12장짜리 자료(public/sample-lecture.pdf).
   // 백엔드가 붙으면 이 줄만 지우면 된다.
   pdfUrl: '/sample-lecture.pdf',
@@ -139,7 +139,7 @@ export const mockLectureMaterial: LectureMaterial = {
 // 학습 뷰어(AI 강의 요약 탭) mock — 백엔드 요약 생성이 붙기 전까지 쓰는 Markdown 원문.
 // 제목/목록/표/코드/인용을 모두 넣어 렌더 스타일이 한 번에 확인되게 한다.
 export const mockLectureSummary: LectureSummary = {
-  chapterId: 'c4',
+  chapterId: 4,
   fileName: '알고리즘_Chapter 4 - 알고리즘 기초 알아보기_요약.md',
   markdown: `# Chapter 4 - 알고리즘 기초 알아보기
 
@@ -227,7 +227,7 @@ def binary_search(arr, target):
 // 내용은 같은 챕터의 mockLectureSummary와 같은 강의(알고리즘 기초)를 말하도록 썼다.
 // 시안(Figma)의 문구는 DP 강의 예시라 그대로 쓰면 요약 탭과 다른 수업이 돼 버린다.
 export const mockLectureScript: LectureScript = {
-  chapterId: 'c4',
+  chapterId: 4,
   sections: [
     {
       page: 1,
