@@ -49,8 +49,8 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
   const [projectId, setProjectId] = useState(
     todo?.projectId?.toString() ?? NONE,
   );
-  const [lectureId, setLectureId] = useState(
-    todo?.lectureId?.toString() ?? NONE,
+  const [chapterId, setChapterId] = useState(
+    todo?.chapterId?.toString() ?? NONE,
   );
   const [memo, setMemo] = useState(todo?.memo ?? '');
   const [formError, setFormError] = useState<string | null>(null);
@@ -111,7 +111,7 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
   // 강의를 바꾸면 이전 강의의 주차가 남아 있으면 안 된다. 같이 비운다.
   const handleProjectChange = (value: string) => {
     setProjectId(value);
-    setLectureId(NONE);
+    setChapterId(NONE);
   };
 
   const filled = title.trim() !== '' && dueDate !== '';
@@ -122,7 +122,7 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
     dueDate !== todo.dueDate ||
     (dueTime || null) !== todo.dueTime ||
     toId(projectId) !== todo.projectId ||
-    toId(lectureId) !== todo.lectureId ||
+    toId(chapterId) !== todo.chapterId ||
     (memo.trim() || null) !== todo.memo;
   const canSubmit = filled && changed && !busy;
 
@@ -148,7 +148,7 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
       title: title.trim(),
       dueDate,
       dueTime: dueTime || null,
-      lectureId: toId(lectureId),
+      chapterId: toId(chapterId),
       memo: memo.trim() || null,
     };
 
@@ -260,8 +260,8 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
         <Combobox
           id={`${fieldId}-lecture`}
           label="주차"
-          value={lectureId}
-          onChange={setLectureId}
+          value={chapterId}
+          onChange={setChapterId}
           options={chapterOptions}
           disabled={busy || projectId === NONE}
           placeholder={
