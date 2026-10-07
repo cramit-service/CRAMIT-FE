@@ -37,9 +37,14 @@ export interface LoginRequest {
   password: string;
 }
 
+// refreshToken은 본문에 없다 — 백엔드가 HttpOnly 쿠키로 심는다.
 export interface LoginResponse {
   accessToken: string;
-  refreshToken: string;
+}
+
+// TODO: 백엔드 재발급 응답 형태 확정 시 재확인
+export interface TokenRefreshResponse {
+  accessToken: string;
 }
 
 /* ===== 온보딩 (약관 → 닉네임 → 요금제) ===== */
