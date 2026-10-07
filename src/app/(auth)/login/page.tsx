@@ -11,7 +11,7 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  // 소셜 콜백이 토큰 없이 돌아오면 ?error=oauth로 넘어온다
+  // 백엔드 인가 실패(?error=oauth_login_failed)와 토큰 없는 콜백(?error=oauth) 둘 다 온다
   const { error } = await searchParams;
-  return <LoginScreen oauthFailed={error === 'oauth'} />;
+  return <LoginScreen oauthFailed={error !== undefined} />;
 }
