@@ -1,15 +1,17 @@
 // src/features/auth/api.ts
 import type {
-  LoginResponse,
   NicknameCheckResponse,
   OnboardingProfileRequest,
   User,
 } from '@/shared/types/api';
-import { apiClient } from '@/shared/lib/apiClient';
+import { apiClient, BASE_URL } from '@/shared/lib/apiClient';
+import { setAccessToken } from '@/shared/lib/authToken';
 import { mockLoginResponse } from '@/mocks/auth';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로)
 const USE_MOCK = true;
+// 로그인은 백엔드에 붙었다. 닉네임 확인·온보딩 등록은 API가 아직 없어 위 스위치로 mock에 둔다.
+const USE_MOCK_LOGIN = false;
 
 // 가짜 지연을 흉내내는 헬퍼 (실제 네트워크처럼 잠깐 기다림)
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -17,19 +19,33 @@ const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 // 소셜 로그인 제공자. User.provider에서 이메일을 뺀 값과 항상 일치시킨다.
 export type SocialProvider = Exclude<User['provider'], 'EMAIL'>;
 
+// 인가는 백엔드가 처리하고 /oauth/callback?accessToken=… 으로 돌려보낸다.
+const oauthAuthorizeUrl = (provider: SocialProvider) =>
+  `${BASE_URL}/oauth2/authorization/${provider.toLowerCase()}`;
+
+// 브라우저를 백엔드 인가 주소로 넘긴다. mock은 백엔드 대신 콜백으로 바로 돌아온다.
 export async function startSocialLogin(
   provider: SocialProvider,
-): Promise<LoginResponse> {
-  if (USE_MOCK) {
+): Promise<void> {
+  if (USE_MOCK_LOGIN) {
     await delay(300); // 로딩 상태 확인용
-    return mockLoginResponse;
+    window.location.assign(
+      `/oauth/callback?accessToken=${mockLoginResponse.accessToken}&isNewUser=true`,
+    );
+    return;
   }
 
-  // TODO: 백엔드 OAuth 스펙 확정 후 연결.
-  // 인가 코드 방식이면 fetch가 아니라 백엔드 인가 URL로 브라우저를 넘기고,
-  // 콜백 라우트에서 토큰을 받아야 한다. 그때 이 함수의 반환 타입도 다시 본다.
-  //   window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/oauth/${provider.toLowerCase()}`;
-  throw new Error(`${provider} 소셜 로그인은 백엔드 연동 준비 중이에요.`);
+  window.location.assign(oauthAuthorizeUrl(provider));
+}
+
+// 콜백 쿼리의 토큰을 저장하고 다음 경로를 돌려준다. 토큰이 없으면 실패로 보고 null.
+export function completeSocialLogin(params: URLSearchParams): string | null {
+  const accessToken = params.get('accessToken');
+  if (!accessToken) return null;
+
+  setAccessToken(accessToken);
+  // TODO: 백엔드가 아직 isNewUser를 보내지 않아 기존 회원도 온보딩으로 간다
+  return params.get('isNewUser') === 'false' ? '/home' : '/onboarding';
 }
 
 export async function checkNickname(
@@ -60,19 +76,4 @@ export async function registerOnboardingProfile(
   // TODO: 백엔드 스펙 확정 후 연결. 엔드포인트와 필드명 모두 미정이며,
   // 요금제가 별도 API로 분리될 가능성도 있어 확인 필요.
   await apiClient.post<void>('/users/profile', payload);
-}
-
-// 로그인 성공 후 토큰 저장 자리.
-// apiClient가 localStorage의 accessToken을 읽어 Authorization 헤더에 싣는다.
-// TODO: 백엔드 응답 형태 확정 후 실제 저장으로 교체 (저장 위치도 함께 재검토)
-// tokens는 실연동 시 저장에 쓰인다. 지금은 mock 경로만 실행돼 미사용이라 규칙을 잠시 끈다.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function saveAuthTokens(tokens: LoginResponse): void {
-  if (USE_MOCK) {
-    // 토큰 값은 로그로 남기지 않는다 (실연동 시 민감정보 노출 방지)
-    console.log('[mock] 토큰 저장 호출됨');
-    return;
-  }
-  // localStorage.setItem('accessToken', tokens.accessToken);
-  // localStorage.setItem('refreshToken', tokens.refreshToken);
 }
