@@ -10,6 +10,8 @@ import { mockLoginResponse } from '@/mocks/auth';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로)
 const USE_MOCK = true;
+// 로그인은 백엔드에 붙었다. 닉네임 확인·온보딩 등록은 API가 아직 없어 위 스위치로 mock에 둔다.
+const USE_MOCK_LOGIN = false;
 
 // 가짜 지연을 흉내내는 헬퍼 (실제 네트워크처럼 잠깐 기다림)
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -17,8 +19,7 @@ const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 // 소셜 로그인 제공자. User.provider에서 이메일을 뺀 값과 항상 일치시킨다.
 export type SocialProvider = Exclude<User['provider'], 'EMAIL'>;
 
-// 인가는 백엔드가 처리하고 /oauth/callback?accessToken=…&isNewUser=… 로 돌려보낸다.
-// TODO: 인가 경로·콜백 경로·쿼리 이름은 백엔드 확정 전 가정이다
+// 인가는 백엔드가 처리하고 /oauth/callback?accessToken=… 으로 돌려보낸다.
 const oauthAuthorizeUrl = (provider: SocialProvider) =>
   `${BASE_URL}/oauth2/authorization/${provider.toLowerCase()}`;
 
@@ -26,7 +27,7 @@ const oauthAuthorizeUrl = (provider: SocialProvider) =>
 export async function startSocialLogin(
   provider: SocialProvider,
 ): Promise<void> {
-  if (USE_MOCK) {
+  if (USE_MOCK_LOGIN) {
     await delay(300); // 로딩 상태 확인용
     window.location.assign(
       `/oauth/callback?accessToken=${mockLoginResponse.accessToken}&isNewUser=true`,
@@ -43,7 +44,7 @@ export function completeSocialLogin(params: URLSearchParams): string | null {
   if (!accessToken) return null;
 
   setAccessToken(accessToken);
-  // 값이 안 오면 지금처럼 온보딩으로 보낸다
+  // TODO: 백엔드가 아직 isNewUser를 보내지 않아 기존 회원도 온보딩으로 간다
   return params.get('isNewUser') === 'false' ? '/home' : '/onboarding';
 }
 

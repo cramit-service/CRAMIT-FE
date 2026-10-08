@@ -42,7 +42,6 @@ export interface LoginResponse {
   accessToken: string;
 }
 
-// TODO: 백엔드 재발급 응답 형태 확정 시 재확인
 export interface TokenRefreshResponse {
   accessToken: string;
 }
