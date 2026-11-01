@@ -1,8 +1,14 @@
 // src/shared/lib/apiClient.ts
-import type { ApiError } from '@/shared/types/api';
+import type { ApiError, TokenRefreshResponse } from '@/shared/types/api';
+import {
+  clearAccessToken,
+  getAccessToken,
+  setAccessToken,
+} from '@/shared/lib/authToken';
 
 // 백엔드 base URL. 환경변수로 관리하고, 없으면 로컬 기본값 사용
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
+export const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 
 // API 경로는 모두 /api 아래에 있다. 환경변수는 서버 주소(origin)로 두고 여기서 붙인다 —
 // OAuth 리다이렉트처럼 /api 밖의 경로도 같은 변수를 쓰고, 이미 origin만 적어 둔
@@ -17,10 +23,34 @@ const TIMEOUT_MS = 15_000;
 // (빈 interface extends는 supertype과 같아 lint에 걸린다)
 type RequestOptions = RequestInit;
 
-// 토큰을 가져오는 함수 (지금은 localStorage 기준, 나중에 교체 가능)
-function getAccessToken(): string | null {
-  if (typeof window === 'undefined') return null; // 서버에서는 없음
-  return localStorage.getItem('accessToken');
+// 동시에 여러 요청이 401을 받아도 재발급은 한 번만 보낸다.
+let refreshing: Promise<string | null> | null = null;
+
+// refreshToken은 HttpOnly 쿠키라 credentials: 'include'만 주면 브라우저가 싣는다.
+function refreshAccessToken(): Promise<string | null> {
+  refreshing ??= fetch(`${API_URL}/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  })
+    .then(async (res) => {
+      const { accessToken } = parseBody<TokenRefreshResponse>(
+        res.ok,
+        res.status,
+        await res.text(),
+      );
+      setAccessToken(accessToken);
+      return accessToken;
+    })
+    .catch(() => {
+      // TODO: 로그인 보호(proxy) 작업 때 여기서 /login으로 보낸다
+      clearAccessToken();
+      return null;
+    })
+    .finally(() => {
+      refreshing = null;
+    });
+  return refreshing;
 }
 
 // AbortSignal.any 대신 쓴다. any는 Safari 17.4+라 Next 16 지원 범위(16.4+)에서 없는 기기가 있고,
@@ -45,6 +75,7 @@ async function request<T>(
   path: string,
   body?: unknown,
   options?: RequestOptions,
+  retried = false,
 ): Promise<T> {
   const token = getAccessToken();
 
@@ -95,6 +126,11 @@ async function request<T>(
       '네트워크 문제로 요청하지 못했어요.',
       0,
     );
+  }
+
+  // accessToken 만료 — 한 번만 재발급받아 같은 요청을 다시 보낸다.
+  if (res.status === 401 && !retried && (await refreshAccessToken())) {
+    return request<T>(method, path, body, options, true);
   }
 
   return parseBody<T>(res.ok, res.status, text);

@@ -1,25 +1,38 @@
 'use client';
 // src/features/auth/components/LoginScreen.tsx
-import { useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 import { Logo } from '@/shared/ui/Logo';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
 import { SocialButton } from './SocialButton';
-import {
-  startSocialLogin,
-  saveAuthTokens,
-  type SocialProvider,
-} from '@/features/auth/api';
+import { startSocialLogin, type SocialProvider } from '@/features/auth/api';
 
-export function LoginScreen() {
-  const router = useRouter();
-  // 진행 중인 제공자. 응답을 기다리는 동안 두 버튼을 함께 잠근다.
+const LOGIN_FAILED = '로그인하지 못했어요. 잠시 후 다시 시도해 주세요.';
+
+export function LoginScreen({
+  oauthFailed = false,
+}: {
+  oauthFailed?: boolean;
+}) {
+  // 진행 중인 제공자. 페이지를 떠날 때까지 두 버튼을 함께 잠근다.
   const [pending, setPending] = useState<SocialProvider | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(
+    oauthFailed ? LOGIN_FAILED : null,
+  );
 
   // state는 동기로 갱신되지 않아 같은 tick에 연타하면 pending이 계속 null로 보인다.
   // 리렌더 전에도 막으려면 ref로 검사해야 한다.
   const isRunning = useRef(false);
+
+  // 카카오 화면에서 뒤로 오면 bfcache가 잠긴 버튼 그대로 되살린다
+  useEffect(() => {
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (!e.persisted) return;
+      isRunning.current = false;
+      setPending(null);
+    };
+    window.addEventListener('pageshow', onPageShow);
+    return () => window.removeEventListener('pageshow', onPageShow);
+  }, []);
 
   const handleLogin = async (provider: SocialProvider) => {
     if (isRunning.current) return;
@@ -28,19 +41,12 @@ export function LoginScreen() {
     setErrorMessage(null);
 
     try {
-      const tokens = await startSocialLogin(provider);
-      saveAuthTokens(tokens);
-
-      // TODO: 지금은 모두 온보딩으로 보낸다. 기존 회원은 홈으로 가야 하므로 분기가 필요하다.
-      // 백엔드 담당에게 확인 필요: 소셜 로그인 응답에 신규/기존 회원을 구분하는 필드가 있는지,
-      // 있다면 필드명이 무엇인지. 확인되면 LoginResponse(shared/types/api.ts)에 추가하고
-      // 그 값으로 여기서 갈라야 한다(신규 → /onboarding, 기존 → 홈).
-      router.push('/onboarding');
+      await startSocialLogin(provider);
+      // 성공하면 페이지가 넘어가므로 잠금을 풀지 않는다 — 풀면 이동 직전 버튼이 다시 살아난다
     } catch (error) {
       // TODO: 공통 에러 토스트가 생기면 그쪽으로 옮긴다
       console.error('소셜 로그인 실패', error);
-      setErrorMessage('로그인하지 못했어요. 잠시 후 다시 시도해 주세요.');
-    } finally {
+      setErrorMessage(LOGIN_FAILED);
       isRunning.current = false;
       setPending(null);
     }
