@@ -2,6 +2,7 @@
 import type {
   CreateExamRequest,
   Exam,
+  ExamResponse,
   UpdateExamRequest,
 } from '@/shared/types/api';
 import { apiClient } from '@/shared/lib/apiClient';
@@ -20,7 +21,7 @@ const mockLectureName = (projectId: number): string | null =>
   mockProjectSummaries.find((p) => p.projectId === projectId)?.title ?? null;
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로)
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 // 쿼리가 취소되면 실제 fetch처럼 즉시 중단되도록 AbortSignal을 받는다. (study/api.ts와 동일 패턴)
 const delay = (ms: number, signal?: AbortSignal) =>
@@ -40,9 +41,13 @@ const delay = (ms: number, signal?: AbortSignal) =>
     );
   });
 
+// 서버는 강의를 lectureId로 부르고, 화면은 같은 값을 projectId로 부른다.
+function toExam({ lectureId, ...rest }: ExamResponse): Exam {
+  return { ...rest, projectId: lectureId };
+}
+
 // 다가오는 시험 일정 조회 — 홈 대시보드 리스트/배너용.
 // 내 전체 시험 중 "다가오는 것(오늘 포함)"만 시험일 오름차순으로 준다.
-// 과거까지 포함한 전체가 필요한 캘린더는 getAllExams를 쓴다.
 export async function getExams(signal?: AbortSignal): Promise<Exam[]> {
   if (USE_MOCK) {
     await delay(300, signal);
@@ -52,18 +57,10 @@ export async function getExams(signal?: AbortSignal): Promise<Exam[]> {
       .filter((exam) => exam.examDate >= today)
       .sort((a, b) => a.examDate.localeCompare(b.examDate));
   }
-  return apiClient.get<Exam[]>('/exams', { signal });
-}
-
-// 캘린더용 — 내 전체 시험(과거 포함)을 시험일 오름차순으로 돌려준다.
-// 다가오는 것만 필요한 대시보드 리스트/배너는 getExams를 쓴다. (같은 데이터의 다른 뷰)
-export async function getAllExams(signal?: AbortSignal): Promise<Exam[]> {
-  if (USE_MOCK) {
-    await delay(300, signal);
-    // sort는 원본을 바꾸므로 복사 후 정렬한다. (getExams는 filter가 만든 새 배열이라 무관)
-    return [...mockExams].sort((a, b) => a.examDate.localeCompare(b.examDate));
-  }
-  return apiClient.get<Exam[]>('/exams', { signal });
+  const exams = await apiClient.get<ExamResponse[]>('/exams/upcoming', {
+    signal,
+  });
+  return exams.map(toExam);
 }
 
 // 시험 일정 생성 — 홈 "다가오는 시험 일정" 추가하기 모달.
@@ -83,7 +80,10 @@ export async function createExam(req: CreateExamRequest): Promise<Exam> {
     addMockExam(exam);
     return exam;
   }
-  return apiClient.post<Exam>('/exams', req);
+  const { projectId, ...body } = req;
+  return toExam(
+    await apiClient.post<ExamResponse>(`/lectures/${projectId}/exams`, body),
+  );
 }
 
 // 시험 일정 수정 — 같은 모달의 수정 모드.
@@ -107,8 +107,13 @@ export async function updateExam(req: UpdateExamRequest): Promise<Exam> {
     return exam;
   }
 
-  const { examId, ...body } = req;
-  return apiClient.patch<Exam>(`/exams/${examId}`, body);
+  const { examId, projectId, ...rest } = req;
+  return toExam(
+    await apiClient.patch<ExamResponse>(`/exams/${examId}`, {
+      ...rest,
+      lectureId: projectId,
+    }),
+  );
 }
 
 // 시험 일정 삭제. 시안에 확인 단계가 없어 누르는 즉시 지운다.
