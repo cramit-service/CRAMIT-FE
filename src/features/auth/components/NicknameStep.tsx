@@ -1,11 +1,11 @@
 'use client';
 // src/features/auth/components/NicknameStep.tsx
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { checkNickname } from '@/features/auth/api';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 
-export type NicknameStatus = 'idle' | 'available' | 'taken';
+export type NicknameStatus = 'idle' | 'available' | 'taken' | 'failed';
 
 interface NicknameStepProps {
   nickname: string;
@@ -22,21 +22,24 @@ export function NicknameStep({
 }: NicknameStepProps) {
   // 응답을 기다리는 동안 연타로 중복 호출되지 않게 막는다 (state는 리렌더 전까지 갱신되지 않음)
   const isChecking = useRef(false);
-  const [checkFailed, setCheckFailed] = useState(false);
+  // 닉네임을 고치면 올라간다. 고치기 전에 보낸 확인의 응답이 새 닉네임에 붙지 않게 버린다.
+  const requestId = useRef(0);
 
   const canCheck = nickname.trim().length > 0;
 
   const handleCheck = async () => {
     if (!canCheck || isChecking.current) return;
     isChecking.current = true;
-    setCheckFailed(false);
+    const id = ++requestId.current;
+    onStatusChange('idle');
 
     try {
       const { available } = await checkNickname(nickname);
-      onStatusChange(available ? 'available' : 'taken');
+      if (id === requestId.current) {
+        onStatusChange(available ? 'available' : 'taken');
+      }
     } catch {
-      setCheckFailed(true);
-      onStatusChange('idle');
+      if (id === requestId.current) onStatusChange('failed');
     } finally {
       isChecking.current = false;
     }
@@ -64,7 +67,7 @@ export function NicknameStep({
             required
             value={nickname}
             onChange={(e) => {
-              setCheckFailed(false);
+              requestId.current += 1;
               onNicknameChange(e.target.value);
             }}
             placeholder="닉네임을 입력해 주세요."
@@ -84,9 +87,9 @@ export function NicknameStep({
         </p>
       )}
       {/* 입력이 틀린 게 아니라 확인을 못 한 것이라 칸의 error가 아니라 따로 알린다. */}
-      {checkFailed && (
+      {status === 'failed' && (
         <p role="alert" className="text-body-sm text-red-ink mt-2">
-          중복확인을 하지 못했어요. 잠시 후 다시 시도해 주세요.
+          중복을 확인하지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
       )}
     </div>

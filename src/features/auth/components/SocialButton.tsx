@@ -6,6 +6,9 @@ import type { SocialProvider } from '@/features/auth/api';
 interface SocialButtonProps {
   provider: SocialProvider;
   href: string;
+  // 이동이 시작돼 잠긴 상태. 링크에는 disabled가 없어 회색과 aria-disabled로 알린다.
+  pending?: boolean;
+  onClick?: React.MouseEventHandler<HTMLAnchorElement>;
 }
 
 // 브랜드 색 — 카카오·구글 규정색이라 §2 바깥이다. 이 파일만 임의 색을 허락한다
@@ -39,15 +42,24 @@ const providerIcons: Record<
 
 // 소셜 로그인 전용 pill. 브랜드 색·아이콘 규격이 shared/ui/Button과 달라 auth 전용으로 둔다.
 // 목적지가 있는 이동이라 링크다 — 버튼(onClick)이면 JS가 붙기 전에 누른 클릭이 사라진다.
-export function SocialButton({ provider, href }: SocialButtonProps) {
+export function SocialButton({
+  provider,
+  href,
+  pending = false,
+  onClick,
+}: SocialButtonProps) {
   const icon = providerIcons[provider];
 
   return (
     <a
       href={href}
+      onClick={onClick}
+      aria-disabled={pending || undefined}
       className={cn(
         'text-body-md flex w-full items-center justify-center gap-3 rounded-full px-6 py-2.5 font-medium text-gray-800 transition',
-        providerStyles[provider],
+        pending
+          ? 'cursor-not-allowed bg-gray-200 text-gray-500'
+          : providerStyles[provider],
       )}
     >
       <span className="flex size-10 shrink-0 items-center justify-center">
