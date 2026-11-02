@@ -1,11 +1,11 @@
-'use client';
 // src/features/auth/components/SocialButton.tsx
 import Image from 'next/image';
 import { cn } from '@/shared/lib/cn';
 import type { SocialProvider } from '@/features/auth/api';
 
-interface SocialButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface SocialButtonProps {
   provider: SocialProvider;
+  href: string;
 }
 
 // 브랜드 색 — 카카오·구글 규정색이라 §2 바깥이다. 이 파일만 임의 색을 허락한다
@@ -37,28 +37,18 @@ const providerIcons: Record<
   },
 };
 
-// 소셜 로그인 전용 pill 버튼. 브랜드 색·아이콘 규격이 shared/ui/Button과 달라 auth 전용으로 둔다.
-export function SocialButton({
-  provider,
-  className,
-  disabled,
-  ...props
-}: SocialButtonProps) {
+// 소셜 로그인 전용 pill. 브랜드 색·아이콘 규격이 shared/ui/Button과 달라 auth 전용으로 둔다.
+// 목적지가 있는 이동이라 링크다 — 버튼(onClick)이면 JS가 붙기 전에 누른 클릭이 사라진다.
+export function SocialButton({ provider, href }: SocialButtonProps) {
   const icon = providerIcons[provider];
 
   return (
-    <button
-      type="button"
+    <a
+      href={href}
       className={cn(
         'text-body-md flex w-full items-center justify-center gap-3 rounded-full px-6 py-2.5 font-medium text-gray-800 transition',
-        // 비활성이면 회색만, 아니면 브랜드 색 적용
-        disabled
-          ? 'cursor-not-allowed bg-gray-200 text-gray-500'
-          : providerStyles[provider],
-        className,
+        providerStyles[provider],
       )}
-      disabled={disabled}
-      {...props}
     >
       <span className="flex size-10 shrink-0 items-center justify-center">
         <Image
@@ -70,6 +60,6 @@ export function SocialButton({
         />
       </span>
       {icon.label}
-    </button>
+    </a>
   );
 }
