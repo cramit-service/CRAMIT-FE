@@ -1,7 +1,7 @@
 'use client';
 // src/features/project/hooks/useCreateChapter.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Chapter, CreateChapterRequest } from '@/shared/types/api';
+import type { CreateChapterRequest } from '@/shared/types/api';
 import type { UploadOptions } from '@/shared/lib/apiClient';
 import { createChapter } from '@/features/project/api';
 
@@ -14,10 +14,10 @@ export type CreateChapterVariables = CreateChapterRequest & UploadOptions;
 export function useCreateChapter() {
   const queryClient = useQueryClient();
 
-  return useMutation<Chapter, Error, CreateChapterVariables>({
+  return useMutation<number, Error, CreateChapterVariables>({
     mutationFn: ({ onProgress, signal, ...req }) =>
       createChapter(req, { onProgress, signal }),
-    onSuccess: (_chapter, req) => {
+    onSuccess: (_chapterId, req) => {
       queryClient.invalidateQueries({ queryKey: ['chapters', req.projectId] });
       queryClient.invalidateQueries({
         queryKey: ['project-detail', req.projectId],

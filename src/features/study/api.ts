@@ -1,6 +1,7 @@
 // src/features/study/api.ts
 import type {
   Chapter,
+  ChapterStatus,
   Exam,
   LectureDetailResponse,
   LectureMaterial,
@@ -10,6 +11,7 @@ import type {
   ProcessStatus,
   ProjectDetail,
   ProjectSummary,
+  WeekResponse,
 } from '@/shared/types/api';
 import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
 import { getExams } from '@/features/exam/api';
@@ -24,7 +26,7 @@ import { findMockLecture, mockLectures } from '@/mocks/project';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로) — project/api.ts와 동일 패턴
 const USE_MOCK = true;
-// 강의 목록·상세만 먼저 백엔드에 붙었다. 위 스위치는 아직 mock인 나머지 함수들이 쓴다.
+// 강의·주차 조회만 먼저 백엔드에 붙었다. 위 스위치는 아직 mock인 나머지 함수들이 쓴다.
 const USE_MOCK_LECTURE = false;
 
 // 가짜 지연을 흉내내는 헬퍼 (실제 네트워크처럼 잠깐 기다림).
@@ -104,7 +106,7 @@ export async function getProjectDetail(
   projectId: number,
   signal?: AbortSignal,
 ): Promise<ProjectDetail> {
-  const [lecture, exams] = await Promise.all([
+  const [lecture, exams, chapters] = await Promise.all([
     USE_MOCK_LECTURE
       ? delay(300, signal).then(() => {
           const found = findMockLecture(projectId);
@@ -121,49 +123,89 @@ export async function getProjectDetail(
           signal,
         }),
     getExamsOrEmpty(signal),
+    getChapters(projectId, signal),
   ]);
-  // 주차는 아직 mock이라 "강의 N개"는 화면에 그려지는 mock 주차 목록에서 센다.
-  return toProjectSummary(
-    { ...lecture, weekCount: mockChapters.length },
-    exams,
-  );
+  // 목록 응답의 weekCount는 백엔드가 아직 늘 0이라, 헤더의 "강의 N개"는 실제 주차 목록에서 센다.
+  return toProjectSummary({ ...lecture, weekCount: chapters.length }, exams);
+}
+
+const CHAPTER_STATUS: Record<WeekResponse['status'], ChapterStatus> = {
+  BEFORE: 'BEFORE',
+  IN_PROCESS: 'IN_PROGRESS',
+  COMPLETED: 'DONE',
+};
+
+const WEEK_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+const invalidChapter = () =>
+  new ApiRequestError('INVALID_RESPONSE', '주차 정보를 해석할 수 없어요.', 0);
+
+// 응답 → 화면. 파일 이름은 목록 응답에 없어서 모른다(undefined)로 둔다.
+function toChapter(
+  r: WeekResponse,
+  projectId: number,
+  chapterNumber: number,
+): Chapter {
+  if (
+    typeof r?.weekId !== 'number' ||
+    typeof r.title !== 'string' ||
+    typeof r.weekDate !== 'string' ||
+    !WEEK_DATE.test(r.weekDate) ||
+    typeof r.status !== 'string' ||
+    !Object.hasOwn(CHAPTER_STATUS, r.status) ||
+    typeof r.reviewCount !== 'number' ||
+    typeof r.createdAt !== 'string'
+  ) {
+    throw invalidChapter();
+  }
+  return {
+    chapterId: r.weekId,
+    projectId,
+    chapterNumber,
+    title: r.title,
+    createdAt: r.createdAt,
+    status: CHAPTER_STATUS[r.status],
+    reviewCount: r.reviewCount,
+    lectureDate: r.weekDate,
+  };
 }
 
 export async function getChapters(
   projectId: number,
   signal?: AbortSignal,
 ): Promise<Chapter[]> {
-  if (USE_MOCK) {
+  if (USE_MOCK_LECTURE) {
     await delay(300, signal);
     return mockChapters.map((c) => ({ ...c, projectId }));
   }
-  return apiClient.get<Chapter[]>(`/projects/${projectId}/chapters`, {
-    signal,
-  });
+  const weeks = await apiClient.get<WeekResponse[]>(
+    `/lectures/${projectId}/weeks`,
+    { signal },
+  );
+  if (!Array.isArray(weeks)) throw invalidChapter();
+  // 서버는 수강일 최신순으로 준다. 주차 번호는 가장 오래된 주차를 1로 센다.
+  return weeks.map((w, i) => toChapter(w, projectId, weeks.length - i));
 }
 
-// 챕터 단건 조회 (학습 뷰어 헤더용)
-// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요 (/chapters/{chapterId} 형태 가정)
+// 챕터 단건 조회 (학습 뷰어 헤더용). 단건 API가 없어 같은 강의의 목록에서 찾는다.
 export async function getChapter(
   projectId: number,
   chapterId: number,
   signal?: AbortSignal,
 ): Promise<Chapter> {
-  if (USE_MOCK) {
-    await delay(300, signal);
-    const found = mockChapters.find((c) => c.chapterId === chapterId);
-    // 없는 id를 첫 챕터로 대체하면 잘못된 URL이 정상 화면처럼 보인다.
-    // 실제 404와 같게 던져서 화면이 에러 상태를 타도록 한다.
-    if (!found) {
-      throw new ApiRequestError(
-        'CHAPTER_NOT_FOUND',
-        '챕터를 찾을 수 없어요.',
-        404,
-      );
-    }
-    return { ...found, projectId, chapterId };
+  const found = (await getChapters(projectId, signal)).find(
+    (c) => c.chapterId === chapterId,
+  );
+  // 없는 id를 첫 챕터로 대체하면 잘못된 URL이 정상 화면처럼 보인다.
+  // 실제 404와 같게 던져서 화면이 에러 상태를 타도록 한다.
+  if (!found) {
+    throw new ApiRequestError(
+      'CHAPTER_NOT_FOUND',
+      '챕터를 찾을 수 없어요.',
+      404,
+    );
   }
-  return apiClient.get<Chapter>(`/chapters/${chapterId}`, { signal });
+  return found;
 }
 
 // 챕터의 강의자료(PDF 위치·페이지 수·녹음 길이) 조회

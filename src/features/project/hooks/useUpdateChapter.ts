@@ -1,7 +1,7 @@
 'use client';
 // src/features/project/hooks/useUpdateChapter.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Chapter, UpdateChapterRequest } from '@/shared/types/api';
+import type { UpdateChapterRequest } from '@/shared/types/api';
 import type { UploadOptions } from '@/shared/lib/apiClient';
 import { updateChapter } from '@/features/project/api';
 
@@ -13,10 +13,10 @@ export type UpdateChapterVariables = UpdateChapterRequest & UploadOptions;
 export function useUpdateChapter(originProjectId: number) {
   const queryClient = useQueryClient();
 
-  return useMutation<Chapter, Error, UpdateChapterVariables>({
+  return useMutation<void, Error, UpdateChapterVariables>({
     mutationFn: ({ onProgress, signal, ...req }) =>
       updateChapter(req, { onProgress, signal }),
-    onSuccess: (_chapter, req) => {
+    onSuccess: (_, req) => {
       const projectIds = new Set([originProjectId, req.projectId]);
       projectIds.forEach((projectId) => {
         queryClient.invalidateQueries({ queryKey: ['chapters', projectId] });
