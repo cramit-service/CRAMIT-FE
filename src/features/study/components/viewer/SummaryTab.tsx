@@ -19,7 +19,13 @@ const PANEL = cn(VIEWER_PANEL, 'flex flex-col');
 
 // AI 강의 요약 탭. 조회(Markdown 렌더) ↔ 편집(textarea) 두 모드를 오간다.
 // 편집 모드에서는 취소·수정하기가 나란히 서고, 고친 것이 없으면 수정하기가 잠긴다.
-export function SummaryTab({ chapterId }: { chapterId: number }) {
+export function SummaryTab({
+  chapterId,
+  fileName,
+}: {
+  chapterId: number;
+  fileName: string;
+}) {
   const summaryQuery = useLectureSummary(chapterId);
   const updateMutation = useUpdateLectureSummary(chapterId);
 
@@ -82,7 +88,24 @@ export function SummaryTab({ chapterId }: { chapterId: number }) {
     );
   }
 
-  if (summaryQuery.isPending) {
+  // 만들 요약이 없거나 만들다 실패한 경우. 다시 만드는 일은 분석 시작(#112)이 맡는다.
+  if (
+    summaryQuery.processStatus === 'NOT_STARTED' ||
+    summaryQuery.processStatus === 'FAILED'
+  ) {
+    return (
+      <section className={cn(PANEL, 'items-center justify-center')}>
+        <p className="text-label text-gray-400">
+          {summaryQuery.processStatus === 'FAILED'
+            ? '요약을 만들지 못했어요.'
+            : '아직 요약이 없어요. 강의 분석이 끝나면 여기에 표시돼요.'}
+        </p>
+      </section>
+    );
+  }
+
+  // 상태 조회가 실패하면 본문 조회가 열리지 않아 isPending에 머문다. 먼저 걸러낸다.
+  if (!summaryQuery.statusError && summaryQuery.isPending) {
     return (
       <section className={cn(PANEL, 'items-center justify-center')}>
         <p className="text-label text-gray-500">요약을 불러오는 중…</p>
@@ -90,13 +113,20 @@ export function SummaryTab({ chapterId }: { chapterId: number }) {
     );
   }
 
-  if (summaryQuery.isError || !summary) {
+  if (summaryQuery.statusError || summaryQuery.isError || !summary) {
     return (
       <section className={cn(PANEL, 'items-center justify-center gap-4')}>
         <p className="text-label text-gray-400">
           요약을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
-        <Button rank="secondary" onClick={() => summaryQuery.refetch()}>
+        <Button
+          rank="secondary"
+          onClick={() =>
+            summaryQuery.statusError
+              ? summaryQuery.retryStatus()
+              : summaryQuery.refetch()
+          }
+        >
           다시 시도
         </Button>
       </section>
@@ -114,7 +144,7 @@ export function SummaryTab({ chapterId }: { chapterId: number }) {
             MD
           </span>
           <p className="text-label truncate font-medium text-gray-700">
-            {summary.fileName}
+            {fileName}
           </p>
           <p aria-live="polite" className="text-body-sm shrink-0 text-gray-400">
             {notice}

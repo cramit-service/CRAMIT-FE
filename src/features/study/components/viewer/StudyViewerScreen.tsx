@@ -131,6 +131,8 @@ export function StudyViewerScreen({
   const projectQuery = useProjectDetail(projectId);
   const chapterQuery = useChapter(projectId, chapterId);
   const materialQuery = useLectureMaterial(chapterId);
+  // 서버가 요약 파일명을 주지 않아 시안 형식(강의명_주차 제목_요약.md)으로 만든다.
+  const summaryFileName = `${[projectQuery.data?.title, chapterQuery.data?.title, '요약'].filter(Boolean).join('_')}.md`;
 
   // 재생 상태는 탭이 아니라 화면이 쥔다. 탭 안에 두면 탭을 옮길 때마다 언마운트돼
   // 재생 위치가 초기화되고, 원문 스크립트 탭이 그 값을 읽을 방법도 없다.
@@ -236,7 +238,7 @@ export function StudyViewerScreen({
         return <PdfMaterialTab material={material} audio={audio} pdf={pdf} />;
       // 요약은 이 탭에서만 필요하니 화면 진입 시가 아니라 탭 안에서 따로 조회한다
       case 'SUMMARY':
-        return <SummaryTab chapterId={chapterId} />;
+        return <SummaryTab chapterId={chapterId} fileName={summaryFileName} />;
       // 스크립트도 같은 이유로 탭 안에서 조회한다. 재생 위치는 읽기 전용으로 넘긴다
       case 'SCRIPT':
         return (

@@ -12,6 +12,7 @@ import type { LectureSummary } from '@/shared/types/api';
 
 // 저장 후 캐시를 직접 덮어써야 해서 키를 한 곳에서 만든다 (조회/저장이 어긋나지 않게)
 const summaryKey = (chapterId: number) => ['lecture-summary', chapterId];
+const statusKey = (chapterId: number) => ['lecture-summary-status', chapterId];
 
 // AI 강의 요약 조회 훅.
 // 요약 생성은 비동기라 /status를 공통 훅으로 폴링하고, READY가 되면 본문을 다시 가져온다.
@@ -19,8 +20,12 @@ const summaryKey = (chapterId: number) => ['lecture-summary', chapterId];
 export function useLectureSummary(chapterId: number) {
   const queryClient = useQueryClient();
 
-  const { status, isProcessing } = useProcessStatus({
-    queryKey: ['lecture-summary-status', chapterId],
+  const {
+    status,
+    isProcessing,
+    error: statusError,
+  } = useProcessStatus({
+    queryKey: statusKey(chapterId),
     fetchStatus: (signal) => getLectureSummaryStatus(chapterId, signal),
     enabled: Boolean(chapterId),
   });
@@ -40,7 +45,18 @@ export function useLectureSummary(chapterId: number) {
     }
   }, [status, chapterId, queryClient]);
 
-  return { ...summaryQuery, isProcessing, status };
+  // 상태 조회가 실패하면 본문 조회가 열리지 않는다. 다시 시도는 상태부터 묻는다.
+  const retryStatus = () =>
+    queryClient.invalidateQueries({ queryKey: statusKey(chapterId) });
+
+  // 쿼리 자체의 status와 헷갈리지 않게 처리 상태는 다른 이름으로 낸다.
+  return {
+    ...summaryQuery,
+    isProcessing,
+    processStatus: status,
+    statusError,
+    retryStatus,
+  };
 }
 
 // 요약 수정 저장 훅.

@@ -1,5 +1,6 @@
 // src/features/study/api.ts
 import type {
+  AsyncJobStatus,
   Chapter,
   ChapterStatus,
   Exam,
@@ -11,6 +12,8 @@ import type {
   ProcessStatus,
   ProjectDetail,
   ProjectSummary,
+  SummaryResponse,
+  SummaryStatusResponse,
   WeekResponse,
 } from '@/shared/types/api';
 import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
@@ -20,14 +23,15 @@ import {
   mockChapters,
   mockLectureMaterial,
   mockLectureScript,
-  mockLectureSummary,
+  mockSummaryResponse,
 } from '@/mocks/study';
 import { findMockLecture, mockLectures } from '@/mocks/project';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로) — project/api.ts와 동일 패턴
 const USE_MOCK = true;
-// 강의·주차 조회만 먼저 백엔드에 붙었다. 위 스위치는 아직 mock인 나머지 함수들이 쓴다.
+// 백엔드에 붙은 것부터 끈다. 위 스위치는 아직 mock인 나머지 함수들이 쓴다.
 const USE_MOCK_LECTURE = false;
+const USE_MOCK_SUMMARY = false;
 
 // 가짜 지연을 흉내내는 헬퍼 (실제 네트워크처럼 잠깐 기다림).
 // 쿼리가 취소되면 실제 fetch처럼 즉시 중단되도록 AbortSignal을 받는다.
@@ -249,19 +253,40 @@ export async function getLectureMaterial(
   });
 }
 
+const invalidSummary = () =>
+  new ApiRequestError('INVALID_RESPONSE', '요약을 해석할 수 없어요.', 0);
+
+// 서버는 대기(PENDING)와 생성 중을 나누지만 화면에는 둘 다 "만드는 중"이다.
+const JOB_STATUS: Record<AsyncJobStatus, ProcessStatus> = {
+  PENDING: 'PROCESSING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'READY',
+  FAILED: 'FAILED',
+};
+
+function toProcessStatus(r: SummaryStatusResponse): ProcessStatus {
+  if (!Object.hasOwn(JOB_STATUS, r?.status)) throw invalidSummary();
+  return JOB_STATUS[r.status];
+}
+
 // 챕터의 AI 강의 요약(Markdown 원문) 조회
-// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
 export async function getLectureSummary(
   chapterId: number,
   signal?: AbortSignal,
 ): Promise<LectureSummary> {
-  if (USE_MOCK) {
+  let r: SummaryResponse;
+  if (USE_MOCK_SUMMARY) {
     await delay(300, signal);
-    return { ...mockLectureSummary, chapterId };
+    r = { ...mockSummaryResponse, weekId: chapterId };
+  } else {
+    r = await apiClient.get<SummaryResponse>(`/weeks/${chapterId}/summary`, {
+      signal,
+    });
   }
-  return apiClient.get<LectureSummary>(`/chapters/${chapterId}/summary`, {
-    signal,
-  });
+  if (typeof r?.content !== 'string' || typeof r.updatedAt !== 'string') {
+    throw invalidSummary();
+  }
+  return { chapterId, markdown: r.content, updatedAt: r.updatedAt };
 }
 
 // 챕터의 원문 스크립트(STT) 조회
@@ -297,20 +322,29 @@ export async function getLectureScriptStatus(
 }
 
 // 요약 생성 상태 조회 (AI 요약은 비동기라 READY까지 폴링해야 한다)
-// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
 export async function getLectureSummaryStatus(
   chapterId: number,
   signal?: AbortSignal,
 ): Promise<ProcessStatus> {
-  if (USE_MOCK) {
+  if (USE_MOCK_SUMMARY) {
     await delay(300, signal);
-    // mock은 이미 생성이 끝난 챕터를 가정한다. PROCESSING 화면을 확인하려면
-    // 잠시 'PROCESSING'을 반환하도록 바꿔서 보면 된다.
-    return 'READY';
+    // 다른 상태 화면을 보려면 mockSummaryResponse.status를 바꾼다.
+    return toProcessStatus(mockSummaryResponse);
   }
-  return apiClient.get<ProcessStatus>(`/chapters/${chapterId}/summary/status`, {
-    signal,
-  });
+  try {
+    return toProcessStatus(
+      await apiClient.get<SummaryStatusResponse>(
+        `/weeks/${chapterId}/summary/status`,
+        { signal },
+      ),
+    );
+  } catch (error) {
+    // 요약을 요청한 적 없는 주차는 서버에 요약 행이 없어 404다.
+    if (error instanceof ApiRequestError && error.status === 404) {
+      return 'NOT_STARTED';
+    }
+    throw error;
+  }
 }
 
 // 요약 Markdown 수정 저장
@@ -324,12 +358,7 @@ export async function updateLectureSummary(
   if (USE_MOCK) {
     await delay(300, signal);
     // updatedAt은 "마지막 수정 시각"이라 mock 값을 그대로 돌려주면 안 된다
-    return {
-      ...mockLectureSummary,
-      chapterId,
-      markdown,
-      updatedAt: new Date().toISOString(),
-    };
+    return { chapterId, markdown, updatedAt: new Date().toISOString() };
   }
   return apiClient.patch<LectureSummary>(
     `/chapters/${chapterId}/summary`,

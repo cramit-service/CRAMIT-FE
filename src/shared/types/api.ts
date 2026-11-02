@@ -11,8 +11,11 @@ export interface ApiError {
   };
 }
 
-// 비동기 처리 상태 (STT·요약·적용·TODO 생성)
-export type ProcessStatus = 'READY' | 'PROCESSING';
+// 비동기 처리 상태 (STT·요약·적용·TODO 생성). PROCESSING일 때만 폴링한다.
+export type ProcessStatus = 'NOT_STARTED' | 'PROCESSING' | 'READY' | 'FAILED';
+
+// 서버의 비동기 작업 상태. 화면은 ProcessStatus로 바꿔 쓴다.
+export type AsyncJobStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
 
 /* ===== User (기획서 7.3) ===== */
 
@@ -204,12 +207,22 @@ export interface LectureMaterial {
 /* ===== AI 강의 요약 (이슈 C) ===== */
 
 // AI가 생성한 Markdown 요약본.
-// TODO: 백엔드 스펙 확정 후 필드명/타입 재확인 필요.
 export interface LectureSummary {
   chapterId: number;
-  fileName: string; // 상단 바에 노출 (예: "알고리즘_Chapter 4 - ..._요약.md")
   markdown: string; // Markdown 원문 (조회 시 렌더, 편집 시 textarea 내용)
   updatedAt: string; // ISO 날짜 문자열
+}
+
+// 서버 응답. 요약을 요청한 적 없는 주차는 404다.
+export interface SummaryStatusResponse {
+  summaryId: number;
+  weekId: number;
+  status: AsyncJobStatus;
+  updatedAt: string;
+}
+
+export interface SummaryResponse extends SummaryStatusResponse {
+  content: string;
 }
 
 /* ===== 원문 스크립트 / STT (이슈 D) ===== */
