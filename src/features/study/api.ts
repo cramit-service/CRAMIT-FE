@@ -72,6 +72,20 @@ function toProjectSummary(r: MyLectureResponse, exams: Exam[]): ProjectSummary {
   };
 }
 
+// 시험은 D-DAY 표시에만 쓰인다. 시험 조회가 실패해도 강의 목록·헤더는 그린다.
+// 취소는 실패가 아니라서 그대로 던져 TanStack Query가 취소로 알아보게 한다.
+function getExamsOrEmpty(signal?: AbortSignal): Promise<Exam[]> {
+  return getExams(signal).catch((error: unknown) => {
+    if (
+      signal?.aborted ||
+      (error instanceof DOMException && error.name === 'AbortError')
+    ) {
+      throw error;
+    }
+    return [];
+  });
+}
+
 // 학습하기(강의 목록) 조회.
 export async function getProjectSummaries(
   signal?: AbortSignal,
@@ -80,7 +94,7 @@ export async function getProjectSummaries(
     USE_MOCK_LECTURE
       ? delay(300, signal).then(() => mockLectures)
       : apiClient.get<MyLectureResponse[]>('/lectures/my', { signal }),
-    getExams(signal),
+    getExamsOrEmpty(signal),
   ]);
   if (!Array.isArray(lectures)) throw invalidLecture();
   return lectures.map((l) => toProjectSummary(l, exams));
@@ -106,7 +120,7 @@ export async function getProjectDetail(
       : apiClient.get<LectureDetailResponse>(`/lectures/${projectId}`, {
           signal,
         }),
-    getExams(signal),
+    getExamsOrEmpty(signal),
   ]);
   // 주차는 아직 mock이라 "강의 N개"는 화면에 그려지는 mock 주차 목록에서 센다.
   return toProjectSummary(
