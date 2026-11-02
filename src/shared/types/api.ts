@@ -244,7 +244,7 @@ export interface Exam {
   examDate: string; // YYYY-MM-DD
   memo: string | null;
   createdAt: string;
-  // 학습 진행률 0~100. 서버가 아직 주지 않아 mock에만 있다 — 없으면 배너가 진행 바를 접는다.
+  // 학습 진행률 0~100. 서버가 아직 주지 않는다 — 없으면 배너가 진행 바를 접는다.
   progress?: number;
 }
 
