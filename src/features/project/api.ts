@@ -116,15 +116,33 @@ export async function deleteLecture(projectId: number): Promise<void> {
 const uploadAborted = () =>
   new ApiRequestError(UPLOAD_ABORTED, '업로드를 취소했어요.', 0);
 
-const requestUploadUrl = (
+const invalidResponse = () =>
+  new ApiRequestError('INVALID_RESPONSE', '서버 응답을 해석할 수 없어요.', 0);
+
+// 주소가 비어 있으면 PUT이 엉뚱한 곳으로 가거나 주차에 빈 파일 주소가 저장된다. 여기서 끊는다 (#48).
+function toUploadUrl(r: UploadUrlResponse): UploadUrlResponse {
+  if (
+    typeof r?.uploadUrl !== 'string' ||
+    r.uploadUrl === '' ||
+    typeof r.fileUrl !== 'string' ||
+    r.fileUrl === ''
+  ) {
+    throw invalidResponse();
+  }
+  return { uploadUrl: r.uploadUrl, fileUrl: r.fileUrl };
+}
+
+const requestUploadUrl = async (
   file: File,
   fileType: 'PPT' | 'AUDIO',
   signal?: AbortSignal,
 ) =>
-  apiClient.post<UploadUrlResponse>(
-    '/files/presigned-url',
-    { fileName: file.name, fileType },
-    { signal },
+  toUploadUrl(
+    await apiClient.post<UploadUrlResponse>(
+      '/files/presigned-url',
+      { fileName: file.name, fileType },
+      { signal },
+    ),
   );
 
 // 새 주차(챕터) 업로드. 파일은 저장소에 직접 올리고(발급 → PUT), 주차 생성에는 주소만 보낸다.
@@ -198,13 +216,7 @@ export async function createChapter(
       },
       { signal },
     );
-    if (typeof created?.weekId !== 'number') {
-      throw new ApiRequestError(
-        'INVALID_RESPONSE',
-        '서버 응답을 해석할 수 없어요.',
-        0,
-      );
-    }
+    if (typeof created?.weekId !== 'number') throw invalidResponse();
     return created.weekId;
   } catch (error) {
     // 발급·생성 요청 도중 멈추면 apiClient는 취소를 그대로 던진다. 화면은 취소를

@@ -127,13 +127,22 @@ export function putToStorage(
   });
 }
 
+const MEASURE_TIMEOUT_MS = 10_000;
+
 // 녹음 길이(초). 서버가 STT 전에 길이를 알 방법이 없어 브라우저가 재서 보낸다.
-// 못 재면 null — 서버도 비어 있는 값을 받는다.
+// 못 재면 null — 서버도 비어 있는 값을 받는다. 브라우저가 메타데이터 이벤트를 끝내 안 주는
+// 형식이 있어 시간 제한을 둔다. 없으면 업로드가 시작도 못 하고 멈춘다.
 export function measureAudioDuration(file: File): Promise<number | null> {
   return new Promise((resolve) => {
     const src = URL.createObjectURL(file);
     const audio = new Audio();
+    const timer = setTimeout(() => done(null), MEASURE_TIMEOUT_MS);
     const done = (seconds: number | null) => {
+      clearTimeout(timer);
+      audio.onloadedmetadata = null;
+      audio.onerror = null;
+      audio.removeAttribute('src');
+      audio.load();
       URL.revokeObjectURL(src);
       resolve(seconds);
     };
