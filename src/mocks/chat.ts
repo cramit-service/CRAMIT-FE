@@ -1,25 +1,10 @@
 // src/mocks/chat.ts — AI 챗봇 mock
-import type { ChatMessage } from '@/shared/types/api';
-
-// 패널을 처음 열었을 때 이미 놓여 있는 인사말 (시안 문구 그대로).
-export const mockChatGreeting: ChatMessage = {
-  messageId: 0,
-  projectId: 1,
-  role: 'AI',
-  content:
-    '해석이 필요한 내용이나 문서를 여기에 올려주시면, 제가 바로 분석해서 아주 쉽게 풀어서 설명해 드릴게요. 무엇을 도와드릴까요?',
-  createdAt: '2026-07-14T16:00:00',
-};
-
-// 입력창 위에 뜨는 추천 질문 (시안 3종).
-export const mockSuggestedQuestions = [
-  '교수님이 강조한 내용을 알려줘',
-  '이 강의의 핵심 개념을 다시 설명해줘',
-  '시험 대비 복습 포인트를 정리해줘',
-] as const;
+import type {
+  ChatBotSessionResponse,
+  ChatMessageResponse,
+} from '@/shared/types/api';
 
 // 키워드가 걸리면 그에 맞는 답을, 아니면 기본 답을 준다.
-// TODO(백엔드): 실제 AI 응답으로 교체. 지금은 화면 흐름만 확인하기 위한 고정 답변이다.
 const SCRIPTED: { match: RegExp; reply: string }[] = [
   {
     match: /교수|강조/,
@@ -46,17 +31,52 @@ const SCRIPTED: { match: RegExp; reply: string }[] = [
 const FALLBACK =
   '질문 주신 내용을 강의자료와 요약본에서 찾아봤어요. 조금 더 구체적으로 어느 부분이 궁금한지 알려주시면 그 대목을 짚어서 설명해 드릴게요.';
 
-// 파일이 붙은 질문의 답변. mock은 파일 내용을 실제로 읽지 않으므로
-// 받았다는 사실만 파일명으로 확인시켜 주고, 질문이 함께 왔으면 그 답을 이어 붙인다.
-// TODO(백엔드): 실제 AI가 파일을 해석하면 이 분기는 사라진다.
-export function mockChatReply(question: string, fileName?: string): string {
-  const answer =
-    SCRIPTED.find((s) => s.match.test(question))?.reply ?? FALLBACK;
-  if (!fileName) return answer;
+const sessions: (ChatBotSessionResponse & { weekId: number })[] = [];
+const messages = new Map<number, ChatMessageResponse[]>();
 
-  const received = `'${fileName}' 파일을 받았어요. 내용을 살펴볼게요.`;
-  // 파일만 보낸 경우엔 이어 붙일 답이 없다(문구가 겉돈다).
-  return question.trim()
-    ? `${received}\n\n${answer}`
-    : `${received}\n\n어떤 점이 궁금한지 알려주시면 그 부분을 짚어서 설명해 드릴게요.`;
+// 서버처럼 최신 세션이 앞에 온다.
+export function findMockChatSessions(weekId: number): ChatBotSessionResponse[] {
+  return sessions
+    .filter((s) => s.weekId === weekId)
+    .map(({ chatBotSessionId, title }) => ({ chatBotSessionId, title }))
+    .reverse();
+}
+
+export function addMockChatSession(weekId: number, title: string): number {
+  const chatBotSessionId = sessions.length + 1;
+  sessions.push({ chatBotSessionId, title, weekId });
+  messages.set(chatBotSessionId, []);
+  return chatBotSessionId;
+}
+
+export function getMockChatMessages(sessionId: number): ChatMessageResponse[] {
+  return messages.get(sessionId) ?? [];
+}
+
+// 서버처럼 내 질문과 AI 답 두 줄을 저장하고 돌려준다.
+export function sendMockChatMessage(
+  sessionId: number,
+  question: string,
+): ChatMessageResponse[] {
+  const createdAt = new Date().toISOString();
+  const id = Date.now();
+  const reply = SCRIPTED.find((s) => s.match.test(question))?.reply ?? FALLBACK;
+  const pair: ChatMessageResponse[] = [
+    {
+      chatMessageId: id,
+      senderType: 'USER',
+      message: question,
+      referencedPage: null,
+      createdAt,
+    },
+    {
+      chatMessageId: id + 1,
+      senderType: 'AI',
+      message: reply,
+      referencedPage: null,
+      createdAt,
+    },
+  ];
+  messages.set(sessionId, [...getMockChatMessages(sessionId), ...pair]);
+  return pair;
 }

@@ -1,7 +1,6 @@
 'use client';
 // src/features/chat/components/ChatBubble.tsx
 import { useCallback, useState } from 'react';
-import { formatFileSize } from '@/features/chat/lib/attachment';
 import { cn } from '@/shared/lib/cn';
 import type { ChatMessage } from '@/shared/types/api';
 import { Button } from '@/shared/ui/Button';
@@ -15,7 +14,11 @@ const LINE_HEIGHT = 24;
 const VISIBLE_LINES = { mine: 5, ai: 11 };
 
 // 대화 한 줄. 내 말은 오른쪽 연두, AI는 왼쪽 흰 말풍선이다(시안).
-export function ChatBubble({ message }: { message: ChatMessage }) {
+export function ChatBubble({
+  message,
+}: {
+  message: Pick<ChatMessage, 'role' | 'content'>;
+}) {
   const isMine = message.role === 'USER';
   const [expanded, setExpanded] = useState(false);
   const [overflows, setOverflows] = useState(false);
@@ -77,60 +80,39 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
           </span>
         )}
 
-        {/* 첨부 파일 (질문에 파일을 붙인 경우). 시안이 없어 미리보기 없이 칩으로만 둔다. */}
-        {message.attachment && (
-          // 채움이 없다 — 말풍선 안에서 파일 하나를 알려 주는 줄이라 상자가 필요 없고,
-          // 표면을 한 단 더 쌓으면 내 말과 AI 말에서 서로 다른 채움을 써야 했다.
-          // 글자는 14, 아이콘은 그 옆 4px 단계인 16이다(§3 아이콘 규칙).
-          <div className="mb-2 flex max-w-full items-center gap-2">
-            <span className="flex shrink-0 text-gray-400">
-              <Icon name="paperclip" size={16} />
-            </span>
-            <span className="text-label min-w-0 truncate text-gray-800">
-              {message.attachment.name}
-            </span>
-            <span className="text-label shrink-0 text-gray-500">
-              {formatFileSize(message.attachment.size)}
-            </span>
-          </div>
-        )}
-
         {/* 페이드를 본문 바로 아래 끝에 붙이려고 한 겹 감싼다.
-            말풍선 기준으로 띄우면 "더 보기" 높이만큼 어긋나 글자 끝동이 남는다.
-            파일만 보낸 질문은 본문이 없다 — 빈 문단이 여백만 만들지 않게 통째로 건너뛴다. */}
-        {message.content && (
-          <div className="relative">
-            <p
-              ref={measure}
-              // 접힘 상태에서만 높이를 자른다. 펼치면 제한을 풀어 전문이 보인다.
-              style={
-                expanded || !overflows
-                  ? undefined
-                  : { maxHeight: collapsedHeight }
-              }
-              className={cn(
-                // 20이었다. §3에서 20은 «카드·패널·섹션의 제목» 칸이고, 말풍선
-                // 본문은 카드 안의 글이라 16이다. 제목 크기로 대화를 읽고 있었다.
-                'text-body-sm whitespace-pre-line text-gray-800',
-                !expanded && overflows && 'overflow-hidden',
-              )}
-            >
-              {message.content}
-            </p>
-
-            {/* 잘린 지점을 말풍선 색으로 흐리게 덮는다(시안) */}
-            {overflows && !expanded && (
-              <span
-                aria-hidden
-                className={cn(
-                  'pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-linear-to-b to-55%',
-                  // 페이드는 말풍선 채움과 같은 색으로 끝나야 잘린 자리가 안 보인다.
-                  isMine ? 'to-well' : 'to-surface',
-                )}
-              />
+            말풍선 기준으로 띄우면 "더 보기" 높이만큼 어긋나 글자 끝동이 남는다. */}
+        <div className="relative">
+          <p
+            ref={measure}
+            // 접힘 상태에서만 높이를 자른다. 펼치면 제한을 풀어 전문이 보인다.
+            style={
+              expanded || !overflows
+                ? undefined
+                : { maxHeight: collapsedHeight }
+            }
+            className={cn(
+              // 20이었다. §3에서 20은 «카드·패널·섹션의 제목» 칸이고, 말풍선
+              // 본문은 카드 안의 글이라 16이다. 제목 크기로 대화를 읽고 있었다.
+              'text-body-sm whitespace-pre-line text-gray-800',
+              !expanded && overflows && 'overflow-hidden',
             )}
-          </div>
-        )}
+          >
+            {message.content}
+          </p>
+
+          {/* 잘린 지점을 말풍선 색으로 흐리게 덮는다(시안) */}
+          {overflows && !expanded && (
+            <span
+              aria-hidden
+              className={cn(
+                'pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-linear-to-b to-55%',
+                // 페이드는 말풍선 채움과 같은 색으로 끝나야 잘린 자리가 안 보인다.
+                isMine ? 'to-well' : 'to-surface',
+              )}
+            />
+          )}
+        </div>
 
         {overflows && !expanded && (
           // 날것 button이었다. 말풍선 안이라 작은 칸(sm)을 쓴다.

@@ -11,9 +11,15 @@ import { Icon } from '@/shared/ui/Icon';
 // 세로 탭은 이 폭 바깥 왼쪽에 붙으므로 같은 값을 써야 한다.
 const PANEL_WIDTH = 'min(707px, 36.82vw)';
 
-// 프로젝트 하위 레이아웃에서만 노출되는 채팅 도크.
+// 학습 뷰어에서만 뜨는 채팅 도크.
 // 우측 화면 경계의 세로 탭을 누르면 챗봇 패널이 오버레이로 열린다(시안: 뒤 화면을 밀지 않는다).
-export function ChatDock({ projectId }: { projectId: number }) {
+export function ChatDock({
+  projectId,
+  chapterId,
+}: {
+  projectId: number;
+  chapterId: number;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -73,7 +79,7 @@ export function ChatDock({ projectId }: { projectId: number }) {
             아무것도 안 그리고 있었다. 값과 근거는 globals.css의 mesh-dock에 있다. */}
         <GradientBackground layer variant="dock" />
         <div className="relative flex min-h-0 flex-1 flex-col">
-          <ChatPanel projectId={projectId} open={open} />
+          <ChatPanel projectId={projectId} chapterId={chapterId} open={open} />
         </div>
       </aside>
     </>
