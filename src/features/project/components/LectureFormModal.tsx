@@ -92,10 +92,7 @@ export function LectureFormModal({
     setFormError(null);
 
     const payload = {
-      // 이 모달은 시험 날짜를 묻지 않는다. 수정일 때 기존 값을 그대로 돌려보내 덮어쓰지
-      // 않게 한다 — examDate: string | null 계약이라 없으면 null이다.
       title: title.trim(),
-      examDate: project?.examDate ?? null,
       professor: professor.trim() || null,
       // 목록을 끝내 못 받아 기본값이 없으면 첫 색으로 보낸다.
       colorIndex: colorIndex ?? 1,

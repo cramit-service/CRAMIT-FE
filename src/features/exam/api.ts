@@ -12,12 +12,12 @@ import {
   removeMockExam,
   updateMockExam,
 } from '@/mocks/exam';
-import { mockProjectSummaries } from '@/mocks/project';
+import { mockLectures } from '@/mocks/project';
 
 // 강의명은 원래 서버가 projectId로 채워 내려주는 값이다. mock이 그 역할을 대신해야
 // USE_MOCK을 꺼도 화면(examName)이 그대로 동작한다. (getExams의 필터·정렬과 같은 이유)
 const mockLectureName = (projectId: number): string | null =>
-  mockProjectSummaries.find((p) => p.projectId === projectId)?.title ?? null;
+  mockLectures.find((l) => l.lectureId === projectId)?.title ?? null;
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로)
 const USE_MOCK = true;

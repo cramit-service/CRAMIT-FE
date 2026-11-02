@@ -1,26 +1,31 @@
 // src/features/study/api.ts
 import type {
   Chapter,
+  Exam,
+  LectureDetailResponse,
   LectureMaterial,
   LectureScript,
   LectureSummary,
+  MyLectureResponse,
   ProcessStatus,
   ProjectDetail,
   ProjectSummary,
 } from '@/shared/types/api';
 import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
+import { getExams } from '@/features/exam/api';
 import { getMaterialFileUrl } from '@/mocks/materialStore';
 import {
   mockChapters,
   mockLectureMaterial,
   mockLectureScript,
   mockLectureSummary,
-  mockProjectDetail,
 } from '@/mocks/study';
-import { findMockProjectSummary, mockProjectSummaries } from '@/mocks/project';
+import { findMockLecture, mockLectures } from '@/mocks/project';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로) — project/api.ts와 동일 패턴
 const USE_MOCK = true;
+// 강의 목록·상세만 먼저 백엔드에 붙었다. 위 스위치는 아직 mock인 나머지 함수들이 쓴다.
+const USE_MOCK_LECTURE = false;
 
 // 가짜 지연을 흉내내는 헬퍼 (실제 네트워크처럼 잠깐 기다림).
 // 쿼리가 취소되면 실제 fetch처럼 즉시 중단되도록 AbortSignal을 받는다.
@@ -41,40 +46,73 @@ const delay = (ms: number, signal?: AbortSignal) =>
     );
   });
 
+const invalidLecture = () =>
+  new ApiRequestError('INVALID_RESPONSE', '강의 정보를 해석할 수 없어요.', 0);
+
+// 응답 → 화면. 시험은 강의 응답에 없어서, 다가오는 시험(시험일 오름차순) 중 그 강의의 첫 번째를 붙인다.
+function toProjectSummary(r: MyLectureResponse, exams: Exam[]): ProjectSummary {
+  if (
+    typeof r?.lectureId !== 'number' ||
+    typeof r.title !== 'string' ||
+    (r.professorName !== null && typeof r.professorName !== 'string') ||
+    typeof r.weekCount !== 'number' ||
+    typeof r.colorIndex !== 'number'
+  ) {
+    throw invalidLecture();
+  }
+  const exam = exams.find((e) => e.projectId === r.lectureId);
+  return {
+    projectId: r.lectureId,
+    title: r.title,
+    professor: r.professorName,
+    chapterCount: r.weekCount,
+    examName: exam?.title ?? null,
+    examDate: exam?.examDate ?? null,
+    colorIndex: r.colorIndex,
+  };
+}
+
 // 학습하기(강의 목록) 조회.
-// TODO: 백엔드 목록 응답에 태그용 필드(professor/chapterCount/examName/examDate)가
-//       포함되는지 확정 시 재확인 필요.
 export async function getProjectSummaries(
   signal?: AbortSignal,
 ): Promise<ProjectSummary[]> {
-  if (USE_MOCK) {
-    await delay(300, signal);
-    // 강의 생성이 이 배열을 직접 고치므로 복사본을 준다 — 원본을 그대로 주면 캐시에 담긴 것과
-    // 같은 객체라 참조가 안 바뀌고, TanStack Query가 갱신 없음으로 보고 목록을 다시 그리지 않는다.
-    return [...mockProjectSummaries];
-  }
-  return apiClient.get<ProjectSummary[]>('/projects', { signal });
+  const [lectures, exams] = await Promise.all([
+    USE_MOCK_LECTURE
+      ? delay(300, signal).then(() => mockLectures)
+      : apiClient.get<MyLectureResponse[]>('/lectures/my', { signal }),
+    getExams(signal),
+  ]);
+  if (!Array.isArray(lectures)) throw invalidLecture();
+  return lectures.map((l) => toProjectSummary(l, exams));
 }
 
 export async function getProjectDetail(
   projectId: number,
   signal?: AbortSignal,
 ): Promise<ProjectDetail> {
-  if (USE_MOCK) {
-    await delay(300, signal); // 로딩 상태 확인용
-    // 목록에 있는 강의면 그 값을 따른다. 상세 mock 하나를 그대로 돌려주면 어떤 강의를 열어도
-    // 같은 과목명이 나오고, 강의를 수정해도 헤더가 그대로 남는다.
-    const summary = findMockProjectSummary(projectId);
-    // "강의 N개" 태그가 목록과 어긋나지 않게 챕터 수는 mock 목록에서 센다.
-    // (새 주차를 업로드하면 목록과 함께 이 숫자도 늘어야 한다)
-    return {
-      ...mockProjectDetail,
-      ...summary,
-      projectId,
-      chapterCount: mockChapters.length,
-    };
-  }
-  return apiClient.get<ProjectDetail>(`/projects/${projectId}`, { signal });
+  const [lecture, exams] = await Promise.all([
+    USE_MOCK_LECTURE
+      ? delay(300, signal).then(() => {
+          const found = findMockLecture(projectId);
+          if (!found) {
+            throw new ApiRequestError(
+              'ENTITY_NOT_FOUND',
+              '강의를 찾을 수 없어요.',
+              404,
+            );
+          }
+          return found;
+        })
+      : apiClient.get<LectureDetailResponse>(`/lectures/${projectId}`, {
+          signal,
+        }),
+    getExams(signal),
+  ]);
+  // 주차는 아직 mock이라 "강의 N개"는 화면에 그려지는 mock 주차 목록에서 센다.
+  return toProjectSummary(
+    { ...lecture, weekCount: mockChapters.length },
+    exams,
+  );
 }
 
 export async function getChapters(

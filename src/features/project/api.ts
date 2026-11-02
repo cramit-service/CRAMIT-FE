@@ -4,8 +4,6 @@ import type {
   CreateChapterRequest,
   CreateProjectRequest,
   UpdateChapterRequest,
-  Project,
-  ProjectSummary,
   UpdateProjectRequest,
 } from '@/shared/types/api';
 import {
@@ -16,11 +14,10 @@ import {
 } from '@/shared/lib/apiClient';
 import { saveMaterialFile } from '@/mocks/materialStore';
 import {
-  addMockProjectSummary,
-  findMockProjectSummary,
-  mockProjectsFromSummaries,
-  removeMockProjectSummary,
-  updateMockProjectSummary,
+  addMockLecture,
+  findMockLecture,
+  removeMockLecture,
+  updateMockLecture,
 } from '@/mocks/project';
 import {
   addMockChapter,
@@ -31,6 +28,8 @@ import {
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로)
 const USE_MOCK = true;
+// 강의 생성·수정·삭제만 먼저 백엔드에 붙었다. 위 스위치는 아직 mock인 주차 함수들이 쓴다.
+const USE_MOCK_LECTURE = false;
 
 // 가짜 지연을 흉내내는 헬퍼 (실제 네트워크처럼 잠깐 기다림).
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -52,77 +51,62 @@ async function mockUpload(
   }
 }
 
-export async function getProjects(): Promise<Project[]> {
-  if (USE_MOCK) {
-    await delay(300); // 로딩 상태 확인용
-    return mockProjectsFromSummaries();
-  }
-  return apiClient.get<Project[]>('/projects');
-}
+// 서버는 교수명을 professorName으로 받는다.
+const toLectureBody = (req: CreateProjectRequest) => ({
+  title: req.title,
+  professorName: req.professor,
+  colorIndex: req.colorIndex,
+});
 
 // 내 강의 생성 (Figma 1:2614) — 학습하기 목록에 카드 한 장이 늘어난다.
-// 목록이 쓰는 건 Project가 아니라 ProjectSummary(태그용 메타 포함)라 그 형태로 돌려준다.
-// TODO: 백엔드 엔드포인트·응답 형태 확정 시 재확인 필요
-export async function createLecture(
-  req: CreateProjectRequest,
-): Promise<ProjectSummary> {
-  if (USE_MOCK) {
+// 화면은 목록을 다시 불러 그리므로 응답 본문은 쓰지 않는다.
+export async function createLecture(req: CreateProjectRequest): Promise<void> {
+  if (USE_MOCK_LECTURE) {
     await delay(300);
-    const summary: ProjectSummary = {
-      projectId: Date.now(),
+    addMockLecture({
+      lectureId: Date.now(),
       title: req.title,
-      createdAt: new Date().toISOString(),
-      // 시안에 교수명은 선택이라 비어 있을 수 있다. 태그는 "OOO 교수님"이라 빈 값이면 어색해서
-      professor: req.professor,
-      // 방금 만든 강의라 아직 주차가 없다.
-      chapterCount: 0,
-      // 모달은 시험 날짜만 받고 시험명은 받지 않는다. D-DAY 태그는 이름과 날짜가 둘 다
-      // 있어야 뜨므로(getDday), 날짜를 넣었으면 중립적인 이름을 붙여 태그가 보이게 한다.
-      examName: req.examDate ? '시험' : null,
-      examDate: req.examDate,
+      professorName: req.professor,
+      weekCount: 0,
       colorIndex: req.colorIndex,
-    };
-    addMockProjectSummary(summary);
-    return summary;
+    });
+    return;
   }
-  return apiClient.post<ProjectSummary>('/projects', req);
+  await apiClient.post<unknown>('/lectures', toLectureBody(req));
 }
 
 // 강의 수정 — 강의 상세 헤더의 "수정하기"(연필). 생성 모달의 수정 모드가 이걸 부른다.
-export async function updateLecture(
-  req: UpdateProjectRequest,
-): Promise<ProjectSummary> {
-  if (USE_MOCK) {
+export async function updateLecture(req: UpdateProjectRequest): Promise<void> {
+  if (USE_MOCK_LECTURE) {
     await delay(300);
-    const current = findMockProjectSummary(req.projectId);
+    const current = findMockLecture(req.projectId);
     if (!current) throw new Error('수정할 강의를 찾지 못했어요.');
-    // 챕터 수처럼 모달이 건드리지 않는 값은 그대로 둔다.
-    const summary: ProjectSummary = {
+    updateMockLecture({
       ...current,
       title: req.title,
-      professor: req.professor,
-      examName: req.examDate ? (current.examName ?? '시험') : null,
-      examDate: req.examDate,
+      professorName: req.professor,
       colorIndex: req.colorIndex,
-    };
-    updateMockProjectSummary(summary);
-    return summary;
+    });
+    return;
   }
-  return apiClient.patch<ProjectSummary>(`/projects/${req.projectId}`, req);
+  await apiClient.patch<unknown>(
+    `/lectures/${req.projectId}`,
+    toLectureBody(req),
+  );
 }
 
 // 강의 삭제 — 수정 모달 왼쪽 아래의 "삭제하기". 되돌릴 수 없으므로 화면이 먼저
 // ConfirmModal로 묻고, 그 답이 온 뒤에만 여기 닿는다.
 export async function deleteLecture(projectId: number): Promise<void> {
-  if (USE_MOCK) {
+  if (USE_MOCK_LECTURE) {
     await delay(300);
-    if (!findMockProjectSummary(projectId)) {
+    if (!findMockLecture(projectId)) {
       throw new Error('삭제할 강의를 찾지 못했어요.');
     }
-    removeMockProjectSummary(projectId);
+    removeMockLecture(projectId);
     return;
   }
-  await apiClient.delete<void>(`/projects/${projectId}`);
+  await apiClient.delete<void>(`/lectures/${projectId}`);
 }
 
 // 새 주차(챕터) 업로드.
