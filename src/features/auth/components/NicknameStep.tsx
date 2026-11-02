@@ -1,6 +1,6 @@
 'use client';
 // src/features/auth/components/NicknameStep.tsx
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { checkNickname } from '@/features/auth/api';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
@@ -22,19 +22,20 @@ export function NicknameStep({
 }: NicknameStepProps) {
   // 응답을 기다리는 동안 연타로 중복 호출되지 않게 막는다 (state는 리렌더 전까지 갱신되지 않음)
   const isChecking = useRef(false);
+  const [checkFailed, setCheckFailed] = useState(false);
 
   const canCheck = nickname.trim().length > 0;
 
   const handleCheck = async () => {
     if (!canCheck || isChecking.current) return;
     isChecking.current = true;
+    setCheckFailed(false);
 
     try {
       const { available } = await checkNickname(nickname);
       onStatusChange(available ? 'available' : 'taken');
-    } catch (error) {
-      // TODO: 공통 에러 토스트가 생기면 그쪽으로 옮긴다
-      console.error('닉네임 중복 확인 실패', error);
+    } catch {
+      setCheckFailed(true);
       onStatusChange('idle');
     } finally {
       isChecking.current = false;
@@ -62,7 +63,10 @@ export function NicknameStep({
             label="닉네임"
             required
             value={nickname}
-            onChange={(e) => onNicknameChange(e.target.value)}
+            onChange={(e) => {
+              setCheckFailed(false);
+              onNicknameChange(e.target.value);
+            }}
             placeholder="닉네임을 입력해 주세요."
             error={status === 'taken' ? '사용 중인 닉네임이에요.' : undefined}
           />
@@ -77,6 +81,12 @@ export function NicknameStep({
       {status === 'available' && (
         <p role="status" className="text-body-sm text-sky-ink mt-2">
           사용 가능한 닉네임이에요.
+        </p>
+      )}
+      {/* 입력이 틀린 게 아니라 확인을 못 한 것이라 칸의 error가 아니라 따로 알린다. */}
+      {checkFailed && (
+        <p role="alert" className="text-body-sm text-red-ink mt-2">
+          중복확인을 하지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
       )}
     </div>
