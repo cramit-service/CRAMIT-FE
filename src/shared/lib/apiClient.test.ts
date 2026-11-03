@@ -87,6 +87,28 @@ test('응답이 오지 않으면 TIMEOUT', async (t) => {
   await assert.rejects(pending, { code: 'TIMEOUT' });
 });
 
+test('timeoutMs를 주면 그 시간으로, 안 주면 기본 15초로 끊는다', async (t) => {
+  const asked: number[] = [];
+  t.mock.method(AbortSignal, 'timeout', (ms: number) => {
+    asked.push(ms);
+    return new AbortController().signal;
+  });
+  const inits: RequestInit[] = [];
+  globalThis.fetch = (async (_: string, init: RequestInit) => {
+    inits.push(init);
+    return new Response(JSON.stringify({ data: [] }), { status: 200 });
+  }) as typeof fetch;
+  await apiClient.post(
+    '/chat-bot-sessions/1/messages',
+    {},
+    { timeoutMs: 70_000 },
+  );
+  await apiClient.get('/todos');
+  assert.deepEqual(asked, [70_000, 15_000]);
+  // 우리 옵션이 fetch로 새지 않는다
+  assert.ok(inits.every((init) => !('timeoutMs' in init)));
+});
+
 test('AbortSignal.any가 없는 브라우저에서도 호출처 signal과 타임아웃을 함께 건다', async (t) => {
   const timeout = new AbortController();
   t.mock.method(AbortSignal, 'timeout', () => timeout.signal);
