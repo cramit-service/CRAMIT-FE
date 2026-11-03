@@ -187,8 +187,15 @@ export async function getChapters(
     { signal },
   );
   if (!Array.isArray(weeks)) throw invalidChapter();
-  // 서버는 수강일 최신순으로 준다. 주차 번호는 가장 오래된 주차를 1로 센다.
-  return weeks.map((w, i) => toChapter(w, projectId, weeks.length - i));
+  // 서버는 수강일 최신순으로만 주는데 수강일엔 시간이 없어 같은 날 만든 주차끼리는 순서가
+  // 정해지지 않는다. (수강일, id)로 직접 세워 가장 오래된 주차를 1로 세고, 목록은 최신이 위다.
+  const oldestFirst = weeks
+    .map((w) => toChapter(w, projectId, 0))
+    .sort(
+      (a, b) =>
+        a.lectureDate.localeCompare(b.lectureDate) || a.chapterId - b.chapterId,
+    );
+  return oldestFirst.map((c, i) => ({ ...c, chapterNumber: i + 1 })).reverse();
 }
 
 // 챕터 단건 조회 (학습 뷰어 헤더용). 단건 API가 없어 같은 강의의 목록에서 찾는다.

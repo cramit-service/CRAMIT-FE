@@ -176,26 +176,26 @@ export async function createChapter(
   const { onProgress, signal } = options;
   const { materialFile, audioFile } = req;
   try {
-    const [durationSec, ppt, audio] = await Promise.all([
-      audioFile ? measureAudioDuration(audioFile) : null,
-      materialFile ? requestUploadUrl(materialFile, 'PPT', signal) : null,
-      audioFile ? requestUploadUrl(audioFile, 'AUDIO', signal) : null,
-    ]);
+    const measuring = audioFile ? measureAudioDuration(audioFile) : null;
 
     // 진행률은 두 파일을 합친 바이트 기준이다. 파일마다 0부터 다시 차면 막대가 뒤로 간다.
     const total = (materialFile?.size ?? 0) + (audioFile?.size ?? 0);
     let sent = 0;
-    for (const [file, target] of [
-      [materialFile, ppt],
-      [audioFile, audio],
-    ] as const) {
-      if (!file || !target) continue;
+    // 업로드 링크는 5분이면 만료된다. 미리 다 받아 두면 PDF가 오래 걸릴 때 녹음 PUT이 403이 나서
+    // 파일마다 올리기 직전에 받는다.
+    const upload = async (file: File | null, fileType: 'PPT' | 'AUDIO') => {
+      if (!file) return null;
+      const target = await requestUploadUrl(file, fileType, signal);
       await putToStorage(target.uploadUrl, file, {
         signal,
         onProgress: (ratio) => onProgress?.((sent + ratio * file.size) / total),
       });
       sent += file.size;
-    }
+      return target;
+    };
+    const ppt = await upload(materialFile, 'PPT');
+    const audio = await upload(audioFile, 'AUDIO');
+    const durationSec = await measuring;
 
     const created = await apiClient.post<WeekCreateResponse>(
       `/lectures/${req.projectId}/weeks`,
@@ -233,6 +233,8 @@ export async function updateChapter(
   req: UpdateChapterRequest,
   options: UploadOptions = {},
 ): Promise<void> {
+  // 서버는 빈 제목을 400으로 거절해 편집 모드에서 못 나온다. 보내지 않으면 기존 제목이 남아 취소처럼 보인다.
+  if (req.title.trim() === '') return;
   if (USE_MOCK) {
     await mockUpload(options, 1600);
     const current = findMockChapter(req.chapterId);
