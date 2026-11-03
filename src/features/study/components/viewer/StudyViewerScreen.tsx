@@ -1,12 +1,13 @@
 'use client';
 // src/features/study/components/viewer/StudyViewerScreen.tsx
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useProjectDetail } from '@/features/study/hooks/useProjectDetail';
 import {
   useChapter,
   useLectureMaterial,
 } from '@/features/study/hooks/useLectureMaterial';
 import { useMockAudio } from '@/features/study/hooks/useMockAudio';
+import { usePdfView } from '@/features/study/hooks/usePdfView';
 import { toPlayDuration } from '@/features/study/lib/format';
 import { ViewerHeader } from '@/features/study/components/viewer/ViewerHeader';
 import { PdfMaterialTab } from '@/features/study/components/viewer/PdfMaterialTab';
@@ -135,11 +136,16 @@ export function StudyViewerScreen({
   // 재생 위치가 초기화되고, 원문 스크립트 탭이 그 값을 읽을 방법도 없다.
   // 조회 전에는 duration이 0이지만 훅이 읽는 시점에만 잘라내므로 도착하면 복원된다.
   const audio = useMockAudio(toPlayDuration(materialQuery.data?.audioDuration));
+  // PDF 문서와 보던 페이지·배율도 같은 이유로 화면이 쥔다.
+  const pdf = usePdfView(materialQuery.data?.pdfUrl ?? null);
 
   // 양쪽 다 최소 폭을 가질 수 있을 때만 나눈다. 억지로 나누면 두 패널 모두
   // 읽을 수 없어져서, 좁은 창에선 탭 두 개를 켜도 마지막 것만 단일로 보여준다.
   const canSplit = areaWidth >= MIN_PANEL_WIDTH * 2 + SPLIT_GAP;
   const isSplit = activeTabs.length === 2 && canSplit;
+  // 나눌 수 없을 땐 가장 최근에 켠 탭을 보여준다. 좁은 창에서 탭을 누르면
+  // 예전처럼 "전환"으로 동작해, 눌렀는데 아무 반응이 없어 보이지 않는다.
+  const shownTabs = isSplit ? activeTabs : activeTabs.slice(-1);
 
   // 최소 폭(px)을 지금 분할 영역 폭 기준의 비율로 환산한다.
   const splitInner = Math.max(0, areaWidth - SPLIT_GAP);
@@ -227,7 +233,7 @@ export function StudyViewerScreen({
   const renderTab = (tab: ViewerTab) => {
     switch (tab) {
       case 'PDF':
-        return <PdfMaterialTab material={material} audio={audio} />;
+        return <PdfMaterialTab material={material} audio={audio} pdf={pdf} />;
       // 요약은 이 탭에서만 필요하니 화면 진입 시가 아니라 탭 안에서 따로 조회한다
       case 'SUMMARY':
         return <SummaryTab chapterId={chapterId} />;
@@ -272,38 +278,44 @@ export function StudyViewerScreen({
       />
 
       <div ref={areaRef} className="mt-2 flex min-h-0 flex-1 flex-col">
-        {isSplit ? (
-          // 이분할 — 좌우 패널 사이 핸들을 끌어 폭을 나눈다.
-          // 핸들이 간격을 겸하므로 flex gap은 주지 않는다(주면 간격이 두 번 생긴다).
-          <div className="flex h-full">
-            <div
-              className="min-w-0"
-              // 핸들 폭을 뺀 나머지를 비율로 가른다. 우측은 flex-1로 남는 만큼 채운다.
-              style={{
-                flexBasis: `calc((100% - ${SPLIT_GAP}px) * ${ratio / 100})`,
-                flexGrow: 0,
-                flexShrink: 0,
-              }}
-            >
-              {renderTab(activeTabs[0])}
-            </div>
-            <Resizer
-              label="좌우 패널 너비 조절"
-              value={ratio}
-              min={minRatio}
-              max={maxRatio}
-              onResize={setLeftRatio}
-              // 이동 1px이 몇 %인지. 폭을 재기 전(0)에는 드래그해도 움직이지 않는다.
-              scale={areaWidth > 0 ? 100 / areaWidth : 0}
-              step={2}
-            />
-            <div className="min-w-0 flex-1">{renderTab(activeTabs[1])}</div>
-          </div>
-        ) : (
-          // 나눌 수 없을 땐 가장 최근에 켠 탭을 보여준다. 좁은 창에서 탭을 누르면
-          // 예전처럼 "전환"으로 동작해, 눌렀는데 아무 반응이 없어 보이지 않는다.
-          renderTab(activeTabs[activeTabs.length - 1])
-        )}
+        {/* 이분할을 켜고 꺼도 같은 탭은 같은 key로 남겨 보던 페이지·배율·목록을 지킨다.
+            핸들이 간격을 겸하므로 flex gap은 주지 않는다(주면 간격이 두 번 생긴다). */}
+        <div className="flex h-full">
+          {shownTabs.map((tab, i) => {
+            // 왼쪽 칸은 핸들 폭을 뺀 나머지를 비율로 갖고, 나머지는 남는 폭을 채운다.
+            const sized = isSplit && i === 0;
+            return (
+              <Fragment key={tab}>
+                {i === 1 && (
+                  <Resizer
+                    label="좌우 패널 너비 조절"
+                    value={ratio}
+                    min={minRatio}
+                    max={maxRatio}
+                    onResize={setLeftRatio}
+                    // 이동 1px이 몇 %인지. 폭을 재기 전(0)에는 드래그해도 움직이지 않는다.
+                    scale={areaWidth > 0 ? 100 / areaWidth : 0}
+                    step={2}
+                  />
+                )}
+                <div
+                  className={sized ? 'min-w-0' : 'min-w-0 flex-1'}
+                  style={
+                    sized
+                      ? {
+                          flexBasis: `calc((100% - ${SPLIT_GAP}px) * ${ratio / 100})`,
+                          flexGrow: 0,
+                          flexShrink: 0,
+                        }
+                      : undefined
+                  }
+                >
+                  {renderTab(tab)}
+                </div>
+              </Fragment>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
