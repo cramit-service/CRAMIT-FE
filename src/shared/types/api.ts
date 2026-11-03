@@ -266,12 +266,23 @@ export interface Exam {
   examDate: string; // YYYY-MM-DD
   memo: string | null;
   createdAt: string;
-  progress: number; // 학습 진행률 0~100 (홈 학습 배너 표시용, 시험 일정과 함께 내려옴)
+  // 학습 진행률 0~100. 서버가 아직 주지 않는다 — 없으면 배너가 진행 바를 접는다.
+  progress?: number;
+}
+
+// 서버 응답. 화면 타입과는 강의 필드 이름만 다르다 (lectureId ↔ projectId).
+export interface ExamResponse {
+  examId: number;
+  lectureId: number;
+  title: string;
+  lectureName: string | null;
+  examDate: string;
+  memo: string | null;
+  createdAt: string;
 }
 
 // 시험 일정 생성 요청 (홈 "다가오는 시험 일정" 추가하기 모달).
 // lectureName·progress는 보내지 않는다 — projectId만 있으면 서버가 아는 값이다.
-// TODO: 백엔드 엔드포인트·필드명 확정 시 재확인 필요
 export interface CreateExamRequest {
   projectId: number; // 어느 강의(프로젝트)의 시험인지
   title: string; // 시험 이름 (예: "중간고사")

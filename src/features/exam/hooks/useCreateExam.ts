@@ -1,19 +1,20 @@
 'use client';
 // src/features/exam/hooks/useCreateExam.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { CreateExamRequest, Exam } from '@/shared/types/api';
+import type { CreateExamRequest } from '@/shared/types/api';
 import { createExam } from '@/features/exam/api';
 
 // 시험 일정 생성 훅.
-// ['exams'] 하나만 무효화하면 캘린더의 ['exams', 'all']까지 함께 무효화된다.
-// TanStack Query가 쿼리 키를 앞에서부터 부분 일치로 보기 때문이라 두 줄 쓸 필요가 없다.
+// 강의 목록·상세의 D-DAY가 시험을 붙여 만들어지므로 강의 조회도 함께 무효화한다.
 export function useCreateExam() {
   const queryClient = useQueryClient();
 
-  return useMutation<Exam, Error, CreateExamRequest>({
+  return useMutation<void, Error, CreateExamRequest>({
     mutationFn: (req) => createExam(req),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exams'] });
+      queryClient.invalidateQueries({ queryKey: ['project-summaries'] });
+      queryClient.invalidateQueries({ queryKey: ['project-detail'] });
     },
   });
 }
