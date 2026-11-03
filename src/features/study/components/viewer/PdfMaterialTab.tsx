@@ -10,6 +10,7 @@ import { PdfThumbnail } from '@/features/study/components/viewer/PdfThumbnail';
 import { LIST_WIDTH, PageList } from '@/shared/ui/PageList';
 import { PdfPagePreview } from '@/features/study/components/viewer/PdfPlaceholder';
 import { usePdfDocument } from '@/features/study/hooks/usePdfDocument';
+import type { ZoomDirection } from '@/features/study/lib/zoom';
 import { cn } from '@/shared/lib/cn';
 import type { LectureMaterial } from '@/shared/types/api';
 
@@ -18,10 +19,18 @@ interface PdfMaterialTabProps {
   // 재생 상태는 화면(StudyViewerScreen)이 쥐고 있다. 탭을 옮겨도 위치가 유지되고
   // 원문 스크립트 탭이 같은 값을 읽어 표시할 수 있다.
   audio: MockAudio;
+  // 배율도 같은 이유로 화면이 쥔다. 이분할·집중 모드를 바꾸면 이 탭이 새로 붙는다.
+  zoom: number;
+  onZoom: (direction: ZoomDirection) => void;
 }
 
 // PDF 강의 자료 탭: 상단 오디오 플레이어 + 좌측 페이지 목록 + 우측 미리보기.
-export function PdfMaterialTab({ material, audio }: PdfMaterialTabProps) {
+export function PdfMaterialTab({
+  material,
+  audio,
+  zoom,
+  onZoom,
+}: PdfMaterialTabProps) {
   const { doc, ratio, failed, isLoading } = usePdfDocument(material.pdfUrl);
   const [selectedPage, setSelectedPage] = useState(1);
   // 가운데 버튼으로 좌측 목록을 최소 ↔ 최대로 바꾼다.
@@ -116,6 +125,8 @@ export function PdfMaterialTab({ material, audio }: PdfMaterialTabProps) {
           page={currentPage}
           isLoading={isLoading}
           failed={failed}
+          zoom={zoom}
+          onZoom={onZoom}
         />
       </div>
     </section>

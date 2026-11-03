@@ -8,6 +8,11 @@ import {
 } from '@/features/study/hooks/useLectureMaterial';
 import { useMockAudio } from '@/features/study/hooks/useMockAudio';
 import { toPlayDuration } from '@/features/study/lib/format';
+import {
+  MIN_ZOOM,
+  stepZoom,
+  type ZoomDirection,
+} from '@/features/study/lib/zoom';
 import { ViewerHeader } from '@/features/study/components/viewer/ViewerHeader';
 import { PdfMaterialTab } from '@/features/study/components/viewer/PdfMaterialTab';
 import { SummaryTab } from '@/features/study/components/viewer/SummaryTab';
@@ -135,6 +140,12 @@ export function StudyViewerScreen({
   // 재생 위치가 초기화되고, 원문 스크립트 탭이 그 값을 읽을 방법도 없다.
   // 조회 전에는 duration이 0이지만 훅이 읽는 시점에만 잘라내므로 도착하면 복원된다.
   const audio = useMockAudio(toPlayDuration(materialQuery.data?.audioDuration));
+  // PDF 배율도 화면이 쥔다. 이분할·집중 모드를 바꾸면 PDF 탭이 새로 붙어 탭 안 상태는 사라진다.
+  const [pdfZoom, setPdfZoom] = useState<number>(MIN_ZOOM);
+  const zoomPdf = useCallback(
+    (direction: ZoomDirection) => setPdfZoom((z) => stepZoom(z, direction)),
+    [],
+  );
 
   // 양쪽 다 최소 폭을 가질 수 있을 때만 나눈다. 억지로 나누면 두 패널 모두
   // 읽을 수 없어져서, 좁은 창에선 탭 두 개를 켜도 마지막 것만 단일로 보여준다.
@@ -227,7 +238,14 @@ export function StudyViewerScreen({
   const renderTab = (tab: ViewerTab) => {
     switch (tab) {
       case 'PDF':
-        return <PdfMaterialTab material={material} audio={audio} />;
+        return (
+          <PdfMaterialTab
+            material={material}
+            audio={audio}
+            zoom={pdfZoom}
+            onZoom={zoomPdf}
+          />
+        );
       // 요약은 이 탭에서만 필요하니 화면 진입 시가 아니라 탭 안에서 따로 조회한다
       case 'SUMMARY':
         return <SummaryTab chapterId={chapterId} />;
