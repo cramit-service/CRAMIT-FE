@@ -32,7 +32,8 @@ export function ScriptSectionItem({
         aria-expanded={open}
         aria-controls={panelId}
       >
-        <span className="flex items-center gap-2">
+        {/* 머리글은 고르는 글이 아니다 — 드래그가 걸쳐도 [AI에게 질문] 인용에 섞이지 않게 뺀다. */}
+        <span className="flex items-center gap-2 select-none">
           <span className="text-label flex shrink-0 items-center justify-center rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-700">
             PDF P.{String(section.page).padStart(2, '0')}
           </span>
@@ -65,7 +66,7 @@ export function ScriptSectionItem({
         <ul id={panelId} className="mt-1 mb-2 flex flex-col gap-1 pl-3">
           {section.segments.map((segment) => (
             <li key={segment.atSec} className="text-label flex gap-2">
-              <span className="shrink-0 text-gray-500 tabular-nums">
+              <span className="shrink-0 text-gray-500 tabular-nums select-none">
                 {formatPlayTime(segment.atSec)}
               </span>
               <span className="min-w-0 flex-1 text-gray-700">

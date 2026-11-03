@@ -6,6 +6,7 @@ import type {
   ChatMessageResponse,
 } from '@/shared/types/api';
 import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
+import { splitQuote } from '@/shared/lib/quote';
 import {
   addMockChatSession,
   findMockChatSessions,
@@ -128,12 +129,12 @@ export async function getChatThread(
   return { sessionId, messages: await getMessages(sessionId, signal) };
 }
 
-// 첫 질문을 보낼 때 세션을 만든다. 제목은 그 질문이다.
+// 첫 질문을 보낼 때 세션을 만든다. 제목은 그 질문이다(인용이 붙었으면 인용은 뺀다).
 export async function createChatSession(
   chapterId: number,
   firstQuestion: string,
 ): Promise<number> {
-  const title = firstQuestion.slice(0, SESSION_TITLE_MAX);
+  const title = splitQuote(firstQuestion).question.slice(0, SESSION_TITLE_MAX);
   if (USE_MOCK) {
     await delay(200);
     return addMockChatSession(chapterId, title);

@@ -2,6 +2,7 @@
 // src/features/study/components/viewer/ScriptTab.tsx
 import { useState } from 'react';
 import { useLectureScript } from '@/features/study/hooks/useLectureScript';
+import { AskAboutSelection } from '@/features/study/components/viewer/AskAboutSelection';
 import { formatPlayTime } from '@/features/study/lib/format';
 import { ScriptSectionItem } from '@/features/study/components/viewer/ScriptSectionItem';
 import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
@@ -93,16 +94,18 @@ export function ScriptTab({
         // 전에는 73px짜리 그라디언트 div를 손으로 얹고 목록에 같은 크기의 아래 여백을 줬다.
         <div className="mt-6 flex min-h-0 flex-1 flex-col">
           <ScrollArea>
-            <ul className="flex flex-col gap-1 pr-3">
-              {sections.map((section) => (
-                <ScriptSectionItem
-                  key={section.page}
-                  section={section}
-                  open={openPages.includes(section.page)}
-                  onToggle={() => toggle(section.page)}
-                />
-              ))}
-            </ul>
+            <AskAboutSelection>
+              <ul className="flex flex-col gap-1 pr-3">
+                {sections.map((section) => (
+                  <ScriptSectionItem
+                    key={section.page}
+                    section={section}
+                    open={openPages.includes(section.page)}
+                    onToggle={() => toggle(section.page)}
+                  />
+                ))}
+              </ul>
+            </AskAboutSelection>
           </ScrollArea>
         </div>
       )}

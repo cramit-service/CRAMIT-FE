@@ -1,6 +1,7 @@
 'use client';
 // src/features/chat/components/ChatBubble.tsx
 import { useCallback, useState } from 'react';
+import { splitQuote } from '@/shared/lib/quote';
 import { cn } from '@/shared/lib/cn';
 import type { ChatMessage } from '@/shared/types/api';
 import { Button } from '@/shared/ui/Button';
@@ -20,6 +21,10 @@ export function ChatBubble({
   message: Pick<ChatMessage, 'role' | 'content'>;
 }) {
   const isMine = message.role === 'USER';
+  // [AI에게 질문]으로 보낸 질문은 인용과 질문이 한 글로 저장돼 있다. 내 말에서만 다시 나눈다.
+  const { quote, question } = isMine
+    ? splitQuote(message.content)
+    : { quote: null, question: message.content };
   const [expanded, setExpanded] = useState(false);
   const [overflows, setOverflows] = useState(false);
 
@@ -98,7 +103,19 @@ export function ChatBubble({
               !expanded && overflows && 'overflow-hidden',
             )}
           >
-            {message.content}
+            {quote && (
+              // 요약 탭의 Markdown 인용과 같은 모양(왼쪽 선 + 본문 글자).
+              // 접힌 동안 두 줄로 줄인다 — 길게 두면 정작 질문이 접힌 영역 밖으로 밀린다.
+              <span
+                className={cn(
+                  'mb-2 border-l-4 border-gray-300 pl-3 whitespace-normal text-gray-700',
+                  expanded ? 'block' : 'line-clamp-2',
+                )}
+              >
+                {quote}
+              </span>
+            )}
+            {question}
           </p>
 
           {/* 잘린 지점을 말풍선 색으로 흐리게 덮는다(시안) */}

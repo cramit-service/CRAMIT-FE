@@ -7,8 +7,11 @@ import {
   useSendChatMessage,
 } from '@/features/chat/hooks/useChat';
 import { ChatBubble } from '@/features/chat/components/ChatBubble';
+import { useChatDock } from '@/shared/hooks/useChatDock';
+import { splitQuote, withQuote } from '@/shared/lib/quote';
 import {
   CHAT_GREETING,
+  QUOTE_QUESTIONS,
   SUGGESTED_QUESTIONS,
 } from '@/features/chat/lib/starter';
 import { useChapter } from '@/features/study/hooks/useLectureMaterial';
@@ -34,6 +37,14 @@ export function ChatPanel({
   const chatQuery = useChatThread(chapterId, open);
   const sendMutation = useSendChatMessage(chapterId);
   const [draft, setDraft] = useState('');
+  // 학습 뷰어에서 [AI에게 질문]으로 넘어온 글. 다음 질문 하나에만 붙는다.
+  const { quote, setQuote } = useChatDock();
+  const draftRef = useRef<HTMLTextAreaElement>(null);
+
+  // 인용이 붙으면 바로 질문을 쓸 수 있게 입력칸으로 간다.
+  useEffect(() => {
+    if (quote && open) draftRef.current?.focus();
+  }, [quote, open]);
 
   const { data: chapter } = useChapter(projectId, chapterId);
   // 주차 제목이다. 이 대화가 어느 주차에 걸려 있는지 사람이 알아보는 건 번호가 아니라
@@ -57,14 +68,21 @@ export function ChatPanel({
     const el = listRef.current;
     if (!el) return;
     el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-  }, [messages.length, sending]);
+    // 인용이 붙으면 인용용 추천 질문이 대화 맨 아래에 생긴다. 그것도 보이게 내린다.
+  }, [messages.length, sending, quote]);
 
-  const send = (content: string) => {
+  // 추천 질문을 눌러 보낼 때는 쓰던 질문(draft)을 지우지 않는다.
+  const send = (content: string, fromDraft = true) => {
     const text = content.trim();
     if (!text || sending || !ready) return;
-    setDraft('');
-    sendMutation.mutate(text);
+    if (fromDraft) setDraft('');
+    setQuote(null);
+    sendMutation.mutate(quote ? withQuote(quote, text) : text);
   };
+
+  // 인용이 붙어 있으면 그 글에 맞는 추천 질문을 다시 띄운다(이미 질문했어도).
+  const suggestions = quote ? QUOTE_QUESTIONS : SUGGESTED_QUESTIONS;
+  const showSuggestions = quote !== null || !hasAsked;
 
   // 실패한 전송 입력. mutation이 마지막 mutate 인자를 그대로 들고 있어
   // 따로 보관하지 않아도 된다.
@@ -121,18 +139,18 @@ export function ChatPanel({
           )}
 
           {/* 추천 질문 (시안: 대화 영역 좌하단 흰 알약). 고정 바가 아니라 대화 흐름 안에 있어야
-            말풍선을 가리지 않는다. 첫 질문 전에만 둔다. */}
-          {!hasAsked && !chatQuery.isPending && !chatQuery.isError && (
+            말풍선을 가리지 않는다. 첫 질문 전, 또는 인용이 붙었을 때만 둔다. */}
+          {showSuggestions && !chatQuery.isPending && !chatQuery.isError && (
             <div className="mt-5 flex flex-col items-start gap-2">
               {/* 알약(rounded-full)에 죽은 border-white·bg-white를 얹고 있었다.
                   §4가 모서리로 둘을 가른다 — 알약은 상태를 들고, 6은 일을 한다.
                   추천 질문은 누르면 그 질문이 보내지는 «일»이라 2순위 버튼이다. */}
-              {SUGGESTED_QUESTIONS.map((question) => (
+              {suggestions.map((question) => (
                 <Button
                   key={question}
                   rank="secondary"
                   size="sm"
-                  onClick={() => send(question)}
+                  onClick={() => send(question, false)}
                   disabled={sending}
                 >
                   {question}
@@ -168,7 +186,7 @@ export function ChatPanel({
                   : '질문을 보내지 못했어요.'}
               </span>
               <span className="text-label block truncate text-gray-500">
-                {failed}
+                {splitQuote(failed).question}
               </span>
             </span>
             {!noContext && (
@@ -185,11 +203,30 @@ export function ChatPanel({
           </div>
         )}
 
+        {/* 다음 질문에 붙을 인용 (프리뷰 보드 H). 한 줄로 자르고, 빼면 그냥 질문이 된다. */}
+        {quote && (
+          <div className="flex max-w-full items-center gap-2">
+            <span className="text-label bg-well shrink-0 rounded-md px-2 py-0.5 font-medium text-gray-700">
+              인용
+            </span>
+            <span className="text-label min-w-0 flex-1 truncate text-gray-700">
+              {quote}
+            </span>
+            <IconButton
+              name="close"
+              aria-label="인용 빼기"
+              rank="plain"
+              onClick={() => setQuote(null)}
+            />
+          </div>
+        )}
+
         {/* 합성 입력 — 위에 글, 아래 줄에 컨트롤. 상자 하나가 필드이고 그 안의
             textarea는 투명하게 깔린다(fieldStyle의 FIELD_BOX와 같은 구조).
             그래서 포커스 테두리도 상자가 focus-within으로 받는다. */}
         <div className="bg-well focus-within:border-sky-ink flex flex-col gap-2 rounded-md border border-transparent px-4 py-3 transition-colors duration-150 ease-out">
           <Textarea
+            ref={draftRef}
             bare
             maxRows={COMPOSER_MAX_ROWS}
             value={draft}
@@ -207,7 +244,11 @@ export function ChatPanel({
               e.preventDefault();
               send(draft);
             }}
-            placeholder="질문 내용을 입력해 주세요."
+            placeholder={
+              quote
+                ? '이 부분에 대해 무엇이 궁금한가요?'
+                : '질문 내용을 입력해 주세요.'
+            }
             aria-label="질문 내용"
           />
 
