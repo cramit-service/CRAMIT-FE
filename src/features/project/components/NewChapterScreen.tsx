@@ -27,8 +27,8 @@ interface NewChapterScreenProps {
 // 새 주차 등록 화면. 모달을 띄우는 대신 학습 화면 자리로 바로 들어와서, 여기서 자료를 올린다.
 // 수업을 들으면서 쓰는 동선이라 모달에 갇히지 않는 게 중요하다(#107).
 //
-// 제목·수강 날짜·교수명은 묻지 않는다 — 제목은 "강의명 N"을 기본값으로 붙여 두고
-// (학습 화면 헤더에서 눌러 고친다), 날짜는 오늘, 교수명은 강의에 적힌 값을 그대로 쓴다.
+// 제목·수강 날짜는 묻지 않는다 — 제목은 "강의명 N"을 기본값으로 붙여 두고
+// (학습 화면 헤더에서 눌러 고친다), 날짜는 오늘로 둔다.
 export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
   const router = useRouter();
   const projectQuery = useProjectDetail(projectId);
@@ -79,7 +79,6 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
         projectId,
         title: defaultTitle,
         lectureDate: toLocalDateString(new Date()),
-        professor: projectQuery.data?.professor ?? null,
         materialFile,
         audioFile,
         onProgress: setProgress,
@@ -88,10 +87,8 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
       {
         // 만들자마자 그 주차의 학습 화면으로 넘어간다. replace라 뒤로가기가
         // 빈 등록 화면으로 돌아오지 않는다.
-        onSuccess: (chapter) =>
-          router.replace(
-            `/projects/${projectId}/chapters/${chapter.chapterId}`,
-          ),
+        onSuccess: (chapterId) =>
+          router.replace(`/projects/${projectId}/chapters/${chapterId}`),
         onError: (error: Error) => {
           // 사용자가 직접 멈춘 건 실패가 아니다. 문구 없이 폼으로 돌아가기만 한다.
           if (

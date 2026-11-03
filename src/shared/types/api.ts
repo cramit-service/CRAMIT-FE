@@ -111,11 +111,8 @@ export interface Chapter {
   // 기록이 아니라 오기가 된다. 백엔드는 증가 전용이 아니라 값을 세팅하는 엔드포인트를
   // 내야 한다 (DESIGN.md §4 "A 회독 is raised by a stepper, and lowered by the same one").
   reviewCount: number;
-  // 아래 둘은 "주차 정보 수정하기" 모달이 기존 값을 채우는 데 쓴다.
-  // TODO(백엔드): 챕터 조회 응답에 lectureDate·professor를 포함해 달라고 요청해야 한다.
-  //   없으면 수정 모달이 빈 날짜를 저장해 기존 값을 덮어쓴다.
+  // 주차 수정은 날짜까지 통째로 보낸다. 제목만 고칠 때 기존 날짜를 그대로 돌려보내는 데 쓴다.
   lectureDate: string; // 주차 수강 날짜 (YYYY-MM-DD)
-  professor: string | null; // 교수명 (선택)
   // 이미 올려둔 파일의 이름. 수정 모달이 "이 주차에 무엇이 올라가 있는지"를 보여주는 데 쓴다.
   // 업로드 계약이 "새로 고르지 않으면 기존 파일 유지"라, 이 값이 없으면 화면에는 빈 칸만 보여
   // 사용자가 파일이 날아간 줄 알고 같은 파일을 다시 올리게 된다.
@@ -128,22 +125,40 @@ export interface Chapter {
 }
 
 // 새 주차(챕터) 업로드 요청.
-// 파일 2종은 선택이며, 실제 전송은 JSON이 아니라 multipart/form-data다.
-// TODO: 백엔드 업로드 스펙 확정 시 필드명/필수 여부 재확인 필요
+// 파일 2종은 선택이다. 파일은 저장소에 먼저 올리고, 주차 생성에는 그 주소만 보낸다.
 export interface CreateChapterRequest {
   projectId: number; // 어느 강의(프로젝트)에 붙일 주차인지
   title: string; // 주차 제목 (예: "알고리즘 기초 알아보기")
   lectureDate: string; // 주차 수강 날짜 (YYYY-MM-DD)
-  professor: string | null; // 교수명 (선택)
   materialFile: File | null; // 강의 자료 PDF (선택)
   audioFile: File | null; // 강의 녹음 파일 (선택)
 }
 
-// 주차(챕터) 수정 요청 — "주차 정보 수정하기" 모달.
-// 폼이 칸을 통째로 저장하므로 생성과 같은 필드를 모두 보낸다(부분 수정이 아니다).
-// 파일 2종은 새로 고른 것만 보낸다 — null이면 기존 파일을 그대로 둔다.
+// 주차(챕터) 수정 요청. 제목·날짜를 통째로 보낸다(부분 수정이 아니다).
+// 파일 교체는 아직 백엔드에 없어 파일 2종은 보내지 않는다.
 export interface UpdateChapterRequest extends CreateChapterRequest {
   chapterId: number;
+}
+
+// 서버 응답 (GET /lectures/{lectureId}/weeks 한 줄). 화면과는 이름·상태 값이 다르다.
+export interface WeekResponse {
+  weekId: number;
+  title: string;
+  weekDate: string; // YYYY-MM-DD
+  status: 'BEFORE' | 'IN_PROCESS' | 'COMPLETED';
+  reviewCount: number;
+  createdAt: string;
+}
+
+// 서버 응답 (POST /lectures/{lectureId}/weeks). 화면은 만든 주차로 이동하는 데 id만 쓴다.
+export interface WeekCreateResponse {
+  weekId: number;
+}
+
+// 서버 응답 (POST /files/presigned-url). uploadUrl에 파일을 PUT하고 fileUrl을 주차 생성에 넘긴다.
+export interface UploadUrlResponse {
+  uploadUrl: string;
+  fileUrl: string;
 }
 
 // 프로젝트 상세 헤더에 필요한 메타. 공유가 빠지면서 목록 응답과 같은 모양이 됐지만,
