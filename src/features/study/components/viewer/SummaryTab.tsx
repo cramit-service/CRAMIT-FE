@@ -5,6 +5,7 @@ import {
   useLectureSummary,
   useUpdateLectureSummary,
 } from '@/features/study/hooks/useLectureSummary';
+import { AskAboutSelection } from '@/features/study/components/viewer/AskAboutSelection';
 import { MarkdownContent } from '@/features/study/components/viewer/MarkdownContent';
 import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
 import { cn } from '@/shared/lib/cn';
@@ -184,7 +185,9 @@ export function SummaryTab({ chapterId }: { chapterId: number }) {
           <ScrollArea ref={viewRef}>
             <div className="px-6 py-7">
               {markdown ? (
-                <MarkdownContent markdown={markdown} />
+                <AskAboutSelection>
+                  <MarkdownContent markdown={markdown} />
+                </AskAboutSelection>
               ) : (
                 // 생성 중(PROCESSING)은 위에서 따로 걸러내므로 여기는 '생성됐지만 비어 있음'이다
                 <p className="text-label text-gray-500">

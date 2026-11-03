@@ -1,7 +1,7 @@
 'use client';
 // src/features/chat/components/ChatDock.tsx
-import { useState } from 'react';
 import { ChatPanel } from '@/features/chat/components/ChatPanel';
+import { useChatDock } from '@/features/chat/components/ChatDockProvider';
 import { cn } from '@/shared/lib/cn';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
 import { Icon } from '@/shared/ui/Icon';
@@ -20,7 +20,8 @@ export function ChatDock({
   projectId: number;
   chapterId: number;
 }) {
-  const [open, setOpen] = useState(false);
+  // 학습 뷰어에서 [AI에게 질문]을 누르면 바깥에서 열리므로 열림 상태는 프로바이더가 쥔다.
+  const { open, setOpen } = useChatDock();
 
   return (
     <>
@@ -33,7 +34,7 @@ export function ChatDock({
           페이지 위에 뜬 것이라 그림자가 경계를 만든다(§2의 near). */}
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen(!open)}
         aria-label={open ? '채팅 닫기' : '채팅 열기'}
         aria-expanded={open}
         // 패널과 나란히 움직여야 한다. right(레이아웃)로 밀면 패널의 transform과
