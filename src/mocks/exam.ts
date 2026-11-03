@@ -5,7 +5,7 @@ import { dateFromToday } from '@/shared/lib/date';
 // 다가오는 시험 일정 mock — D-DAY / D-1~3 / D-4+ 색이 언제 켜도 한 번에 보이도록,
 // 고정 날짜가 아니라 "오늘 기준" 상대 날짜로 생성한다. (시간이 지나도 mock을 안 고쳐도 됨)
 // 과거 1건(어제)은 getExams의 "다가오는" 필터에서 빠지는지 확인하려고 남겨둔다.
-// lectureId와 lectureName은 mockProjectSummaries와 맞춘다 — 캘린더 점 색이 강의 id로
+// lectureId와 lectureName은 mockLectures와 맞춘다 — 캘린더 점 색이 강의 id로
 // 결정되므로 어긋나면 시험이 다른 과목 색으로 찍힌다.
 // 서버 응답 모양(ExamResponse) 그대로 둔다 — mock 경로도 features/exam/api.ts의 변환을 탄다 (#48).
 export const mockExams: ExamResponse[] = [

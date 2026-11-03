@@ -83,15 +83,11 @@ export interface MyProfile extends User {
 export interface Project {
   projectId: number;
   title: string;
-  createdAt: string; // ISO 날짜 문자열
-  // 과목 색 — 팔레트 번호(1부터). 없으면 화면이 생성 순으로 채운다.
-  // TODO: 백엔드 필드명 확정 시 맞춘다.
   colorIndex: number; // 과목 색 팔레트 번호(1부터). 서버가 늘 채워 준다
 }
 
 // 학습하기(강의 목록) 카드 한 장에 필요한 메타.
-// Project만으로는 시안의 태그(교수명·강의 수·D-DAY)를 채울 수 없어 목록 응답을 따로 둔다.
-// TODO: 백엔드 목록 응답 스펙 확정 시 필드명 재확인 필요
+// 시험은 강의 응답에 없어서 다가오는 시험 조회에서 붙인다.
 export interface ProjectSummary extends Project {
   professor: string | null; // 교수명 (선택) — 없으면 메타 줄에서 조각째 빠진다
   chapterCount: number; // 강의(챕터) 개수 (태그: "강의 N개")
@@ -155,6 +151,23 @@ export interface UpdateChapterRequest extends CreateChapterRequest {
 // TODO: 백엔드 프로젝트 상세 응답 스펙 확정 시 필드명 재확인 필요
 export type ProjectDetail = ProjectSummary;
 
+// 서버 응답 (GET /lectures/my 한 줄). 화면과는 강의 id·교수명 이름이 다르다.
+export interface MyLectureResponse {
+  lectureId: number;
+  title: string;
+  professorName: string | null;
+  weekCount: number;
+  colorIndex: number;
+}
+
+// 서버 응답 (GET /lectures/{lectureId}). 화면이 쓰는 필드만 적는다.
+export interface LectureDetailResponse {
+  lectureId: number;
+  title: string;
+  professorName: string | null;
+  colorIndex: number;
+}
+
 /* ===== 학습 뷰어 / 강의자료 (이슈 B) ===== */
 
 // 학습 뷰어 탭 4종. 이번 이슈에서 내용을 채우는 건 PDF뿐이고 나머지는 자리만 잡는다.
@@ -214,24 +227,33 @@ export interface LectureScript {
 // 말한 쪽. 화면에선 내 말이 오른쪽 연두, AI가 왼쪽 흰 말풍선이다.
 export type ChatRole = 'USER' | 'AI';
 
-// 질문에 딸려 올라간 파일. 서버에 저장된 뒤로는 File 객체가 없으므로
-// 화면에 다시 그리는 데 필요한 최소 정보만 메시지와 함께 내려받는다.
-export interface ChatAttachment {
-  name: string;
-  size: number; // bytes
-  contentType: string;
-}
-
 // 대화 한 줄.
-// TODO: 백엔드 챗봇 응답 스펙 확정 시 필드명/타입 재확인 필요.
 export interface ChatMessage {
   messageId: number;
-  projectId: number;
   role: ChatRole;
   content: string;
   createdAt: string; // ISO 날짜 문자열
-  // 파일만 보낸 질문도 있어 content가 비고 attachment만 있는 메시지가 존재한다.
-  attachment?: ChatAttachment;
+}
+
+// 서버 응답. 화면 타입과는 필드 이름이 다르다.
+// referencedPage는 서버가 아직 늘 null로 줘서 화면이 쓰지 않는다.
+export interface ChatMessageResponse {
+  chatMessageId: number;
+  senderType: ChatRole;
+  message: string;
+  referencedPage: number | null;
+  createdAt: string;
+}
+
+// 챗봇 세션. 대화는 주차(week) 아래 세션 단위로 쌓인다.
+export interface ChatBotSessionResponse {
+  chatBotSessionId: number;
+  title: string;
+}
+
+export interface ChatBotSessionCreateResponse {
+  chatBotSessionId: number;
+  createdAt: string;
 }
 
 /* ===== Exam / 시험 일정 (기획서 7.3, 8.9) ===== */
@@ -333,7 +355,6 @@ export interface TodoBody {
 // TODO: 백엔드 프로젝트 생성 스펙 확정 시 필드명 재확인 필요
 export interface CreateProjectRequest {
   title: string; // 강의명 (예: "운영체제")
-  examDate: string | null; // 시험 날짜 (YYYY-MM-DD)
   professor: string | null; // 교수명 (선택)
   colorIndex: number; // 과목 색 팔레트 번호(1부터)
 }

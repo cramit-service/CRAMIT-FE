@@ -1,7 +1,6 @@
-// src/mocks/study.ts — 학습(챕터/프로젝트 상세/강의자료/요약) mock
+// src/mocks/study.ts — 학습(챕터/강의자료/요약) mock
 import type {
   Chapter,
-  ProjectDetail,
   LectureMaterial,
   LectureScript,
   LectureSummary,
@@ -113,18 +112,6 @@ export function updateMockChapter(chapter: Chapter): void {
   const i = mockChapters.findIndex((c) => c.chapterId === chapter.chapterId);
   if (i !== -1) mockChapters[i] = chapter;
 }
-
-// 프로젝트 상세 헤더 mock (과목명·교수·시험 D-DAY 등)
-export const mockProjectDetail: ProjectDetail = {
-  projectId: 1,
-  title: '알고리즘',
-  createdAt: '2026-03-02T09:00:00Z',
-  professor: '박지훈',
-  chapterCount: 6,
-  examName: '중간고사',
-  examDate: '2026-07-20',
-  colorIndex: 1,
-};
 
 // 학습 뷰어(PDF 강의 자료 탭) mock — Figma 시안값 그대로 12페이지 / 61:02.
 export const mockLectureMaterial: LectureMaterial = {

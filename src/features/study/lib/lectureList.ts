@@ -32,9 +32,8 @@ export function sortLectures(
   if (key === 'NAME') {
     return sorted.sort((a, b) => a.title.localeCompare(b.title, 'ko'));
   }
-  return sorted.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+  // 목록 응답에 생성 시각이 없다. id가 생성 순서대로 늘어나므로 최신순과 같다.
+  return sorted.sort((a, b) => b.projectId - a.projectId);
 }
 
 // 드롭다운이 그대로 받는 모양. 순서는 시안대로 등록순이 먼저다.
