@@ -1,6 +1,6 @@
 'use client';
 // src/features/study/components/viewer/PdfMaterialTab.tsx
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { MockAudio } from '@/features/study/hooks/useMockAudio';
 import { toPlayDuration } from '@/features/study/lib/format';
 import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
@@ -10,7 +10,11 @@ import { PdfThumbnail } from '@/features/study/components/viewer/PdfThumbnail';
 import { LIST_WIDTH, PageList } from '@/shared/ui/PageList';
 import { PdfPagePreview } from '@/features/study/components/viewer/PdfPlaceholder';
 import { usePdfDocument } from '@/features/study/hooks/usePdfDocument';
-import type { ZoomDirection } from '@/features/study/lib/zoom';
+import {
+  MIN_ZOOM,
+  stepZoom,
+  type ZoomDirection,
+} from '@/features/study/lib/zoom';
 import { cn } from '@/shared/lib/cn';
 import type { LectureMaterial } from '@/shared/types/api';
 
@@ -19,18 +23,10 @@ interface PdfMaterialTabProps {
   // 재생 상태는 화면(StudyViewerScreen)이 쥐고 있다. 탭을 옮겨도 위치가 유지되고
   // 원문 스크립트 탭이 같은 값을 읽어 표시할 수 있다.
   audio: MockAudio;
-  // 배율도 같은 이유로 화면이 쥔다. 이분할을 켜고 끄면 이 탭이 새로 붙는다.
-  zoom: number;
-  onZoom: (direction: ZoomDirection) => void;
 }
 
 // PDF 강의 자료 탭: 상단 오디오 플레이어 + 좌측 페이지 목록 + 우측 미리보기.
-export function PdfMaterialTab({
-  material,
-  audio,
-  zoom,
-  onZoom,
-}: PdfMaterialTabProps) {
+export function PdfMaterialTab({ material, audio }: PdfMaterialTabProps) {
   const { doc, ratio, failed, isLoading } = usePdfDocument(material.pdfUrl);
   const [selectedPage, setSelectedPage] = useState(1);
   // 가운데 버튼으로 좌측 목록을 최소 ↔ 최대로 바꾼다.
@@ -38,6 +34,11 @@ export function PdfMaterialTab({
   // 목록은 켜고 끈다. 좁혀서 번호만 남기는 중간 상태는 두지 않는다 —
   // 옆 미리보기가 필요할 땐 통째로 접는 편이 자리를 더 준다.
   const [listOpen, setListOpen] = useState(true);
+  const [zoom, setZoom] = useState<number>(MIN_ZOOM);
+  const zoomBy = useCallback(
+    (direction: ZoomDirection) => setZoom((z) => stepZoom(z, direction)),
+    [],
+  );
 
   // 페이지 수는 열어 본 문서가 정답이다. API의 pdfPageCount는 로딩 중 자리를 잡는 용도라,
   // 실제 파일과 어긋나 있으면 목록이 문서보다 길거나 짧아진다.
@@ -126,7 +127,7 @@ export function PdfMaterialTab({
           isLoading={isLoading}
           failed={failed}
           zoom={zoom}
-          onZoom={onZoom}
+          onZoom={zoomBy}
         />
       </div>
     </section>
