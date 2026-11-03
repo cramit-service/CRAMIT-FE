@@ -55,6 +55,11 @@ export function PdfPagePreview({
   const rootRef = useRef<HTMLDivElement>(null);
   const groupRef = useRef<HTMLDivElement>(null);
   const zoomed = zoom > MIN_ZOOM;
+  // 누르면 사라지거나 꺼질 버튼에 포커스가 있으면 잃는다. 미리 짝 버튼으로 옮긴다.
+  const focusButton = (label: string) =>
+    groupRef.current
+      ?.querySelector<HTMLElement>(`[aria-label="${label}"]`)
+      ?.focus();
 
   // Ctrl(⌘)+휠로 키우고 줄인다. React의 onWheel은 passive라 브라우저 확대를 막지 못한다.
   useEffect(() => {
@@ -83,7 +88,7 @@ export function PdfPagePreview({
     <div
       ref={rootRef}
       className={cn(
-        // relative 필수 — 배율 묶음이 absolute다 (CLAUDE.md 4-6).
+        // relative 필수 — 배율 묶음이 absolute다.
         'relative flex min-w-0 flex-1 items-center justify-center overflow-hidden rounded-md',
         // 흰 판 위의 흰 종이는 ΔE 0이라 경계가 없다. 종이가 놓이는 자리를 well로 파서
         // 종이를 드러낸다 — 여긴 hover가 없으니 well이 바닥 노릇을 해도 걸리는 게 없다.
@@ -93,7 +98,13 @@ export function PdfPagePreview({
     >
       {doc ? (
         <>
-          <PdfCanvas doc={doc} page={page} zoom={zoom} className="size-full" />
+          <PdfCanvas
+            doc={doc}
+            page={page}
+            zoom={zoom}
+            // 확대하면 배율 묶음만큼 더 내려 볼 자리를 둔다.
+            className={cn('size-full', zoomed && 'pb-14')}
+          />
           {/* 배율 묶음 (#120 프리뷰 B안): 오른쪽 아래에 떠 있다.
               맞춤일 땐 쪽번호를 덜 가리게 [+]만 두고, 키우면 [−]와 배율이 붙는다. */}
           <div
@@ -107,13 +118,7 @@ export function PdfPagePreview({
                 rank="plain"
                 aria-label="축소"
                 onClick={() => {
-                  // 맞춤으로 돌아가면 이 버튼이 사라져 포커스를 잃는다. 미리 [+]로 옮긴다.
-                  const plus = groupRef.current?.lastElementChild;
-                  if (
-                    stepZoom(zoom, -1) === MIN_ZOOM &&
-                    plus instanceof HTMLElement
-                  )
-                    plus.focus();
+                  if (stepZoom(zoom, -1) === MIN_ZOOM) focusButton('확대');
                   onZoom(-1);
                 }}
               />
@@ -134,7 +139,10 @@ export function PdfPagePreview({
               rank="plain"
               aria-label="확대"
               disabled={zoom >= MAX_ZOOM}
-              onClick={() => onZoom(1)}
+              onClick={() => {
+                if (stepZoom(zoom, 1) === MAX_ZOOM) focusButton('축소');
+                onZoom(1);
+              }}
             />
           </div>
         </>

@@ -275,8 +275,7 @@ export function StudyViewerScreen({
       />
 
       <div ref={areaRef} className="mt-2 flex min-h-0 flex-1 flex-col">
-        {/* 이분할을 켜고 꺼도 같은 탭은 같은 key로 남는다. 구조가 바뀌면 탭이 새로 붙어
-            보던 페이지·배율·펼친 목록을 잃는다.
+        {/* 이분할을 켜고 꺼도 같은 탭은 같은 key로 남겨 보던 페이지·배율·목록을 지킨다.
             핸들이 간격을 겸하므로 flex gap은 주지 않는다(주면 간격이 두 번 생긴다). */}
         <div className="flex h-full">
           {shownTabs.map((tab, i) => {
