@@ -13,3 +13,14 @@ export function toQuote(selected: string): string {
 export function withQuote(quote: string, question: string): string {
   return `> ${quote}\n\n${question}`;
 }
+
+// 저장된 질문을 다시 인용과 질문으로 나눈다. withQuote가 만든 모양만 알아본다.
+export function splitQuote(message: string): {
+  quote: string | null;
+  question: string;
+} {
+  const match = /^> (.+)\n\n([\s\S]+)$/.exec(message);
+  return match
+    ? { quote: match[1], question: match[2] }
+    : { quote: null, question: message };
+}

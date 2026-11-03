@@ -8,7 +8,7 @@ import {
 } from '@/features/chat/hooks/useChat';
 import { ChatBubble } from '@/features/chat/components/ChatBubble';
 import { useChatDock } from '@/features/chat/components/ChatDockProvider';
-import { withQuote } from '@/features/chat/lib/quote';
+import { splitQuote, withQuote } from '@/features/chat/lib/quote';
 import {
   CHAT_GREETING,
   QUOTE_QUESTIONS,
@@ -184,7 +184,7 @@ export function ChatPanel({
                   : '질문을 보내지 못했어요.'}
               </span>
               <span className="text-label block truncate text-gray-500">
-                {failed}
+                {splitQuote(failed).question}
               </span>
             </span>
             {!noContext && (
