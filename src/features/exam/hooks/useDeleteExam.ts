@@ -11,6 +11,8 @@ export function useDeleteExam() {
     mutationFn: (examId) => deleteExam(examId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exams'] });
+      queryClient.invalidateQueries({ queryKey: ['project-summaries'] });
+      queryClient.invalidateQueries({ queryKey: ['project-detail'] });
     },
   });
 }

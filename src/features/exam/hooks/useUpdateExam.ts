@@ -12,6 +12,8 @@ export function useUpdateExam() {
     mutationFn: (req) => updateExam(req),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exams'] });
+      queryClient.invalidateQueries({ queryKey: ['project-summaries'] });
+      queryClient.invalidateQueries({ queryKey: ['project-detail'] });
     },
   });
 }
