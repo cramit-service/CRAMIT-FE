@@ -19,9 +19,9 @@ const API_URL = `${BASE_URL}/api`;
 // 응답이 영영 오지 않으면 mutation이 settle되지 않아 FormModal의 busy 잠금이 풀리지 않는다.
 const TIMEOUT_MS = 15_000;
 
-// 요청 옵션 (fetch 옵션 그대로). 우리 옵션을 더할 땐 교차 타입으로 확장한다.
-// (빈 interface extends는 supertype과 같아 lint에 걸린다)
-type RequestOptions = RequestInit;
+// 요청 옵션 (fetch 옵션 + 우리 옵션). 빈 interface extends는 lint에 걸려 교차 타입으로 둔다.
+// timeoutMs는 서버가 외부 API를 오래 기다리는 요청(챗봇 답변)만 늘린다.
+type RequestOptions = RequestInit & { timeoutMs?: number };
 
 // 동시에 여러 요청이 401을 받아도 재발급은 한 번만 보낸다.
 let refreshing: Promise<string | null> | null = null;
@@ -78,6 +78,7 @@ async function request<T>(
   retried = false,
 ): Promise<T> {
   const token = getAccessToken();
+  const { timeoutMs = TIMEOUT_MS, ...init } = options ?? {};
 
   // 파일 업로드는 FormData로 보낸다. 이때 Content-Type을 우리가 지정하면
   // multipart 경계(boundary)가 빠져 서버가 본문을 파싱하지 못한다.
@@ -88,21 +89,21 @@ async function request<T>(
   const headers: HeadersInit = {
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...options?.headers,
+    ...init.headers,
   };
 
   // 호출처의 signal(쿼리 취소)을 덮어쓰지 않고 타임아웃과 함께 건다.
-  const timeout = AbortSignal.timeout(TIMEOUT_MS);
-  const signal = options?.signal ? anySignal(options.signal, timeout) : timeout;
+  const timeout = AbortSignal.timeout(timeoutMs);
+  const signal = init.signal ? anySignal(init.signal, timeout) : timeout;
 
   let res: Response;
   let text: string;
   try {
-    // options를 먼저 펼치고 method·headers·body를 뒤에 둔다.
-    // 반대로 두면 호출처가 options.headers를 넘겼을 때 위에서 합쳐둔 헤더
+    // 호출처 옵션(init)을 먼저 펼치고 method·headers·body를 뒤에 둔다.
+    // 반대로 두면 호출처가 headers를 넘겼을 때 위에서 합쳐둔 헤더
     // (Authorization·Content-Type)가 통째로 교체된다.
     res = await fetch(`${API_URL}${path}`, {
-      ...options,
+      ...init,
       method,
       headers,
       signal,
@@ -113,7 +114,7 @@ async function request<T>(
   } catch (error) {
     // 호출처가 취소한 것은 실패가 아니다. TanStack Query가 취소로 알아보도록 그대로 던진다.
     // 타임아웃보다 먼저 본다 — 둘이 함께 끊겨 있으면 호출처는 어차피 결과를 버린다.
-    if (options?.signal?.aborted) throw error;
+    if (init.signal?.aborted) throw error;
     if (timeout.aborted) {
       throw new ApiRequestError(
         'TIMEOUT',

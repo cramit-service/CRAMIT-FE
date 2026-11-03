@@ -38,6 +38,10 @@ const delay = (ms: number, signal?: AbortSignal) =>
 // 서버가 세션 제목을 1~255자로 받는다.
 const SESSION_TITLE_MAX = 255;
 
+// 서버가 Gemini를 20초씩 최대 3번 기다린다(약 60초). 먼저 끊으면 서버는 답을 저장했는데
+// 화면은 실패로 보여, 다시 보낼 때 질문이 중복된다.
+const ANSWER_TIMEOUT_MS = 70_000;
+
 // 주차 하나의 대화. 첫 질문 전에는 세션이 없다 — 질문을 보낼 때 만든다.
 export interface ChatThread {
   sessionId: number | null;
@@ -156,6 +160,7 @@ export async function sendChatMessage(
     await apiClient.post<ChatMessageResponse[]>(
       `/chat-bot-sessions/${sessionId}/messages`,
       { message: content },
+      { timeoutMs: ANSWER_TIMEOUT_MS },
     ),
   );
 }
