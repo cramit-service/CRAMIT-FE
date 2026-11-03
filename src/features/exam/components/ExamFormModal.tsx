@@ -25,6 +25,8 @@ interface ExamFormModalProps {
 // 제목 최대 길이. 시안(수정 모달 1:1375)의 안내 문구 기준.
 // maxLength로 잘라내지 않는 이유: 잘리면 왜 안 써지는지 알 수 없다. 넘치면 이유를 보여준다.
 const TITLE_MAX = 10;
+// 서버 제한(@Size(max = 255))과 맞춘다.
+const MEMO_MAX = 255;
 
 // 시험 일정 추가·수정 모달. 폼(제목·강의·시험 날짜·메모)은 두 모드가 완전히 같고,
 // 초기값·버튼 줄·제출 대상 세 곳만 갈린다. 그래서 컴포넌트를 나누지 않았다.
@@ -59,10 +61,13 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
   // 앞뒤 공백은 어차피 제출할 때 잘라내므로 길이도 자른 뒤로 센다.
   const trimmedTitle = title.trim();
   const isTitleTooLong = trimmedTitle.length > TITLE_MAX;
+  const trimmedMemo = memo.trim();
+  const isMemoTooLong = trimmedMemo.length > MEMO_MAX;
 
   const filled =
     trimmedTitle !== '' &&
     !isTitleTooLong &&
+    !isMemoTooLong &&
     projectId !== '' &&
     examDate !== '';
   // 수정 모드에서는 바꾼 게 있어야 저장을 연다. 바꾼 것 없이 누르면 같은 값을 그대로
@@ -73,7 +78,7 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
     trimmedTitle !== exam.title ||
     Number(projectId) !== exam.projectId ||
     examDate !== exam.examDate ||
-    (memo.trim() || null) !== exam.memo;
+    (trimmedMemo || null) !== exam.memo;
   const canSubmit = filled && changed && !isPending;
 
   // 지난 날짜로 만들면 "다가오는 시험" 목록에서 곧바로 사라져 실패한 것처럼 보인다.
@@ -90,7 +95,7 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
       projectId: Number(projectId),
       title: trimmedTitle,
       examDate,
-      memo: memo.trim() || null,
+      memo: trimmedMemo || null,
     };
     const handlers = {
       onSuccess: () => onClose(),
@@ -184,6 +189,11 @@ export function ExamFormModal({ exam, onClose }: ExamFormModalProps) {
         onChange={(e) => setMemo(e.target.value)}
         placeholder="메모를 입력해 주세요."
         disabled={isPending}
+        error={
+          isMemoTooLong
+            ? `${MEMO_MAX}자 이내의 메모를 입력해 주세요.`
+            : undefined
+        }
       />
 
       {/* 제출·삭제 실패는 사용자가 방금 누른 결과라 보조기기가 바로 읽어야 한다. */}

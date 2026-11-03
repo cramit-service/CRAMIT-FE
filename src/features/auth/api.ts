@@ -19,23 +19,13 @@ const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 // 소셜 로그인 제공자. User.provider에서 이메일을 뺀 값과 항상 일치시킨다.
 export type SocialProvider = Exclude<User['provider'], 'EMAIL'>;
 
-// 인가는 백엔드가 처리하고 /oauth/callback?accessToken=… 으로 돌려보낸다.
-const oauthAuthorizeUrl = (provider: SocialProvider) =>
-  `${BASE_URL}/oauth2/authorization/${provider.toLowerCase()}`;
-
-// 브라우저를 백엔드 인가 주소로 넘긴다. mock은 백엔드 대신 콜백으로 바로 돌아온다.
-export async function startSocialLogin(
-  provider: SocialProvider,
-): Promise<void> {
+// 소셜 로그인 시작 주소. 인가는 백엔드가 처리하고 /oauth/callback?accessToken=… 으로 돌려보낸다.
+// mock은 백엔드 대신 콜백으로 바로 돌아온다.
+export function socialLoginHref(provider: SocialProvider): string {
   if (USE_MOCK_LOGIN) {
-    await delay(300); // 로딩 상태 확인용
-    window.location.assign(
-      `/oauth/callback?accessToken=${mockLoginResponse.accessToken}&isNewUser=true`,
-    );
-    return;
+    return `/oauth/callback?accessToken=${mockLoginResponse.accessToken}&isNewUser=true`;
   }
-
-  window.location.assign(oauthAuthorizeUrl(provider));
+  return `${BASE_URL}/oauth2/authorization/${provider.toLowerCase()}`;
 }
 
 // 콜백 쿼리의 토큰을 저장하고 다음 경로를 돌려준다. 토큰이 없으면 실패로 보고 null.
