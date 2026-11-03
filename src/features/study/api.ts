@@ -1,6 +1,5 @@
 // src/features/study/api.ts
 import type {
-  AsyncJobStatus,
   Chapter,
   ChapterStatus,
   Exam,
@@ -257,7 +256,8 @@ const invalidSummary = () =>
   new ApiRequestError('INVALID_RESPONSE', '요약을 해석할 수 없어요.', 0);
 
 // 서버는 대기(PENDING)와 생성 중을 나누지만 화면에는 둘 다 "만드는 중"이다.
-const JOB_STATUS: Record<AsyncJobStatus, ProcessStatus> = {
+const JOB_STATUS: Record<SummaryStatusResponse['status'], ProcessStatus> = {
+  NOT_STARTED: 'NOT_STARTED',
   PENDING: 'PROCESSING',
   PROCESSING: 'PROCESSING',
   COMPLETED: 'READY',
@@ -331,20 +331,12 @@ export async function getLectureSummaryStatus(
     // 다른 상태 화면을 보려면 mockSummaryResponse.status를 바꾼다.
     return toProcessStatus(mockSummaryResponse);
   }
-  try {
-    return toProcessStatus(
-      await apiClient.get<SummaryStatusResponse>(
-        `/weeks/${chapterId}/summary/status`,
-        { signal },
-      ),
-    );
-  } catch (error) {
-    // 요약을 요청한 적 없는 주차는 서버에 요약 행이 없어 404다.
-    if (error instanceof ApiRequestError && error.status === 404) {
-      return 'NOT_STARTED';
-    }
-    throw error;
-  }
+  return toProcessStatus(
+    await apiClient.get<SummaryStatusResponse>(
+      `/weeks/${chapterId}/summary/status`,
+      { signal },
+    ),
+  );
 }
 
 // 요약 Markdown 수정 저장

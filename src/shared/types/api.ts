@@ -213,16 +213,20 @@ export interface LectureSummary {
   updatedAt: string; // ISO 날짜 문자열
 }
 
-// 서버 응답. 요약을 요청한 적 없는 주차는 404다.
+// 서버 응답. 요약을 요청한 적 없는 주차는 NOT_STARTED에 id·시각이 null이다.
 export interface SummaryStatusResponse {
+  summaryId: number | null;
+  weekId: number;
+  status: AsyncJobStatus | 'NOT_STARTED';
+  updatedAt: string | null;
+}
+
+export interface SummaryResponse {
   summaryId: number;
   weekId: number;
   status: AsyncJobStatus;
-  updatedAt: string;
-}
-
-export interface SummaryResponse extends SummaryStatusResponse {
   content: string;
+  updatedAt: string;
 }
 
 /* ===== 원문 스크립트 / STT (이슈 D) ===== */
