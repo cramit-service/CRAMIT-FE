@@ -9,6 +9,7 @@ import {
   MAX_ZOOM,
   MIN_ZOOM,
   formatZoom,
+  stepZoom,
   type ZoomDirection,
 } from '@/features/study/lib/zoom';
 import { IconButton } from '@/shared/ui/IconButton';
@@ -52,6 +53,8 @@ export function PdfPagePreview({
   onZoom,
 }: PdfPagePreviewProps) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const groupRef = useRef<HTMLDivElement>(null);
+  const zoomed = zoom > MIN_ZOOM;
 
   // Ctrl(⌘)+휠로 키우고 줄인다. React의 onWheel은 passive라 브라우저 확대를 막지 못한다.
   useEffect(() => {
@@ -91,19 +94,37 @@ export function PdfPagePreview({
       {doc ? (
         <>
           <PdfCanvas doc={doc} page={page} zoom={zoom} className="size-full" />
-          {/* 배율 묶음 (#120 프리뷰 B안): 보는 대상 바로 위, 오른쪽 아래에 떠 있다. */}
-          <div className="bg-surface shadow-near absolute right-4 bottom-4 z-10 flex items-center gap-0.5 rounded-md border border-gray-100 p-1">
-            <IconButton
-              name="minus"
-              glyph={16}
-              rank="plain"
-              aria-label="축소"
-              disabled={zoom <= MIN_ZOOM}
-              onClick={() => onZoom(-1)}
-            />
+          {/* 배율 묶음 (#120 프리뷰 B안): 오른쪽 아래에 떠 있다.
+              맞춤일 땐 쪽번호를 덜 가리게 [+]만 두고, 키우면 [−]와 배율이 붙는다. */}
+          <div
+            ref={groupRef}
+            className="bg-surface shadow-near absolute right-4 bottom-4 z-10 flex items-center gap-0.5 rounded-md border border-gray-100 p-1"
+          >
+            {zoomed && (
+              <IconButton
+                name="minus"
+                glyph={16}
+                rank="plain"
+                aria-label="축소"
+                onClick={() => {
+                  // 맞춤으로 돌아가면 이 버튼이 사라져 포커스를 잃는다. 미리 [+]로 옮긴다.
+                  const plus = groupRef.current?.lastElementChild;
+                  if (
+                    stepZoom(zoom, -1) === MIN_ZOOM &&
+                    plus instanceof HTMLElement
+                  )
+                    plus.focus();
+                  onZoom(-1);
+                }}
+              />
+            )}
+            {/* 알림 영역은 늘 붙어 있어야 바뀐 배율을 읽어 준다. 맞춤일 땐 눈에서만 숨긴다. */}
             <span
               aria-live="polite"
-              className="text-label w-14 text-center font-medium text-gray-700 tabular-nums"
+              className={cn(
+                'text-label font-medium text-gray-700 tabular-nums',
+                zoomed ? 'w-14 text-center' : 'sr-only',
+              )}
             >
               {formatZoom(zoom)}
             </span>
