@@ -1,12 +1,14 @@
-// src/features/chat/lib/quote.ts
+// src/shared/lib/quote.ts
 
 // 인용은 질문의 맥락이지 본문이 아니다. 길게 고르면 앞부분만 싣는다.
 const QUOTE_MAX = 500;
 
-// 고른 글을 한 줄로 펴고 길이를 자른다.
+// 고른 글을 한 줄로 펴고 길이를 자른다. 글자(코드 포인트) 단위로 잘라 이모지가 반쪽 나지 않게 한다.
 export function toQuote(selected: string): string {
-  const flat = selected.replace(/\s+/g, ' ').trim();
-  return flat.length > QUOTE_MAX ? `${flat.slice(0, QUOTE_MAX)}…` : flat;
+  const chars = Array.from(selected.replace(/\s+/g, ' ').trim());
+  return chars.length > QUOTE_MAX
+    ? `${chars.slice(0, QUOTE_MAX).join('')}…`
+    : chars.join('');
 }
 
 // 서버는 글(message) 하나만 받는다. 인용을 질문 앞에 붙여 함께 보낸다.

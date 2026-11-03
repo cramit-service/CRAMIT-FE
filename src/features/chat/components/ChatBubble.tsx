@@ -1,7 +1,7 @@
 'use client';
 // src/features/chat/components/ChatBubble.tsx
 import { useCallback, useState } from 'react';
-import { splitQuote } from '@/features/chat/lib/quote';
+import { splitQuote } from '@/shared/lib/quote';
 import { cn } from '@/shared/lib/cn';
 import type { ChatMessage } from '@/shared/types/api';
 import { Button } from '@/shared/ui/Button';
@@ -104,8 +104,14 @@ export function ChatBubble({
             )}
           >
             {quote && (
-              // 요약 탭의 Markdown 인용과 같은 모양(왼쪽 선 + 본문 글자)
-              <span className="mb-2 block border-l-4 border-gray-300 pl-3 whitespace-normal text-gray-700">
+              // 요약 탭의 Markdown 인용과 같은 모양(왼쪽 선 + 본문 글자).
+              // 접힌 동안 두 줄로 줄인다 — 길게 두면 정작 질문이 접힌 영역 밖으로 밀린다.
+              <span
+                className={cn(
+                  'mb-2 border-l-4 border-gray-300 pl-3 whitespace-normal text-gray-700',
+                  expanded ? 'block' : 'line-clamp-2',
+                )}
+              >
                 {quote}
               </span>
             )}

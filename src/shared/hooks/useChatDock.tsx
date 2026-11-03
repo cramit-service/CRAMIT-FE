@@ -1,9 +1,9 @@
 'use client';
-// src/features/chat/components/ChatDockProvider.tsx
+// src/shared/hooks/useChatDock.tsx
 import { createContext, useContext, useState } from 'react';
-import { toQuote } from '@/features/chat/lib/quote';
+import { toQuote } from '@/shared/lib/quote';
 
-// 학습 뷰어(드래그한 글)와 챗독이 함께 쓰는 상태. 둘은 레이아웃의 형제라 위에서 묶는다.
+// 학습 뷰어(드래그한 글)와 챗독이 함께 쓰는 상태. 두 기능이 같이 써서 shared에 둔다.
 interface ChatDockState {
   open: boolean;
   setOpen: (open: boolean) => void;

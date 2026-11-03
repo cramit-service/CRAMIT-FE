@@ -1,6 +1,6 @@
 // src/app/(main)/projects/[projectId]/chapters/[chapterId]/layout.tsx
 import { ChatDock } from '@/features/chat/components/ChatDock';
-import { ChatDockProvider } from '@/features/chat/components/ChatDockProvider';
+import { ChatDockProvider } from '@/shared/hooks/useChatDock';
 import { toRouteId } from '@/shared/lib/routeId';
 
 // 챗봇 도크는 학습 뷰어에만 뜬다. 대화가 주차에 묶여 있어 주차가 정해진 라우트여야 한다.

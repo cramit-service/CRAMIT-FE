@@ -1,7 +1,7 @@
 'use client';
 // src/features/chat/components/ChatDock.tsx
 import { ChatPanel } from '@/features/chat/components/ChatPanel';
-import { useChatDock } from '@/features/chat/components/ChatDockProvider';
+import { useChatDock } from '@/shared/hooks/useChatDock';
 import { cn } from '@/shared/lib/cn';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
 import { Icon } from '@/shared/ui/Icon';

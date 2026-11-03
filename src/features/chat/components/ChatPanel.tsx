@@ -7,8 +7,8 @@ import {
   useSendChatMessage,
 } from '@/features/chat/hooks/useChat';
 import { ChatBubble } from '@/features/chat/components/ChatBubble';
-import { useChatDock } from '@/features/chat/components/ChatDockProvider';
-import { splitQuote, withQuote } from '@/features/chat/lib/quote';
+import { useChatDock } from '@/shared/hooks/useChatDock';
+import { splitQuote, withQuote } from '@/shared/lib/quote';
 import {
   CHAT_GREETING,
   QUOTE_QUESTIONS,
@@ -68,12 +68,14 @@ export function ChatPanel({
     const el = listRef.current;
     if (!el) return;
     el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-  }, [messages.length, sending]);
+    // 인용이 붙으면 인용용 추천 질문이 대화 맨 아래에 생긴다. 그것도 보이게 내린다.
+  }, [messages.length, sending, quote]);
 
-  const send = (content: string) => {
+  // 추천 질문을 눌러 보낼 때는 쓰던 질문(draft)을 지우지 않는다.
+  const send = (content: string, fromDraft = true) => {
     const text = content.trim();
     if (!text || sending || !ready) return;
-    setDraft('');
+    if (fromDraft) setDraft('');
     setQuote(null);
     sendMutation.mutate(quote ? withQuote(quote, text) : text);
   };
@@ -148,7 +150,7 @@ export function ChatPanel({
                   key={question}
                   rank="secondary"
                   size="sm"
-                  onClick={() => send(question)}
+                  onClick={() => send(question, false)}
                   disabled={sending}
                 >
                   {question}

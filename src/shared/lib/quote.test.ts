@@ -1,4 +1,4 @@
-// src/features/chat/lib/quote.test.ts — npm test
+// src/shared/lib/quote.test.ts — npm test
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { splitQuote, toQuote, withQuote } from './quote.ts';
@@ -8,6 +8,10 @@ test('고른 글은 한 줄로 펴고 500자에서 자른다', () => {
   const long = toQuote('가'.repeat(600));
   assert.equal(long.length, 501);
   assert.ok(long.endsWith('…'));
+  // 이모지가 경계에 걸려도 반쪽(외톨이 서로게이트)이 남지 않는다
+  const emoji = toQuote(`${'가'.repeat(499)}😀😀`);
+  assert.equal(Array.from(emoji).at(-2), '😀');
+  assert.ok(!/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/.test(emoji));
 });
 
 test('인용 붙은 질문은 다시 인용과 질문으로 나뉜다', () => {
