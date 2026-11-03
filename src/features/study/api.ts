@@ -66,7 +66,8 @@ function toProjectSummary(r: MyLectureResponse, exams: Exam[]): ProjectSummary {
   return {
     projectId: r.lectureId,
     title: r.title,
-    professor: r.professorName,
+    // 교수명을 비우고 수정하면 서버에 빈 문자열로 남는다. 화면은 '없음'을 null로 다룬다.
+    professor: r.professorName || null,
     chapterCount: r.weekCount,
     examName: exam?.title ?? null,
     examDate: exam?.examDate ?? null,
@@ -99,7 +100,10 @@ export async function getProjectSummaries(
     getExamsOrEmpty(signal),
   ]);
   if (!Array.isArray(lectures)) throw invalidLecture();
-  return lectures.map((l) => toProjectSummary(l, exams));
+  // 서버 목록에 정렬이 없어 강의를 수정하면 순서가 바뀔 수 있다.
+  return lectures
+    .map((l) => toProjectSummary(l, exams))
+    .sort((a, b) => a.projectId - b.projectId);
 }
 
 export async function getProjectDetail(
