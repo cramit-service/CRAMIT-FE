@@ -18,8 +18,10 @@ export function PdfCanvas({ doc, page, className, zoom = 1 }: PdfCanvasProps) {
   const boxRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [box, setBox] = useState({ width: 0, height: 0 });
-  // 직전에 그린 배율·페이지. 배율이 바뀌면 보던 가운데를 지키고, 페이지가 바뀌면 맨 위로 간다.
-  const drawn = useRef({ zoom, page });
+  // 직전에 그린 페이지. 같은 페이지면 보던 가운데를 지키고, 새 페이지면 맨 위로 간다.
+  const drawnPage = useRef<number | null>(null);
+  // 그때 보이던 폭·높이. 상자가 줄어도 왼쪽 위는 그대로라, 가운데는 이 크기로 잰다.
+  const drawnView = useRef({ width: 0, height: 0 });
   // 실패를 페이지 번호로 들고 있으면 다른 페이지로 넘어갈 때 저절로 풀린다 —
   // 이펙트 첫머리에서 상태를 되돌리지 않아도 된다.
   const [failedPage, setFailedPage] = useState<number | null>(null);
@@ -29,11 +31,15 @@ export function PdfCanvas({ doc, page, className, zoom = 1 }: PdfCanvasProps) {
   useEffect(() => {
     const el = boxRef.current;
     if (!el) return;
+    // 테두리 상자로 잰다. 확대해서 스크롤바가 생겨도 크기가 그대로여야 맞춤 배율이 안 흔들린다.
     const observer = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
-      setBox({ width: Math.round(width), height: Math.round(height) });
+      const [size] = entry.borderBoxSize;
+      setBox({
+        width: Math.round(size.inlineSize),
+        height: Math.round(size.blockSize),
+      });
     });
-    observer.observe(el);
+    observer.observe(el, { box: 'border-box' });
     return () => observer.disconnect();
   }, []);
 
@@ -55,40 +61,47 @@ export function PdfCanvas({ doc, page, className, zoom = 1 }: PdfCanvasProps) {
         const ratio = window.devicePixelRatio || 1;
         const viewport = pdfPage.getViewport({ scale: scale * ratio });
 
-        // 캔버스 픽셀 수는 정수여야 하지만 CSS 크기는 소수점을 살린다.
-        // 여기서 반올림하면 상자와 페이지의 비가 미세하게 어긋나 가장자리에 배경이 1px 샌다.
         // 크기를 바꾸기 전에, 상자 가운데가 종이의 어디(비율)였는지 잰다.
         const el = boxRef.current;
-        const center = el && {
-          x:
-            (el.scrollLeft + el.clientWidth / 2 - canvas.offsetLeft) /
-            (canvas.offsetWidth || 1),
-          y:
-            (el.scrollTop + el.clientHeight / 2 - canvas.offsetTop) /
-            (canvas.offsetHeight || 1),
-        };
+        const view = drawnView.current;
+        const center =
+          el && drawnPage.current === page
+            ? {
+                x:
+                  (el.scrollLeft + view.width / 2 - canvas.offsetLeft) /
+                  (canvas.offsetWidth || 1),
+                y:
+                  (el.scrollTop + view.height / 2 - canvas.offsetTop) /
+                  (canvas.offsetHeight || 1),
+              }
+            : null;
 
+        // 캔버스 픽셀 수는 정수여야 하지만 CSS 크기는 소수점을 살린다.
+        // 여기서 반올림하면 상자와 페이지의 비가 미세하게 어긋나 가장자리에 배경이 1px 샌다.
         canvas.width = Math.max(1, Math.round(viewport.width));
         canvas.height = Math.max(1, Math.round(viewport.height));
         canvas.style.width = `${base.width * scale}px`;
         canvas.style.height = `${base.height * scale}px`;
 
         if (el && center) {
-          if (drawn.current.page !== page) {
-            el.scrollTop = 0;
-            el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
-          } else if (drawn.current.zoom !== zoom) {
-            el.scrollLeft =
-              canvas.offsetLeft +
-              center.x * canvas.offsetWidth -
-              el.clientWidth / 2;
-            el.scrollTop =
-              canvas.offsetTop +
-              center.y * canvas.offsetHeight -
-              el.clientHeight / 2;
-          }
+          el.scrollLeft =
+            canvas.offsetLeft +
+            center.x * canvas.offsetWidth -
+            el.clientWidth / 2;
+          el.scrollTop =
+            canvas.offsetTop +
+            center.y * canvas.offsetHeight -
+            el.clientHeight / 2;
+        } else if (el) {
+          el.scrollTop = 0;
+          el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
         }
-        drawn.current = { zoom, page };
+        drawnPage.current = page;
+        if (el)
+          drawnView.current = {
+            width: el.clientWidth,
+            height: el.clientHeight,
+          };
 
         task = pdfPage.render({ canvas, viewport });
         task.promise.catch((error: { name?: string }) => {
@@ -109,16 +122,24 @@ export function PdfCanvas({ doc, page, className, zoom = 1 }: PdfCanvasProps) {
     };
   }, [doc, page, box.width, box.height, zoom]);
 
-  const zoomed = zoom > 1;
+  // 못 그린 페이지는 키울 게 없다. 맞춤 상태로 두어 안내 문구가 가운데 선다.
+  const zoomed = zoom > 1 && !failed;
 
   return (
     <div
       ref={boxRef}
+      // 확대하면 키보드로도 스크롤할 수 있어야 한다.
+      tabIndex={zoomed ? 0 : undefined}
+      role={zoomed ? 'region' : undefined}
+      aria-label={zoomed ? '확대한 페이지' : undefined}
       className={cn(
         'relative flex min-h-0 min-w-0',
         // 확대하면 넘치는 쪽으로만 스크롤한다. 가운데 정렬은 m-auto가 맡는다 —
         // items-center로 두면 넘친 위·왼쪽이 스크롤로도 닿지 않는 곳에 잘린다.
-        zoomed ? 'overflow-auto' : 'items-center justify-center',
+        // pb-14는 오른쪽 아래 배율 묶음만큼 더 내려 볼 자리다.
+        zoomed
+          ? 'focus-visible:ring-sky-ink overflow-auto pb-14 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset'
+          : 'items-center justify-center',
         className,
       )}
     >

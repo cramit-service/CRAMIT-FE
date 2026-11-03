@@ -19,7 +19,7 @@ interface PdfMaterialTabProps {
   // 재생 상태는 화면(StudyViewerScreen)이 쥐고 있다. 탭을 옮겨도 위치가 유지되고
   // 원문 스크립트 탭이 같은 값을 읽어 표시할 수 있다.
   audio: MockAudio;
-  // 배율도 같은 이유로 화면이 쥔다. 이분할·집중 모드를 바꾸면 이 탭이 새로 붙는다.
+  // 배율도 같은 이유로 화면이 쥔다. 이분할을 켜고 끄면 이 탭이 새로 붙는다.
   zoom: number;
   onZoom: (direction: ZoomDirection) => void;
 }

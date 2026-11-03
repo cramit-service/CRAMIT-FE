@@ -140,7 +140,7 @@ export function StudyViewerScreen({
   // 재생 위치가 초기화되고, 원문 스크립트 탭이 그 값을 읽을 방법도 없다.
   // 조회 전에는 duration이 0이지만 훅이 읽는 시점에만 잘라내므로 도착하면 복원된다.
   const audio = useMockAudio(toPlayDuration(materialQuery.data?.audioDuration));
-  // PDF 배율도 화면이 쥔다. 이분할·집중 모드를 바꾸면 PDF 탭이 새로 붙어 탭 안 상태는 사라진다.
+  // PDF 배율도 화면이 쥔다. 이분할을 켜고 끄면 PDF 탭이 새로 붙어 탭 안 상태는 사라진다.
   const [pdfZoom, setPdfZoom] = useState<number>(MIN_ZOOM);
   const zoomPdf = useCallback(
     (direction: ZoomDirection) => setPdfZoom((z) => stepZoom(z, direction)),

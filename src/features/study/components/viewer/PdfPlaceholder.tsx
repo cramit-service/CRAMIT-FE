@@ -13,8 +13,10 @@ import {
 } from '@/features/study/lib/zoom';
 import { IconButton } from '@/shared/ui/IconButton';
 
-// 트랙패드 핀치는 휠 이벤트를 잘게 쏟는다. 한 번 움직인 뒤 이만큼은 다음 단계를 받지 않는다.
-const WHEEL_STEP_MS = 150;
+// 휠 한 칸(약 100)에 한 단계. 트랙패드 핀치는 잘게 쏟으므로 이만큼 모였을 때만 넘긴다.
+const WHEEL_STEP = 50;
+// Firefox 마우스 휠은 줄 단위(3)로 온다. 픽셀로 옮기는 대략의 값.
+const LINE_HEIGHT_PX = 40;
 
 // 색은 @theme 토큰 변수를 그대로 참조한다 (하드코딩 금지 규칙 준수).
 // 체크무늬는 Tailwind 유틸로 표현할 수 없어 background-image로만 처리한다.
@@ -55,14 +57,20 @@ export function PdfPagePreview({
   useEffect(() => {
     const el = rootRef.current;
     if (!el || !doc) return;
-    let last = 0;
+    let sum = 0;
     const onWheel = (e: WheelEvent) => {
       if (!e.ctrlKey && !e.metaKey) return;
       e.preventDefault();
-      const now = performance.now();
-      if (now - last < WHEEL_STEP_MS) return;
-      last = now;
-      onZoom(e.deltaY < 0 ? 1 : -1);
+      const dy =
+        e.deltaMode === WheelEvent.DOM_DELTA_LINE
+          ? e.deltaY * LINE_HEIGHT_PX
+          : e.deltaY;
+      if (dy === 0) return;
+      // 방향이 바뀌면 처음부터 모은다.
+      sum = Math.sign(sum) === Math.sign(dy) ? sum + dy : dy;
+      if (Math.abs(sum) < WHEEL_STEP) return;
+      sum = 0;
+      onZoom(dy < 0 ? 1 : -1);
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
