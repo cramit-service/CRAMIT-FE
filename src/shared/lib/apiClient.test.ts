@@ -93,7 +93,11 @@ test('timeoutMs를 주면 그 시간으로, 안 주면 기본 15초로 끊는다
     asked.push(ms);
     return new AbortController().signal;
   });
-  respond(JSON.stringify({ data: [] }), 200);
+  const inits: RequestInit[] = [];
+  globalThis.fetch = (async (_: string, init: RequestInit) => {
+    inits.push(init);
+    return new Response(JSON.stringify({ data: [] }), { status: 200 });
+  }) as typeof fetch;
   await apiClient.post(
     '/chat-bot-sessions/1/messages',
     {},
@@ -101,6 +105,8 @@ test('timeoutMs를 주면 그 시간으로, 안 주면 기본 15초로 끊는다
   );
   await apiClient.get('/todos');
   assert.deepEqual(asked, [70_000, 15_000]);
+  // 우리 옵션이 fetch로 새지 않는다
+  assert.ok(inits.every((init) => !('timeoutMs' in init)));
 });
 
 test('AbortSignal.any가 없는 브라우저에서도 호출처 signal과 타임아웃을 함께 건다', async (t) => {

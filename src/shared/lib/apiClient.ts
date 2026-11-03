@@ -19,7 +19,7 @@ const API_URL = `${BASE_URL}/api`;
 // 응답이 영영 오지 않으면 mutation이 settle되지 않아 FormModal의 busy 잠금이 풀리지 않는다.
 const TIMEOUT_MS = 15_000;
 
-// 요청 옵션 (fetch 옵션 + 우리 옵션). 빈 interface extends는 lint에 걸려 교차 타입으로 둔다.
+// 요청 옵션 (fetch 옵션 + 요청별 타임아웃). fetch에는 넘기지 않는다.
 // timeoutMs는 서버가 외부 API를 오래 기다리는 요청(챗봇 답변)만 늘린다.
 type RequestOptions = RequestInit & { timeoutMs?: number };
 

@@ -19,6 +19,9 @@ export function useChatThread(chapterId: number, enabled: boolean) {
     // TanStack Query가 주는 signal을 fetcher까지 전달해 취소된 요청을 끊는다.
     queryFn: ({ signal }) => getChatThread(chapterId, signal),
     enabled,
+    // 대화는 전송 훅이 캐시를 직접 고친다. 답을 기다리는 사이(최대 70초) 낡았다고 다시 불러오면
+    // 방금 넣은 내 말풍선이 덮여 사라진다.
+    staleTime: Infinity,
   });
 }
 
@@ -77,6 +80,8 @@ export function useSendChatMessage(chapterId: number) {
     },
     onError: (_error, _content, pending) => {
       if (pending) dropPending(pending.pendingId);
+      // 화면이 먼저 포기해도 서버는 질문·답을 저장했을 수 있다. 서버가 가진 대로 다시 그린다.
+      queryClient.invalidateQueries({ queryKey: key });
     },
     onSuccess: (saved, _content, pending) => {
       dropPending(pending.pendingId, saved);
