@@ -192,16 +192,31 @@ export interface LectureDetailResponse {
 export type ViewerTab = 'PDF' | 'SUMMARY' | 'SCRIPT' | 'TODO';
 
 // 챕터 하나에 딸린 강의자료(PDF + 녹음) 메타.
-// TODO: 백엔드 스펙 확정 후 필드명/타입 재확인 필요.
 export interface LectureMaterial {
   chapterId: number;
   // 렌더할 PDF 위치. 아직 없는 자료(업로드 전)면 null.
   // 페이지 수는 문서를 열면 알 수 있으므로 pdfPageCount는 로딩 중 자리를 잡는 데만 쓴다.
   pdfUrl: string | null;
-  pdfPageCount: number; // PDF 총 페이지 수
+  pdfPageCount: number | null; // 서버가 아직 세지 않아 대개 null이다
   audioDuration: number; // 녹음 길이(초). 예: 3662 = 61:02
   // TODO: audioUrl(실제 재생용)과 페이지↔오디오 구간 매핑은
   //       백엔드에서 내려주는 형태가 확정되면 여기에 추가한다.
+}
+
+// 서버 응답 (GET /weeks/{weekId}/ppt). PDF가 없는 주차는 404다.
+export interface WeekPptResponse {
+  lecturePptId: number;
+  weekId: number;
+  fileName: string;
+  fileUrl: string;
+  fileSize: number | null;
+  pageCount: number | null;
+}
+
+// 서버 응답 (PATCH /weeks/{weekId}/review-count).
+export interface WeekReviewCountResponse {
+  weekId: number;
+  reviewCount: number;
 }
 
 /* ===== AI 강의 요약 (이슈 C) ===== */

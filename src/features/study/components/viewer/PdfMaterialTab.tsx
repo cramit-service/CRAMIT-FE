@@ -30,7 +30,9 @@ export function PdfMaterialTab({ material, audio, pdf }: PdfMaterialTabProps) {
 
   // 페이지 수는 열어 본 문서가 정답이다. API의 pdfPageCount는 로딩 중 자리를 잡는 용도라,
   // 실제 파일과 어긋나 있으면 목록이 문서보다 길거나 짧아진다.
-  const pageCount = doc?.numPages ?? material.pdfPageCount;
+  // 서버가 페이지 수를 모르면 문서가 열릴 때까지 한 장 자리만 잡는다.
+  const pageCount =
+    doc?.numPages ?? material.pdfPageCount ?? (material.pdfUrl ? 1 : 0);
 
   // 자료를 다시 조회해 페이지 수가 줄면 고른 페이지가 범위를 벗어나 "5/3"이 뜬다.
   // useEffect로 상태를 되돌리면 잘못된 값이 한 번 그려진 뒤에 고쳐진다.

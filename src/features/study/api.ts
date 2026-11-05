@@ -13,7 +13,9 @@ import type {
   ProjectSummary,
   SummaryResponse,
   SummaryStatusResponse,
+  WeekPptResponse,
   WeekResponse,
+  WeekReviewCountResponse,
 } from '@/shared/types/api';
 import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
 import { getExams } from '@/features/exam/api';
@@ -28,9 +30,9 @@ import { findMockLecture, mockLectures } from '@/mocks/project';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로) — project/api.ts와 동일 패턴
 const USE_MOCK = true;
-// 백엔드에 붙은 것부터 끈다. 위 스위치는 아직 mock인 나머지 함수들이 쓴다.
-const USE_MOCK_LECTURE = false;
-const USE_MOCK_SUMMARY = false;
+// 백엔드에 붙은 것부터 끈다. 위 스위치는 아직 API가 없는 함수들이 쓴다.
+const USE_MOCK_LECTURE = false; // 강의·주차
+const USE_MOCK_VIEWER = false; // 요약·강의자료·회독
 
 // 가짜 지연을 흉내내는 헬퍼 (실제 네트워크처럼 잠깐 기다림).
 // 쿼리가 취소되면 실제 fetch처럼 즉시 중단되도록 AbortSignal을 받는다.
@@ -222,13 +224,30 @@ export async function getChapter(
   return found;
 }
 
+const invalidMaterial = () =>
+  new ApiRequestError('INVALID_RESPONSE', '강의 자료를 해석할 수 없어요.', 0);
+
+// PDF 없이 만든 주차도 404라 "자료 없음"으로 받는다. 주차 자체가 없는 경우는 주차 조회가 잡는다.
+async function getWeekPpt(
+  chapterId: number,
+  signal?: AbortSignal,
+): Promise<WeekPptResponse | null> {
+  try {
+    return await apiClient.get<WeekPptResponse>(`/weeks/${chapterId}/ppt`, {
+      signal,
+    });
+  } catch (error) {
+    if (error instanceof ApiRequestError && error.status === 404) return null;
+    throw error;
+  }
+}
+
 // 챕터의 강의자료(PDF 위치·페이지 수·녹음 길이) 조회
-// TODO: audioUrl은 백엔드 확정 후 응답에 추가한다
 export async function getLectureMaterial(
   chapterId: number,
   signal?: AbortSignal,
 ): Promise<LectureMaterial> {
-  if (USE_MOCK) {
+  if (USE_MOCK_VIEWER) {
     await delay(300, signal);
     // 이 챕터에 직접 올린 파일이 있으면 그걸 그린다.
     const uploaded = await getMaterialFileUrl(chapterId);
@@ -247,9 +266,23 @@ export async function getLectureMaterial(
       pdfPageCount: pdfUrl ? mockLectureMaterial.pdfPageCount : 0,
     };
   }
-  return apiClient.get<LectureMaterial>(`/chapters/${chapterId}/material`, {
-    signal,
-  });
+
+  const ppt = await getWeekPpt(chapterId, signal);
+  if (
+    ppt &&
+    (typeof ppt.fileUrl !== 'string' ||
+      (ppt.pageCount != null && typeof ppt.pageCount !== 'number'))
+  ) {
+    throw invalidMaterial();
+  }
+  return {
+    chapterId,
+    pdfUrl: ppt?.fileUrl ?? null,
+    pdfPageCount: ppt?.pageCount ?? null,
+    // TODO(백엔드): 녹음 조회 API가 생기면 실제 길이로 바꾼다.
+    // 그때까지 재생·스크립트가 mock이라 길이도 mock에 맞춘다.
+    audioDuration: mockLectureMaterial.audioDuration,
+  };
 }
 
 const invalidSummary = () =>
@@ -275,7 +308,7 @@ export async function getLectureSummary(
   signal?: AbortSignal,
 ): Promise<LectureSummary> {
   let r: SummaryResponse;
-  if (USE_MOCK_SUMMARY) {
+  if (USE_MOCK_VIEWER) {
     await delay(300, signal);
     r = { ...mockSummaryResponse, weekId: chapterId };
   } else {
@@ -326,7 +359,7 @@ export async function getLectureSummaryStatus(
   chapterId: number,
   signal?: AbortSignal,
 ): Promise<ProcessStatus> {
-  if (USE_MOCK_SUMMARY) {
+  if (USE_MOCK_VIEWER) {
     await delay(300, signal);
     // 다른 상태 화면을 보려면 mockSummaryResponse.status를 바꾼다.
     return toProcessStatus(mockSummaryResponse);
@@ -361,14 +394,13 @@ export async function updateLectureSummary(
 
 // 회독 수를 세팅한다. 올리고 내리는 두 엔드포인트가 아니라 값을 하나 넣는 쪽이다 —
 // 증가 전용으로 두면 한 번 잘못 누른 것을 되돌릴 수 없고, DESIGN.md §4가 그걸
-// "기록이 아니라 오기"라고 부른다.
-// TODO(백엔드): 경로 확정 필요. PATCH /chapters/{id} 의 부분 수정으로 갈 수도 있다.
+// "기록이 아니라 오기"라고 부른다. 서버에 저장된 회독 수를 돌려준다.
 export async function setChapterReviewCount(
   chapterId: number,
   reviewCount: number,
   signal?: AbortSignal,
-): Promise<Chapter> {
-  if (USE_MOCK) {
+): Promise<number> {
+  if (USE_MOCK_VIEWER) {
     await delay(200, signal);
     const found = mockChapters.find((c) => c.chapterId === chapterId);
     if (!found) {
@@ -380,11 +412,13 @@ export async function setChapterReviewCount(
     }
     // 목에서도 실제로 값을 바꿔 둔다. 안 그러면 무효화 뒤 옛 값이 돌아와 화면이 튄다.
     found.reviewCount = reviewCount;
-    return { ...found };
+    return reviewCount;
   }
-  return apiClient.patch<Chapter>(
-    `/chapters/${chapterId}/review-count`,
+  const r = await apiClient.patch<WeekReviewCountResponse>(
+    `/weeks/${chapterId}/review-count`,
     { reviewCount },
     { signal },
   );
+  if (typeof r?.reviewCount !== 'number') throw invalidChapter();
+  return r.reviewCount;
 }
