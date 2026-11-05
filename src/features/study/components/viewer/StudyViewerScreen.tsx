@@ -10,7 +10,10 @@ import { useMockAudio } from '@/features/study/hooks/useMockAudio';
 import { usePdfView } from '@/features/study/hooks/usePdfView';
 import { toPlayDuration } from '@/features/study/lib/format';
 import { ViewerHeader } from '@/features/study/components/viewer/ViewerHeader';
-import { PdfMaterialTab } from '@/features/study/components/viewer/PdfMaterialTab';
+import {
+  PdfMaterialPending,
+  PdfMaterialTab,
+} from '@/features/study/components/viewer/PdfMaterialTab';
 import { SummaryTab } from '@/features/study/components/viewer/SummaryTab';
 import { ScriptTab } from '@/features/study/components/viewer/ScriptTab';
 import { TodoChecklist } from '@/features/todo/components/TodoChecklist';
@@ -192,10 +195,11 @@ export function StudyViewerScreen({
       return prev.length < 2 ? [...prev, tab] : [prev[1], tab];
     });
 
-  const queries = [projectQuery, chapterQuery, materialQuery];
+  // 강의자료는 PDF 탭만 기다린다. 여기 묶으면 PDF 조회 하나가 실패해도 요약까지 못 연다.
+  const queries = [projectQuery, chapterQuery];
 
   // 로딩 / 에러 / 빈 데이터를 구분한다.
-  // 셋을 뭉뚱그려 falsy로 판단하면 조회에 실패해도 "불러오는 중…"에서 멈춘다.
+  // 뭉뚱그려 falsy로 판단하면 조회에 실패해도 "불러오는 중…"에서 멈춘다.
   if (queries.some((q) => q.isPending)) {
     return <div className={`${PAGE_SHELL} text-gray-500`}>불러오는 중…</div>;
   }
@@ -218,10 +222,9 @@ export function StudyViewerScreen({
 
   const project = projectQuery.data;
   const chapter = chapterQuery.data;
-  const material = materialQuery.data;
 
   // 성공했는데 본문이 비어 있는 경우 (204 등)
-  if (!project || !chapter || !material) {
+  if (!project || !chapter) {
     return (
       <div className={`${PAGE_SHELL} text-gray-500`}>
         표시할 학습 자료가 없어요.
@@ -233,10 +236,27 @@ export function StudyViewerScreen({
   const renderTab = (tab: ViewerTab) => {
     switch (tab) {
       case 'PDF':
-        return <PdfMaterialTab material={material} audio={audio} pdf={pdf} />;
-      // 요약은 이 탭에서만 필요하니 화면 진입 시가 아니라 탭 안에서 따로 조회한다
+        return materialQuery.data ? (
+          <PdfMaterialTab
+            material={materialQuery.data}
+            audio={audio}
+            pdf={pdf}
+          />
+        ) : (
+          <PdfMaterialPending
+            isError={materialQuery.isError}
+            onRetry={() => materialQuery.refetch()}
+          />
+        );
+      // 요약은 이 탭에서만 필요하니 화면 진입 시가 아니라 탭 안에서 따로 조회한다.
+      // 서버가 요약 파일명을 주지 않아 시안 형식(강의명_주차 제목_요약.md)으로 만든다.
       case 'SUMMARY':
-        return <SummaryTab chapterId={chapterId} />;
+        return (
+          <SummaryTab
+            chapterId={chapterId}
+            fileName={`${project.title}_${chapter.title}_요약.md`}
+          />
+        );
       // 스크립트도 같은 이유로 탭 안에서 조회한다. 재생 위치는 읽기 전용으로 넘긴다
       case 'SCRIPT':
         return (
@@ -244,7 +264,7 @@ export function StudyViewerScreen({
             chapterId={chapterId}
             currentTime={audio.currentTime}
             // 재생 위치를 만든 값과 같은 방식으로 정규화한다(둘이 어긋나면 표기가 달라진다)
-            duration={toPlayDuration(material.audioDuration)}
+            duration={toPlayDuration(materialQuery.data?.audioDuration)}
           />
         );
       // TODO(백엔드): 지금은 내 할 일 전체가 뜬다. 조회에 강의·주차 필터가 생기면

@@ -54,7 +54,7 @@ export function ChapterCard({ chapter }: { chapter: Chapter }) {
         </span>
 
         {/* 버튼이 있던 자리에 한 마디. 처리 중·실패도 여기 서는데(§4) 지금은 못 만든다 —
-            ProcessStatus가 READY|PROCESSING뿐이고 그 값이 Chapter에 실려 오지 않는다. */}
+            처리 상태가 Chapter에 실려 오지 않는다. */}
         <span className="text-label shrink-0 font-medium text-gray-700">
           {reviewLabel(chapter.reviewCount)}
         </span>
