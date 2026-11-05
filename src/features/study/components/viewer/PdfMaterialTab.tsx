@@ -11,6 +11,7 @@ import { PdfThumbnail } from '@/features/study/components/viewer/PdfThumbnail';
 import { LIST_WIDTH, PageList } from '@/shared/ui/PageList';
 import { PdfPagePreview } from '@/features/study/components/viewer/PdfPlaceholder';
 import { cn } from '@/shared/lib/cn';
+import { Button } from '@/shared/ui/Button';
 import type { LectureMaterial } from '@/shared/types/api';
 
 interface PdfMaterialTabProps {
@@ -28,11 +29,10 @@ export function PdfMaterialTab({ material, audio, pdf }: PdfMaterialTabProps) {
     pdf;
   const { page: selectedPage, setPage: setSelectedPage } = pdf;
 
-  // 페이지 수는 열어 본 문서가 정답이다. API의 pdfPageCount는 로딩 중 자리를 잡는 용도라,
-  // 실제 파일과 어긋나 있으면 목록이 문서보다 길거나 짧아진다.
-  // 서버가 페이지 수를 모르면 문서가 열릴 때까지 한 장 자리만 잡는다.
+  // 페이지 수는 열어 본 문서가 정답이고 API 값은 로딩 중 자리만 잡는다.
+  // 서버가 아직 세지 않아(null) 모르면 문서가 열릴 때까지 한 장 자리를 둔다.
   const pageCount =
-    doc?.numPages ?? material.pdfPageCount ?? (material.pdfUrl ? 1 : 0);
+    doc?.numPages || material.pdfPageCount || (material.pdfUrl ? 1 : 0);
 
   // 자료를 다시 조회해 페이지 수가 줄면 고른 페이지가 범위를 벗어나 "5/3"이 뜬다.
   // useEffect로 상태를 되돌리면 잘못된 값이 한 번 그려진 뒤에 고쳐진다.
@@ -120,6 +120,37 @@ export function PdfMaterialTab({ material, audio, pdf }: PdfMaterialTabProps) {
           onZoom={zoomBy}
         />
       </div>
+    </section>
+  );
+}
+
+// 강의자료 조회 전·실패 시의 PDF 탭. 다른 탭은 이 조회를 기다리지 않는다.
+export function PdfMaterialPending({
+  isError,
+  onRetry,
+}: {
+  isError: boolean;
+  onRetry: () => void;
+}) {
+  return (
+    <section
+      className={cn(
+        VIEWER_PANEL,
+        'flex flex-col items-center justify-center gap-4',
+      )}
+    >
+      {isError ? (
+        <>
+          <p className="text-label text-gray-400">
+            강의 자료를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
+          </p>
+          <Button rank="secondary" onClick={onRetry}>
+            다시 시도
+          </Button>
+        </>
+      ) : (
+        <p className="text-label text-gray-500">강의 자료를 불러오는 중…</p>
+      )}
     </section>
   );
 }

@@ -98,7 +98,7 @@ export function SummaryTab({
         <p className="text-label text-gray-400">
           {summaryQuery.processStatus === 'FAILED'
             ? '요약을 만들지 못했어요.'
-            : '아직 요약이 없어요. 강의 분석이 끝나면 여기에 표시돼요.'}
+            : '아직 요약이 없어요. 강의 분석을 마치면 볼 수 있어요.'}
         </p>
       </section>
     );
@@ -113,20 +113,14 @@ export function SummaryTab({
     );
   }
 
-  if (summaryQuery.statusError || summaryQuery.isError || !summary) {
+  // 상태 재조회만 실패했으면 이미 받아 둔 요약은 그대로 보여 준다.
+  if (summaryQuery.isError || !summary) {
     return (
       <section className={cn(PANEL, 'items-center justify-center gap-4')}>
         <p className="text-label text-gray-400">
           요약을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
-        <Button
-          rank="secondary"
-          onClick={() =>
-            summaryQuery.statusError
-              ? summaryQuery.retryStatus()
-              : summaryQuery.refetch()
-          }
-        >
+        <Button rank="secondary" onClick={summaryQuery.retry}>
           다시 시도
         </Button>
       </section>

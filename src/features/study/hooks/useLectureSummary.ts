@@ -1,6 +1,6 @@
 'use client';
 // src/features/study/hooks/useLectureSummary.ts
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getLectureSummary,
@@ -38,16 +38,21 @@ export function useLectureSummary(chapterId: number) {
     enabled: status === 'READY',
   });
 
-  // PROCESSING -> READY로 바뀐 순간 본문을 새로 가져온다
+  // PROCESSING -> READY로 바뀐 순간에만 본문을 새로 가져온다. 상태 캐시는 마운트마다
+  // 비어서(gcTime 0) 그냥 READY를 잡으면 탭을 열 때마다 신선한 본문을 다시 받는다.
+  const prevStatus = useRef(status);
   useEffect(() => {
-    if (status === 'READY') {
+    if (prevStatus.current === 'PROCESSING' && status === 'READY') {
       queryClient.invalidateQueries({ queryKey: summaryKey(chapterId) });
     }
+    prevStatus.current = status;
   }, [status, chapterId, queryClient]);
 
-  // 상태 조회가 실패하면 본문 조회가 열리지 않는다. 다시 시도는 상태부터 묻는다.
-  const retryStatus = () =>
+  // 상태와 본문 중 어느 쪽이 실패했든 둘 다 다시 묻는다.
+  const retry = () => {
     queryClient.invalidateQueries({ queryKey: statusKey(chapterId) });
+    queryClient.invalidateQueries({ queryKey: summaryKey(chapterId) });
+  };
 
   // 쿼리 자체의 status와 헷갈리지 않게 처리 상태는 다른 이름으로 낸다.
   return {
@@ -55,13 +60,13 @@ export function useLectureSummary(chapterId: number) {
     isProcessing,
     processStatus: status,
     statusError,
-    retryStatus,
+    retry,
   };
 }
 
 // 요약 수정 저장 훅.
-// TODO(백엔드): 저장 API가 아직 없다. 지금은 응답을 쿼리 캐시에 덮어써서 화면에만 반영되고,
-//               새로고침하면 mock 원문으로 되돌아간다. 실제 API가 붙으면 invalidate로 바꾼다.
+// TODO(백엔드): 저장 API가 아직 없어 고친 내용은 캐시에만 남고, 새로고침하거나 캐시가
+//               낡으면(1분) 서버 원문으로 돌아간다. 실제 API가 붙으면 invalidate로 바꾼다.
 export function useUpdateLectureSummary(chapterId: number) {
   const queryClient = useQueryClient();
 

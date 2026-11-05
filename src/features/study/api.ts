@@ -227,7 +227,7 @@ export async function getChapter(
 const invalidMaterial = () =>
   new ApiRequestError('INVALID_RESPONSE', '강의 자료를 해석할 수 없어요.', 0);
 
-// PDF 없이 만든 주차도 404라 "자료 없음"으로 받는다. 주차 자체가 없는 경우는 주차 조회가 잡는다.
+// PDF 없이 만든 주차도 404(ENTITY_NOT_FOUND)라 "자료 없음"으로 받는다. 주차가 없는 경우는 주차 조회가 잡는다.
 async function getWeekPpt(
   chapterId: number,
   signal?: AbortSignal,
@@ -237,7 +237,13 @@ async function getWeekPpt(
       signal,
     });
   } catch (error) {
-    if (error instanceof ApiRequestError && error.status === 404) return null;
+    if (
+      error instanceof ApiRequestError &&
+      error.status === 404 &&
+      error.code === 'ENTITY_NOT_FOUND'
+    ) {
+      return null;
+    }
     throw error;
   }
 }
@@ -394,12 +400,12 @@ export async function updateLectureSummary(
 
 // 회독 수를 세팅한다. 올리고 내리는 두 엔드포인트가 아니라 값을 하나 넣는 쪽이다 —
 // 증가 전용으로 두면 한 번 잘못 누른 것을 되돌릴 수 없고, DESIGN.md §4가 그걸
-// "기록이 아니라 오기"라고 부른다. 서버에 저장된 회독 수를 돌려준다.
+// "기록이 아니라 오기"라고 부른다.
 export async function setChapterReviewCount(
   chapterId: number,
   reviewCount: number,
   signal?: AbortSignal,
-): Promise<number> {
+): Promise<void> {
   if (USE_MOCK_VIEWER) {
     await delay(200, signal);
     const found = mockChapters.find((c) => c.chapterId === chapterId);
@@ -412,13 +418,12 @@ export async function setChapterReviewCount(
     }
     // 목에서도 실제로 값을 바꿔 둔다. 안 그러면 무효화 뒤 옛 값이 돌아와 화면이 튄다.
     found.reviewCount = reviewCount;
-    return reviewCount;
+    return;
   }
-  const r = await apiClient.patch<WeekReviewCountResponse>(
+  // 화면은 낙관적으로 먼저 바꾸고 끝나면 목록을 다시 받으니 응답 본문은 쓰지 않는다.
+  await apiClient.patch<WeekReviewCountResponse>(
     `/weeks/${chapterId}/review-count`,
     { reviewCount },
     { signal },
   );
-  if (typeof r?.reviewCount !== 'number') throw invalidChapter();
-  return r.reviewCount;
 }

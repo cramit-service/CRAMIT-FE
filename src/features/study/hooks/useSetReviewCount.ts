@@ -12,7 +12,7 @@ export function useSetReviewCount(projectId: number, chapterId: number) {
   const queryClient = useQueryClient();
   const key = ['chapter', projectId, chapterId];
 
-  return useMutation<number, Error, number, { previous?: Chapter }>({
+  return useMutation<void, Error, number, { previous?: Chapter }>({
     mutationFn: (reviewCount) => setChapterReviewCount(chapterId, reviewCount),
     onMutate: async (reviewCount) => {
       // 진행 중인 조회가 끝나면서 낙관적 값을 덮어쓰지 않게 먼저 멈춘다.
