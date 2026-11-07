@@ -3,6 +3,7 @@ import type {
   LoginResponse,
   MyProfile,
   NotificationSettings,
+  Term,
   User,
 } from '@/shared/types/api';
 
@@ -10,6 +11,17 @@ import type {
 export const mockLoginResponse: LoginResponse = {
   accessToken: 'mock-access-token',
 };
+
+export const mockTerms: Term[] = [
+  { termId: 1, title: '서비스 이용약관', content: '', required: true },
+  {
+    termId: 2,
+    title: '개인정보 수집 및 이용 동의',
+    content: '',
+    required: true,
+  },
+  { termId: 3, title: '마케팅 정보 수신 동의', content: '', required: false },
+];
 
 export const mockUser: User = {
   userId: 1,
