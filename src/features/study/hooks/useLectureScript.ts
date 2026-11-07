@@ -7,6 +7,7 @@ import { useProcessStatus } from '@/shared/hooks/useProcessStatus';
 
 // 조회 키를 한 곳에서 만든다 (READY로 바뀔 때 같은 키를 무효화해야 한다)
 const scriptKey = (chapterId: number) => ['lecture-script', chapterId];
+const statusKey = (chapterId: number) => ['lecture-script-status', chapterId];
 
 // 원문 스크립트(STT) 조회 훅.
 // 스크립트는 이 탭에서만 쓰므로 화면 진입이 아니라 탭 안에서 조회한다(요약 탭과 같은 방식).
@@ -15,8 +16,12 @@ const scriptKey = (chapterId: number) => ['lecture-script', chapterId];
 export function useLectureScript(chapterId: number) {
   const queryClient = useQueryClient();
 
-  const { status, isProcessing } = useProcessStatus({
-    queryKey: ['lecture-script-status', chapterId],
+  const {
+    status,
+    isProcessing,
+    error: statusError,
+  } = useProcessStatus({
+    queryKey: statusKey(chapterId),
     fetchStatus: (signal) => getLectureScriptStatus(chapterId, signal),
     enabled: Boolean(chapterId),
   });
@@ -36,5 +41,18 @@ export function useLectureScript(chapterId: number) {
     }
   }, [status, chapterId, queryClient]);
 
-  return { ...scriptQuery, isProcessing, status };
+  // 상태와 본문 중 어느 쪽이 실패했든 둘 다 다시 묻는다.
+  const retry = () => {
+    queryClient.invalidateQueries({ queryKey: statusKey(chapterId) });
+    queryClient.invalidateQueries({ queryKey: scriptKey(chapterId) });
+  };
+
+  // 쿼리 자체의 status와 헷갈리지 않게 처리 상태는 다른 이름으로 낸다.
+  return {
+    ...scriptQuery,
+    isProcessing,
+    processStatus: status,
+    statusError,
+    retry,
+  };
 }

@@ -11,8 +11,11 @@ export interface ApiError {
   };
 }
 
-// 비동기 처리 상태 (STT·요약·적용·TODO 생성)
-export type ProcessStatus = 'READY' | 'PROCESSING';
+// 비동기 처리 상태 (STT·요약·적용·TODO 생성). PROCESSING일 때만 폴링한다.
+export type ProcessStatus = 'NOT_STARTED' | 'PROCESSING' | 'READY' | 'FAILED';
+
+// 서버의 비동기 작업 상태. 화면은 ProcessStatus로 바꿔 쓴다.
+export type AsyncJobStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
 
 /* ===== User (기획서 7.3) ===== */
 
@@ -213,6 +216,16 @@ export interface LectureSummary {
 }
 
 /* ===== 원문 스크립트 / STT (이슈 D) ===== */
+
+// 서버 응답 (GET /weeks/{weekId}/audio). 녹음이 없는 주차는 404다.
+export interface WeekAudioResponse {
+  lectureAudioId: number;
+  fileName: string;
+  fileUrl: string;
+  durationSec: number | null;
+  sttStatus: AsyncJobStatus;
+  uploadedAt: string;
+}
 
 // 스크립트 한 줄 — 발화가 시작된 시각(초)과 그 내용.
 export interface ScriptSegment {
