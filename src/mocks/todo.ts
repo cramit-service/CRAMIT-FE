@@ -15,6 +15,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 1,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: '2주차 복습하기',
     memo: 'LMS에 올라온 동영상 문제 풀이 참고하기',
     dueDate: at(1, '13:30'),
@@ -25,6 +27,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 2,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: 'TCP/IP 계층 정리',
     memo: null,
     dueDate: at(2),
@@ -35,6 +39,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 3,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: '과제 제출',
     memo: '실습 코드 GitHub에 push 후 링크 제출',
     dueDate: at(3, '18:00'),
@@ -45,6 +51,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 4,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: '중간고사 오답노트 작성',
     memo: null,
     dueDate: at(5, '09:00'),
@@ -55,6 +63,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 5,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: '실습 예습',
     memo: null,
     dueDate: at(6),
@@ -65,6 +75,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 6,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: '3주차 예습',
     memo: null,
     dueDate: at(7),
@@ -75,6 +87,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 7,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: '이진트리 정리',
     memo: null,
     dueDate: at(8, '15:00'),
@@ -85,6 +99,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 8,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: '라우팅 알고리즘 복습',
     memo: '교재 5장 참고',
     dueDate: at(9),
@@ -95,6 +111,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 9,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: '프로세스 스케줄링 정리',
     memo: null,
     dueDate: at(4),
@@ -105,6 +123,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 10,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: '해시테이블 실습',
     memo: null,
     dueDate: at(10, '13:00'),
@@ -118,6 +138,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 11,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: '실습 코드 리팩터링',
     memo: null,
     dueDate: at(3),
@@ -128,6 +150,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 12,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: '정규화 연습문제',
     memo: null,
     dueDate: at(8),
@@ -138,6 +162,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 13,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: '고유값 계산 연습',
     memo: null,
     dueDate: at(8, '11:00'),
@@ -150,6 +176,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 14,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: '1주차 퀴즈 응시',
     memo: null,
     dueDate: at(-1, '23:59'),
@@ -160,6 +188,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 15,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: '서브넷 마스크 계산 연습',
     memo: '연습문제 3장까지',
     dueDate: at(-4),
@@ -170,6 +200,8 @@ export const mockTodos: TodoResponse[] = [
   {
     todoId: 16,
     weekId: null,
+    lectureId: null,
+    lectureName: null,
     content: '오리엔테이션 자료 읽기',
     memo: null,
     dueDate: at(-9, '10:00'),

@@ -9,6 +9,7 @@ import { IconButton } from '@/shared/ui/IconButton';
 import { cn } from '@/shared/lib/cn';
 import { formatShortDate, toLocalDateString } from '@/shared/lib/date';
 import { useTodos } from '@/features/todo/hooks/useTodos';
+import { useToggleTodo } from '@/features/todo/hooks/useTodoMutations';
 import { todoName } from '@/features/todo/lib/todoName';
 import {
   useTodoFilter,
@@ -34,12 +35,6 @@ const EMPTY_MESSAGE: Record<TodoFilter['kind'], string> = {
   date: '이 날짜에 등록된 할 일이 없어요.',
 };
 
-// 화면에 보이는 완료 여부. 로컬 overrides가 서버 값을 덮어쓴다.
-// 목록을 거를 때와 행을 그릴 때가 같은 값을 봐야 해서 한 곳에 둔다.
-function isTodoDone(todo: Todo, overrides: Record<number, boolean>): boolean {
-  return overrides[todo.todoId] ?? todo.isCompleted;
-}
-
 // 배경·라운드는 바깥 카드가 갖고, 여긴 메시지만.
 function StatusMessage({ children }: { children: React.ReactNode }) {
   return (
@@ -63,9 +58,8 @@ interface TodoChecklistProps {
 export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
   const { data: todos, isLoading, isError } = useTodos();
   const { filter } = useTodoFilter();
+  const toggleMutation = useToggleTodo();
 
-  // 완료 토글은 로컬만 반영한다(mock이라 서버 저장 없음). todoId → 덮어쓴 완료값.
-  const [overrides, setOverrides] = useState<Record<number, boolean>>({});
   // null이면 닫힘. 'create'는 추가, Todo면 그 할 일의 상세보기(수정).
   // 닫을 때 통째로 언마운트해 입력값이 다음 열기까지 남지 않게 한다.
   const [editing, setEditing] = useState<Todo | 'create' | null>(null);
@@ -82,28 +76,23 @@ export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
     }
     if (filter.kind === 'past') {
       // 지난 할 일은 "아직 안 한 것"만 본다 — 이미 끝낸 걸 다시 볼 이유가 없다.
-      // 서버 값이 아니라 화면에 체크로 보이는 값(isTodoDone)을 기준으로 삼는다.
-      // 그래서 여기서 완료를 누르면 그 항목은 목록에서 곧바로 빠진다.
+      // 그래서 여기서 완료를 누르면 그 항목은 목록에서 빠진다.
       // 내림차순 — 가장 최근에 지난 것이 먼저 보이는 게 자연스럽다.
       return todos
-        .filter((t) => t.dueDate < todayStr && !isTodoDone(t, overrides))
+        .filter((t) => t.dueDate < todayStr && !t.isCompleted)
         .sort((a, b) => b.dueDate.localeCompare(a.dueDate));
     }
     if (filter.kind === 'done') {
       // 완료한 것만 모아 본다. 날짜와 무관해서 지난 것과 앞으로의 것이 같이 나온다.
       // 최근에 끝냈을 법한 쪽이 위로 오도록 내림차순.
       return todos
-        .filter((t) => isTodoDone(t, overrides))
+        .filter((t) => t.isCompleted)
         .sort((a, b) => b.dueDate.localeCompare(a.dueDate));
     }
     return todos.filter((t) => t.dueDate >= todayStr).sort(ascending);
-  }, [todos, filter, todayStr, overrides]);
+  }, [todos, filter, todayStr]);
 
   const emptyMessage = EMPTY_MESSAGE[filter.kind];
-
-  const isDone = (todo: Todo) => isTodoDone(todo, overrides);
-  const toggle = (todo: Todo) =>
-    setOverrides((prev) => ({ ...prev, [todo.todoId]: !isDone(todo) }));
 
   const addButton = (
     // 시험 일정 카드의 추가하기와 같은 부품·같은 라벨이다.
@@ -132,8 +121,8 @@ export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
             <TodoRow
               key={todo.todoId}
               todo={todo}
-              done={isDone(todo)}
-              onToggle={() => toggle(todo)}
+              done={todo.isCompleted}
+              onToggle={() => toggleMutation.mutate(todo.todoId)}
               onEdit={() => setEditing(todo)}
             />
           ))}
