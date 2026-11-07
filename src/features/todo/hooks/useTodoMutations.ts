@@ -2,7 +2,12 @@
 // src/features/todo/hooks/useTodoMutations.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { CreateTodoRequest, UpdateTodoRequest } from '@/shared/types/api';
-import { createTodo, deleteTodo, updateTodo } from '@/features/todo/api';
+import {
+  createTodo,
+  deleteTodo,
+  toggleTodo,
+  updateTodo,
+} from '@/features/todo/api';
 
 // ['todos'] 하나를 홈 체크리스트와 캘린더가 함께 쓴다 — 한 번만 무효화하면 둘 다 따라온다.
 function useInvalidateTodos() {
@@ -32,6 +37,14 @@ export function useDeleteTodo() {
   const invalidate = useInvalidateTodos();
   return useMutation<void, Error, number>({
     mutationFn: deleteTodo,
+    onSuccess: invalidate,
+  });
+}
+
+export function useToggleTodo() {
+  const invalidate = useInvalidateTodos();
+  return useMutation<void, Error, number>({
+    mutationFn: toggleTodo,
     onSuccess: invalidate,
   });
 }
