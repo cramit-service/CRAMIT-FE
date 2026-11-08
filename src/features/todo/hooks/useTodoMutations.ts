@@ -12,9 +12,7 @@ import {
 // ['todos'] 하나를 홈 체크리스트와 캘린더가 함께 쓴다 — 한 번만 무효화하면 둘 다 따라온다.
 function useInvalidateTodos() {
   const queryClient = useQueryClient();
-  return () => {
-    queryClient.invalidateQueries({ queryKey: ['todos'] });
-  };
+  return () => queryClient.invalidateQueries({ queryKey: ['todos'] });
 }
 
 export function useCreateTodo() {

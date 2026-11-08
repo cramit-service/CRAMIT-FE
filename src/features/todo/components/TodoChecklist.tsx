@@ -1,6 +1,6 @@
 'use client';
 // src/features/todo/components/TodoChecklist.tsx
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { Todo } from '@/shared/types/api';
 import { Button } from '@/shared/ui/Button';
 import { ScrollArea } from '@/shared/ui/ScrollArea';
@@ -59,6 +59,18 @@ export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
   const { data: todos, isLoading, isError } = useTodos();
   const { filter } = useTodoFilter();
   const toggleMutation = useToggleTodo();
+  const toggling = useRef(false);
+
+  const handleToggle = (todoId: number) => {
+    // 렌더 전에 연속 호출돼도 막고, 재조회로 체크가 반영될 때까지 잠근다.
+    if (toggling.current) return;
+    toggling.current = true;
+    toggleMutation.mutate(todoId, {
+      onSettled: () => {
+        toggling.current = false;
+      },
+    });
+  };
 
   // null이면 닫힘. 'create'는 추가, Todo면 그 할 일의 상세보기(수정).
   // 닫을 때 통째로 언마운트해 입력값이 다음 열기까지 남지 않게 한다.
@@ -116,17 +128,23 @@ export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
         // 칸막이까지 있으면 한 화면에 가로선이 스무 개 가까이 깔린다 — 그중 하나만
         // 뜻(완료)이고 나머지는 칸막이라 같은 회색으로는 둘이 구분되지 않는다.
         // 경계는 줄마다 왼쪽에 서는 체크박스가 이미 만든다.
-        <ul className="px-6">
-          {visible.map((todo) => (
-            <TodoRow
-              key={todo.todoId}
-              todo={todo}
-              done={todo.isCompleted}
-              onToggle={() => toggleMutation.mutate(todo.todoId)}
-              onEdit={() => setEditing(todo)}
-            />
-          ))}
-        </ul>
+        <fieldset
+          disabled={toggleMutation.isPending}
+          aria-label="TODO 목록"
+          className="min-w-0"
+        >
+          <ul className="px-6">
+            {visible.map((todo) => (
+              <TodoRow
+                key={todo.todoId}
+                todo={todo}
+                done={todo.isCompleted}
+                onToggle={() => handleToggle(todo.todoId)}
+                onEdit={() => setEditing(todo)}
+              />
+            ))}
+          </ul>
+        </fieldset>
       )}
     </ScrollArea>
   );

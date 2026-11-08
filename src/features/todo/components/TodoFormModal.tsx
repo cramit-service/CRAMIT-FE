@@ -115,6 +115,14 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
   };
 
   const filled = title.trim() !== '' && dueDate !== '';
+  const missingChapter = projectId !== NONE && chapterId === NONE;
+  const chapterError = isChaptersError
+    ? '주차 목록을 불러오지 못했어요.'
+    : missingChapter && !isChaptersLoading
+      ? chapters?.length === 0
+        ? '이 강의에는 주차가 없어요. 강의 선택을 해제해 주세요.'
+        : '강의를 골랐다면 주차도 골라 주세요.'
+      : undefined;
   // 수정 모드에서는 바꾼 게 있어야 저장을 연다 (시안에서도 변경 전에는 버튼이 회색이다).
   const changed =
     !isEdit ||
@@ -124,7 +132,7 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
     toId(projectId) !== todo.projectId ||
     toId(chapterId) !== todo.chapterId ||
     (memo.trim() || null) !== todo.memo;
-  const canSubmit = filled && changed && !busy;
+  const canSubmit = filled && changed && !busy && !missingChapter;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -272,7 +280,8 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
                 : '선택 없음'
           }
           clearable
-          error={isChaptersError ? '주차 목록을 불러오지 못했어요.' : undefined}
+          required={projectId !== NONE}
+          error={chapterError}
         />
       </div>
 
