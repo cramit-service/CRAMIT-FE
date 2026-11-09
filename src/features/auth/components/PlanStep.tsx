@@ -1,5 +1,6 @@
 'use client';
 // src/features/auth/components/PlanStep.tsx
+import { cn } from '@/shared/lib/cn';
 import type { PlanId } from '@/shared/types/api';
 import { Card } from '@/shared/ui/Card';
 import { Icon } from '@/shared/ui/Icon';
@@ -10,9 +11,11 @@ interface Plan {
   price: string;
   description: string;
   features: string[];
+  /** 아직 고를 수 없는 플랜. TODO: 결제가 붙으면 뺀다. */
+  locked?: boolean;
 }
 
-// 가격은 와이어프레임 그대로 placeholder를 유지한다 (결제는 이번 범위 아님)
+// 이름·가격은 서버의 plan 시드(V16)와 맞춘다. 플랜 조회 API가 없어 여기 적는다.
 const PLANS: Plan[] = [
   {
     id: 'FREE',
@@ -22,18 +25,20 @@ const PLANS: Plan[] = [
     features: ['내용1', '내용2'],
   },
   {
-    id: 'STANDARD',
-    name: 'Standard',
-    price: '00,000₩',
+    id: 'BASIC',
+    name: 'Basic',
+    price: '4,900₩',
     description: '꾸준한 성장을 위한 플랜',
     features: ['내용1', '내용2'],
+    locked: true,
   },
   {
-    id: 'PRO',
-    name: 'Pro',
-    price: '00,000₩',
+    id: 'PREMIUM',
+    name: 'Premium',
+    price: '9,900₩',
     description: '가장 깊이 있는 분석 경험',
     features: ['내용1', '내용2'],
+    locked: true,
   },
 ];
 
@@ -57,7 +62,7 @@ export function PlanStep({ selectedPlan, onSelect }: PlanStepProps) {
           둘 다 토큰에 없어서, 카드를 골라도 아무 표시가 나지 않았다.
           role="radio"를 직접 붙이고 Enter·Space를 손으로 받던 것도 없어진다 —
           Card가 button으로 그리므로 키보드가 저절로 따라온다. 라디오 그룹의
-          좌우 화살표 이동까지는 아니지만, 세 장이 탭으로 지나가는 목록이면 충분하다. */}
+          좌우 화살표 이동까지는 아니지만, 고를 수 있는 카드가 탭으로 지나가는 목록이면 충분하다. */}
       <ul
         role="radiogroup"
         aria-label="요금제"
@@ -67,42 +72,59 @@ export function PlanStep({ selectedPlan, onSelect }: PlanStepProps) {
           const isSelected = plan.id === selectedPlan;
 
           return (
-            <li key={plan.id} className="flex">
+            // 잠긴 카드는 button이 아니라 div로 그려져 li의 flex에서는 폭을 못 채운다.
+            <li key={plan.id} className="grid">
               <Card
-                press="in-place"
+                press={plan.locked ? 'none' : 'in-place'}
                 selected={isSelected}
                 role="radio"
                 aria-checked={isSelected}
-                onClick={() => onSelect(plan.id)}
+                aria-disabled={plan.locked}
+                title={plan.locked ? '준비 중이에요' : undefined}
+                onClick={plan.locked ? undefined : () => onSelect(plan.id)}
               >
                 <span className="flex h-full flex-col">
-                  <span className="text-body-md font-semibold text-gray-800">
-                    {plan.name}
-                  </span>
-
-                  <span className="mt-4 block">
-                    <span className="text-heading-sm font-semibold text-gray-800">
-                      {plan.price}
+                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="text-body-md font-semibold text-gray-800">
+                      {plan.name}
                     </span>
-                    <span className="text-label ml-1 text-gray-500">/월</span>
-                  </span>
-
-                  <span className="text-body-sm mt-8 block text-gray-700">
-                    {plan.description}
-                  </span>
-
-                  <span className="mt-6 flex flex-col gap-2">
-                    {plan.features.map((feature) => (
-                      <span
-                        key={feature}
-                        className="text-body-sm flex items-center gap-2 text-gray-700"
-                      >
-                        <span className="flex shrink-0 text-gray-400">
-                          <Icon name="check" size={16} />
-                        </span>
-                        {feature}
+                    {plan.locked && (
+                      <span className="text-label rounded-full bg-gray-200 px-2 py-0.5 text-gray-700">
+                        준비 중
                       </span>
-                    ))}
+                    )}
+                  </span>
+
+                  <span
+                    className={cn(
+                      'flex flex-1 flex-col',
+                      plan.locked && 'opacity-60',
+                    )}
+                  >
+                    <span className="mt-4 block">
+                      <span className="text-heading-sm font-semibold text-gray-800">
+                        {plan.price}
+                      </span>
+                      <span className="text-label ml-1 text-gray-500">/월</span>
+                    </span>
+
+                    <span className="text-body-sm mt-8 block text-gray-700">
+                      {plan.description}
+                    </span>
+
+                    <span className="mt-6 flex flex-col gap-2">
+                      {plan.features.map((feature) => (
+                        <span
+                          key={feature}
+                          className="text-body-sm flex items-center gap-2 text-gray-700"
+                        >
+                          <span className="flex shrink-0 text-gray-400">
+                            <Icon name="check" size={16} />
+                          </span>
+                          {feature}
+                        </span>
+                      ))}
+                    </span>
                   </span>
                 </span>
               </Card>

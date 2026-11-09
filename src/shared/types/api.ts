@@ -48,16 +48,22 @@ export interface TokenRefreshResponse {
 
 /* ===== 온보딩 (약관 → 닉네임 → 요금제) ===== */
 
-export type PlanId = 'FREE' | 'STANDARD' | 'PRO';
+export type PlanId = 'FREE' | 'BASIC' | 'PREMIUM';
 
 export interface NicknameCheckResponse {
   available: boolean;
 }
 
-// TODO: 백엔드 온보딩 등록 스펙 확정 시 필드명 재확인 필요
+export interface Term {
+  termId: number;
+  title: string;
+  content: string;
+  required: boolean;
+}
+
 export interface OnboardingProfileRequest {
   nickname: string;
-  agreedTermIds: string[];
+  agreedTermIds: number[]; // Term.termId
   plan: PlanId;
 }
 
