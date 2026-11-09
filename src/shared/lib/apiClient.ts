@@ -28,6 +28,8 @@ let refreshing: Promise<string | null> | null = null;
 
 // refreshToken은 HttpOnly 쿠키라 credentials: 'include'만 주면 브라우저가 싣는다.
 export function refreshAccessToken(): Promise<string | null> {
+  const tokenAtStart = getAccessToken();
+
   refreshing ??= fetch(`${API_URL}/auth/refresh`, {
     method: 'POST',
     credentials: 'include',
@@ -43,6 +45,10 @@ export function refreshAccessToken(): Promise<string | null> {
       return accessToken;
     })
     .catch((error) => {
+      // 재발급은 refreshToken도 교체해서, 다른 탭이 먼저 성공하면 이쪽은 401을 받는다.
+      const latestToken = getAccessToken();
+      if (latestToken && latestToken !== tokenAtStart) return latestToken;
+
       // 서버가 세션을 거절했을 때만 끝낸다. 네트워크가 잠깐 끊긴 걸로 로그아웃시키지 않는다.
       if (error instanceof ApiRequestError && error.status === 401) {
         clearAccessToken();

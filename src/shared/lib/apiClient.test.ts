@@ -2,12 +2,32 @@
 // mock은 apiClient를 거치지 않아 화면으로는 검증할 수 없다. fetch를 바꿔 끼워 응답 규칙만 잰다.
 import { afterEach, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ApiRequestError, apiClient } from './apiClient.ts';
+import { ApiRequestError, apiClient, refreshAccessToken } from './apiClient.ts';
 
 const realFetch = globalThis.fetch;
 afterEach(() => {
   globalThis.fetch = realFetch;
+  Reflect.deleteProperty(globalThis, 'window');
+  Reflect.deleteProperty(globalThis, 'localStorage');
 });
+
+// 재발급 실패 규칙은 토큰 저장소와 페이지 이동까지 봐야 해서 브라우저 전역을 바꿔 끼운다.
+function stubBrowser(token: string) {
+  const store = new Map([['accessToken', token]]);
+  const redirects: string[] = [];
+  const define = (name: string, value: unknown) =>
+    Object.defineProperty(globalThis, name, { value, configurable: true });
+
+  define('window', {
+    location: { replace: (url: string) => redirects.push(url) },
+  });
+  define('localStorage', {
+    getItem: (key: string) => store.get(key) ?? null,
+    setItem: (key: string, value: string) => store.set(key, value),
+    removeItem: (key: string) => store.delete(key),
+  });
+  return { store, redirects };
+}
 
 // 마지막으로 요청한 URL을 함께 돌려준다.
 function respond(body: string, status: number) {
@@ -145,4 +165,47 @@ test('호출처 취소와 타임아웃이 겹치면 취소로 본다', async (t)
   caller.abort();
   timeout.abort(new DOMException('timeout', 'TimeoutError'));
   await assert.rejects(pending, (error) => !(error instanceof ApiRequestError));
+});
+
+const SESSION_REJECTED =
+  '{"error":{"code":"AUTH_INVALID_TOKEN","message":"만료","status":401}}';
+
+test('재발급이 401이면 토큰을 지우고 /login으로 보낸다', async () => {
+  const { store, redirects } = stubBrowser('old');
+  respond(SESSION_REJECTED, 401);
+
+  assert.equal(await refreshAccessToken(), null);
+  assert.equal(store.has('accessToken'), false);
+  assert.deepEqual(redirects, ['/login']);
+});
+
+test('재발급이 5xx면 토큰을 두고 이동하지 않는다', async () => {
+  const { store, redirects } = stubBrowser('old');
+  respond('', 500);
+
+  assert.equal(await refreshAccessToken(), null);
+  assert.equal(store.get('accessToken'), 'old');
+  assert.deepEqual(redirects, []);
+});
+
+test('재발급이 네트워크로 실패하면 토큰을 두고 이동하지 않는다', async () => {
+  const { store, redirects } = stubBrowser('old');
+  globalThis.fetch = (() =>
+    Promise.reject(new TypeError('Failed to fetch'))) as typeof fetch;
+
+  assert.equal(await refreshAccessToken(), null);
+  assert.equal(store.get('accessToken'), 'old');
+  assert.deepEqual(redirects, []);
+});
+
+test('다른 탭이 먼저 재발급했으면 401이어도 그 토큰을 쓴다', async () => {
+  const { store, redirects } = stubBrowser('old');
+  globalThis.fetch = (async () => {
+    store.set('accessToken', 'from-other-tab');
+    return new Response(SESSION_REJECTED, { status: 401 });
+  }) as typeof fetch;
+
+  assert.equal(await refreshAccessToken(), 'from-other-tab');
+  assert.equal(store.get('accessToken'), 'from-other-tab');
+  assert.deepEqual(redirects, []);
 });
