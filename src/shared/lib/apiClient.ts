@@ -27,7 +27,7 @@ type RequestOptions = RequestInit & { timeoutMs?: number };
 let refreshing: Promise<string | null> | null = null;
 
 // refreshToken은 HttpOnly 쿠키라 credentials: 'include'만 주면 브라우저가 싣는다.
-function refreshAccessToken(): Promise<string | null> {
+export function refreshAccessToken(): Promise<string | null> {
   refreshing ??= fetch(`${API_URL}/auth/refresh`, {
     method: 'POST',
     credentials: 'include',
@@ -42,9 +42,13 @@ function refreshAccessToken(): Promise<string | null> {
       setAccessToken(accessToken);
       return accessToken;
     })
-    .catch(() => {
-      // TODO: 로그인 보호(proxy) 작업 때 여기서 /login으로 보낸다
-      clearAccessToken();
+    .catch((error) => {
+      // 서버가 세션을 거절했을 때만 끝낸다. 네트워크가 잠깐 끊긴 걸로 로그아웃시키지 않는다.
+      if (error instanceof ApiRequestError && error.status === 401) {
+        clearAccessToken();
+        // 새로고침으로 이동해야 이전 세션의 쿼리 캐시가 남지 않는다.
+        window.location.replace('/login');
+      }
       return null;
     })
     .finally(() => {

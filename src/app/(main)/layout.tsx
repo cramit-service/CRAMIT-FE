@@ -1,4 +1,5 @@
 // src/app/(main)/layout.tsx
+import { AuthGate } from '@/features/auth/components/AuthGate';
 import { MainNav } from '@/features/navigation/components/MainNav';
 
 // 로그인 후 공통 레이아웃.
@@ -12,5 +13,9 @@ export default function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <MainNav>{children}</MainNav>;
+  return (
+    <AuthGate>
+      <MainNav>{children}</MainNav>
+    </AuthGate>
+  );
 }
