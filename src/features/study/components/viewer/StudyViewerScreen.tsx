@@ -254,7 +254,10 @@ export function StudyViewerScreen({
         return (
           <SummaryTab
             chapterId={chapterId}
-            fileName={`${project.title}_${chapter.title}_요약.md`}
+            fileName={`${project.title}_${chapter.title}_요약.md`.replace(
+              /\s+/g,
+              '_',
+            )}
           />
         );
       // 스크립트도 같은 이유로 탭 안에서 조회한다. 재생 위치는 읽기 전용으로 넘긴다
