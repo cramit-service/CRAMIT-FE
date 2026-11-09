@@ -3,7 +3,7 @@ import type {
   Chapter,
   LectureMaterial,
   LectureScript,
-  LectureSummary,
+  SummaryResponse,
 } from '@/shared/types/api';
 
 // 챕터 상세(단계별 학습) mock — 상태 3종(학습 전/중/완료)을 모두 포함한다.
@@ -117,12 +117,13 @@ export const mockLectureMaterial: LectureMaterial = {
   audioDuration: 3662, // 61분 2초
 };
 
-// 학습 뷰어(AI 강의 요약 탭) mock — 백엔드 요약 생성이 붙기 전까지 쓰는 Markdown 원문.
+// 학습 뷰어(AI 강의 요약 탭) mock — 서버 응답 모양 그대로 둔다.
 // 제목/목록/표/코드/인용을 모두 넣어 렌더 스타일이 한 번에 확인되게 한다.
-export const mockLectureSummary: LectureSummary = {
-  chapterId: 4,
-  fileName: '알고리즘_Chapter 4 - 알고리즘 기초 알아보기_요약.md',
-  markdown: `# Chapter 4 - 알고리즘 기초 알아보기
+export const mockSummaryResponse: SummaryResponse = {
+  summaryId: 1,
+  weekId: 4,
+  status: 'COMPLETED',
+  content: `# Chapter 4 - 알고리즘 기초 알아보기
 
 ## 1. 알고리즘이란
 
@@ -205,7 +206,7 @@ def binary_search(arr, target):
 
 // 학습 뷰어(원문 스크립트 탭) mock — 녹음 STT를 PDF 페이지 단위로 끊어 묶은 형태.
 // 페이지 수(12)와 마지막 구간 끝(3662초 = 61:02)은 mockLectureMaterial과 맞춘다.
-// 내용은 같은 챕터의 mockLectureSummary와 같은 강의(알고리즘 기초)를 말하도록 썼다.
+// 내용은 같은 챕터의 mockSummaryResponse와 같은 강의(알고리즘 기초)를 말하도록 썼다.
 // 시안(Figma)의 문구는 DP 강의 예시라 그대로 쓰면 요약 탭과 다른 수업이 돼 버린다.
 export const mockLectureScript: LectureScript = {
   chapterId: 4,

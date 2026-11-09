@@ -26,7 +26,9 @@ export function useProcessStatus({
     gcTime: 0,
     refetchInterval: (query) => {
       const status = query.state.data;
-      return status === 'PROCESSING' ? 2000 : false;
+      if (status === 'PROCESSING') return 2000;
+      // STT가 끝나면 서버가 요약을 알아서 시작한다. 녹음 없는 주차는 계속 이 상태라 느리게 묻는다.
+      return status === 'NOT_STARTED' ? 5000 : false;
     },
   });
 
