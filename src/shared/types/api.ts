@@ -51,16 +51,22 @@ export interface TokenRefreshResponse {
 
 /* ===== 온보딩 (약관 → 닉네임 → 요금제) ===== */
 
-export type PlanId = 'FREE' | 'STANDARD' | 'PRO';
+export type PlanId = 'FREE' | 'BASIC' | 'PREMIUM';
 
 export interface NicknameCheckResponse {
   available: boolean;
 }
 
-// TODO: 백엔드 온보딩 등록 스펙 확정 시 필드명 재확인 필요
+export interface Term {
+  termId: number;
+  title: string;
+  content: string;
+  required: boolean;
+}
+
 export interface OnboardingProfileRequest {
   nickname: string;
-  agreedTermIds: string[];
+  agreedTermIds: number[]; // Term.termId
   plan: PlanId;
 }
 
@@ -192,27 +198,56 @@ export interface LectureDetailResponse {
 export type ViewerTab = 'PDF' | 'SUMMARY' | 'SCRIPT' | 'TODO';
 
 // 챕터 하나에 딸린 강의자료(PDF + 녹음) 메타.
-// TODO: 백엔드 스펙 확정 후 필드명/타입 재확인 필요.
 export interface LectureMaterial {
   chapterId: number;
   // 렌더할 PDF 위치. 아직 없는 자료(업로드 전)면 null.
   // 페이지 수는 문서를 열면 알 수 있으므로 pdfPageCount는 로딩 중 자리를 잡는 데만 쓴다.
   pdfUrl: string | null;
-  pdfPageCount: number; // PDF 총 페이지 수
+  pdfPageCount: number | null; // 서버가 아직 세지 않아 대개 null이다
   audioDuration: number; // 녹음 길이(초). 예: 3662 = 61:02
   // TODO: audioUrl(실제 재생용)과 페이지↔오디오 구간 매핑은
   //       백엔드에서 내려주는 형태가 확정되면 여기에 추가한다.
 }
 
+// 서버 응답 (GET /weeks/{weekId}/ppt). PDF가 없는 주차는 404다.
+export interface WeekPptResponse {
+  lecturePptId: number;
+  weekId: number;
+  fileName: string;
+  fileUrl: string;
+  fileSize: number | null;
+  pageCount: number | null;
+}
+
+// 서버 응답 (PATCH /weeks/{weekId}/review-count).
+export interface WeekReviewCountResponse {
+  weekId: number;
+  reviewCount: number;
+}
+
 /* ===== AI 강의 요약 (이슈 C) ===== */
 
 // AI가 생성한 Markdown 요약본.
-// TODO: 백엔드 스펙 확정 후 필드명/타입 재확인 필요.
 export interface LectureSummary {
   chapterId: number;
-  fileName: string; // 상단 바에 노출 (예: "알고리즘_Chapter 4 - ..._요약.md")
   markdown: string; // Markdown 원문 (조회 시 렌더, 편집 시 textarea 내용)
   updatedAt: string; // ISO 날짜 문자열
+}
+
+// 서버 응답. 요약을 요청한 적 없는 주차는 NOT_STARTED에 id·시각이 null이다.
+export interface SummaryStatusResponse {
+  summaryId: number | null;
+  weekId: number;
+  status: AsyncJobStatus | 'NOT_STARTED';
+  updatedAt: string | null;
+}
+
+export interface SummaryResponse {
+  summaryId: number;
+  weekId: number;
+  status: AsyncJobStatus;
+  content: string;
+  updatedAt: string;
 }
 
 /* ===== 원문 스크립트 / STT (이슈 D) ===== */

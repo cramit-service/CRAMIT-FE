@@ -11,8 +11,12 @@ import type {
   ProcessStatus,
   ProjectDetail,
   ProjectSummary,
+  SummaryResponse,
+  SummaryStatusResponse,
   WeekAudioResponse,
+  WeekPptResponse,
   WeekResponse,
+  WeekReviewCountResponse,
 } from '@/shared/types/api';
 import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
 import { getExams } from '@/features/exam/api';
@@ -21,14 +25,15 @@ import {
   mockChapters,
   mockLectureMaterial,
   mockLectureScript,
-  mockLectureSummary,
+  mockSummaryResponse,
 } from '@/mocks/study';
 import { findMockLecture, mockLectures } from '@/mocks/project';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로) — project/api.ts와 동일 패턴
 const USE_MOCK = true;
-// 강의·주차 조회만 먼저 백엔드에 붙었다. 위 스위치는 아직 mock인 나머지 함수들이 쓴다.
-const USE_MOCK_LECTURE = false;
+// 백엔드에 붙은 것부터 끈다. 위 스위치는 아직 API가 없는 함수들이 쓴다.
+const USE_MOCK_LECTURE = false; // 강의·주차
+const USE_MOCK_VIEWER = false; // 요약·강의자료·회독
 
 // 가짜 지연을 흉내내는 헬퍼 (실제 네트워크처럼 잠깐 기다림).
 // 쿼리가 취소되면 실제 fetch처럼 즉시 중단되도록 AbortSignal을 받는다.
@@ -220,13 +225,36 @@ export async function getChapter(
   return found;
 }
 
+const invalidMaterial = () =>
+  new ApiRequestError('INVALID_RESPONSE', '강의 자료를 해석할 수 없어요.', 0);
+
+// PDF 없이 만든 주차도 404(ENTITY_NOT_FOUND)라 "자료 없음"으로 받는다. 주차가 없는 경우는 주차 조회가 잡는다.
+async function getWeekPpt(
+  chapterId: number,
+  signal?: AbortSignal,
+): Promise<WeekPptResponse | null> {
+  try {
+    return await apiClient.get<WeekPptResponse>(`/weeks/${chapterId}/ppt`, {
+      signal,
+    });
+  } catch (error) {
+    if (
+      error instanceof ApiRequestError &&
+      error.status === 404 &&
+      error.code === 'ENTITY_NOT_FOUND'
+    ) {
+      return null;
+    }
+    throw error;
+  }
+}
+
 // 챕터의 강의자료(PDF 위치·페이지 수·녹음 길이) 조회
-// TODO: audioUrl은 백엔드 확정 후 응답에 추가한다
 export async function getLectureMaterial(
   chapterId: number,
   signal?: AbortSignal,
 ): Promise<LectureMaterial> {
-  if (USE_MOCK) {
+  if (USE_MOCK_VIEWER) {
     await delay(300, signal);
     // 이 챕터에 직접 올린 파일이 있으면 그걸 그린다.
     const uploaded = await getMaterialFileUrl(chapterId);
@@ -245,24 +273,60 @@ export async function getLectureMaterial(
       pdfPageCount: pdfUrl ? mockLectureMaterial.pdfPageCount : 0,
     };
   }
-  return apiClient.get<LectureMaterial>(`/chapters/${chapterId}/material`, {
-    signal,
-  });
+
+  const ppt = await getWeekPpt(chapterId, signal);
+  if (
+    ppt &&
+    (typeof ppt.fileUrl !== 'string' ||
+      (ppt.pageCount != null && typeof ppt.pageCount !== 'number'))
+  ) {
+    throw invalidMaterial();
+  }
+  return {
+    chapterId,
+    pdfUrl: ppt?.fileUrl ?? null,
+    pdfPageCount: ppt?.pageCount ?? null,
+    // TODO(백엔드): 녹음 조회 API가 생기면 실제 길이로 바꾼다.
+    // 그때까지 재생·스크립트가 mock이라 길이도 mock에 맞춘다.
+    audioDuration: mockLectureMaterial.audioDuration,
+  };
+}
+
+const invalidSummary = () =>
+  new ApiRequestError('INVALID_RESPONSE', '요약을 해석할 수 없어요.', 0);
+
+// 서버는 대기(PENDING)와 생성 중을 나누지만 화면에는 둘 다 "만드는 중"이다.
+const JOB_STATUS: Record<SummaryStatusResponse['status'], ProcessStatus> = {
+  NOT_STARTED: 'NOT_STARTED',
+  PENDING: 'PROCESSING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'READY',
+  FAILED: 'FAILED',
+};
+
+function toProcessStatus(r: SummaryStatusResponse): ProcessStatus {
+  if (!Object.hasOwn(JOB_STATUS, r?.status)) throw invalidSummary();
+  return JOB_STATUS[r.status];
 }
 
 // 챕터의 AI 강의 요약(Markdown 원문) 조회
-// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
 export async function getLectureSummary(
   chapterId: number,
   signal?: AbortSignal,
 ): Promise<LectureSummary> {
-  if (USE_MOCK) {
+  let r: SummaryResponse;
+  if (USE_MOCK_VIEWER) {
     await delay(300, signal);
-    return { ...mockLectureSummary, chapterId };
+    r = { ...mockSummaryResponse, weekId: chapterId };
+  } else {
+    r = await apiClient.get<SummaryResponse>(`/weeks/${chapterId}/summary`, {
+      signal,
+    });
   }
-  return apiClient.get<LectureSummary>(`/chapters/${chapterId}/summary`, {
-    signal,
-  });
+  if (typeof r?.content !== 'string' || typeof r.updatedAt !== 'string') {
+    throw invalidSummary();
+  }
+  return { chapterId, markdown: r.content, updatedAt: r.updatedAt };
 }
 
 // 챕터의 원문 스크립트(STT) 조회
@@ -306,20 +370,21 @@ export async function getLectureScriptStatus(
 }
 
 // 요약 생성 상태 조회 (AI 요약은 비동기라 READY까지 폴링해야 한다)
-// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
 export async function getLectureSummaryStatus(
   chapterId: number,
   signal?: AbortSignal,
 ): Promise<ProcessStatus> {
-  if (USE_MOCK) {
+  if (USE_MOCK_VIEWER) {
     await delay(300, signal);
-    // mock은 이미 생성이 끝난 챕터를 가정한다. PROCESSING 화면을 확인하려면
-    // 잠시 'PROCESSING'을 반환하도록 바꿔서 보면 된다.
-    return 'READY';
+    // 다른 상태 화면을 보려면 mockSummaryResponse.status를 바꾼다.
+    return toProcessStatus(mockSummaryResponse);
   }
-  return apiClient.get<ProcessStatus>(`/chapters/${chapterId}/summary/status`, {
-    signal,
-  });
+  return toProcessStatus(
+    await apiClient.get<SummaryStatusResponse>(
+      `/weeks/${chapterId}/summary/status`,
+      { signal },
+    ),
+  );
 }
 
 // 요약 Markdown 수정 저장
@@ -333,12 +398,7 @@ export async function updateLectureSummary(
   if (USE_MOCK) {
     await delay(300, signal);
     // updatedAt은 "마지막 수정 시각"이라 mock 값을 그대로 돌려주면 안 된다
-    return {
-      ...mockLectureSummary,
-      chapterId,
-      markdown,
-      updatedAt: new Date().toISOString(),
-    };
+    return { chapterId, markdown, updatedAt: new Date().toISOString() };
   }
   return apiClient.patch<LectureSummary>(
     `/chapters/${chapterId}/summary`,
@@ -350,13 +410,12 @@ export async function updateLectureSummary(
 // 회독 수를 세팅한다. 올리고 내리는 두 엔드포인트가 아니라 값을 하나 넣는 쪽이다 —
 // 증가 전용으로 두면 한 번 잘못 누른 것을 되돌릴 수 없고, DESIGN.md §4가 그걸
 // "기록이 아니라 오기"라고 부른다.
-// TODO(백엔드): 경로 확정 필요. PATCH /chapters/{id} 의 부분 수정으로 갈 수도 있다.
 export async function setChapterReviewCount(
   chapterId: number,
   reviewCount: number,
   signal?: AbortSignal,
-): Promise<Chapter> {
-  if (USE_MOCK) {
+): Promise<void> {
+  if (USE_MOCK_VIEWER) {
     await delay(200, signal);
     const found = mockChapters.find((c) => c.chapterId === chapterId);
     if (!found) {
@@ -368,10 +427,11 @@ export async function setChapterReviewCount(
     }
     // 목에서도 실제로 값을 바꿔 둔다. 안 그러면 무효화 뒤 옛 값이 돌아와 화면이 튄다.
     found.reviewCount = reviewCount;
-    return { ...found };
+    return;
   }
-  return apiClient.patch<Chapter>(
-    `/chapters/${chapterId}/review-count`,
+  // 화면은 낙관적으로 먼저 바꾸고 끝나면 목록을 다시 받으니 응답 본문은 쓰지 않는다.
+  await apiClient.patch<WeekReviewCountResponse>(
+    `/weeks/${chapterId}/review-count`,
     { reviewCount },
     { signal },
   );

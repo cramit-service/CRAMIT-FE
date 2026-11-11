@@ -27,8 +27,8 @@ const PAGE_SHELL = 'read-col py-12';
 // 요금제 표기. PlanId는 코드값이라 화면에는 사람이 읽는 이름을 쓴다.
 const PLAN_LABEL: Record<PlanId, string> = {
   FREE: 'Free Plan',
-  STANDARD: 'Standard Plan',
-  PRO: 'Pro Plan',
+  BASIC: 'Basic Plan',
+  PREMIUM: 'Premium Plan',
 };
 
 // 대시보드-프로필 화면. 시안: Figma 1:5126.
