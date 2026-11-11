@@ -262,6 +262,22 @@ export interface WeekAudioResponse {
   uploadedAt: string;
 }
 
+// 서버 응답 (GET /weeks/{weekId}/scripts)의 한 구간. STT가 안 끝났으면 422다.
+export interface WeekScriptResponse {
+  scriptId: number;
+  pageNumber: number;
+  startSec: number;
+  endSec: number;
+  title: string | null;
+  sequence: number;
+  details: {
+    scriptDetailId: number;
+    timeSec: number;
+    content: string;
+    sequence: number;
+  }[];
+}
+
 // 스크립트 한 줄 — 발화가 시작된 시각(초)과 그 내용.
 export interface ScriptSegment {
   atSec: number;
@@ -279,7 +295,6 @@ export interface ScriptSection {
 }
 
 // 챕터 하나의 STT 원문 전체.
-// TODO: 백엔드 STT 응답 스펙 확정 시 필드명/타입 재확인 필요.
 export interface LectureScript {
   chapterId: number;
   sections: ScriptSection[];

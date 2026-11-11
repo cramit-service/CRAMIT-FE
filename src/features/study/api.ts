@@ -16,6 +16,7 @@ import type {
   WeekAudioResponse,
   WeekPptResponse,
   WeekResponse,
+  WeekScriptResponse,
   WeekReviewCountResponse,
 } from '@/shared/types/api';
 import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
@@ -329,19 +330,38 @@ export async function getLectureSummary(
   return { chapterId, markdown: r.content, updatedAt: r.updatedAt };
 }
 
+const invalidScript = () =>
+  new ApiRequestError('INVALID_RESPONSE', '스크립트를 해석할 수 없어요.', 0);
+
 // 챕터의 원문 스크립트(STT) 조회
-// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
 export async function getLectureScript(
   chapterId: number,
   signal?: AbortSignal,
 ): Promise<LectureScript> {
-  if (USE_MOCK) {
+  if (USE_MOCK_VIEWER) {
     await delay(300, signal);
     return { ...mockLectureScript, chapterId };
   }
-  return apiClient.get<LectureScript>(`/chapters/${chapterId}/script`, {
-    signal,
-  });
+  const scripts = await apiClient.get<WeekScriptResponse[]>(
+    `/weeks/${chapterId}/scripts`,
+    { signal },
+  );
+  if (
+    !Array.isArray(scripts) ||
+    !scripts.every((s) => Array.isArray(s?.details))
+  ) {
+    throw invalidScript();
+  }
+  return {
+    chapterId,
+    sections: scripts.map((s) => ({
+      page: s.pageNumber,
+      startSec: s.startSec,
+      endSec: s.endSec,
+      title: s.title ?? '',
+      segments: s.details.map((d) => ({ atSec: d.timeSec, text: d.content })),
+    })),
+  };
 }
 
 // STT 변환 상태 조회 (녹음 → 텍스트 변환도 비동기라 READY까지 폴링해야 한다)
@@ -349,13 +369,18 @@ export async function getLectureScriptStatus(
   chapterId: number,
   signal?: AbortSignal,
 ): Promise<ProcessStatus> {
+  if (USE_MOCK_VIEWER) {
+    await delay(300, signal);
+    return 'READY';
+  }
   try {
     const { sttStatus } = await apiClient.get<WeekAudioResponse>(
       `/weeks/${chapterId}/audio`,
       { signal },
     );
-    if (sttStatus === 'COMPLETED') return 'READY';
-    return sttStatus === 'FAILED' ? 'FAILED' : 'PROCESSING';
+    // 모르는 값을 PROCESSING으로 받으면 폴링이 끝나지 않는다
+    if (!Object.hasOwn(JOB_STATUS, sttStatus)) throw invalidScript();
+    return JOB_STATUS[sttStatus];
   } catch (error) {
     // 녹음 없이 만든 주차도 404(ENTITY_NOT_FOUND)다. 주차가 없는 경우는 주차 조회가 잡는다.
     if (
