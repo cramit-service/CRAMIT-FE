@@ -1,6 +1,6 @@
 'use client';
 // src/features/todo/components/TodoChecklist.tsx
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { Todo } from '@/shared/types/api';
 import { Button } from '@/shared/ui/Button';
 import { ScrollArea } from '@/shared/ui/ScrollArea';
@@ -59,17 +59,32 @@ export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
   const { data: todos, isLoading, isError } = useTodos();
   const { filter } = useTodoFilter();
   const toggleMutation = useToggleTodo();
-  const toggling = useRef(false);
+  // 토글은 서버 값을 뒤집으므로 같은 행을 두 번 보내면 되돌아간다. 재조회로 체크가
+  // 반영될 때까지 그 행만 잠근다.
+  const [pendingIds, setPendingIds] = useState<ReadonlySet<number>>(new Set());
+  const [toggleError, setToggleError] = useState<string | null>(null);
 
   const handleToggle = (todoId: number) => {
-    // 렌더 전에 연속 호출돼도 막고, 재조회로 체크가 반영될 때까지 잠근다.
-    if (toggling.current) return;
-    toggling.current = true;
-    toggleMutation.mutate(todoId, {
-      onSettled: () => {
-        toggling.current = false;
-      },
-    });
+    if (pendingIds.has(todoId)) return;
+    setToggleError(null);
+    setPendingIds((prev) => new Set(prev).add(todoId));
+    // mutate의 콜백은 연속 호출 시 마지막 호출에만 불려서, 행마다 풀려면 mutateAsync를 쓴다.
+    toggleMutation
+      .mutateAsync(todoId)
+      // 응답만 끊기고 서버엔 반영됐을 수 있어 "못 했다"고 단정하지 않는다.
+      // 체크는 재조회로 서버 값에 맞춰지므로 그걸 보라고만 한다.
+      .catch(() =>
+        setToggleError(
+          '요청이 제대로 끝나지 않았어요. 체크 상태를 확인해 주세요.',
+        ),
+      )
+      .finally(() =>
+        setPendingIds((prev) => {
+          const next = new Set(prev);
+          next.delete(todoId);
+          return next;
+        }),
+      );
   };
 
   // null이면 닫힘. 'create'는 추가, Todo면 그 할 일의 상세보기(수정).
@@ -105,6 +120,10 @@ export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
   }, [todos, filter, todayStr]);
 
   const emptyMessage = EMPTY_MESSAGE[filter.kind];
+  // 목록이 있는데 isError면 재조회만 실패해 화면이 옛 값이다. 토글 실패보다 먼저 알린다.
+  const notice = isError
+    ? '최신 목록을 불러오지 못했어요. 새로고침해 주세요.'
+    : toggleError;
 
   const addButton = (
     // 시험 일정 카드의 추가하기와 같은 부품·같은 라벨이다.
@@ -117,7 +136,8 @@ export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
     <ScrollArea>
       {isLoading ? (
         <StatusMessage>불러오는 중…</StatusMessage>
-      ) : isError || !todos ? (
+      ) : !todos ? (
+        // 재조회만 실패하면 TanStack Query가 이전 목록을 남겨 두므로 그대로 보여 준다.
         <StatusMessage>
           할 일을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </StatusMessage>
@@ -128,23 +148,25 @@ export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
         // 칸막이까지 있으면 한 화면에 가로선이 스무 개 가까이 깔린다 — 그중 하나만
         // 뜻(완료)이고 나머지는 칸막이라 같은 회색으로는 둘이 구분되지 않는다.
         // 경계는 줄마다 왼쪽에 서는 체크박스가 이미 만든다.
-        <fieldset
-          disabled={toggleMutation.isPending}
-          aria-label="TODO 목록"
-          className="min-w-0"
-        >
+        <>
+          {notice && (
+            <p role="alert" className="text-body-sm text-red-ink px-6 pb-1">
+              {notice}
+            </p>
+          )}
           <ul className="px-6">
             {visible.map((todo) => (
               <TodoRow
                 key={todo.todoId}
                 todo={todo}
                 done={todo.isCompleted}
+                pending={pendingIds.has(todo.todoId)}
                 onToggle={() => handleToggle(todo.todoId)}
                 onEdit={() => setEditing(todo)}
               />
             ))}
           </ul>
-        </fieldset>
+        </>
       )}
     </ScrollArea>
   );
@@ -208,69 +230,80 @@ export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
 function TodoRow({
   todo,
   done,
+  pending,
   onToggle,
   onEdit,
 }: {
   todo: Todo;
   done: boolean;
+  pending: boolean;
   onToggle: () => void;
   onEdit: () => void;
 }) {
   return (
     // 한 줄짜리 행이 40이다 — 제목 줄상자 24 + 여백 8×2. §2 컨트롤 높이의 md이고,
     // 이 화면의 필드·버튼과 같은 칸이다.
-    <li className="group relative flex items-start gap-3 py-2">
-      <Checkbox
-        checked={done}
-        onChange={onToggle}
-        block
-        label={
-          // min-w-0 — 메모에 띄어쓰기 없는 아주 긴 문자열이 들어오면 flex 자동 최소폭
-          // (min-content)이 이 칸을 밀어 넓힌다. 행 상자는 카드 폭에 묶어 둔다.
-          <span className="flex min-w-0 flex-col gap-1">
-            <span className="flex min-w-0 items-center gap-2">
-              <span
-                className={cn(
-                  'text-body-sm truncate font-medium',
-                  done ? 'text-gray-500 line-through' : 'text-gray-800',
-                )}
-              >
-                {todoName(todo)}
-              </span>
-              {/* 연필은 이름 바로 옆이다(시험 일정 행과 같은 자리). 라벨 안이지만
+    <li
+      className={cn(
+        'group relative flex items-start gap-3 py-2',
+        pending && 'opacity-60',
+      )}
+      aria-busy={pending}
+    >
+      {/* Checkbox에 disabled가 없어 fieldset으로 이 행의 입력만 잠근다. */}
+      <fieldset disabled={pending} className="contents">
+        <Checkbox
+          checked={done}
+          onChange={onToggle}
+          block
+          label={
+            // min-w-0 — 메모에 띄어쓰기 없는 아주 긴 문자열이 들어오면 flex 자동 최소폭
+            // (min-content)이 이 칸을 밀어 넓힌다. 행 상자는 카드 폭에 묶어 둔다.
+            <span className="flex min-w-0 flex-col gap-1">
+              <span className="flex min-w-0 items-center gap-2">
+                <span
+                  className={cn(
+                    'text-body-sm truncate font-medium',
+                    done ? 'text-gray-500 line-through' : 'text-gray-800',
+                  )}
+                >
+                  {todoName(todo)}
+                </span>
+                {/* 연필은 이름 바로 옆이다(시험 일정 행과 같은 자리). 라벨 안이지만
                   체크를 토글하지 않는다 — label은 자기 안의 인터랙티브 요소에서 난
                   클릭을 컨트롤로 넘기지 않는다(HTML 사양). 자리는 늘 차지하고 드러나기만
                   하므로, 호버할 때 이름이나 날짜가 밀리지 않는다. */}
-              {/* -my-1 — 버튼은 32(글리프의 두 배, §4)라 그대로 두면 제목 줄(24)을
+                {/* -my-1 — 버튼은 32(글리프의 두 배, §4)라 그대로 두면 제목 줄(24)을
                   밀어 넓힌다. 줄 높이는 글자가 정하고 버튼은 그 위에 얹힌다. */}
-              <span className="-my-1 shrink-0 opacity-0 transition group-focus-within:opacity-100 group-hover:opacity-100">
-                <IconButton
-                  name="edit"
-                  aria-label={`${todoName(todo)} 수정`}
-                  rank="plain"
-                  onClick={onEdit}
-                />
-              </span>
-              <span
-                className={cn(
-                  'text-label ml-auto shrink-0',
-                  done ? 'text-gray-400' : 'text-gray-500',
-                )}
-              >
-                {dueLabel(todo)}
-              </span>
-            </span>
-            {todo.memo && (
-              <span className="text-label flex min-w-0 items-center gap-2 text-gray-500">
-                <span className="flex shrink-0">
-                  <Icon name="memo" size={16} />
+                <span className="-my-1 shrink-0 opacity-0 transition group-focus-within:opacity-100 group-hover:opacity-100">
+                  <IconButton
+                    name="edit"
+                    aria-label={`${todoName(todo)} 수정`}
+                    rank="plain"
+                    onClick={onEdit}
+                  />
                 </span>
-                <span className="truncate">{todo.memo}</span>
+                <span
+                  className={cn(
+                    'text-label ml-auto shrink-0',
+                    done ? 'text-gray-400' : 'text-gray-500',
+                  )}
+                >
+                  {dueLabel(todo)}
+                </span>
               </span>
-            )}
-          </span>
-        }
-      />
+              {todo.memo && (
+                <span className="text-label flex min-w-0 items-center gap-2 text-gray-500">
+                  <span className="flex shrink-0">
+                    <Icon name="memo" size={16} />
+                  </span>
+                  <span className="truncate">{todo.memo}</span>
+                </span>
+              )}
+            </span>
+          }
+        />
+      </fieldset>
     </li>
   );
 }
