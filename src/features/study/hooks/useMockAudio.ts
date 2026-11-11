@@ -6,9 +6,6 @@ import { useEffect, useState } from 'react';
 // 이 훅을 실제 timeupdate/play/pause 이벤트 기반으로 교체한다.
 // 지금은 재생 상태 토글과 진행바 UI만 확인할 수 있게 흉내낸다.
 
-// Figma 시안 표기(12:05 / 61:02)와 맞추기 위한 mock 시작 위치(초)
-const MOCK_START_TIME = 725;
-
 // 뷰어 화면이 쥐고 탭들에 내려주는 재생 상태.
 export interface MockAudio {
   isPlaying: boolean;
@@ -18,14 +15,13 @@ export interface MockAudio {
 }
 
 // duration은 강의자료 조회가 끝나기 전엔 0으로 들어온다.
-// 그동안 rawTime은 그대로 두고 읽는 시점에만 잘라내므로, 자료가 도착하면
-// 시작 위치(12:05)가 저절로 복원된다.
+// 실제 녹음 길이를 쓰므로 처음부터 재생한다. 시안의 12:05 시작은 길이가 그보다
+// 짧은 녹음에서 끝에 붙어 다 들은 것처럼 보였다.
 export function useMockAudio(duration: number): MockAudio {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [rawTime, setRawTime] = useState(MOCK_START_TIME);
+  const [rawTime, setRawTime] = useState(0);
 
-  // duration이 MOCK_START_TIME보다 짧으면 "12:05 / 01:00"처럼 재생 위치가
-  // 길이를 넘어서고 진행바도 100%를 넘는다.
+  // 옮겨 둔 위치보다 duration이 짧아지면 재생 위치가 길이를 넘어서고 진행바도 100%를 넘는다.
   // 상태를 따로 보정하지 않고 읽는 시점에 0~duration으로 자른다.
   // 이러면 자료가 바뀌어 duration이 줄어도 자동으로 따라간다.
   const safeDuration = Math.max(0, duration);
