@@ -250,6 +250,27 @@ async function getWeekPpt(
   }
 }
 
+// 녹음 없이 만든 주차도 404(ENTITY_NOT_FOUND)라 "녹음 없음"으로 받는다.
+async function getWeekAudio(
+  chapterId: number,
+  signal?: AbortSignal,
+): Promise<WeekAudioResponse | null> {
+  try {
+    return await apiClient.get<WeekAudioResponse>(`/weeks/${chapterId}/audio`, {
+      signal,
+    });
+  } catch (error) {
+    if (
+      error instanceof ApiRequestError &&
+      error.status === 404 &&
+      error.code === 'ENTITY_NOT_FOUND'
+    ) {
+      return null;
+    }
+    throw error;
+  }
+}
+
 // 챕터의 강의자료(PDF 위치·페이지 수·녹음 길이) 조회
 export async function getLectureMaterial(
   chapterId: number,
@@ -275,7 +296,10 @@ export async function getLectureMaterial(
     };
   }
 
-  const ppt = await getWeekPpt(chapterId, signal);
+  const [ppt, audio] = await Promise.all([
+    getWeekPpt(chapterId, signal),
+    getWeekAudio(chapterId, signal),
+  ]);
   if (
     ppt &&
     (typeof ppt.fileUrl !== 'string' ||
@@ -287,9 +311,8 @@ export async function getLectureMaterial(
     chapterId,
     pdfUrl: ppt?.fileUrl ?? null,
     pdfPageCount: ppt?.pageCount ?? null,
-    // TODO(백엔드): 녹음 조회 API가 생기면 실제 길이로 바꾼다.
-    // 그때까지 재생·스크립트가 mock이라 길이도 mock에 맞춘다.
-    audioDuration: mockLectureMaterial.audioDuration,
+    // 녹음이 없거나 STT 전이라 길이를 모르면 0(00:00)이다.
+    audioDuration: audio?.durationSec ?? 0,
   };
 }
 
@@ -373,25 +396,11 @@ export async function getLectureScriptStatus(
     await delay(300, signal);
     return 'READY';
   }
-  try {
-    const { sttStatus } = await apiClient.get<WeekAudioResponse>(
-      `/weeks/${chapterId}/audio`,
-      { signal },
-    );
-    // 모르는 값을 PROCESSING으로 받으면 폴링이 끝나지 않는다
-    if (!Object.hasOwn(JOB_STATUS, sttStatus)) throw invalidScript();
-    return JOB_STATUS[sttStatus];
-  } catch (error) {
-    // 녹음 없이 만든 주차도 404(ENTITY_NOT_FOUND)다. 주차가 없는 경우는 주차 조회가 잡는다.
-    if (
-      error instanceof ApiRequestError &&
-      error.status === 404 &&
-      error.code === 'ENTITY_NOT_FOUND'
-    ) {
-      return 'NOT_STARTED';
-    }
-    throw error;
-  }
+  const audio = await getWeekAudio(chapterId, signal);
+  if (!audio) return 'NOT_STARTED';
+  // 모르는 값을 PROCESSING으로 받으면 폴링이 끝나지 않는다
+  if (!Object.hasOwn(JOB_STATUS, audio.sttStatus)) throw invalidScript();
+  return JOB_STATUS[audio.sttStatus];
 }
 
 // 요약 생성 상태 조회 (AI 요약은 비동기라 READY까지 폴링해야 한다)
