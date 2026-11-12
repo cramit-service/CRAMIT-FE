@@ -384,6 +384,8 @@ export interface UpdateTodoRequest extends CreateTodoRequest {
 export interface TodoResponse {
   todoId: number;
   weekId: number | null; // 연결된 주차. 개인 할 일이면 null
+  lectureId: number | null; // 주차가 속한 강의. 주차가 없으면 null
+  lectureName: string | null;
   content: string;
   memo: string | null;
   dueDate: string; // LocalDateTime "2026-07-10T13:30:00"

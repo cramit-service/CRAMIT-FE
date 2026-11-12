@@ -15,7 +15,7 @@ import {
 } from '@/mocks/todo';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로)
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 // 쿼리가 취소되면 실제 fetch처럼 즉시 중단되도록 AbortSignal을 받는다. (study/api.ts와 동일 패턴)
 const delay = (ms: number, signal?: AbortSignal) =>
@@ -53,6 +53,8 @@ function toTodo(r: TodoResponse): Todo {
     !due ||
     typeof r.todoId !== 'number' ||
     (r.weekId !== null && typeof r.weekId !== 'number') ||
+    (r.lectureId !== null && typeof r.lectureId !== 'number') ||
+    (r.lectureName !== null && typeof r.lectureName !== 'string') ||
     typeof r.content !== 'string' ||
     (r.memo !== null && typeof r.memo !== 'string') ||
     typeof r.isCompleted !== 'boolean'
@@ -61,9 +63,8 @@ function toTodo(r: TodoResponse): Todo {
   }
   return {
     todoId: r.todoId,
-    // 서버는 주차(weekId)만 준다. 강의와 강의명은 응답에 없어 비워 둔다.
-    projectId: null,
-    lectureName: null,
+    projectId: r.lectureId,
+    lectureName: r.lectureName,
     title: r.content,
     dueDate: due[1],
     dueTime: due[2] === NO_TIME ? null : due[2],
@@ -97,7 +98,10 @@ export async function getTodos(signal?: AbortSignal): Promise<Todo[]> {
     // 다시 조회하면 참조가 바뀌고, TanStack Query가 갱신으로 알아본다.
     return toTodos(mockTodos);
   }
-  return toTodos(await apiClient.get<TodoResponse[]>('/todos', { signal }));
+  // status가 없으면 서버는 다가오는 미완료 할 일만 준다. 보기는 화면에서 거르므로 전부 받는다.
+  return toTodos(
+    await apiClient.get<TodoResponse[]>('/todos?status=ALL', { signal }),
+  );
 }
 
 // TODO 추가 (Figma 1:1946)
@@ -108,6 +112,8 @@ export async function createTodo(req: CreateTodoRequest): Promise<void> {
     addMockTodo({
       todoId: Date.now(),
       ...toTodoBody(req),
+      lectureId: req.projectId,
+      lectureName: null,
       todoType: 'USER',
       isCompleted: false,
       sortOrder: mockTodos.length,
@@ -124,7 +130,11 @@ export async function updateTodo(req: UpdateTodoRequest): Promise<void> {
     const current = mockTodos.find((t) => t.todoId === req.todoId);
     if (!current) throw new Error('수정할 할 일을 찾지 못했어요.');
     // 완료 여부는 모달이 건드리지 않는다(체크박스가 따로 다룬다).
-    updateMockTodo({ ...current, ...toTodoBody(req) });
+    updateMockTodo({
+      ...current,
+      ...toTodoBody(req),
+      lectureId: req.projectId,
+    });
     return;
   }
   await apiClient.patch<unknown>(`/todos/${req.todoId}`, toTodoBody(req));
@@ -138,4 +148,16 @@ export async function deleteTodo(todoId: number): Promise<void> {
     return;
   }
   await apiClient.delete<void>(`/todos/${todoId}`);
+}
+
+// TODO 완료 토글. 서버가 현재 값을 뒤집으므로 보낼 값이 없다.
+export async function toggleTodo(todoId: number): Promise<void> {
+  if (USE_MOCK) {
+    await delay(300);
+    const current = mockTodos.find((t) => t.todoId === todoId);
+    if (!current) throw new Error('완료 처리할 할 일을 찾지 못했어요.');
+    updateMockTodo({ ...current, isCompleted: !current.isCompleted });
+    return;
+  }
+  await apiClient.patch<unknown>(`/todos/${todoId}/toggle`);
 }

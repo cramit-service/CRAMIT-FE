@@ -9,6 +9,7 @@ import { IconButton } from '@/shared/ui/IconButton';
 import { cn } from '@/shared/lib/cn';
 import { formatShortDate, toLocalDateString } from '@/shared/lib/date';
 import { useTodos } from '@/features/todo/hooks/useTodos';
+import { useToggleTodo } from '@/features/todo/hooks/useTodoMutations';
 import { todoName } from '@/features/todo/lib/todoName';
 import {
   useTodoFilter,
@@ -34,12 +35,6 @@ const EMPTY_MESSAGE: Record<TodoFilter['kind'], string> = {
   date: '이 날짜에 등록된 할 일이 없어요.',
 };
 
-// 화면에 보이는 완료 여부. 로컬 overrides가 서버 값을 덮어쓴다.
-// 목록을 거를 때와 행을 그릴 때가 같은 값을 봐야 해서 한 곳에 둔다.
-function isTodoDone(todo: Todo, overrides: Record<number, boolean>): boolean {
-  return overrides[todo.todoId] ?? todo.isCompleted;
-}
-
 // 배경·라운드는 바깥 카드가 갖고, 여긴 메시지만.
 function StatusMessage({ children }: { children: React.ReactNode }) {
   return (
@@ -63,9 +58,35 @@ interface TodoChecklistProps {
 export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
   const { data: todos, isLoading, isError } = useTodos();
   const { filter } = useTodoFilter();
+  const toggleMutation = useToggleTodo();
+  // 토글은 서버 값을 뒤집으므로 같은 행을 두 번 보내면 되돌아간다. 재조회로 체크가
+  // 반영될 때까지 그 행만 잠근다.
+  const [pendingIds, setPendingIds] = useState<ReadonlySet<number>>(new Set());
+  const [toggleError, setToggleError] = useState<string | null>(null);
 
-  // 완료 토글은 로컬만 반영한다(mock이라 서버 저장 없음). todoId → 덮어쓴 완료값.
-  const [overrides, setOverrides] = useState<Record<number, boolean>>({});
+  const handleToggle = (todoId: number) => {
+    if (pendingIds.has(todoId)) return;
+    setToggleError(null);
+    setPendingIds((prev) => new Set(prev).add(todoId));
+    // mutate의 콜백은 연속 호출 시 마지막 호출에만 불려서, 행마다 풀려면 mutateAsync를 쓴다.
+    toggleMutation
+      .mutateAsync(todoId)
+      // 응답만 끊기고 서버엔 반영됐을 수 있어 "못 했다"고 단정하지 않는다.
+      // 체크는 재조회로 서버 값에 맞춰지므로 그걸 보라고만 한다.
+      .catch(() =>
+        setToggleError(
+          '요청이 제대로 끝나지 않았어요. 체크 상태를 확인해 주세요.',
+        ),
+      )
+      .finally(() =>
+        setPendingIds((prev) => {
+          const next = new Set(prev);
+          next.delete(todoId);
+          return next;
+        }),
+      );
+  };
+
   // null이면 닫힘. 'create'는 추가, Todo면 그 할 일의 상세보기(수정).
   // 닫을 때 통째로 언마운트해 입력값이 다음 열기까지 남지 않게 한다.
   const [editing, setEditing] = useState<Todo | 'create' | null>(null);
@@ -82,28 +103,27 @@ export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
     }
     if (filter.kind === 'past') {
       // 지난 할 일은 "아직 안 한 것"만 본다 — 이미 끝낸 걸 다시 볼 이유가 없다.
-      // 서버 값이 아니라 화면에 체크로 보이는 값(isTodoDone)을 기준으로 삼는다.
-      // 그래서 여기서 완료를 누르면 그 항목은 목록에서 곧바로 빠진다.
+      // 그래서 여기서 완료를 누르면 그 항목은 목록에서 빠진다.
       // 내림차순 — 가장 최근에 지난 것이 먼저 보이는 게 자연스럽다.
       return todos
-        .filter((t) => t.dueDate < todayStr && !isTodoDone(t, overrides))
+        .filter((t) => t.dueDate < todayStr && !t.isCompleted)
         .sort((a, b) => b.dueDate.localeCompare(a.dueDate));
     }
     if (filter.kind === 'done') {
       // 완료한 것만 모아 본다. 날짜와 무관해서 지난 것과 앞으로의 것이 같이 나온다.
       // 최근에 끝냈을 법한 쪽이 위로 오도록 내림차순.
       return todos
-        .filter((t) => isTodoDone(t, overrides))
+        .filter((t) => t.isCompleted)
         .sort((a, b) => b.dueDate.localeCompare(a.dueDate));
     }
     return todos.filter((t) => t.dueDate >= todayStr).sort(ascending);
-  }, [todos, filter, todayStr, overrides]);
+  }, [todos, filter, todayStr]);
 
   const emptyMessage = EMPTY_MESSAGE[filter.kind];
-
-  const isDone = (todo: Todo) => isTodoDone(todo, overrides);
-  const toggle = (todo: Todo) =>
-    setOverrides((prev) => ({ ...prev, [todo.todoId]: !isDone(todo) }));
+  // 목록이 있는데 isError면 재조회만 실패해 화면이 옛 값이다. 토글 실패보다 먼저 알린다.
+  const notice = isError
+    ? '최신 목록을 불러오지 못했어요. 새로고침해 주세요.'
+    : toggleError;
 
   const addButton = (
     // 시험 일정 카드의 추가하기와 같은 부품·같은 라벨이다.
@@ -116,7 +136,8 @@ export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
     <ScrollArea>
       {isLoading ? (
         <StatusMessage>불러오는 중…</StatusMessage>
-      ) : isError || !todos ? (
+      ) : !todos ? (
+        // 재조회만 실패하면 TanStack Query가 이전 목록을 남겨 두므로 그대로 보여 준다.
         <StatusMessage>
           할 일을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </StatusMessage>
@@ -127,17 +148,25 @@ export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
         // 칸막이까지 있으면 한 화면에 가로선이 스무 개 가까이 깔린다 — 그중 하나만
         // 뜻(완료)이고 나머지는 칸막이라 같은 회색으로는 둘이 구분되지 않는다.
         // 경계는 줄마다 왼쪽에 서는 체크박스가 이미 만든다.
-        <ul className="px-6">
-          {visible.map((todo) => (
-            <TodoRow
-              key={todo.todoId}
-              todo={todo}
-              done={isDone(todo)}
-              onToggle={() => toggle(todo)}
-              onEdit={() => setEditing(todo)}
-            />
-          ))}
-        </ul>
+        <>
+          {notice && (
+            <p role="alert" className="text-body-sm text-red-ink px-6 pb-1">
+              {notice}
+            </p>
+          )}
+          <ul className="px-6">
+            {visible.map((todo) => (
+              <TodoRow
+                key={todo.todoId}
+                todo={todo}
+                done={todo.isCompleted}
+                pending={pendingIds.has(todo.todoId)}
+                onToggle={() => handleToggle(todo.todoId)}
+                onEdit={() => setEditing(todo)}
+              />
+            ))}
+          </ul>
+        </>
       )}
     </ScrollArea>
   );
@@ -201,69 +230,80 @@ export function TodoChecklist({ fill = false }: TodoChecklistProps = {}) {
 function TodoRow({
   todo,
   done,
+  pending,
   onToggle,
   onEdit,
 }: {
   todo: Todo;
   done: boolean;
+  pending: boolean;
   onToggle: () => void;
   onEdit: () => void;
 }) {
   return (
     // 한 줄짜리 행이 40이다 — 제목 줄상자 24 + 여백 8×2. §2 컨트롤 높이의 md이고,
     // 이 화면의 필드·버튼과 같은 칸이다.
-    <li className="group relative flex items-start gap-3 py-2">
-      <Checkbox
-        checked={done}
-        onChange={onToggle}
-        block
-        label={
-          // min-w-0 — 메모에 띄어쓰기 없는 아주 긴 문자열이 들어오면 flex 자동 최소폭
-          // (min-content)이 이 칸을 밀어 넓힌다. 행 상자는 카드 폭에 묶어 둔다.
-          <span className="flex min-w-0 flex-col gap-1">
-            <span className="flex min-w-0 items-center gap-2">
-              <span
-                className={cn(
-                  'text-body-sm truncate font-medium',
-                  done ? 'text-gray-500 line-through' : 'text-gray-800',
-                )}
-              >
-                {todoName(todo)}
-              </span>
-              {/* 연필은 이름 바로 옆이다(시험 일정 행과 같은 자리). 라벨 안이지만
+    <li
+      className={cn(
+        'group relative flex items-start gap-3 py-2',
+        pending && 'opacity-60',
+      )}
+      aria-busy={pending}
+    >
+      {/* Checkbox에 disabled가 없어 fieldset으로 이 행의 입력만 잠근다. */}
+      <fieldset disabled={pending} className="contents">
+        <Checkbox
+          checked={done}
+          onChange={onToggle}
+          block
+          label={
+            // min-w-0 — 메모에 띄어쓰기 없는 아주 긴 문자열이 들어오면 flex 자동 최소폭
+            // (min-content)이 이 칸을 밀어 넓힌다. 행 상자는 카드 폭에 묶어 둔다.
+            <span className="flex min-w-0 flex-col gap-1">
+              <span className="flex min-w-0 items-center gap-2">
+                <span
+                  className={cn(
+                    'text-body-sm truncate font-medium',
+                    done ? 'text-gray-500 line-through' : 'text-gray-800',
+                  )}
+                >
+                  {todoName(todo)}
+                </span>
+                {/* 연필은 이름 바로 옆이다(시험 일정 행과 같은 자리). 라벨 안이지만
                   체크를 토글하지 않는다 — label은 자기 안의 인터랙티브 요소에서 난
                   클릭을 컨트롤로 넘기지 않는다(HTML 사양). 자리는 늘 차지하고 드러나기만
                   하므로, 호버할 때 이름이나 날짜가 밀리지 않는다. */}
-              {/* -my-1 — 버튼은 32(글리프의 두 배, §4)라 그대로 두면 제목 줄(24)을
+                {/* -my-1 — 버튼은 32(글리프의 두 배, §4)라 그대로 두면 제목 줄(24)을
                   밀어 넓힌다. 줄 높이는 글자가 정하고 버튼은 그 위에 얹힌다. */}
-              <span className="-my-1 shrink-0 opacity-0 transition group-focus-within:opacity-100 group-hover:opacity-100">
-                <IconButton
-                  name="edit"
-                  aria-label={`${todoName(todo)} 수정`}
-                  rank="plain"
-                  onClick={onEdit}
-                />
-              </span>
-              <span
-                className={cn(
-                  'text-label ml-auto shrink-0',
-                  done ? 'text-gray-400' : 'text-gray-500',
-                )}
-              >
-                {dueLabel(todo)}
-              </span>
-            </span>
-            {todo.memo && (
-              <span className="text-label flex min-w-0 items-center gap-2 text-gray-500">
-                <span className="flex shrink-0">
-                  <Icon name="memo" size={16} />
+                <span className="-my-1 shrink-0 opacity-0 transition group-focus-within:opacity-100 group-hover:opacity-100">
+                  <IconButton
+                    name="edit"
+                    aria-label={`${todoName(todo)} 수정`}
+                    rank="plain"
+                    onClick={onEdit}
+                  />
                 </span>
-                <span className="truncate">{todo.memo}</span>
+                <span
+                  className={cn(
+                    'text-label ml-auto shrink-0',
+                    done ? 'text-gray-400' : 'text-gray-500',
+                  )}
+                >
+                  {dueLabel(todo)}
+                </span>
               </span>
-            )}
-          </span>
-        }
-      />
+              {todo.memo && (
+                <span className="text-label flex min-w-0 items-center gap-2 text-gray-500">
+                  <span className="flex shrink-0">
+                    <Icon name="memo" size={16} />
+                  </span>
+                  <span className="truncate">{todo.memo}</span>
+                </span>
+              )}
+            </span>
+          }
+        />
+      </fieldset>
     </li>
   );
 }
