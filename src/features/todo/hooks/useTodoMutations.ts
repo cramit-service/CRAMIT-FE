@@ -1,7 +1,11 @@
 'use client';
 // src/features/todo/hooks/useTodoMutations.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { CreateTodoRequest, UpdateTodoRequest } from '@/shared/types/api';
+import type {
+  CreateTodoRequest,
+  Todo,
+  UpdateTodoRequest,
+} from '@/shared/types/api';
 import {
   createTodo,
   deleteTodo,
@@ -48,10 +52,22 @@ export function useDeleteTodo() {
 
 // 체크는 재조회 값으로 그리므로 재조회까지 기다린다. 실패해도 다시 읽는다 —
 // 응답만 놓치고 서버엔 저장됐을 수 있는데, 화면이 옛 값이면 다시 눌러 되돌리게 된다.
+// 다른 행의 재조회가 이 행의 재조회를 취소하면 옛 값인 채로 잠금이 풀리므로,
+// 성공하면 캐시부터 뒤집어 둔다.
 export function useToggleTodo() {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateTodos();
   return useMutation<void, Error, number>({
     mutationFn: toggleTodo,
+    onSuccess: (_, todoId) => {
+      queryClient.setQueryData<Todo[]>(['todos'], (todos) =>
+        todos?.map((todo) =>
+          todo.todoId === todoId
+            ? { ...todo, isCompleted: !todo.isCompleted }
+            : todo,
+        ),
+      );
+    },
     onSettled: invalidate,
   });
 }
