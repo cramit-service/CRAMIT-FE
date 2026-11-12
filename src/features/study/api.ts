@@ -298,7 +298,8 @@ export async function getLectureMaterial(
 
   const [ppt, audio] = await Promise.all([
     getWeekPpt(chapterId, signal),
-    getWeekAudio(chapterId, signal),
+    // 녹음 길이는 곁가지라 조회가 실패해도 PDF는 보여야 한다
+    getWeekAudio(chapterId, signal).catch(() => null),
   ]);
   if (
     ppt &&
