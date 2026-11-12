@@ -57,7 +57,8 @@ export function useLectureSummary(chapterId: number) {
   // 쿼리 자체의 status와 헷갈리지 않게 처리 상태는 다른 이름으로 낸다.
   return {
     ...summaryQuery,
-    isProcessing,
+    // 조회가 실패해도 마지막 PROCESSING이 남는다. 그대로 두면 재시도 버튼 없이 "생성 중"에 멈춘다.
+    isProcessing: isProcessing && !statusError,
     processStatus: status,
     statusError,
     retry,
