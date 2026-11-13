@@ -13,8 +13,10 @@ import type {
   ProjectSummary,
   SummaryResponse,
   SummaryStatusResponse,
+  WeekAudioResponse,
   WeekPptResponse,
   WeekResponse,
+  WeekScriptResponse,
   WeekReviewCountResponse,
 } from '@/shared/types/api';
 import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
@@ -248,6 +250,27 @@ async function getWeekPpt(
   }
 }
 
+// 녹음 없이 만든 주차도 404(ENTITY_NOT_FOUND)라 "녹음 없음"으로 받는다.
+async function getWeekAudio(
+  chapterId: number,
+  signal?: AbortSignal,
+): Promise<WeekAudioResponse | null> {
+  try {
+    return await apiClient.get<WeekAudioResponse>(`/weeks/${chapterId}/audio`, {
+      signal,
+    });
+  } catch (error) {
+    if (
+      error instanceof ApiRequestError &&
+      error.status === 404 &&
+      error.code === 'ENTITY_NOT_FOUND'
+    ) {
+      return null;
+    }
+    throw error;
+  }
+}
+
 // 챕터의 강의자료(PDF 위치·페이지 수·녹음 길이) 조회
 export async function getLectureMaterial(
   chapterId: number,
@@ -273,7 +296,11 @@ export async function getLectureMaterial(
     };
   }
 
-  const ppt = await getWeekPpt(chapterId, signal);
+  const [ppt, audio] = await Promise.all([
+    getWeekPpt(chapterId, signal),
+    // 녹음 길이는 곁가지라 조회가 실패해도 PDF는 보여야 한다
+    getWeekAudio(chapterId, signal).catch(() => null),
+  ]);
   if (
     ppt &&
     (typeof ppt.fileUrl !== 'string' ||
@@ -285,9 +312,8 @@ export async function getLectureMaterial(
     chapterId,
     pdfUrl: ppt?.fileUrl ?? null,
     pdfPageCount: ppt?.pageCount ?? null,
-    // TODO(백엔드): 녹음 조회 API가 생기면 실제 길이로 바꾼다.
-    // 그때까지 재생·스크립트가 mock이라 길이도 mock에 맞춘다.
-    audioDuration: mockLectureMaterial.audioDuration,
+    // 녹음이 없거나 STT 전이라 길이를 모르면 0(00:00)이다.
+    audioDuration: audio?.durationSec ?? 0,
   };
 }
 
@@ -328,36 +354,54 @@ export async function getLectureSummary(
   return { chapterId, markdown: r.content, updatedAt: r.updatedAt };
 }
 
+const invalidScript = () =>
+  new ApiRequestError('INVALID_RESPONSE', '스크립트를 해석할 수 없어요.', 0);
+
 // 챕터의 원문 스크립트(STT) 조회
-// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
 export async function getLectureScript(
   chapterId: number,
   signal?: AbortSignal,
 ): Promise<LectureScript> {
-  if (USE_MOCK) {
+  if (USE_MOCK_VIEWER) {
     await delay(300, signal);
     return { ...mockLectureScript, chapterId };
   }
-  return apiClient.get<LectureScript>(`/chapters/${chapterId}/script`, {
-    signal,
-  });
+  const scripts = await apiClient.get<WeekScriptResponse[]>(
+    `/weeks/${chapterId}/scripts`,
+    { signal },
+  );
+  if (
+    !Array.isArray(scripts) ||
+    !scripts.every((s) => Array.isArray(s?.details))
+  ) {
+    throw invalidScript();
+  }
+  return {
+    chapterId,
+    sections: scripts.map((s) => ({
+      page: s.pageNumber,
+      startSec: s.startSec,
+      endSec: s.endSec,
+      title: s.title ?? '',
+      segments: s.details.map((d) => ({ atSec: d.timeSec, text: d.content })),
+    })),
+  };
 }
 
 // STT 변환 상태 조회 (녹음 → 텍스트 변환도 비동기라 READY까지 폴링해야 한다)
-// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
 export async function getLectureScriptStatus(
   chapterId: number,
   signal?: AbortSignal,
 ): Promise<ProcessStatus> {
-  if (USE_MOCK) {
+  if (USE_MOCK_VIEWER) {
     await delay(300, signal);
-    // mock은 이미 변환이 끝난 챕터를 가정한다. 생성 중 화면을 확인하려면
-    // 잠시 'PROCESSING'을 반환하도록 바꿔서 보면 된다. (요약 상태와 같은 방식)
     return 'READY';
   }
-  return apiClient.get<ProcessStatus>(`/chapters/${chapterId}/script/status`, {
-    signal,
-  });
+  const audio = await getWeekAudio(chapterId, signal);
+  if (!audio) return 'NOT_STARTED';
+  // 모르는 값을 PROCESSING으로 받으면 폴링이 끝나지 않는다
+  if (!Object.hasOwn(JOB_STATUS, audio.sttStatus)) throw invalidScript();
+  return JOB_STATUS[audio.sttStatus];
 }
 
 // 요약 생성 상태 조회 (AI 요약은 비동기라 READY까지 폴링해야 한다)

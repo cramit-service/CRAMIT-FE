@@ -46,7 +46,23 @@ export function ScriptTab({
     );
   }
 
-  if (scriptQuery.isPending) {
+  if (
+    scriptQuery.processStatus === 'NOT_STARTED' ||
+    scriptQuery.processStatus === 'FAILED'
+  ) {
+    return (
+      <section className={cn(PANEL, 'items-center justify-center')}>
+        <p className="text-label text-gray-400">
+          {scriptQuery.processStatus === 'FAILED'
+            ? '녹음을 텍스트로 변환하지 못했어요.'
+            : '이 주차에는 녹음이 없어요.'}
+        </p>
+      </section>
+    );
+  }
+
+  // 상태 조회가 실패하면 본문 조회가 열리지 않아 isPending에 머문다. 먼저 걸러낸다.
+  if (!scriptQuery.statusError && scriptQuery.isPending) {
     return (
       <section className={cn(PANEL, 'items-center justify-center')}>
         <p className="text-label text-gray-500">원문 스크립트를 불러오는 중…</p>
@@ -60,7 +76,7 @@ export function ScriptTab({
         <p className="text-label text-gray-400">
           원문 스크립트를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
-        <Button rank="secondary" onClick={() => scriptQuery.refetch()}>
+        <Button rank="secondary" onClick={scriptQuery.retry}>
           다시 시도
         </Button>
       </section>
