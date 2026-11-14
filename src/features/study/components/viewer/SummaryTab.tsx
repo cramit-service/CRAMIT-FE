@@ -105,6 +105,11 @@ export function SummaryTab({
 
   // 학습포인트는 요약 원문을 고쳐 저장하는 것이라 수정하기와 같은 저장 길을 쓴다.
   const saveLearningPoints = (next: string, done: string) => {
+    // 저장 중에 또 고치면 두 요청이 같은 이전 원문에서 출발해서 먼저 넣은 학습포인트가 사라진다.
+    if (updateMutation.isPending) {
+      setNotice('저장 중이에요. 잠시 후 다시 시도해 주세요.');
+      return;
+    }
     updateMutation.mutate(next, {
       onSuccess: () => setNotice(done),
       onError: () =>
