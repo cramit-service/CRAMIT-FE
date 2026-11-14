@@ -379,6 +379,7 @@ export async function getLectureScript(
   return {
     chapterId,
     sections: scripts.map((s) => ({
+      id: s.scriptId,
       page: s.pageNumber,
       startSec: s.startSec,
       endSec: s.endSec,
