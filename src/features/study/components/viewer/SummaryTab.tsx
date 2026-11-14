@@ -1,18 +1,36 @@
 'use client';
 // src/features/study/components/viewer/SummaryTab.tsx
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   useLectureSummary,
   useUpdateLectureSummary,
 } from '@/features/study/hooks/useLectureSummary';
-import { AskAboutSelection } from '@/features/study/components/viewer/AskAboutSelection';
+import {
+  AskAboutSelection,
+  type SelectionAction,
+} from '@/features/study/components/viewer/AskAboutSelection';
+import { LearningPointMenu } from '@/features/study/components/viewer/LearningPointMenu';
+import { LearningPointRail } from '@/features/study/components/viewer/LearningPointRail';
 import { MarkdownContent } from '@/features/study/components/viewer/MarkdownContent';
+import {
+  addLearningPoint,
+  hasLearningPoints,
+  occurrenceBefore,
+  removeLearningPoint,
+} from '@/features/study/lib/learningPoints';
+import { useAskAI } from '@/shared/hooks/useChatDock';
 import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
 import { IconButton } from '@/shared/ui/IconButton';
 import { ScrollArea } from '@/shared/ui/ScrollArea';
 import { Textarea } from '@/shared/ui/Textarea';
+
+const ADD_FAILED = {
+  'not-found': '고른 글을 요약 원문에서 찾지 못했어요',
+  overlap: '이미 학습포인트인 글과 겹쳐요',
+  markup: '글자 모양이 섞인 곳은 한 번에 고를 수 없어요',
+} as const;
 
 // PDF 탭·placeholder와 같은 패널 높이. 탭을 바꿔도 화면이 출렁이지 않게 맞춘다.
 const PANEL = cn(VIEWER_PANEL, 'flex flex-col');
@@ -37,6 +55,14 @@ export function SummaryTab({
   // 조회는 div, 편집은 textarea가 각각 스크롤한다. "맨 위로"는 현재 보이는 쪽을 올린다.
   const viewRef = useRef<HTMLDivElement>(null);
   const editRef = useRef<HTMLTextAreaElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const ask = useAskAI();
+  const [pointMenu, setPointMenu] = useState<{
+    offset: number;
+    anchor: DOMRect;
+    text: string;
+  } | null>(null);
+  const closePointMenu = useCallback(() => setPointMenu(null), []);
 
   useEffect(() => {
     if (!notice) return;
@@ -75,6 +101,57 @@ export function SummaryTab({
       onError: () =>
         setNotice('저장하지 못했어요. 잠시 후 다시 시도해 주세요.'),
     });
+  };
+
+  // 학습포인트는 요약 원문을 고쳐 저장하는 것이라 수정하기와 같은 저장 길을 쓴다.
+  const saveLearningPoints = (next: string, done: string) => {
+    updateMutation.mutate(next, {
+      onSuccess: () => setNotice(done),
+      onError: () =>
+        setNotice('저장하지 못했어요. 잠시 후 다시 시도해 주세요.'),
+    });
+  };
+
+  const learningPointAction: SelectionAction = {
+    label: '학습포인트',
+    icon: 'plus',
+    onSelect: (text, range) => {
+      let occurrence = 0;
+      if (range && contentRef.current) {
+        const before = document.createRange();
+        before.selectNodeContents(contentRef.current);
+        before.setEnd(range.startContainer, range.startOffset);
+        occurrence = occurrenceBefore(before.toString(), text);
+      }
+      const result = addLearningPoint(markdown, text, occurrence);
+      if (!result.ok) {
+        setNotice(ADD_FAILED[result.reason]);
+        return;
+      }
+      saveLearningPoints(result.markdown, '학습포인트로 저장했어요');
+    },
+  };
+
+  // 하이라이트를 누르면 해제 메뉴. 드래그로 글을 고른 끝에 오는 클릭은 고르기 메뉴에 맡긴다.
+  const openPointMenu = (target: EventTarget) => {
+    const mark = (target as Element).closest<HTMLElement>('mark[data-lp]');
+    if (!mark || !window.getSelection()?.isCollapsed) return;
+    setPointMenu({
+      offset: Number(mark.dataset.lp),
+      anchor: mark.getBoundingClientRect(),
+      text: mark.textContent ?? '',
+    });
+  };
+
+  const removePoint = () => {
+    if (!pointMenu) return;
+    const next = removeLearningPoint(markdown, pointMenu.offset);
+    setPointMenu(null);
+    if (next === null) {
+      setNotice('학습포인트를 찾지 못했어요');
+      return;
+    }
+    saveLearningPoints(next, '학습포인트를 해제했어요');
   };
 
   // 요약 생성이 아직 진행 중인 경우 (빈 요약과 구분해서 안내한다)
@@ -207,9 +284,19 @@ export function SummaryTab({
       <div className="relative mt-5 flex min-h-0 flex-1 flex-col rounded-md">
         {mode === 'view' ? (
           <ScrollArea ref={viewRef}>
-            <div className="px-6 py-7">
+            <div
+              ref={contentRef}
+              className={cn(
+                'py-7 pl-6',
+                hasLearningPoints(markdown) ? 'pr-14' : 'pr-6',
+              )}
+              onClick={(e) => openPointMenu(e.target)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') openPointMenu(e.target);
+              }}
+            >
               {markdown ? (
-                <AskAboutSelection>
+                <AskAboutSelection actions={[learningPointAction]}>
                   <MarkdownContent markdown={markdown} />
                 </AskAboutSelection>
               ) : (
@@ -221,16 +308,43 @@ export function SummaryTab({
             </div>
           </ScrollArea>
         ) : (
-          <Textarea
-            ref={editRef}
-            grow
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            // 저장 요청 뒤 입력한 내용은 성공과 함께 view로 넘어가며 조용히 사라진다
-            readOnly={updateMutation.isPending}
-            aria-busy={updateMutation.isPending}
-            spellCheck={false}
-            aria-label="요약 Markdown 원문 편집"
+          <>
+            {hasLearningPoints(draft) && (
+              <p className="text-label mb-3 text-gray-500">
+                학습포인트는 &lt;lp&gt; 태그로 표시돼요. 태그를 지우면
+                학습포인트도 사라져요.
+              </p>
+            )}
+            <Textarea
+              ref={editRef}
+              grow
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              // 저장 요청 뒤 입력한 내용은 성공과 함께 view로 넘어가며 조용히 사라진다
+              readOnly={updateMutation.isPending}
+              aria-busy={updateMutation.isPending}
+              spellCheck={false}
+              aria-label="요약 Markdown 원문 편집"
+            />
+          </>
+        )}
+
+        {mode === 'view' && (
+          <LearningPointRail markdown={markdown} scrollRef={viewRef} />
+        )}
+        {pointMenu && (
+          <LearningPointMenu
+            anchor={pointMenu.anchor}
+            onAsk={
+              ask
+                ? () => {
+                    ask(pointMenu.text);
+                    setPointMenu(null);
+                  }
+                : undefined
+            }
+            onRemove={removePoint}
+            onClose={closePointMenu}
           />
         )}
 

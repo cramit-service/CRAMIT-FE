@@ -1,6 +1,7 @@
 // src/features/study/components/viewer/MarkdownContent.tsx
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { remarkLearningPoints } from '@/features/study/lib/remarkLearningPoints';
 
 // Markdown 원문을 요약 패널(surface) 안에 렌더한다.
 // 제목은 20(body-md) → 18(body) → 16(body-sm)으로 내려간다. 20은 §3이 "카드 제목"에
@@ -61,6 +62,18 @@ const components: Components = {
     </blockquote>
   ),
   hr: () => <hr className="my-6 border-gray-300" />,
+  // 학습포인트. 누르면 해제 메뉴가 뜬다(클릭은 SummaryTab이 위임으로 받는다).
+  mark: ({ children, id, node }) => (
+    <mark
+      id={id}
+      data-lp={String(node?.properties.dataLp ?? '')}
+      role="button"
+      tabIndex={0}
+      className="bg-lime-pale cursor-pointer rounded-sm text-inherit"
+    >
+      {children}
+    </mark>
+  ),
   // 표는 좁은 화면에서 넘칠 수 있어 가로 스크롤 컨테이너로 감싼다
   table: ({ children }) => (
     <div className="my-4 overflow-x-auto">
@@ -96,7 +109,10 @@ const components: Components = {
 
 export function MarkdownContent({ markdown }: { markdown: string }) {
   return (
-    <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm, remarkLearningPoints]}
+      components={components}
+    >
       {markdown}
     </ReactMarkdown>
   );
