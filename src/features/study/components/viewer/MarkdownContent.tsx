@@ -1,6 +1,9 @@
 // src/features/study/components/viewer/MarkdownContent.tsx
+import 'katex/dist/katex.min.css';
 import ReactMarkdown, { type Components } from 'react-markdown';
+import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
 import { remarkLearningPoints } from '@/features/study/lib/remarkLearningPoints';
 
 // Markdown 원문을 요약 패널(surface) 안에 렌더한다.
@@ -110,7 +113,8 @@ const components: Components = {
 export function MarkdownContent({ markdown }: { markdown: string }) {
   return (
     <ReactMarkdown
-      remarkPlugins={[remarkGfm, remarkLearningPoints]}
+      remarkPlugins={[remarkGfm, remarkMath, remarkLearningPoints]}
+      rehypePlugins={[rehypeKatex]}
       components={components}
     >
       {markdown}
