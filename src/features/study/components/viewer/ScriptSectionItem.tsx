@@ -70,31 +70,30 @@ export function ScriptSectionItem({
       {open && (
         <ul id={panelId} className="mt-1 mb-2 flex flex-col gap-1 pl-3">
           {section.segments.map((segment) => {
-            // 재생 중인 문장은 하늘 글자(제품이 알려주는 상태)로만 말한다. 색만 바꿔 줄 폭이 그대로다.
+            // 재생 중인 문장은 줄 전체에 옅은 하늘 면(제품이 알려주는 상태)을 깐다. 시각과 글을 한 덩어리로
+            // 칠해야 hover가 글 색만 바꿔도 둘이 갈라지지 않는다. 면만 바꿔 줄 폭은 그대로다.
             const playing = segment.atSec === playingAtSec;
             return (
               // 문장을 누르면 그 시각부터 재생한다. 드래그로 글을 고른 끝의 클릭은 [AI에게 질문]에 맡긴다.
               <li
                 key={segment.atSec}
                 aria-current={playing ? 'true' : undefined}
-                className="text-label flex cursor-pointer gap-2 hover:[&>span:last-child]:text-gray-800"
+                className={cn(
+                  'text-label -mx-1.5 flex cursor-pointer gap-2 rounded-md px-1.5 hover:[&>span:last-child]:text-gray-800',
+                  playing && 'bg-sky-pale',
+                )}
                 onClick={() => {
                   if (window.getSelection()?.isCollapsed === false) return;
                   onPlayFrom(segment.atSec);
                 }}
               >
-                <span
-                  className={cn(
-                    'shrink-0 tabular-nums select-none',
-                    playing ? 'text-sky-ink' : 'text-gray-500',
-                  )}
-                >
+                <span className="shrink-0 text-gray-500 tabular-nums select-none">
                   {formatPlayTime(segment.atSec)}
                 </span>
                 <span
                   className={cn(
                     'min-w-0 flex-1',
-                    playing ? 'text-sky-ink' : 'text-gray-700',
+                    playing ? 'text-gray-800' : 'text-gray-700',
                   )}
                 >
                   {segment.text}
