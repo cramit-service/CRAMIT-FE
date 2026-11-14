@@ -20,6 +20,10 @@ import {
 import { useProjectSummaries } from '@/features/study/hooks/useProjectSummaries';
 import { SubjectColorField } from '@/shared/ui/SubjectColorField';
 
+// 서버 제한(@Size)과 맞춘다. 잘라내지 않고 넘치면 이유를 보여준다(ExamFormModal과 같은 방식).
+const TITLE_MAX = 255;
+const PROFESSOR_MAX = 100;
+
 interface LectureFormModalProps {
   /** 있으면 수정 모드(주차 목록 헤더의 연필), 없으면 생성 모드(1:2614). */
   project?: ProjectSummary;
@@ -77,7 +81,9 @@ export function LectureFormModal({
 
   // 필수는 강의명 하나다(라벨의 별표). 교수명은 비워도 되고, 시험 날짜는 이 모달에서 빠졌다 —
   // 시험은 강의에 딸린 별개 자료라 홈의 시험 일정에서 다룬다.
-  const filled = title.trim() !== '';
+  const isTitleTooLong = title.trim().length > TITLE_MAX;
+  const isProfessorTooLong = professor.trim().length > PROFESSOR_MAX;
+  const filled = title.trim() !== '' && !isTitleTooLong && !isProfessorTooLong;
   // 수정 모드에서는 바꾼 게 있어야 저장을 연다.
   const changed =
     !isEdit ||
@@ -184,6 +190,11 @@ export function LectureFormModal({
               placeholder="강의 명을 입력해 주세요."
               required
               disabled={busy}
+              error={
+                isTitleTooLong
+                  ? `${TITLE_MAX}자 이내의 강의 명을 입력해 주세요.`
+                  : undefined
+              }
             />
           </div>
         </div>
@@ -196,6 +207,11 @@ export function LectureFormModal({
         onChange={(e) => setProfessor(e.target.value)}
         placeholder="교수명을 입력해 주세요."
         disabled={busy}
+        error={
+          isProfessorTooLong
+            ? `${PROFESSOR_MAX}자 이내의 교수명을 입력해 주세요.`
+            : undefined
+        }
       />
 
       {formError && (
