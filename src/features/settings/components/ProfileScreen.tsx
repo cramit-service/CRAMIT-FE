@@ -10,6 +10,7 @@ import { Button } from '@/shared/ui/Button';
 import { ConfirmModal } from '@/shared/ui/ConfirmModal';
 import { Switch } from '@/shared/ui/Switch';
 import { logout, withdraw } from '@/features/settings/api';
+import { clearAccessToken } from '@/shared/lib/authToken';
 import {
   useMyProfile,
   useUpdateNotifications,
@@ -75,6 +76,7 @@ export function ProfileScreen() {
     setActionError(null);
     try {
       await run();
+      clearAccessToken();
       queryClient.clear();
       router.push('/');
     } catch (error) {
