@@ -27,6 +27,16 @@ export interface User {
   profileImage: string | null;
 }
 
+// 서버 응답 (GET·PATCH /users/me/profile). 이메일·요금제·알림 설정은 내려주지 않는다.
+export interface UserProfileResponse {
+  memberId: number;
+  nickname: string;
+  profileImageUrl: string | null;
+  socialProvider: string;
+  onboardingCompleted: boolean;
+  createdAt: string;
+}
+
 /* ===== 인증 (기획서 8.1) ===== */
 
 export interface SignupRequest {
