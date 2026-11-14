@@ -314,6 +314,7 @@ export async function getLectureMaterial(
     pdfPageCount: ppt?.pageCount ?? null,
     // 녹음이 없거나 STT 전이라 길이를 모르면 0(00:00)이다.
     audioDuration: audio?.durationSec ?? 0,
+    audioUrl: audio?.fileUrl ?? null,
   };
 }
 

@@ -19,7 +19,6 @@ interface AudioPlayerProps {
 }
 
 // 학습 뷰어 상단 오디오 플레이어 (Figma: 어두운 패널 상단 줄).
-// TODO(오디오): 실제 재생은 백엔드 audioUrl 확정 후. 지금은 mock 시간값으로 UI만 동작한다.
 // TODO(매핑): "해당 페이지 수업 듣기"(페이지↔오디오 구간 매핑)는 백엔드 데이터가 필요해 미구현.
 export function AudioPlayer({
   currentPage,

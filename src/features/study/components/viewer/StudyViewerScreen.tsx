@@ -138,7 +138,10 @@ export function StudyViewerScreen({
   // 재생 상태는 탭이 아니라 화면이 쥔다. 탭 안에 두면 탭을 옮길 때마다 언마운트돼
   // 재생 위치가 초기화되고, 원문 스크립트 탭이 그 값을 읽을 방법도 없다.
   // 조회 전에는 duration이 0이지만 훅이 읽는 시점에만 잘라내므로 도착하면 복원된다.
-  const audio = useMockAudio(toPlayDuration(materialQuery.data?.audioDuration));
+  const audio = useMockAudio(
+    materialQuery.data?.audioUrl ?? null,
+    toPlayDuration(materialQuery.data?.audioDuration),
+  );
   // PDF 문서와 보던 페이지·배율도 같은 이유로 화면이 쥔다.
   const pdf = usePdfView(materialQuery.data?.pdfUrl ?? null);
 
