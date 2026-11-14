@@ -15,9 +15,10 @@ const PANEL = cn(VIEWER_PANEL, 'flex flex-col');
 
 interface ScriptTabProps {
   chapterId: number;
-  // 재생 상태는 PDF 탭이 쥐고 있다. 여기선 위치를 보여주기만 한다(시안 안내문 그대로).
+  // 재생 컨트롤은 PDF 탭에만 있다. 여기선 위치를 보여주고, 문장을 누르면 그 시각부터 재생한다.
   currentTime: number;
   duration: number;
+  onPlayFrom: (seconds: number) => void;
 }
 
 // 원문 스크립트 탭. 녹음 STT를 PDF 페이지 단위 구간으로 묶어 아코디언으로 보여준다.
@@ -25,6 +26,7 @@ export function ScriptTab({
   chapterId,
   currentTime,
   duration,
+  onPlayFrom,
 }: ScriptTabProps) {
   const scriptQuery = useLectureScript(chapterId);
   // 펼친 구간의 페이지 번호. 시안처럼 여러 구간을 동시에 펼칠 수 있다.
@@ -90,8 +92,8 @@ export function ScriptTab({
       {/* 상단: 안내문 + 재생 위치 (재생 컨트롤은 PDF 탭에만 둔다) */}
       <div className="flex shrink-0 items-start justify-between gap-4">
         <p className="text-label font-medium text-gray-700">
-          녹음본을 텍스트화해서 PPT 페이지별로 정리했어요. 녹음본 재생은 ‘PDF
-          강의 자료’를 이용해 주세요.
+          녹음본을 텍스트화해서 PPT 페이지별로 정리했어요. 문장을 누르면 그
+          부분부터 재생되고, 멈춤은 ‘PDF 강의 자료’에서 할 수 있어요.
         </p>
         <div className="flex shrink-0 items-center gap-2 text-gray-500">
           <Icon name="time" size={17} />
@@ -118,6 +120,7 @@ export function ScriptTab({
                     section={section}
                     open={openPages.includes(section.page)}
                     onToggle={() => toggle(section.page)}
+                    onPlayFrom={onPlayFrom}
                   />
                 ))}
               </ul>

@@ -9,6 +9,7 @@ export interface MockAudio {
   currentTime: number; // 초
   toggle: () => void;
   seek: (seconds: number) => void;
+  playFrom: (seconds: number) => void; // 스크립트 문장을 누르면 그 시각부터 재생
 }
 
 // src는 R2 공개 URL. 녹음이 없는 주차는 null이라 재생 버튼이 아무 일도 하지 않는다.
@@ -66,5 +67,12 @@ export function useMockAudio(src: string | null, duration: number): MockAudio {
     if (audioRef.current) audioRef.current.currentTime = next;
   };
 
-  return { isPlaying, currentTime, toggle, seek };
+  const playFrom = (seconds: number) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    seek(seconds);
+    audio.play().catch(() => setIsPlaying(false));
+  };
+
+  return { isPlaying, currentTime, toggle, seek, playFrom };
 }

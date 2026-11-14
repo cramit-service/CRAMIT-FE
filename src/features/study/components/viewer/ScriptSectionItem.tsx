@@ -9,6 +9,7 @@ interface ScriptSectionItemProps {
   section: ScriptSection;
   open: boolean;
   onToggle: () => void;
+  onPlayFrom: (seconds: number) => void;
 }
 
 // 원문 스크립트의 한 구간(= PDF 한 페이지). 머리글을 누르면 발화 목록이 펼쳐진다.
@@ -16,6 +17,7 @@ export function ScriptSectionItem({
   section,
   open,
   onToggle,
+  onPlayFrom,
 }: ScriptSectionItemProps) {
   const panelId = `script-section-${section.page}`;
 
@@ -65,7 +67,15 @@ export function ScriptSectionItem({
       {open && (
         <ul id={panelId} className="mt-1 mb-2 flex flex-col gap-1 pl-3">
           {section.segments.map((segment) => (
-            <li key={segment.atSec} className="text-label flex gap-2">
+            // 문장을 누르면 그 시각부터 재생한다. 드래그로 글을 고른 끝의 클릭은 [AI에게 질문]에 맡긴다.
+            <li
+              key={segment.atSec}
+              className="text-label flex cursor-pointer gap-2 hover:[&>span:last-child]:text-gray-900"
+              onClick={() => {
+                if (window.getSelection()?.isCollapsed === false) return;
+                onPlayFrom(segment.atSec);
+              }}
+            >
               <span className="shrink-0 text-gray-500 tabular-nums select-none">
                 {formatPlayTime(segment.atSec)}
               </span>

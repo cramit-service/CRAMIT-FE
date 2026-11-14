@@ -263,12 +263,13 @@ export function StudyViewerScreen({
             )}
           />
         );
-      // 스크립트도 같은 이유로 탭 안에서 조회한다. 재생 위치는 읽기 전용으로 넘긴다
+      // 스크립트도 같은 이유로 탭 안에서 조회한다. 재생 위치를 보여주고, 문장을 누르면 거기부터 재생한다
       case 'SCRIPT':
         return (
           <ScriptTab
             chapterId={chapterId}
             currentTime={audio.currentTime}
+            onPlayFrom={audio.playFrom}
             // 재생 위치를 만든 값과 같은 방식으로 정규화한다(둘이 어긋나면 표기가 달라진다)
             duration={toPlayDuration(materialQuery.data?.audioDuration)}
           />
