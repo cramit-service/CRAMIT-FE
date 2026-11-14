@@ -18,6 +18,7 @@ interface ScriptTabProps {
   // 재생 컨트롤은 PDF 탭에만 있다. 여기선 위치를 보여주고, 문장을 누르면 그 시각부터 재생한다.
   currentTime: number;
   duration: number;
+  isPlaying: boolean;
   onPlayFrom: (seconds: number) => void;
 }
 
@@ -26,6 +27,7 @@ export function ScriptTab({
   chapterId,
   currentTime,
   duration,
+  isPlaying,
   onPlayFrom,
 }: ScriptTabProps) {
   const scriptQuery = useLectureScript(chapterId);
@@ -86,6 +88,17 @@ export function ScriptTab({
   }
 
   const { sections } = scriptQuery.data;
+  // 지금 재생 위치의 문장 = 시작 시각이 재생 위치 이하인 마지막 문장. 한 번도 틀지 않았으면 표시하지 않는다.
+  const playingAtSec =
+    isPlaying || currentTime > 0
+      ? sections
+          .flatMap((s) => s.segments.map((seg) => seg.atSec))
+          .filter((at) => at <= currentTime)
+          .reduce<number | null>(
+            (max, at) => (max === null || at > max ? at : max),
+            null,
+          )
+      : null;
 
   return (
     <section className={cn(PANEL, 'px-6 pt-5')}>
@@ -120,6 +133,7 @@ export function ScriptTab({
                     section={section}
                     open={openPages.includes(section.page)}
                     onToggle={() => toggle(section.page)}
+                    playingAtSec={playingAtSec}
                     onPlayFrom={onPlayFrom}
                   />
                 ))}

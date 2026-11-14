@@ -3,12 +3,14 @@
 import { formatPlayTime } from '@/features/study/lib/format';
 import { Card } from '@/shared/ui/Card';
 import { Icon } from '@/shared/ui/Icon';
+import { cn } from '@/shared/lib/cn';
 import type { ScriptSection } from '@/shared/types/api';
 
 interface ScriptSectionItemProps {
   section: ScriptSection;
   open: boolean;
   onToggle: () => void;
+  playingAtSec: number | null;
   onPlayFrom: (seconds: number) => void;
 }
 
@@ -17,6 +19,7 @@ export function ScriptSectionItem({
   section,
   open,
   onToggle,
+  playingAtSec,
   onPlayFrom,
 }: ScriptSectionItemProps) {
   const panelId = `script-section-${section.page}`;
@@ -66,24 +69,39 @@ export function ScriptSectionItem({
           나중에 진짜 하이라이트가 붙으면 자리가 겹친다. 구분은 글자 색이 맡는다. */}
       {open && (
         <ul id={panelId} className="mt-1 mb-2 flex flex-col gap-1 pl-3">
-          {section.segments.map((segment) => (
-            // 문장을 누르면 그 시각부터 재생한다. 드래그로 글을 고른 끝의 클릭은 [AI에게 질문]에 맡긴다.
-            <li
-              key={segment.atSec}
-              className="text-label flex cursor-pointer gap-2 hover:[&>span:last-child]:text-gray-900"
-              onClick={() => {
-                if (window.getSelection()?.isCollapsed === false) return;
-                onPlayFrom(segment.atSec);
-              }}
-            >
-              <span className="shrink-0 text-gray-500 tabular-nums select-none">
-                {formatPlayTime(segment.atSec)}
-              </span>
-              <span className="min-w-0 flex-1 text-gray-700">
-                {segment.text}
-              </span>
-            </li>
-          ))}
+          {section.segments.map((segment) => {
+            // 재생 중인 문장은 하늘 글자(제품이 알려주는 상태)로만 말한다. 색만 바꿔 줄 폭이 그대로다.
+            const playing = segment.atSec === playingAtSec;
+            return (
+              // 문장을 누르면 그 시각부터 재생한다. 드래그로 글을 고른 끝의 클릭은 [AI에게 질문]에 맡긴다.
+              <li
+                key={segment.atSec}
+                aria-current={playing ? 'true' : undefined}
+                className="text-label flex cursor-pointer gap-2 hover:[&>span:last-child]:text-gray-800"
+                onClick={() => {
+                  if (window.getSelection()?.isCollapsed === false) return;
+                  onPlayFrom(segment.atSec);
+                }}
+              >
+                <span
+                  className={cn(
+                    'shrink-0 tabular-nums select-none',
+                    playing ? 'text-sky-ink' : 'text-gray-500',
+                  )}
+                >
+                  {formatPlayTime(segment.atSec)}
+                </span>
+                <span
+                  className={cn(
+                    'min-w-0 flex-1',
+                    playing ? 'text-sky-ink' : 'text-gray-700',
+                  )}
+                >
+                  {segment.text}
+                </span>
+              </li>
+            );
+          })}
         </ul>
       )}
     </li>

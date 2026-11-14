@@ -269,6 +269,7 @@ export function StudyViewerScreen({
           <ScriptTab
             chapterId={chapterId}
             currentTime={audio.currentTime}
+            isPlaying={audio.isPlaying}
             onPlayFrom={audio.playFrom}
             // 재생 위치를 만든 값과 같은 방식으로 정규화한다(둘이 어긋나면 표기가 달라진다)
             duration={toPlayDuration(materialQuery.data?.audioDuration)}
