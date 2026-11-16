@@ -173,7 +173,7 @@ export function LectureFormModal({
     >
       {/* 색 점이 강의명 왼쪽에 붙는다 — 이름과 색이 한 줄에 있어야 "이 과목의 색"으로 읽힌다. */}
       <FieldGroup label="강의" required>
-        <div className="flex gap-4">
+        <div className="flex items-start gap-4">
           <SubjectColorField
             id={`${fieldId}-color`}
             value={colorIndex}
