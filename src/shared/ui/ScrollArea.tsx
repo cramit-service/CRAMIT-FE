@@ -22,12 +22,15 @@ interface ScrollAreaProps {
   fade?: boolean;
   /** 스크롤하는 노드. 코드가 직접 굴려야 하는 화면이 있다(챗의 맨 아래, 요약의 맨 위로). */
   ref?: React.Ref<HTMLDivElement>;
+  /** 안에 누를 것이 없는 칸(글만 든 칸)에 준다. 칸이 포커스를 받아 키보드로 굴러가고, 이 이름으로 읽힌다. */
+  label?: string;
 }
 
 export function ScrollArea({
   children,
   fade = true,
   ref: forwarded,
+  label,
 }: ScrollAreaProps) {
   const ref = useRef<HTMLDivElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(null);
@@ -136,8 +139,13 @@ export function ScrollArea({
           else if (forwarded) forwarded.current = node;
         }}
         onScroll={handleScroll}
+        tabIndex={label ? 0 : undefined}
+        role={label ? 'region' : undefined}
+        aria-label={label}
         className={cn(
           'scrollbar-hidden min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain',
+          label &&
+            'focus-visible:ring-sky-ink focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
           fade && more && 'fade-bottom',
         )}
       >
