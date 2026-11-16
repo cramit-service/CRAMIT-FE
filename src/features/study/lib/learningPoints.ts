@@ -4,6 +4,12 @@
 // 주석(<!--lp-->)이 아니라 태그인 이유: CommonMark는 줄 머리의 `<!--`를 HTML 블록의 시작으로 읽어서,
 // 목록 항목을 통째로 고르면 그 줄 전체가 HTML로 빠지고 글이 화면에서 사라진다.
 // 이름만 있는 인라인 태그(<lp>)는 줄 머리에 와도 뒤에 글이 이어지면 블록이 되지 않는다.
+import type { Node } from 'unist';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import remarkParse from 'remark-parse';
+import { unified } from 'unified';
+import { remarkLearningPoints } from '@/features/study/lib/remarkLearningPoints';
 
 export const LP_OPEN = '<lp>';
 export const LP_CLOSE = '</lp>';
@@ -96,32 +102,54 @@ function balanced(slice: string) {
   return stack.length === 0;
 }
 
+// 기호 짝만 봐서는 `**`의 여닫이, 문단 경계, 코드·수식 안쪽을 가리지 못한다.
+// 화면과 같은 플러그인으로 다시 읽어 offset 자리에 하이라이트가 실제로 생기는지 본다.
+const parser = unified()
+  .use(remarkParse)
+  .use(remarkGfm)
+  .use(remarkMath)
+  .use(remarkLearningPoints);
+
+function rendersAt(markdown: string, offset: number) {
+  const find = (node: Node): boolean => {
+    const data = node.data as { hProperties?: { dataLp?: number } } | undefined;
+    if (node.type === 'learningPoint' && data?.hProperties?.dataLp === offset) {
+      return true;
+    }
+    return 'children' in node && (node.children as Node[]).some(find);
+  };
+  return find(parser.runSync(parser.parse(markdown)));
+}
+
 export type AddResult =
   | { ok: true; markdown: string }
   | { ok: false; reason: 'not-found' | 'overlap' | 'markup' };
 
 /**
  * 고른 글을 <lp> 태그로 감싼다. 같은 글이 여러 번 나오면 occurrence번째(0부터)를 쓴다.
+ * occurrence를 모르면(선택 범위가 없으면) 원문에 한 번만 나올 때만 감싼다.
  * 서식 경계를 반쯤 걸치면 바깥 기호까지 넓혀 보고, 그래도 안 맞으면 거절한다.
  */
 export function addLearningPoint(
   markdown: string,
   selected: string,
-  occurrence = 0,
+  occurrence?: number,
 ): AddResult {
   const needle = normalizeSelection(selected);
   if (!needle) return { ok: false, reason: 'not-found' };
 
   const { text, at } = toVisible(markdown);
   let found = -1;
-  for (let i = 0, from = 0; i <= occurrence; i += 1) {
+  for (let i = 0, from = 0; i <= (occurrence ?? 0); i += 1) {
     found = text.indexOf(needle, from);
     if (found === -1) break;
     from = found + 1;
   }
-  // 몇 번째인지가 어긋나면(화면과 원문의 차이) 첫 번째라도 쓴다
-  if (found === -1) found = text.indexOf(needle);
+  // 화면에서 센 순번이 원문과 어긋나면(KaTeX가 수식 글자를 두 벌 그리는 등) 엉뚱한 곳을 감싸게 된다
   if (found === -1) return { ok: false, reason: 'not-found' };
+  if (occurrence === undefined && text.indexOf(needle, found + 1) !== -1) {
+    return { ok: false, reason: 'not-found' };
+  }
 
   let start = at[found];
   let end = at[found + needle.length - 1] + 1;
@@ -154,15 +182,14 @@ export function addLearningPoint(
     return { ok: false, reason: 'markup' };
   }
 
-  return {
-    ok: true,
-    markdown:
-      markdown.slice(0, start) +
-      LP_OPEN +
-      markdown.slice(start, end) +
-      LP_CLOSE +
-      markdown.slice(end),
-  };
+  const next =
+    markdown.slice(0, start) +
+    LP_OPEN +
+    markdown.slice(start, end) +
+    LP_CLOSE +
+    markdown.slice(end);
+  if (!rendersAt(next, start)) return { ok: false, reason: 'markup' };
+  return { ok: true, markdown: next };
 }
 
 /** openOffset 자리의 <lp>와 그 짝 </lp>만 빼고 글은 남긴다. 자리가 어긋났으면 null. */

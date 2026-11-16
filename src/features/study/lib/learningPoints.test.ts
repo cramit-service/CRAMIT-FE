@@ -76,3 +76,39 @@ test('목록은 원문 순서와 보이는 글로 만든다', () => {
     { offset: md.lastIndexOf('<lp>'), text: '퀵 정렬' },
   ]);
 });
+
+test('서식이나 문단을 걸쳐 하이라이트가 생기지 않는 선택은 거절한다', () => {
+  assert.deepEqual(
+    addLearningPoint('- **병합 정렬**은 **안정** 정렬이다', '병합 정렬은 안정'),
+    { ok: false, reason: 'markup' },
+  );
+  assert.deepEqual(
+    addLearningPoint('첫 문단\n\n둘째 문단', '첫 문단 둘째 문단'),
+    {
+      ok: false,
+      reason: 'markup',
+    },
+  );
+});
+
+test('인라인 코드나 수식 안쪽은 거절한다', () => {
+  assert.deepEqual(addLearningPoint('`정렬` 함수', '정렬'), {
+    ok: false,
+    reason: 'markup',
+  });
+  assert.deepEqual(addLearningPoint('$O(n \\log n)$ 이다', 'log'), {
+    ok: false,
+    reason: 'markup',
+  });
+});
+
+test('순번이 어긋나거나 모를 때 같은 글이 여럿이면 첫 번째로 대신하지 않는다', () => {
+  assert.deepEqual(addLearningPoint('정렬. 정렬.', '정렬', 2), {
+    ok: false,
+    reason: 'not-found',
+  });
+  assert.deepEqual(addLearningPoint('정렬. 정렬.', '정렬'), {
+    ok: false,
+    reason: 'not-found',
+  });
+});
