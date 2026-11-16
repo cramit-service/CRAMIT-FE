@@ -111,7 +111,11 @@ export async function printSummary({
     root.render(<PrintDocument heading={heading} markdown={markdown} />),
   );
 
-  await Promise.all(loads);
+  // 시트 하나가 load를 끝내 안 주면 버튼이 영영 잠긴다. 3초 뒤에는 있는 대로 인쇄한다.
+  await Promise.race([
+    Promise.all(loads),
+    new Promise((resolve) => setTimeout(resolve, 3000)),
+  ]);
   await doc.fonts.ready;
 
   // PDF 기본 파일 이름을 어느 문서 제목에서 가져올지 브라우저마다 달라 바깥 제목도 잠시 맞춘다
