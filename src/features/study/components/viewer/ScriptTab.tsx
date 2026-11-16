@@ -20,6 +20,7 @@ interface ScriptTabProps {
   duration: number;
   isPlaying: boolean;
   onPlayFrom: (seconds: number) => void;
+  canPlay: boolean; // 녹음이 없거나 불러오지 못했으면 문장을 눌러도 재생할 것이 없다
 }
 
 // 원문 스크립트 탭. 녹음 STT를 PDF 페이지 단위 구간으로 묶어 아코디언으로 보여준다.
@@ -29,6 +30,7 @@ export function ScriptTab({
   duration,
   isPlaying,
   onPlayFrom,
+  canPlay,
 }: ScriptTabProps) {
   const scriptQuery = useLectureScript(chapterId);
   // 펼친 구간의 id. 시안처럼 여러 구간을 동시에 펼칠 수 있다.
@@ -134,7 +136,7 @@ export function ScriptTab({
                     open={openIds.includes(section.id)}
                     onToggle={() => toggle(section.id)}
                     playingAtSec={playingAtSec}
-                    onPlayFrom={onPlayFrom}
+                    onPlayFrom={canPlay ? onPlayFrom : null}
                   />
                 ))}
               </ul>

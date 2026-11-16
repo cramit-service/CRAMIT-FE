@@ -141,6 +141,7 @@ export function StudyViewerScreen({
   const audio = useMockAudio(
     materialQuery.data?.audioUrl ?? null,
     toPlayDuration(materialQuery.data?.audioDuration),
+    materialQuery.data?.audioFailed ?? false,
   );
   // PDF 문서와 보던 페이지·배율도 같은 이유로 화면이 쥔다.
   const pdf = usePdfView(materialQuery.data?.pdfUrl ?? null);
@@ -263,7 +264,7 @@ export function StudyViewerScreen({
             )}
           />
         );
-      // 스크립트도 같은 이유로 탭 안에서 조회한다. 재생 위치를 보여주고, 문장을 누르면 거기부터 재생한다
+      // 스크립트도 같은 이유로 탭 안에서 조회한다. 재생 위치를 보여주고, 문장의 시각을 누르면 거기부터 재생한다
       case 'SCRIPT':
         return (
           <ScriptTab
@@ -271,8 +272,8 @@ export function StudyViewerScreen({
             currentTime={audio.currentTime}
             isPlaying={audio.isPlaying}
             onPlayFrom={audio.playFrom}
-            // 재생 위치를 만든 값과 같은 방식으로 정규화한다(둘이 어긋나면 표기가 달라진다)
-            duration={toPlayDuration(materialQuery.data?.audioDuration)}
+            canPlay={audio.canPlay}
+            duration={audio.duration}
           />
         );
       // TODO(백엔드): 지금은 내 할 일 전체가 뜬다. 조회에 강의·주차 필터가 생기면

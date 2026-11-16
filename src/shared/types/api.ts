@@ -206,6 +206,7 @@ export interface LectureMaterial {
   pdfPageCount: number | null; // 서버가 아직 세지 않아 대개 null이다
   audioDuration: number; // 녹음 길이(초). 예: 3662 = 61:02
   audioUrl: string | null; // 재생할 녹음. 녹음이 없는 주차면 null
+  audioFailed: boolean; // 녹음 조회가 실패했다(녹음 없음과 구분한다)
 }
 
 // 서버 응답 (GET /weeks/{weekId}/ppt). PDF가 없는 주차는 404다.

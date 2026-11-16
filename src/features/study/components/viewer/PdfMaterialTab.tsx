@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import type { MockAudio } from '@/features/study/hooks/useMockAudio';
 import type { PdfView } from '@/features/study/hooks/usePdfView';
-import { toPlayDuration } from '@/features/study/lib/format';
 import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
 import { AudioPlayer } from '@/features/study/components/viewer/AudioPlayer';
 import { checkerStyle } from '@/features/study/components/viewer/PdfPlaceholder';
@@ -90,8 +89,10 @@ export function PdfMaterialTab({ material, audio, pdf }: PdfMaterialTabProps) {
         isPlaying={audio.isPlaying}
         onTogglePlay={audio.toggle}
         currentTime={audio.currentTime}
-        duration={toPlayDuration(material.audioDuration)}
+        duration={audio.duration}
         onSeek={audio.seek}
+        canPlay={audio.canPlay}
+        failed={audio.failed}
       />
 
       <div className="flex min-h-0 flex-1 px-6 pb-5">

@@ -298,8 +298,8 @@ export async function getLectureMaterial(
 
   const [ppt, audio] = await Promise.all([
     getWeekPpt(chapterId, signal),
-    // 녹음 길이는 곁가지라 조회가 실패해도 PDF는 보여야 한다
-    getWeekAudio(chapterId, signal).catch(() => null),
+    // 녹음은 곁가지라 조회가 실패해도 PDF는 보여야 한다. 다만 녹음 없음(404 → null)과는 구분해 둔다.
+    getWeekAudio(chapterId, signal).catch(() => 'failed' as const),
   ]);
   if (
     ppt &&
@@ -308,13 +308,15 @@ export async function getLectureMaterial(
   ) {
     throw invalidMaterial();
   }
+  const recording = audio === 'failed' ? null : audio;
   return {
     chapterId,
     pdfUrl: ppt?.fileUrl ?? null,
     pdfPageCount: ppt?.pageCount ?? null,
     // 녹음이 없거나 STT 전이라 길이를 모르면 0(00:00)이다.
-    audioDuration: audio?.durationSec ?? 0,
-    audioUrl: audio?.fileUrl ?? null,
+    audioDuration: recording?.durationSec ?? 0,
+    audioUrl: recording?.fileUrl ?? null,
+    audioFailed: audio === 'failed',
   };
 }
 
