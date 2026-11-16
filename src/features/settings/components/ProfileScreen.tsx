@@ -41,7 +41,6 @@ export function ProfileScreen() {
 
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [leaving, setLeaving] = useState(false);
-  const [planNotice, setPlanNotice] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
   if (isPending) {
@@ -139,16 +138,15 @@ export function ProfileScreen() {
           <SettingRow label={PLAN_LABEL[profile.plan]}>
             {/* 채움이 bg-secondary-400이라 토큰에 없어 투명하게 렌더되고, 글자도
                 gray-950이 죽어 어두운 판 위에서 1.38:1이었다 — 버튼이 사실상 없었다. */}
-            <Button rank="secondary" onClick={() => setPlanNotice(true)}>
+            <Button rank="secondary" disabled>
               플랜 변경
             </Button>
           </SettingRow>
-          {/* 요금제 변경 화면이 시안에 없다. 버튼은 시안대로 두고 눌렀을 때 상태만 알린다. */}
-          {planNotice && (
-            <p role="status" className="text-body text-gray-600">
-              요금제 변경은 준비 중이에요.
-            </p>
-          )}
+          {/* 요금제 변경 화면이 시안에 없다. 누른 뒤에 알리면 되는 줄 알고 누르게 되므로,
+              버튼을 끄고 준비 중임을 먼저 적어 둔다. */}
+          <p className="text-body text-gray-600">
+            요금제 변경은 준비 중이에요.
+          </p>
         </SettingSection>
 
         <SettingSection title="계정 설정">
