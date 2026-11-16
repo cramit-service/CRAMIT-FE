@@ -121,7 +121,7 @@ export function SummaryTab({
     label: '학습포인트',
     icon: 'plus',
     onSelect: (text, range) => {
-      let occurrence = 0;
+      let occurrence: number | undefined;
       if (range && contentRef.current) {
         const before = document.createRange();
         before.selectNodeContents(contentRef.current);
@@ -253,6 +253,8 @@ export function SummaryTab({
                 glyph={16}
                 rank="secondary"
                 aria-label="요약 수정하기"
+                // 학습포인트 저장 중에 열면 저장 전 원문이 초안이 되어, 수정하기가 방금 넣은 학습포인트를 지운다
+                disabled={updateMutation.isPending}
                 onClick={() => {
                   setDraft(markdown);
                   setMode('edit');
