@@ -93,11 +93,11 @@ export async function updateLecture(req: UpdateProjectRequest): Promise<void> {
     });
     return;
   }
-  // 서버는 professorName이 null이면 기존 값을 유지하므로, 비운 교수명은 빈 문자열로 보낸다.
-  await apiClient.patch<unknown>(`/lectures/${req.projectId}`, {
-    ...toLectureBody(req),
-    professorName: req.professor ?? '',
-  });
+  // 서버는 professorName 필드가 없으면 기존 값을 유지하고, null이면 지운다.
+  await apiClient.patch<unknown>(
+    `/lectures/${req.projectId}`,
+    toLectureBody(req),
+  );
 }
 
 // 강의 삭제 — 수정 모달 왼쪽 아래의 "삭제하기". 되돌릴 수 없으므로 화면이 먼저
