@@ -1,7 +1,7 @@
 'use client';
 // src/shared/ui/FormModal.tsx
-// DESIGN.md §4 "There are two modals, and neither has a close button" /
-// "A modal says out loud what it says to a reader" / "Both modals are 655 wide".
+// DESIGN.md §4 "There are three modals, and none has a ×" /
+// "A modal says out loud what it says to a reader" / "Every modal is 655 wide".
 import { useId } from 'react';
 import { Button } from '@/shared/ui/Button';
 import { Modal } from '@/shared/ui/Modal';

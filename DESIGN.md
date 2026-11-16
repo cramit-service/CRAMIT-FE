@@ -700,8 +700,8 @@ hidden bar, and a hand-drawn bar. Two of those utilities turned out to render
 identically to the default.
 
 **An area with nothing to press inside takes focus itself.** Given a `label`, the
-scrolling box becomes a named region in the tab order, so a keyboard can move
-through text that has no control in it.
+scrolling box becomes a named region, and while it overflows it stands in the
+tab order, so a keyboard can move through text that has no control in it.
 
 **Padding belongs to the content, not to the scrolling box.** The bar sits on
 the right edge of the area, so anything padding the box pushes text under the
@@ -1287,7 +1287,7 @@ them (192 + 12 + 120 + 12 + 346 = 682 against 559 of content).
 **So the thing to keep straight is the label, not the width.** That is §6's,
 and §6 has not settled it yet.
 
-#### There are three modals, and none has a close button
+#### There are three modals, and none has a ×
 
 **A modal asks for input, asks a question, or holds a text to read before
 deciding.**
@@ -1301,8 +1301,8 @@ deciding.**
 `Modal` stays underneath all three — focus trap, Escape, scroll lock, dim — and
 screens do not call it. Three is the whole list a screen can reach for.
 
-**There is no ×.** The footer always carries cancel, so a close button would be
-a second way out sitting in a corner, and the corner is the one a person finds
+**There is no ×.** The footer always carries a way out — cancel, or close where
+reading changed nothing — so a × would be a second way out sitting in a corner, and the corner is the one a person finds
 last. Escape and the dim still close a modal; they are not what the screen is
 counting on.
 
@@ -2453,7 +2453,7 @@ nothing beside it, in all six places it appears. There is no width to keep
 apart, so `~하기` would buy nothing and cost two characters.
 
 This is the boundary, not a list of exceptions: **the rule applies wherever two
-buttons share a footer**, which is every modal, the profile form, and the
+buttons share a footer**, which is every modal with an action, the profile form, and the
 summary editor's toolbar.
 
 #### A pressed button drops `하기` and takes `중…`

@@ -1,6 +1,6 @@
 'use client';
 // src/shared/ui/DocumentModal.tsx
-// DESIGN.md §4 "There are three modals, and none has a close button" /
+// DESIGN.md §4 "There are three modals, and none has a ×" /
 // "A text to read is not a form and not a question".
 import { useId } from 'react';
 import { Button } from '@/shared/ui/Button';
@@ -29,7 +29,7 @@ export function DocumentModal({
 
   return (
     <Modal open={open} onClose={onClose} labelledBy={titleId}>
-      {/* 여백은 FormModal과 같다. 제목과 푸터는 제자리에 서고 글만 구른다. */}
+      {/* 여백은 FormModal과 같다 */}
       <h2
         id={titleId}
         className="text-heading-sm shrink-0 px-12 pt-12 pb-8 font-semibold text-gray-800"
@@ -38,13 +38,12 @@ export function DocumentModal({
       </h2>
 
       <ScrollArea label={`${title} 본문`}>
-        <div className="text-body-sm px-12 whitespace-pre-line text-gray-700">
+        <div className="text-body-sm px-12 wrap-break-word whitespace-pre-line text-gray-700">
           {children}
         </div>
       </ScrollArea>
 
       <div className="flex shrink-0 items-center justify-end gap-3 px-12 pt-8 pb-12">
-        {/* 읽기만 했으니 되돌릴 것이 없다 — 취소가 아니라 닫기다 */}
         <Button rank="secondary" onClick={onClose}>
           닫기
         </Button>
