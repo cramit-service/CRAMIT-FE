@@ -27,12 +27,12 @@ export function ScriptTab({
   duration,
 }: ScriptTabProps) {
   const scriptQuery = useLectureScript(chapterId);
-  // 펼친 구간의 페이지 번호. 시안처럼 여러 구간을 동시에 펼칠 수 있다.
-  const [openPages, setOpenPages] = useState<number[]>([]);
+  // 펼친 구간의 id. 시안처럼 여러 구간을 동시에 펼칠 수 있다.
+  const [openIds, setOpenIds] = useState<number[]>([]);
 
-  const toggle = (page: number) =>
-    setOpenPages((prev) =>
-      prev.includes(page) ? prev.filter((p) => p !== page) : [...prev, page],
+  const toggle = (id: number) =>
+    setOpenIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
 
   // STT 변환이 아직 안 끝난 경우 (조회 실패와 구분해서 안내한다)
@@ -114,10 +114,10 @@ export function ScriptTab({
               <ul className="flex flex-col gap-1 pr-3">
                 {sections.map((section) => (
                   <ScriptSectionItem
-                    key={section.page}
+                    key={section.id}
                     section={section}
-                    open={openPages.includes(section.page)}
-                    onToggle={() => toggle(section.page)}
+                    open={openIds.includes(section.id)}
+                    onToggle={() => toggle(section.id)}
                   />
                 ))}
               </ul>
