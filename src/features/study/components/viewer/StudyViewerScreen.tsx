@@ -258,6 +258,7 @@ export function StudyViewerScreen({
               /\s+/g,
               '_',
             )}
+            heading={`${project.title} · ${chapter.title}`}
           />
         );
       // 스크립트도 같은 이유로 탭 안에서 조회한다. 재생 위치는 읽기 전용으로 넘긴다

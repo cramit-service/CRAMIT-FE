@@ -8,6 +8,7 @@ import {
 import { AskAboutSelection } from '@/features/study/components/viewer/AskAboutSelection';
 import { MarkdownContent } from '@/features/study/components/viewer/MarkdownContent';
 import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
+import { printSummary } from '@/features/study/lib/printSummary';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
 import { IconButton } from '@/shared/ui/IconButton';
@@ -22,9 +23,12 @@ const PANEL = cn(VIEWER_PANEL, 'flex flex-col');
 export function SummaryTab({
   chapterId,
   fileName,
+  heading,
 }: {
   chapterId: number;
   fileName: string;
+  /** PDF 첫 쪽 머리. 강의명 · 주차 제목 */
+  heading: string;
 }) {
   const summaryQuery = useLectureSummary(chapterId);
   const updateMutation = useUpdateLectureSummary(chapterId);
@@ -33,6 +37,7 @@ export function SummaryTab({
   const [draft, setDraft] = useState('');
   // 복사·다운로드 결과를 알리는 짧은 안내문 (2초 뒤 사라짐)
   const [notice, setNotice] = useState<string | null>(null);
+  const [printing, setPrinting] = useState(false);
 
   // 조회는 div, 편집은 textarea가 각각 스크롤한다. "맨 위로"는 현재 보이는 쪽을 올린다.
   const viewRef = useRef<HTMLDivElement>(null);
@@ -60,6 +65,21 @@ export function SummaryTab({
       setNotice('Markdown을 복사했어요');
     } catch {
       setNotice('복사하지 못했어요');
+    }
+  };
+
+  const handlePrint = async () => {
+    setPrinting(true);
+    try {
+      await printSummary({
+        title: fileName.replace(/\.md$/, ''),
+        heading,
+        markdown,
+      });
+    } catch {
+      setNotice('인쇄 창을 열지 못했어요');
+    } finally {
+      setPrinting(false);
     }
   };
 
@@ -152,11 +172,12 @@ export function SummaryTab({
 
           {mode === 'view' ? (
             <>
+              {/* 이름은 시안 그대로다. 누르면 인쇄 창이 뜨고 대상에서 PDF로 저장을 고른다. */}
               <Button
                 rank="secondary"
                 size="sm"
-                // TODO(백엔드/라이브러리): 실제 PDF 생성이 필요해 아직 동작하지 않는다.
-                onClick={() => setNotice('PDF 다운로드는 준비 중이에요')}
+                disabled={!markdown || printing}
+                onClick={handlePrint}
               >
                 PDF로 다운로드
               </Button>
