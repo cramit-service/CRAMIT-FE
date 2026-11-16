@@ -699,6 +699,10 @@ treatments: a bar with a track, a bar without one, a hand-drawn gradient over a
 hidden bar, and a hand-drawn bar. Two of those utilities turned out to render
 identically to the default.
 
+**An area with nothing to press inside takes focus itself.** Given a `label`, the
+scrolling box becomes a named region in the tab order, so a keyboard can move
+through text that has no control in it.
+
 **Padding belongs to the content, not to the scrolling box.** The bar sits on
 the right edge of the area, so anything padding the box pushes text under the
 bar or the bar off the edge — every call site that had tried to solve this had a
@@ -1081,7 +1085,7 @@ hand anyway.
 
 ### Catalogue
 
-The button family, the two modals, the field, the list the four pickers share,
+The button family, the three modals, the field, the list the four pickers share,
 the badge, the card, the toggle and the icon button are settled below. What is
 still open in §4 is the failure slot inside a chapter, named where the states
 end.
@@ -1283,17 +1287,19 @@ them (192 + 12 + 120 + 12 + 346 = 682 against 559 of content).
 **So the thing to keep straight is the label, not the width.** That is §6's,
 and §6 has not settled it yet.
 
-#### There are two modals, and neither has a close button
+#### There are three modals, and none has a close button
 
-**A modal is either asking for input or asking a question.**
+**A modal asks for input, asks a question, or holds a text to read before
+deciding.**
 
-| Component      | What it is                         | Heading             | Footer                       |
-| -------------- | ---------------------------------- | ------------------- | ---------------------------- |
-| `FormModal`    | Fields to fill and a thing to save | A title above them  | Cancel and the saving action |
-| `ConfirmModal` | One question about one action      | The question itself | Cancel and the action        |
+| Component       | What it is                         | Heading             | Footer                                   |
+| --------------- | ---------------------------------- | ------------------- | ---------------------------------------- |
+| `FormModal`     | Fields to fill and a thing to save | A title above them  | Cancel and the saving action             |
+| `ConfirmModal`  | One question about one action      | The question itself | Cancel and the action                    |
+| `DocumentModal` | A text to read, such as a term     | The text's title    | Close, and the text's one action, if any |
 
-`Modal` stays underneath both — focus trap, Escape, scroll lock, dim — and
-screens do not call it. Two is the whole list a screen can reach for.
+`Modal` stays underneath all three — focus trap, Escape, scroll lock, dim — and
+screens do not call it. Three is the whole list a screen can reach for.
 
 **There is no ×.** The footer always carries cancel, so a close button would be
 a second way out sitting in a corner, and the corner is the one a person finds
@@ -1309,6 +1315,22 @@ action and takes the border treatment §4 already defines.
 Delete stands at the other end of the footer, away from the pair. Two filled
 buttons in one row would otherwise be lime and red side by side, each claiming
 the row; the gap is what ranks them.
+
+#### A text to read is not a form and not a question
+
+`DocumentModal` came with onboarding's terms (#160). A term has to be readable
+before it is agreed to, and neither modal could hold one: `FormModal`'s footer
+saves, and a term has nothing to save; `ConfirmModal`'s heading is a question,
+and a term's title is not one.
+
+**Its footer closes rather than cancels** — reading changes nothing, so there is
+nothing to undo. Beside it stands at most one action, the one the text is for,
+named by the screen: `동의하기` for a term.
+
+It keeps `FormModal`'s three bands: the title and the footer hold still and the
+text scrolls between them. With nothing to press inside, the scrolling band
+takes focus itself, or a keyboard could not read past the first screen of a long
+term.
 
 #### A modal says out loud what it says to a reader
 
@@ -1352,11 +1374,12 @@ the way.
 
 Three form modals are left: the exam, the todo and the lecture.
 
-#### Both modals are 655 wide, and neither scales
+#### Every modal is 655 wide, and none scales
 
 **655px, fixed, at every window width.** The confirming modal takes it from the
 design file; the form modal takes it from the confirming one, because a panel
 that turns from a form into a question should not change size while doing it.
+The document modal takes the same number, so no modal is a different size.
 
 Fixed rather than proportional is a change to §5, which had the modal follow the
 viewport. A modal that scales takes everything inside it along — a field at full
@@ -2244,7 +2267,7 @@ side by side — material against summary, calendar against TODO — and there a
 wider column is more of what the screen is for. Settings and onboarding read down
 a single column, and widening those only lengthens the lines.
 
-**The reading column is 655, which is the width §4 already gave both modals.** A
+**The reading column is 655, which is the width §4 already gave every modal.** A
 modal is this product's existing one-column reading surface: one column, fields
 and short lines, nothing beside anything. Settings and onboarding are the same
 situation, so the number is not chosen again — the decision is reused. It lives
