@@ -22,14 +22,21 @@ const PLANS: Plan[] = [
     name: 'Free',
     price: '무료',
     description: '시작을 위한 플랜',
-    features: ['내용1', '내용2'],
+    // 카드 글 칸이 145px 남짓이라 한 줄 아홉 자 안으로 쓴다
+    features: [
+      'AI 강의 요약',
+      '강의 다시 듣기',
+      'AI 챗봇 질문',
+      '시험·TODO 관리',
+    ],
   },
+  // 서버가 플랜마다 차이를 두지 않아 잠긴 플랜에는 적을 혜택이 없다. '준비 중' 배지만 남긴다.
   {
     id: 'BASIC',
     name: 'Basic',
     price: '4,900₩',
     description: '꾸준한 성장을 위한 플랜',
-    features: ['내용1', '내용2'],
+    features: [],
     locked: true,
   },
   {
@@ -37,7 +44,7 @@ const PLANS: Plan[] = [
     name: 'Premium',
     price: '9,900₩',
     description: '가장 깊이 있는 분석 경험',
-    features: ['내용1', '내용2'],
+    features: [],
     locked: true,
   },
 ];
@@ -112,19 +119,21 @@ export function PlanStep({ selectedPlan, onSelect }: PlanStepProps) {
                       {plan.description}
                     </span>
 
-                    <span className="mt-6 flex flex-col gap-2">
-                      {plan.features.map((feature) => (
-                        <span
-                          key={feature}
-                          className="text-body-sm flex items-center gap-2 text-gray-700"
-                        >
-                          <span className="flex shrink-0 text-gray-400">
-                            <Icon name="check" size={16} />
+                    {plan.features.length > 0 && (
+                      <span className="mt-6 flex flex-col gap-2">
+                        {plan.features.map((feature) => (
+                          <span
+                            key={feature}
+                            className="text-body-sm flex items-center gap-2 text-gray-700"
+                          >
+                            <span className="flex shrink-0 text-gray-400">
+                              <Icon name="check" size={16} />
+                            </span>
+                            {feature}
                           </span>
-                          {feature}
-                        </span>
-                      ))}
-                    </span>
+                        ))}
+                      </span>
+                    )}
                   </span>
                 </span>
               </Card>
