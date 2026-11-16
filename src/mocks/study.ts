@@ -213,6 +213,7 @@ export const mockLectureScript: LectureScript = {
   chapterId: 4,
   sections: [
     {
+      id: 1,
       page: 1,
       startSec: 0,
       endSec: 492,
@@ -233,6 +234,7 @@ export const mockLectureScript: LectureScript = {
       ],
     },
     {
+      id: 2,
       page: 2,
       startSec: 493,
       endSec: 682,
@@ -249,6 +251,7 @@ export const mockLectureScript: LectureScript = {
       ],
     },
     {
+      id: 3,
       page: 3,
       startSec: 683,
       endSec: 1092,
@@ -269,6 +272,7 @@ export const mockLectureScript: LectureScript = {
       ],
     },
     {
+      id: 4,
       page: 4,
       startSec: 1093,
       endSec: 1202,
@@ -281,6 +285,7 @@ export const mockLectureScript: LectureScript = {
       ],
     },
     {
+      id: 5,
       page: 5,
       startSec: 1203,
       endSec: 1457,
@@ -297,6 +302,7 @@ export const mockLectureScript: LectureScript = {
       ],
     },
     {
+      id: 6,
       page: 6,
       startSec: 1458,
       endSec: 1592,
@@ -313,6 +319,7 @@ export const mockLectureScript: LectureScript = {
       ],
     },
     {
+      id: 7,
       page: 7,
       startSec: 1593,
       endSec: 1798,
@@ -329,6 +336,7 @@ export const mockLectureScript: LectureScript = {
       ],
     },
     {
+      id: 8,
       page: 8,
       startSec: 1799,
       endSec: 2140,
@@ -345,6 +353,7 @@ export const mockLectureScript: LectureScript = {
       ],
     },
     {
+      id: 9,
       page: 9,
       startSec: 2141,
       endSec: 2480,
@@ -361,6 +370,7 @@ export const mockLectureScript: LectureScript = {
       ],
     },
     {
+      id: 10,
       page: 10,
       startSec: 2481,
       endSec: 2885,
@@ -381,6 +391,7 @@ export const mockLectureScript: LectureScript = {
       ],
     },
     {
+      id: 11,
       page: 11,
       startSec: 2886,
       endSec: 3270,
@@ -397,6 +408,7 @@ export const mockLectureScript: LectureScript = {
       ],
     },
     {
+      id: 12,
       page: 12,
       startSec: 3271,
       endSec: 3662,

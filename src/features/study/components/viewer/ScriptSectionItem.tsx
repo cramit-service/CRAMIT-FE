@@ -22,7 +22,7 @@ export function ScriptSectionItem({
   playingAtSec,
   onPlayFrom,
 }: ScriptSectionItemProps) {
-  const panelId = `script-section-${section.page}`;
+  const panelId = `script-section-${section.id}`;
 
   return (
     // 이분할에서 패널이 좁아지면 이 행이 먼저 무너진다. 창이 아니라 이 행 자체의

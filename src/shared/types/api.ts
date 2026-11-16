@@ -284,8 +284,9 @@ export interface ScriptSegment {
 }
 
 // PDF 한 페이지에 대응하는 스크립트 구간.
-// 녹음을 PPT 페이지 단위로 끊어 묶은 것이라 페이지 번호가 곧 구간 식별자다.
+// 앞 슬라이드로 돌아가 설명하면 같은 페이지가 두 구간에 나와서, 구간은 id로 가린다.
 export interface ScriptSection {
+  id: number; // 서버 scriptId
   page: number; // PDF 페이지 번호 (배지 "PDF P.01")
   startSec: number; // 구간 시작(초)
   endSec: number; // 구간 끝(초)
