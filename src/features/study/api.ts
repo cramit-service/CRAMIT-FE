@@ -31,8 +31,6 @@ import {
 import { findMockLecture, mockLectures } from '@/mocks/project';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로) — project/api.ts와 동일 패턴
-const USE_MOCK = true;
-// 백엔드에 붙은 것부터 끈다. 위 스위치는 아직 API가 없는 함수들이 쓴다.
 const USE_MOCK_LECTURE = false; // 강의·주차
 const USE_MOCK_VIEWER = false; // 요약·강의자료·회독
 
@@ -348,10 +346,27 @@ export async function getLectureSummary(
       signal,
     });
   }
-  if (typeof r?.content !== 'string' || typeof r.updatedAt !== 'string') {
+  return toLectureSummary(chapterId, r);
+}
+
+// 조회와 저장이 같은 SummaryResponse를 돌려준다. 저장에는 summaryId가 있어야 한다.
+function toLectureSummary(
+  chapterId: number,
+  r: SummaryResponse,
+): LectureSummary {
+  if (
+    typeof r?.summaryId !== 'number' ||
+    typeof r.content !== 'string' ||
+    typeof r.updatedAt !== 'string'
+  ) {
     throw invalidSummary();
   }
-  return { chapterId, markdown: r.content, updatedAt: r.updatedAt };
+  return {
+    chapterId,
+    summaryId: r.summaryId,
+    markdown: r.content,
+    updatedAt: r.updatedAt,
+  };
 }
 
 const invalidScript = () =>
@@ -423,24 +438,32 @@ export async function getLectureSummaryStatus(
   );
 }
 
-// 요약 Markdown 수정 저장
-// TODO: 백엔드 저장 API가 아직 없다. USE_MOCK을 끄기 전까지는 서버에 반영되지 않고
-//       화면(쿼리 캐시)에만 남는다. 엔드포인트/메서드 확정 시 경로도 재확인 필요.
+// 요약 Markdown 수정 저장. 본문을 통째로 바꾸고, 학습포인트(<lp>)도 본문에 실려 같이 저장된다.
 export async function updateLectureSummary(
+  summaryId: number,
   chapterId: number,
   markdown: string,
   signal?: AbortSignal,
 ): Promise<LectureSummary> {
-  if (USE_MOCK) {
+  let r: SummaryResponse;
+  if (USE_MOCK_VIEWER) {
     await delay(300, signal);
     // updatedAt은 "마지막 수정 시각"이라 mock 값을 그대로 돌려주면 안 된다
-    return { chapterId, markdown, updatedAt: new Date().toISOString() };
+    r = {
+      ...mockSummaryResponse,
+      summaryId,
+      weekId: chapterId,
+      content: markdown,
+      updatedAt: new Date().toISOString(),
+    };
+  } else {
+    r = await apiClient.patch<SummaryResponse>(
+      `/summaries/${summaryId}`,
+      { content: markdown },
+      { signal },
+    );
   }
-  return apiClient.patch<LectureSummary>(
-    `/chapters/${chapterId}/summary`,
-    { markdown },
-    { signal },
-  );
+  return toLectureSummary(chapterId, r);
 }
 
 // 회독 수를 세팅한다. 올리고 내리는 두 엔드포인트가 아니라 값을 하나 넣는 쪽이다 —
