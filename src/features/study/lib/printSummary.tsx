@@ -8,10 +8,14 @@ import { MarkdownContent } from '@/features/study/components/viewer/MarkdownCont
 const FRAME_ID = 'summary-print-frame';
 
 // 인쇄 틀 안에만 걸린다. 브라우저는 배경색을 빼고 인쇄해서, 코드 블록·표 머리 회색을 남기려면 exact가 필요하다.
+// 위 여백 칸을 채워야 크롬이 자기 머리글(인쇄 시각·제목)을 겹쳐 찍지 않는다. 빈 문자열("")은 빈 칸으로 쳐서 안 먹는다.
 const PRINT_CSS = `
 @page {
   size: A4;
   margin: 18mm 16mm 20mm;
+  @top-left { content: "\\00a0"; }
+  @top-center { content: "\\00a0"; }
+  @top-right { content: "\\00a0"; }
   @bottom-center { content: counter(page) " / " counter(pages); font-size: 9pt; }
 }
 body { margin: 0; background: var(--color-surface); print-color-adjust: exact; -webkit-print-color-adjust: exact; }
