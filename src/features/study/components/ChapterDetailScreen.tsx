@@ -49,7 +49,8 @@ export function ChapterDetailScreen({ projectId }: { projectId: number }) {
     );
   }
 
-  const doneCount = chapters.filter((c) => c.status === 'DONE').length;
+  // 1회독 이상이면 학습 완료다. 주차 상태(status)는 바꾸는 화면이 없어 늘 '학습 전'이다 (#183).
+  const doneCount = chapters.filter((c) => c.reviewCount > 0).length;
   const progress = chapters.length ? (doneCount / chapters.length) * 100 : 0;
 
   // 최신 챕터가 위로 오도록 번호 내림차순 정렬
