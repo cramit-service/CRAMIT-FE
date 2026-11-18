@@ -146,7 +146,8 @@ export function StorySection() {
               src={beat.screen}
               alt=""
               fill
-              sizes="(max-width: 1200px) 60vw, 700px"
+              // 최대 2배로 확대되므로 노트북 화면 폭의 두 배 해상도로 받는다
+              sizes="(max-width: 1200px) 120vw, 1400px"
               // 움직임 줄이기 설정이면 확대하지 않는다. 인라인 transform을 이기려고 !를 붙인다
               className="origin-top-left object-cover object-left-top motion-reduce:transform-none!"
               style={{
