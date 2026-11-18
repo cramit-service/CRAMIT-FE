@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { useAskAI } from '@/shared/hooks/useChatDock';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
-import { Icon } from '@/shared/ui/Icon';
+import { Icon, type IconName } from '@/shared/ui/Icon';
 
 // 메뉴가 선택 위에 설 자리가 없으면 아래로 내린다. 메뉴 높이(sm 버튼 + 여백)보다 조금 크게 잡는다.
 const ROOM_ABOVE = 56;
@@ -31,10 +31,23 @@ function readSelection(root: HTMLElement | null) {
   return { range, text };
 }
 
+// 메뉴에 [AI에게 질문] 아래로 덧붙일 버튼. 고른 글과, 아직 있으면 그 범위를 받는다.
+export interface SelectionAction {
+  label: string;
+  icon: IconName;
+  onSelect: (text: string, range: Range | null) => void;
+}
+
 // 요약·원문 스크립트에서 글을 고르면 그 위에 [AI에게 질문]을 띄운다 (프리뷰 보드 G).
 // 위치는 fixed + 선택 영역 실측이라 스크롤 칸에 잘리지 않는다(Tooltip과 같은 방식).
 // 챗독이 없는 화면(프로바이더 밖)에서는 아무것도 덧붙이지 않는다.
-export function AskAboutSelection({ children }: { children: React.ReactNode }) {
+export function AskAboutSelection({
+  children,
+  actions = [],
+}: {
+  children: React.ReactNode;
+  actions?: SelectionAction[];
+}) {
   const ask = useAskAI();
   const rootRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -105,14 +118,15 @@ export function AskAboutSelection({ children }: { children: React.ReactNode }) {
     };
   }, [ask]);
 
-  const askAboutSelection = () => {
+  const run = (fn: (text: string, range: Range | null) => void) => {
     // 메뉴를 띄운 뒤 터치 손잡이로 범위를 늘렸을 수 있다. 지금 선택이 있으면 그걸 쓴다.
-    const text = readSelection(rootRef.current)?.text ?? shownText.current;
+    const picked = readSelection(rootRef.current);
+    const text = picked?.text ?? shownText.current;
     pressing.current = false;
     shownText.current = null;
     setMenu(null);
     window.getSelection()?.removeAllRanges();
-    if (text && ask) ask(text);
+    if (text) fn(text, picked?.range ?? null);
   };
 
   return (
@@ -129,16 +143,31 @@ export function AskAboutSelection({ children }: { children: React.ReactNode }) {
             onPointerDown={() => (pressing.current = true)}
             style={{ top: menu.top, left: menu.left }}
             className={cn(
-              'bg-surface shadow-far z-float fixed rounded-md border border-gray-100 p-1',
+              'bg-surface shadow-far z-float fixed flex flex-col gap-1 rounded-md border border-gray-100 p-1',
               !menu.below && '-translate-y-full',
             )}
           >
-            <Button rank="secondary" size="sm" onClick={askAboutSelection}>
+            <Button
+              rank="secondary"
+              size="sm"
+              onClick={() => run((text) => ask?.(text))}
+            >
               <span className="text-sky-ink flex">
                 <Icon name="sparkle" size={16} />
               </span>
               AI에게 질문
             </Button>
+            {actions.map((action) => (
+              <Button
+                key={action.label}
+                rank="secondary"
+                size="sm"
+                onClick={() => run(action.onSelect)}
+              >
+                <Icon name={action.icon} size={16} />
+                {action.label}
+              </Button>
+            ))}
           </div>,
           document.body,
         )}
