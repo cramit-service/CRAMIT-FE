@@ -262,6 +262,7 @@ export function StudyViewerScreen({
               /\s+/g,
               '_',
             )}
+            heading={`${project.title} · ${chapter.title}`}
           />
         );
       // 스크립트도 같은 이유로 탭 안에서 조회한다. 재생 위치를 보여주고, 문장의 시각을 누르면 거기부터 재생한다
