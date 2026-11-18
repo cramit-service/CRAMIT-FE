@@ -65,14 +65,19 @@ export function useLectureSummary(chapterId: number) {
   };
 }
 
-// 요약 수정 저장 훅.
-// TODO(백엔드): 저장 API가 아직 없어 고친 내용은 캐시에만 남고, 새로고침하거나 캐시가
-//               낡으면(1분) 서버 원문으로 돌아간다. 실제 API가 붙으면 invalidate로 바꾼다.
+// 요약 수정 저장 훅. 서버가 돌려준 저장본으로 캐시를 바로 덮는다.
 export function useUpdateLectureSummary(chapterId: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (markdown: string) => updateLectureSummary(chapterId, markdown),
+    // 저장 경로가 summaryId를 받는다. 편집은 조회가 끝난 뒤에만 열리니 캐시에 있다.
+    mutationFn: (markdown: string) => {
+      const current = queryClient.getQueryData<LectureSummary>(
+        summaryKey(chapterId),
+      );
+      if (!current) throw new Error('요약을 불러오기 전에는 저장할 수 없어요');
+      return updateLectureSummary(current.summaryId, chapterId, markdown);
+    },
     onSuccess: (saved) => {
       queryClient.setQueryData<LectureSummary>(summaryKey(chapterId), saved);
     },

@@ -298,7 +298,8 @@ export function SummaryTab({
               <Button
                 size="sm"
                 onClick={handleSave}
-                disabled={!isDirty || updateMutation.isPending}
+                // 서버가 빈 본문은 받지 않는다(400)
+                disabled={!isDirty || !draft.trim() || updateMutation.isPending}
               >
                 {updateMutation.isPending ? '수정 중…' : '수정하기'}
               </Button>

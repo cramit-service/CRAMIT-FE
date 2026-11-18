@@ -240,6 +240,7 @@ export interface WeekReviewCountResponse {
 // AI가 생성한 Markdown 요약본.
 export interface LectureSummary {
   chapterId: number;
+  summaryId: number; // 저장(PATCH /summaries/{summaryId})에 쓴다
   markdown: string; // Markdown 원문 (조회 시 렌더, 편집 시 textarea 내용)
   updatedAt: string; // ISO 날짜 문자열
 }
