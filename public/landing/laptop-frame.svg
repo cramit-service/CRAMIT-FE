@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 800">
+  <!-- 로고 없는 노트북 틀. 화면 자리(x110 y30 w1100 h687.5, 16:10)는 뚫려 있고, 그 위에 유리 반사만 얹는다. -->
+  <defs>
+    <linearGradient id="edge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eceef1"/>
+      <stop offset="0.05" stop-color="#c3c5ca"/>
+      <stop offset="0.6" stop-color="#a6a8ad"/>
+      <stop offset="1" stop-color="#8b8d92"/>
+    </linearGradient>
+    <linearGradient id="bezel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b0b0d"/>
+      <stop offset="1" stop-color="#030304"/>
+    </linearGradient>
+    <linearGradient id="glare" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.09"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.025"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="hinge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#16171a"/>
+      <stop offset="1" stop-color="#45474c"/>
+    </linearGradient>
+    <linearGradient id="deck" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f5f7"/>
+      <stop offset="0.3" stop-color="#dcdde0"/>
+      <stop offset="0.7" stop-color="#c3c5c9"/>
+      <stop offset="1" stop-color="#8f9196"/>
+    </linearGradient>
+    <linearGradient id="deckSides" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#000000" stop-opacity="0.22"/>
+      <stop offset="0.05" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="0.95" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.22"/>
+    </linearGradient>
+    <linearGradient id="notch" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9d9fa4"/>
+      <stop offset="1" stop-color="#d6d7da"/>
+    </linearGradient>
+    <radialGradient id="floor" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#000000" stop-opacity="0.30"/>
+      <stop offset="0.6" stop-color="#000000" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="lift" x="-8%" y="-8%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="22" stdDeviation="24" flood-color="#000000" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <!-- 바닥 그림자 -->
+  <ellipse cx="660" cy="781" rx="655" ry="17" fill="url(#floor)"/>
+
+  <g filter="url(#lift)">
+    <!-- 덮개 바깥 금속 테두리(얇은 고리) -->
+    <path fill="url(#edge)" fill-rule="evenodd" d="M114 4H1206A26 26 0 0 1 1232 30V740A6 6 0 0 1 1226 746H94A6 6 0 0 1 88 740V30A26 26 0 0 1 114 4ZM114 8H1206A22 22 0 0 1 1228 30V738A4 4 0 0 1 1224 742H96A4 4 0 0 1 92 738V30A22 22 0 0 1 114 8Z"/>
+    <!-- 검은 베젤, 화면 자리는 뚫는다 -->
+    <path fill="url(#bezel)" fill-rule="evenodd" d="M114 8H1206A22 22 0 0 1 1228 30V738A4 4 0 0 1 1224 742H96A4 4 0 0 1 92 738V30A22 22 0 0 1 114 8ZM110 30V717.5H1210V30Z"/>
+  </g>
+  <!-- 윗변 하이라이트 -->
+  <path d="M116 4.8H1204" stroke="#ffffff" stroke-opacity="0.9" stroke-width="1.2"/>
+  <!-- 카메라 -->
+  <circle cx="660" cy="18" r="3.4" fill="#1c1d21"/>
+  <circle cx="660" cy="18" r="1.6" fill="#24344a"/>
+  <circle cx="659.3" cy="17.3" r="0.6" fill="#ffffff" fill-opacity="0.45"/>
+  <!-- 화면 유리 반사 -->
+  <path d="M110 30H820L110 600Z" fill="url(#glare)"/>
+
+  <!-- 경첩 -->
+  <rect x="120" y="745" width="1080" height="6" fill="url(#hinge)"/>
+  <!-- 받침: 윗면은 곧고 앞면은 둥글게 떨어진다 -->
+  <path fill="url(#deck)" d="M8 751H1312V758C1312 768 1300 776 1284 777H36C20 776 8 768 8 758Z"/>
+  <path fill="url(#deckSides)" d="M8 751H1312V758C1312 768 1300 776 1284 777H36C20 776 8 768 8 758Z"/>
+  <path d="M10 751.7H1310" stroke="#ffffff" stroke-opacity="0.85" stroke-width="1.2"/>
+  <!-- 손톱 홈 -->
+  <path fill="url(#notch)" d="M572 751H748C748 756.5 741 760 733 760H587C579 760 572 756.5 572 751Z"/>
+</svg>
