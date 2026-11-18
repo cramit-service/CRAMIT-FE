@@ -45,10 +45,6 @@ export const mockMyProfile: MyProfile = {
 // mock 전용 쓰기 헬퍼. 새로고침하면 사라진다(모듈 메모리라 세션 단위).
 // 조회는 복사본을 주므로(getMyProfile) 여기서 원본을 고쳐도 캐시 참조가 그대로 남지 않는다.
 
-export function updateMockNickname(nickname: string): void {
-  mockMyProfile.nickname = nickname;
-}
-
 export function updateMockNotifications(
   notifications: NotificationSettings,
 ): void {
