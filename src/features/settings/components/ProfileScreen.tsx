@@ -10,6 +10,7 @@ import { Button } from '@/shared/ui/Button';
 import { ConfirmModal } from '@/shared/ui/ConfirmModal';
 import { Switch } from '@/shared/ui/Switch';
 import { logout, withdraw } from '@/features/settings/api';
+import { clearAccessToken } from '@/shared/lib/authToken';
 import {
   useMyProfile,
   useUpdateNotifications,
@@ -75,11 +76,14 @@ export function ProfileScreen() {
     setActionError(null);
     try {
       await run();
+      clearAccessToken();
       queryClient.clear();
       router.push('/');
     } catch (error) {
       setActionError(error instanceof Error ? error.message : failMessage);
       setLeaving(false);
+      // 실패 문구는 페이지에 그려진다. 탈퇴 모달이 열려 있으면 딤에 가려 보이지 않는다.
+      setWithdrawOpen(false);
     }
   };
 
@@ -190,7 +194,10 @@ export function ProfileScreen() {
         onConfirm={() =>
           leave(withdraw, '탈퇴하지 못했어요. 잠시 후 다시 시도해 주세요.')
         }
-        onClose={() => setWithdrawOpen(false)}
+        // 요청 중에 닫히면 취소된 줄 알지만 탈퇴는 그대로 진행된다
+        onClose={() => {
+          if (!leaving) setWithdrawOpen(false);
+        }}
       />
     </div>
   );

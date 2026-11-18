@@ -75,21 +75,14 @@ export async function updateNotifications(
   );
 }
 
-// 로그아웃 — 서버 세션 정리는 백엔드 확정 후 붙인다. 토큰 제거는 호출처가 한다.
+// 로그아웃·회원탈퇴는 프로필 목과 상관없이 실제로 부른다. 토큰 제거는 호출처가 한다.
+// 서버가 응답에서 refreshToken 쿠키를 만료시키는데, 출처가 달라 credentials가 있어야 브라우저가 따른다.
 export async function logout(): Promise<void> {
-  if (USE_MOCK) {
-    await delay(300);
-    return;
-  }
-  await apiClient.post<void>('/auth/logout');
+  await apiClient.post<void>('/auth/logout', undefined, {
+    credentials: 'include',
+  });
 }
 
-// 회원탈퇴
-// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
 export async function withdraw(): Promise<void> {
-  if (USE_MOCK) {
-    await delay(300);
-    return;
-  }
-  await apiClient.delete<void>('/users/me');
+  await apiClient.delete<void>('/auth/withdraw', { credentials: 'include' });
 }
