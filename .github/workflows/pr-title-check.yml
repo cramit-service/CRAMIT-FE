@@ -1,0 +1,20 @@
+name: pr-title-check
+on:
+  pull_request_target:
+    branches: [develop, main]
+    types: [opened, synchronize, reopened, edited]
+jobs:
+  pr-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 제목이 [타입] 으로 시작하는지 확인
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pattern='^\[(FEAT|FIX|REFACTOR|CHORE|CI|DOCS|DESIGN)\] .+'
+          if [[ "$TITLE" =~ $pattern ]]; then
+            echo "ok: $TITLE"
+          else
+            echo "::error::PR 제목은 [FEAT] [FIX] [REFACTOR] [CHORE] [CI] [DOCS] [DESIGN] 중 하나로 시작해야 합니다 (현재: $TITLE)"
+            exit 1
+          fi
