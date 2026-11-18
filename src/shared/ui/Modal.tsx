@@ -7,9 +7,9 @@ import { useEffect, useRef } from 'react';
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-// 화면은 이걸 직접 부르지 않는다 (§4) — FormModal과 ConfirmModal 둘이 전부다.
+// 화면은 이걸 직접 부르지 않는다 (§4) — FormModal·ConfirmModal·DocumentModal 셋이 전부다.
 // 여기 남는 건 생김새가 아니라 장치다: 포커스 가두기, Escape, 스크롤 잠금, 딤.
-// 폭(655)과 안쪽 여백은 두 모달이 각자 갖는다.
+// 폭(655)은 여기 있고, 안쪽 여백은 모달마다 각자 갖는다.
 interface ModalProps {
   open: boolean;
   onClose: () => void;

@@ -1,6 +1,6 @@
 'use client';
 // src/shared/ui/ConfirmModal.tsx
-// DESIGN.md §4 "There are two modals, and neither has a close button" /
+// DESIGN.md §4 "There are three modals, and none has a ×" /
 // "A question is asked at the page's own size".
 import { useId } from 'react';
 import { Button } from '@/shared/ui/Button';
