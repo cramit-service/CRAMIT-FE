@@ -115,6 +115,8 @@ export const mockLectureMaterial: LectureMaterial = {
   pdfUrl: '/sample-lecture.pdf',
   pdfPageCount: 12,
   audioDuration: 3662, // 61분 2초
+  audioUrl: null,
+  audioFailed: false,
 };
 
 // 학습 뷰어(AI 강의 요약 탭) mock — 서버 응답 모양 그대로 둔다.

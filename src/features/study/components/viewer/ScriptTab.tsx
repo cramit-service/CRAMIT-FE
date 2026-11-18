@@ -15,9 +15,12 @@ const PANEL = cn(VIEWER_PANEL, 'flex flex-col');
 
 interface ScriptTabProps {
   chapterId: number;
-  // 재생 상태는 PDF 탭이 쥐고 있다. 여기선 위치를 보여주기만 한다(시안 안내문 그대로).
+  // 재생 컨트롤은 PDF 탭에만 있다. 여기선 위치를 보여주고, 문장을 누르면 그 시각부터 재생한다.
   currentTime: number;
   duration: number;
+  isPlaying: boolean;
+  onPlayFrom: (seconds: number) => void;
+  canPlay: boolean; // 녹음이 없거나 불러오지 못했으면 문장을 눌러도 재생할 것이 없다
 }
 
 // 원문 스크립트 탭. 녹음 STT를 PDF 페이지 단위 구간으로 묶어 아코디언으로 보여준다.
@@ -25,6 +28,9 @@ export function ScriptTab({
   chapterId,
   currentTime,
   duration,
+  isPlaying,
+  onPlayFrom,
+  canPlay,
 }: ScriptTabProps) {
   const scriptQuery = useLectureScript(chapterId);
   // 펼친 구간의 id. 시안처럼 여러 구간을 동시에 펼칠 수 있다.
@@ -84,14 +90,25 @@ export function ScriptTab({
   }
 
   const { sections } = scriptQuery.data;
+  // 지금 재생 위치의 문장 = 시작 시각이 재생 위치 이하인 마지막 문장. 한 번도 틀지 않았으면 표시하지 않는다.
+  const playingAtSec =
+    isPlaying || currentTime > 0
+      ? sections
+          .flatMap((s) => s.segments.map((seg) => seg.atSec))
+          .filter((at) => at <= currentTime)
+          .reduce<number | null>(
+            (max, at) => (max === null || at > max ? at : max),
+            null,
+          )
+      : null;
 
   return (
     <section className={cn(PANEL, 'px-6 pt-5')}>
       {/* 상단: 안내문 + 재생 위치 (재생 컨트롤은 PDF 탭에만 둔다) */}
       <div className="flex shrink-0 items-start justify-between gap-4">
         <p className="text-label font-medium text-gray-700">
-          녹음본을 텍스트화해서 PPT 페이지별로 정리했어요. 녹음본 재생은 ‘PDF
-          강의 자료’를 이용해 주세요.
+          녹음본을 텍스트화해서 PPT 페이지별로 정리했어요. 문장을 누르면 그
+          부분부터 재생되고, 멈춤은 ‘PDF 강의 자료’에서 할 수 있어요.
         </p>
         <div className="flex shrink-0 items-center gap-2 text-gray-500">
           <Icon name="time" size={17} />
@@ -118,6 +135,8 @@ export function ScriptTab({
                     section={section}
                     open={openIds.includes(section.id)}
                     onToggle={() => toggle(section.id)}
+                    playingAtSec={playingAtSec}
+                    onPlayFrom={canPlay ? onPlayFrom : null}
                   />
                 ))}
               </ul>
