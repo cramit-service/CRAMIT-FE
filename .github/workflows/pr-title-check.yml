@@ -3,6 +3,7 @@ on:
   pull_request_target:
     branches: [develop, main]
     types: [opened, synchronize, reopened, edited]
+permissions: {}
 jobs:
   pr-title:
     runs-on: ubuntu-latest
