@@ -27,9 +27,12 @@ interface TodoFormModalProps {
   onClose: () => void;
 }
 
-// "선택 없음" 상태. 빈 문자열을 그대로 쓴다 — useChapters의 enabled 조건이
-// 이 값을 보고 요청을 막고, 저장할 때는 null로 바꿔 보낸다.
+// "선택 없음" 상태. 선택 칸의 값은 문자열이라 빈 문자열로 둔다.
 const NONE = '';
+
+// ID는 숫자다. 폼 안에서는 선택 칸 값(문자열)으로 들고, 폼 밖으로 나갈 때만 바꾼다.
+// "선택 없음"은 null이 된다 — useChapters는 null이면 요청하지 않는다.
+const toId = (value: string) => (value === NONE ? null : Number(value));
 
 // TODO 추가·수정 모달.
 export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
@@ -43,35 +46,45 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
   const [title, setTitle] = useState(todo?.title ?? '');
   const [dueDate, setDueDate] = useState(todo?.dueDate ?? '');
   const [dueTime, setDueTime] = useState(todo?.dueTime ?? '');
-  const [projectId, setProjectId] = useState(todo?.projectId ?? NONE);
-  const [lectureId, setLectureId] = useState(todo?.lectureId ?? NONE);
+  const [projectId, setProjectId] = useState(
+    todo?.projectId?.toString() ?? NONE,
+  );
+  const [chapterId, setChapterId] = useState(
+    todo?.chapterId?.toString() ?? NONE,
+  );
   const [memo, setMemo] = useState(todo?.memo ?? '');
   const [formError, setFormError] = useState<string | null>(null);
   // 지난 시각으로 제출했을 때만 채워진다. 자세한 이유는 handleSubmit 참고.
   const [dueTimeError, setDueTimeError] = useState<string | null>(null);
+  // 주차 누락은 제출할 때만 알린다. 강의를 고르자마자 띄우면 문구가 생기며 모달이 출렁인다.
+  const [chapterRequired, setChapterRequired] = useState(false);
 
   const {
     data: lectures,
     isPending: isLecturesPending,
     isError: isLecturesError,
   } = useProjectSummaries();
-  // 강의를 고르기 전에는 주차를 물어볼 대상이 없다 — 훅이 enabled로 요청을 막는다.
-  // isPending이 아니라 isLoading을 본다 — enabled가 false인 동안에도 status는 계속
+  // 강의를 고르기 전에는 주차를 물어볼 대상이 없다 — 훅이 skipToken으로 요청을 막는다.
+  // isPending이 아니라 isLoading을 본다 — 요청을 막아 둔 동안에도 status는 계속
   // 'pending'이라, isPending으로 재면 강의를 고르기 전에도 "불러오는 중"이 뜬다.
   const {
     data: chapters,
     isLoading: isChaptersLoading,
     isError: isChaptersError,
-  } = useChapters(projectId);
+  } = useChapters(toId(projectId));
 
   const lectureOptions = useMemo(
-    () => (lectures ?? []).map((l) => ({ value: l.projectId, label: l.title })),
+    () =>
+      (lectures ?? []).map((l) => ({
+        value: String(l.projectId),
+        label: l.title,
+      })),
     [lectures],
   );
   const chapterOptions = useMemo(
     () =>
       (chapters ?? []).map((c) => ({
-        value: c.chapterId,
+        value: String(c.chapterId),
         label: `Chapter ${c.chapterNumber} · ${c.title}`,
       })),
     [chapters],
@@ -100,18 +113,27 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
   // 강의를 바꾸면 이전 강의의 주차가 남아 있으면 안 된다. 같이 비운다.
   const handleProjectChange = (value: string) => {
     setProjectId(value);
-    setLectureId(NONE);
+    setChapterId(NONE);
+    setChapterRequired(false);
   };
 
   const filled = title.trim() !== '' && dueDate !== '';
+  const missingChapter = projectId !== NONE && chapterId === NONE;
+  const chapterError = isChaptersError
+    ? '주차 목록을 불러오지 못했어요. 강의 선택을 해제하면 저장할 수 있어요.'
+    : chapterRequired && missingChapter
+      ? chapters?.length === 0
+        ? '이 강의에는 주차가 없어요. 강의 선택을 해제해 주세요.'
+        : '강의를 골랐다면 주차도 골라 주세요.'
+      : undefined;
   // 수정 모드에서는 바꾼 게 있어야 저장을 연다 (시안에서도 변경 전에는 버튼이 회색이다).
   const changed =
     !isEdit ||
     title.trim() !== todo.title ||
     dueDate !== todo.dueDate ||
     (dueTime || null) !== todo.dueTime ||
-    (projectId || null) !== todo.projectId ||
-    (lectureId || null) !== todo.lectureId ||
+    toId(projectId) !== todo.projectId ||
+    toId(chapterId) !== todo.chapterId ||
     (memo.trim() || null) !== todo.memo;
   const canSubmit = filled && changed && !busy;
 
@@ -119,6 +141,11 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
     e.preventDefault();
     if (!canSubmit) return;
     setFormError(null);
+
+    if (missingChapter) {
+      setChapterRequired(true);
+      return;
+    }
 
     // 시각은 고른 뒤에도 시간이 흐르면 저절로 과거가 된다. canSubmit에 넣어 버튼을
     // 잠그면 모달을 열어둔 사이 버튼이 혼자 회색이 되므로, 제출하는 순간에만 잰다.
@@ -133,11 +160,11 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
     setDueTimeError(null);
 
     const payload = {
-      projectId: projectId || null,
+      projectId: toId(projectId),
       title: title.trim(),
       dueDate,
       dueTime: dueTime || null,
-      lectureId: lectureId || null,
+      chapterId: toId(chapterId),
       memo: memo.trim() || null,
     };
 
@@ -249,8 +276,8 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
         <Combobox
           id={`${fieldId}-lecture`}
           label="주차"
-          value={lectureId}
-          onChange={setLectureId}
+          value={chapterId}
+          onChange={setChapterId}
           options={chapterOptions}
           disabled={busy || projectId === NONE}
           placeholder={
@@ -261,7 +288,8 @@ export function TodoFormModal({ todo, onClose }: TodoFormModalProps) {
                 : '선택 없음'
           }
           clearable
-          error={isChaptersError ? '주차 목록을 불러오지 못했어요.' : undefined}
+          required={projectId !== NONE}
+          error={chapterError}
         />
       </div>
 

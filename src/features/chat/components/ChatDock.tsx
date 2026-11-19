@@ -1,7 +1,7 @@
 'use client';
 // src/features/chat/components/ChatDock.tsx
-import { useState } from 'react';
 import { ChatPanel } from '@/features/chat/components/ChatPanel';
+import { useChatDock } from '@/shared/hooks/useChatDock';
 import { cn } from '@/shared/lib/cn';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
 import { Icon } from '@/shared/ui/Icon';
@@ -11,10 +11,17 @@ import { Icon } from '@/shared/ui/Icon';
 // 세로 탭은 이 폭 바깥 왼쪽에 붙으므로 같은 값을 써야 한다.
 const PANEL_WIDTH = 'min(707px, 36.82vw)';
 
-// 프로젝트 하위 레이아웃에서만 노출되는 채팅 도크.
+// 학습 뷰어에서만 뜨는 채팅 도크.
 // 우측 화면 경계의 세로 탭을 누르면 챗봇 패널이 오버레이로 열린다(시안: 뒤 화면을 밀지 않는다).
-export function ChatDock({ projectId }: { projectId: string }) {
-  const [open, setOpen] = useState(false);
+export function ChatDock({
+  projectId,
+  chapterId,
+}: {
+  projectId: number;
+  chapterId: number;
+}) {
+  // 학습 뷰어에서 [AI에게 질문]을 누르면 바깥에서 열리므로 열림 상태는 프로바이더가 쥔다.
+  const { open, setOpen } = useChatDock();
 
   return (
     <>
@@ -27,7 +34,7 @@ export function ChatDock({ projectId }: { projectId: string }) {
           페이지 위에 뜬 것이라 그림자가 경계를 만든다(§2의 near). */}
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen(!open)}
         aria-label={open ? '채팅 닫기' : '채팅 열기'}
         aria-expanded={open}
         // 패널과 나란히 움직여야 한다. right(레이아웃)로 밀면 패널의 transform과
@@ -73,7 +80,7 @@ export function ChatDock({ projectId }: { projectId: string }) {
             아무것도 안 그리고 있었다. 값과 근거는 globals.css의 mesh-dock에 있다. */}
         <GradientBackground layer variant="dock" />
         <div className="relative flex min-h-0 flex-1 flex-col">
-          <ChatPanel projectId={projectId} open={open} />
+          <ChatPanel projectId={projectId} chapterId={chapterId} open={open} />
         </div>
       </aside>
     </>

@@ -10,7 +10,7 @@ const DB_VERSION = 1;
 const STORE = 'materials';
 
 // 같은 챕터를 다시 열 때마다 createObjectURL을 부르면 URL이 계속 쌓인다
-const urlCache = new Map<string, string>();
+const urlCache = new Map<number, string>();
 
 function openDb(): Promise<IDBDatabase | null> {
   if (typeof indexedDB === 'undefined') return Promise.resolve(null);
@@ -43,7 +43,7 @@ function tx<T>(
   );
 }
 
-export async function saveMaterialFile(chapterId: string, file: File | null) {
+export async function saveMaterialFile(chapterId: number, file: File | null) {
   if (!file) return;
   const cached = urlCache.get(chapterId);
   if (cached) {
@@ -53,7 +53,7 @@ export async function saveMaterialFile(chapterId: string, file: File | null) {
   await tx('readwrite', (store) => store.put(file, chapterId));
 }
 
-export async function getMaterialFileUrl(chapterId: string) {
+export async function getMaterialFileUrl(chapterId: number) {
   const cached = urlCache.get(chapterId);
   if (cached) return cached;
 

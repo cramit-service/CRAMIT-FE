@@ -6,7 +6,7 @@ import type { ProjectSummary } from '@/shared/types/api';
 
 interface LectureSectionProps {
   lectures: ProjectSummary[];
-  subjectDots: Map<string, number>;
+  subjectDots: Map<number, number>;
   // 검색 중이면 "결과 없음", 아니면 "아직 강의 없음"으로 빈 상태 문구가 갈린다.
   searching: boolean;
   emptyMessage: string;

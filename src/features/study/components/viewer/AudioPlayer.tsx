@@ -16,10 +16,11 @@ interface AudioPlayerProps {
   currentTime: number; // 초
   duration: number; // 초
   onSeek: (seconds: number) => void;
+  canPlay: boolean;
+  failed: boolean;
 }
 
 // 학습 뷰어 상단 오디오 플레이어 (Figma: 어두운 패널 상단 줄).
-// TODO(오디오): 실제 재생은 백엔드 audioUrl 확정 후. 지금은 mock 시간값으로 UI만 동작한다.
 // TODO(매핑): "해당 페이지 수업 듣기"(페이지↔오디오 구간 매핑)는 백엔드 데이터가 필요해 미구현.
 export function AudioPlayer({
   currentPage,
@@ -31,6 +32,8 @@ export function AudioPlayer({
   currentTime,
   duration,
   onSeek,
+  canPlay,
+  failed,
 }: AudioPlayerProps) {
   return (
     // 이분할에서 이 줄이 가장 먼저 좁아진다. 창이 아니라 줄 자체의 폭을 봐야 해서
@@ -62,6 +65,7 @@ export function AudioPlayer({
           name={isPlaying ? 'pause' : 'play'}
           rank="primary"
           aria-label={isPlaying ? '일시정지' : '재생'}
+          disabled={!canPlay}
           onClick={onTogglePlay}
         />
 
@@ -81,9 +85,15 @@ export function AudioPlayer({
           />
         </div>
 
-        <p className="text-label font-medium whitespace-nowrap text-gray-700 tabular-nums">
-          {formatPlayTime(currentTime)} / {formatPlayTime(duration)}
-        </p>
+        {failed ? (
+          <p role="alert" className="text-label text-red-ink whitespace-nowrap">
+            녹음을 불러오지 못했어요
+          </p>
+        ) : (
+          <p className="text-label font-medium whitespace-nowrap text-gray-700 tabular-nums">
+            {formatPlayTime(currentTime)} / {formatPlayTime(duration)}
+          </p>
+        )}
       </div>
     </div>
   );

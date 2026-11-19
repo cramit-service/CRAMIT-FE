@@ -4,10 +4,12 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Logo } from '@/shared/ui/Logo';
 import { Button } from '@/shared/ui/Button';
-import { TermsStep, REQUIRED_TERM_IDS } from './TermsStep';
+import { TermsStep } from './TermsStep';
 import { NicknameStep, type NicknameStatus } from './NicknameStep';
 import { PlanStep } from './PlanStep';
 import { registerOnboardingProfile } from '@/features/auth/api';
+import { useTerms } from '@/features/auth/hooks/useTerms';
+import { ApiRequestError } from '@/shared/lib/apiClient';
 import type { PlanId } from '@/shared/types/api';
 
 type Step = 'terms' | 'nickname' | 'plan';
@@ -15,9 +17,10 @@ type Step = 'terms' | 'nickname' | 'plan';
 export function OnboardingFlow() {
   const router = useRouter();
   const [step, setStep] = useState<Step>('terms');
+  const { data: terms, isError: isTermsError, refetch } = useTerms();
 
   // 스텝 전체가 공유하는 상태
-  const [agreedTermIds, setAgreedTermIds] = useState<string[]>([]);
+  const [agreedTermIds, setAgreedTermIds] = useState<number[]>([]);
   const [nickname, setNickname] = useState('');
   const [nicknameStatus, setNicknameStatus] = useState<NicknameStatus>('idle');
   const [selectedPlan, setSelectedPlan] = useState<PlanId>('FREE');
@@ -29,7 +32,8 @@ export function OnboardingFlow() {
   // 필수 약관이 모두 동의돼야 다음으로 넘어간다 (선택 약관은 영향 없음)
   const canGoNext =
     step === 'terms'
-      ? REQUIRED_TERM_IDS.every((id) => agreedTermIds.includes(id))
+      ? !!terms &&
+        terms.every((t) => !t.required || agreedTermIds.includes(t.termId))
       : nicknameStatus === 'available';
 
   const handleBack = () => {
@@ -60,15 +64,31 @@ export function OnboardingFlow() {
         agreedTermIds,
         plan: selectedPlan,
       });
-      router.push('/home');
+      router.replace('/home');
       // 성공하면 제출 상태를 풀지 않는다. 이동이 끝날 때까지 이 화면이 남아 있어서,
       // 여기서 풀면 '시작하기'가 잠깐 다시 눌리는 상태가 되고 등록이 두 번 나갈 수 있다.
     } catch (error) {
+      const code = error instanceof ApiRequestError ? error.code : null;
+
+      // 이미 끝낸 회원은 다시 등록할 수 없으니 홈으로 보낸다. 성공과 같은 이유로 제출 상태를 풀지 않는다.
+      if (code === 'ONBOARDING_ALREADY_COMPLETED') {
+        router.replace('/home');
+        return;
+      }
+
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
+
+      // 중복확인과 등록 사이에 다른 사람이 먼저 쓴 경우. 닉네임을 고칠 수 있는 칸으로 돌려보낸다.
+      if (code === 'NICKNAME_DUPLICATED') {
+        setNicknameStatus('taken');
+        setStep('nickname');
+        return;
+      }
+
       // TODO: 공통 에러 토스트가 생기면 이 안내를 그쪽으로 옮긴다
       console.error('온보딩 프로필 등록 실패', error);
       setFormError('등록하지 못했어요. 잠시 후 다시 시도해 주세요.');
-      isSubmittingRef.current = false;
-      setIsSubmitting(false);
     }
   };
 
@@ -80,7 +100,13 @@ export function OnboardingFlow() {
 
       <div className="flex flex-1 flex-col justify-center py-16">
         {step === 'terms' && (
-          <TermsStep agreedIds={agreedTermIds} onChange={setAgreedTermIds} />
+          <TermsStep
+            terms={terms}
+            isError={isTermsError}
+            onRetry={() => refetch()}
+            agreedIds={agreedTermIds}
+            onChange={setAgreedTermIds}
+          />
         )}
 
         {step === 'nickname' && (

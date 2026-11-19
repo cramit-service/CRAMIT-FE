@@ -1,15 +1,19 @@
 'use client';
 // src/features/study/components/viewer/StudyViewerScreen.tsx
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useProjectDetail } from '@/features/study/hooks/useProjectDetail';
 import {
   useChapter,
   useLectureMaterial,
 } from '@/features/study/hooks/useLectureMaterial';
 import { useMockAudio } from '@/features/study/hooks/useMockAudio';
+import { usePdfView } from '@/features/study/hooks/usePdfView';
 import { toPlayDuration } from '@/features/study/lib/format';
 import { ViewerHeader } from '@/features/study/components/viewer/ViewerHeader';
-import { PdfMaterialTab } from '@/features/study/components/viewer/PdfMaterialTab';
+import {
+  PdfMaterialPending,
+  PdfMaterialTab,
+} from '@/features/study/components/viewer/PdfMaterialTab';
 import { SummaryTab } from '@/features/study/components/viewer/SummaryTab';
 import { ScriptTab } from '@/features/study/components/viewer/ScriptTab';
 import { TodoChecklist } from '@/features/todo/components/TodoChecklist';
@@ -29,8 +33,8 @@ const PAGE_SHELL = CONTENT_SHELL;
 const FOCUS_SHELL = 'w-full px-6 pt-4 pb-4';
 
 interface StudyViewerScreenProps {
-  projectId: string;
-  chapterId: string;
+  projectId: number;
+  chapterId: number;
 }
 
 // 이분할일 때 두 패널 사이 간격 = 드래그 핸들 폭(Resizer의 w-3).
@@ -134,12 +138,21 @@ export function StudyViewerScreen({
   // 재생 상태는 탭이 아니라 화면이 쥔다. 탭 안에 두면 탭을 옮길 때마다 언마운트돼
   // 재생 위치가 초기화되고, 원문 스크립트 탭이 그 값을 읽을 방법도 없다.
   // 조회 전에는 duration이 0이지만 훅이 읽는 시점에만 잘라내므로 도착하면 복원된다.
-  const audio = useMockAudio(toPlayDuration(materialQuery.data?.audioDuration));
+  const audio = useMockAudio(
+    materialQuery.data?.audioUrl ?? null,
+    toPlayDuration(materialQuery.data?.audioDuration),
+    materialQuery.data?.audioFailed ?? false,
+  );
+  // PDF 문서와 보던 페이지·배율도 같은 이유로 화면이 쥔다.
+  const pdf = usePdfView(materialQuery.data?.pdfUrl ?? null);
 
   // 양쪽 다 최소 폭을 가질 수 있을 때만 나눈다. 억지로 나누면 두 패널 모두
   // 읽을 수 없어져서, 좁은 창에선 탭 두 개를 켜도 마지막 것만 단일로 보여준다.
   const canSplit = areaWidth >= MIN_PANEL_WIDTH * 2 + SPLIT_GAP;
   const isSplit = activeTabs.length === 2 && canSplit;
+  // 나눌 수 없을 땐 가장 최근에 켠 탭을 보여준다. 좁은 창에서 탭을 누르면
+  // 예전처럼 "전환"으로 동작해, 눌렀는데 아무 반응이 없어 보이지 않는다.
+  const shownTabs = isSplit ? activeTabs : activeTabs.slice(-1);
 
   // 최소 폭(px)을 지금 분할 영역 폭 기준의 비율로 환산한다.
   const splitInner = Math.max(0, areaWidth - SPLIT_GAP);
@@ -186,10 +199,11 @@ export function StudyViewerScreen({
       return prev.length < 2 ? [...prev, tab] : [prev[1], tab];
     });
 
-  const queries = [projectQuery, chapterQuery, materialQuery];
+  // 강의자료는 PDF 탭만 기다린다. 여기 묶으면 PDF 조회 하나가 실패해도 요약까지 못 연다.
+  const queries = [projectQuery, chapterQuery];
 
   // 로딩 / 에러 / 빈 데이터를 구분한다.
-  // 셋을 뭉뚱그려 falsy로 판단하면 조회에 실패해도 "불러오는 중…"에서 멈춘다.
+  // 뭉뚱그려 falsy로 판단하면 조회에 실패해도 "불러오는 중…"에서 멈춘다.
   if (queries.some((q) => q.isPending)) {
     return <div className={`${PAGE_SHELL} text-gray-500`}>불러오는 중…</div>;
   }
@@ -212,10 +226,9 @@ export function StudyViewerScreen({
 
   const project = projectQuery.data;
   const chapter = chapterQuery.data;
-  const material = materialQuery.data;
 
   // 성공했는데 본문이 비어 있는 경우 (204 등)
-  if (!project || !chapter || !material) {
+  if (!project || !chapter) {
     return (
       <div className={`${PAGE_SHELL} text-gray-500`}>
         표시할 학습 자료가 없어요.
@@ -227,18 +240,41 @@ export function StudyViewerScreen({
   const renderTab = (tab: ViewerTab) => {
     switch (tab) {
       case 'PDF':
-        return <PdfMaterialTab material={material} audio={audio} />;
-      // 요약은 이 탭에서만 필요하니 화면 진입 시가 아니라 탭 안에서 따로 조회한다
+        return materialQuery.data ? (
+          <PdfMaterialTab
+            material={materialQuery.data}
+            audio={audio}
+            pdf={pdf}
+          />
+        ) : (
+          <PdfMaterialPending
+            isError={materialQuery.isError}
+            onRetry={() => materialQuery.refetch()}
+          />
+        );
+      // 요약은 이 탭에서만 필요하니 화면 진입 시가 아니라 탭 안에서 따로 조회한다.
+      // 서버가 요약 파일명을 주지 않아 시안 형식(강의명_주차 제목_요약.md)으로 만든다.
       case 'SUMMARY':
-        return <SummaryTab chapterId={chapterId} />;
-      // 스크립트도 같은 이유로 탭 안에서 조회한다. 재생 위치는 읽기 전용으로 넘긴다
+        return (
+          <SummaryTab
+            chapterId={chapterId}
+            fileName={`${project.title}_${chapter.title}_요약.md`.replace(
+              /\s+/g,
+              '_',
+            )}
+            heading={`${project.title} · ${chapter.title}`}
+          />
+        );
+      // 스크립트도 같은 이유로 탭 안에서 조회한다. 재생 위치를 보여주고, 문장의 시각을 누르면 거기부터 재생한다
       case 'SCRIPT':
         return (
           <ScriptTab
             chapterId={chapterId}
             currentTime={audio.currentTime}
-            // 재생 위치를 만든 값과 같은 방식으로 정규화한다(둘이 어긋나면 표기가 달라진다)
-            duration={toPlayDuration(material.audioDuration)}
+            isPlaying={audio.isPlaying}
+            onPlayFrom={audio.playFrom}
+            canPlay={audio.canPlay}
+            duration={audio.duration}
           />
         );
       // TODO(백엔드): 지금은 내 할 일 전체가 뜬다. 조회에 강의·주차 필터가 생기면
@@ -272,38 +308,44 @@ export function StudyViewerScreen({
       />
 
       <div ref={areaRef} className="mt-2 flex min-h-0 flex-1 flex-col">
-        {isSplit ? (
-          // 이분할 — 좌우 패널 사이 핸들을 끌어 폭을 나눈다.
-          // 핸들이 간격을 겸하므로 flex gap은 주지 않는다(주면 간격이 두 번 생긴다).
-          <div className="flex h-full">
-            <div
-              className="min-w-0"
-              // 핸들 폭을 뺀 나머지를 비율로 가른다. 우측은 flex-1로 남는 만큼 채운다.
-              style={{
-                flexBasis: `calc((100% - ${SPLIT_GAP}px) * ${ratio / 100})`,
-                flexGrow: 0,
-                flexShrink: 0,
-              }}
-            >
-              {renderTab(activeTabs[0])}
-            </div>
-            <Resizer
-              label="좌우 패널 너비 조절"
-              value={ratio}
-              min={minRatio}
-              max={maxRatio}
-              onResize={setLeftRatio}
-              // 이동 1px이 몇 %인지. 폭을 재기 전(0)에는 드래그해도 움직이지 않는다.
-              scale={areaWidth > 0 ? 100 / areaWidth : 0}
-              step={2}
-            />
-            <div className="min-w-0 flex-1">{renderTab(activeTabs[1])}</div>
-          </div>
-        ) : (
-          // 나눌 수 없을 땐 가장 최근에 켠 탭을 보여준다. 좁은 창에서 탭을 누르면
-          // 예전처럼 "전환"으로 동작해, 눌렀는데 아무 반응이 없어 보이지 않는다.
-          renderTab(activeTabs[activeTabs.length - 1])
-        )}
+        {/* 이분할을 켜고 꺼도 같은 탭은 같은 key로 남겨 보던 페이지·배율·목록을 지킨다.
+            핸들이 간격을 겸하므로 flex gap은 주지 않는다(주면 간격이 두 번 생긴다). */}
+        <div className="flex h-full">
+          {shownTabs.map((tab, i) => {
+            // 왼쪽 칸은 핸들 폭을 뺀 나머지를 비율로 갖고, 나머지는 남는 폭을 채운다.
+            const sized = isSplit && i === 0;
+            return (
+              <Fragment key={tab}>
+                {i === 1 && (
+                  <Resizer
+                    label="좌우 패널 너비 조절"
+                    value={ratio}
+                    min={minRatio}
+                    max={maxRatio}
+                    onResize={setLeftRatio}
+                    // 이동 1px이 몇 %인지. 폭을 재기 전(0)에는 드래그해도 움직이지 않는다.
+                    scale={areaWidth > 0 ? 100 / areaWidth : 0}
+                    step={2}
+                  />
+                )}
+                <div
+                  className={sized ? 'min-w-0' : 'min-w-0 flex-1'}
+                  style={
+                    sized
+                      ? {
+                          flexBasis: `calc((100% - ${SPLIT_GAP}px) * ${ratio / 100})`,
+                          flexGrow: 0,
+                          flexShrink: 0,
+                        }
+                      : undefined
+                  }
+                >
+                  {renderTab(tab)}
+                </div>
+              </Fragment>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

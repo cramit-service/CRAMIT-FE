@@ -22,12 +22,15 @@ interface ScrollAreaProps {
   fade?: boolean;
   /** 스크롤하는 노드. 코드가 직접 굴려야 하는 화면이 있다(챗의 맨 아래, 요약의 맨 위로). */
   ref?: React.Ref<HTMLDivElement>;
+  /** 안에 누를 것이 없는 칸(글만 든 칸)에 준다. 칸이 포커스를 받아 키보드로 굴러가고, 이 이름으로 읽힌다. */
+  label?: string;
 }
 
 export function ScrollArea({
   children,
   fade = true,
   ref: forwarded,
+  label,
 }: ScrollAreaProps) {
   const ref = useRef<HTMLDivElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(null);
@@ -124,7 +127,12 @@ export function ScrollArea({
 
   return (
     <div
-      className="relative flex min-h-0 flex-1 flex-col"
+      className={cn(
+        'relative flex min-h-0 flex-1 flex-col',
+        // 링은 바깥에 그린다 — 안쪽 노드는 fade-bottom 마스크가 아랫변을 지운다
+        label &&
+          'has-[>:focus-visible]:outline-sky-ink has-[>:focus-visible]:outline-2 has-[>:focus-visible]:-outline-offset-2',
+      )}
       // 막대를 잡으려면 먼저 보여야 한다. 스크롤할 때만 뜨면 잡을 틈이 없다.
       onPointerEnter={() => thumb && show(false)}
       onPointerLeave={() => !drag.current && show(true)}
@@ -136,8 +144,13 @@ export function ScrollArea({
           else if (forwarded) forwarded.current = node;
         }}
         onScroll={handleScroll}
+        // 넘칠 때만 탭이 멈춘다. 굴릴 것이 없는 칸에 멈추면 한 번 더 누를 일만 생긴다.
+        tabIndex={label && thumb ? 0 : undefined}
+        role={label ? 'region' : undefined}
+        aria-label={label}
         className={cn(
           'scrollbar-hidden min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain',
+          label && 'focus-visible:outline-none',
           fade && more && 'fade-bottom',
         )}
       >

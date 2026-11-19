@@ -1,22 +1,21 @@
 'use client';
 // src/features/chat/components/ChatPanel.tsx
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { isNoContextError } from '@/features/chat/api';
 import {
-  useChatMessages,
+  useChatThread,
   useSendChatMessage,
 } from '@/features/chat/hooks/useChat';
-import { useParams } from 'next/navigation';
 import { ChatBubble } from '@/features/chat/components/ChatBubble';
-import { useChapter } from '@/features/study/hooks/useLectureMaterial';
+import { useChatDock } from '@/shared/hooks/useChatDock';
+import { splitQuote, withQuote } from '@/shared/lib/quote';
 import {
-  ATTACHMENT_ACCEPT,
-  formatFileSize,
-  validateAttachment,
-} from '@/features/chat/lib/attachment';
-import { mockSuggestedQuestions } from '@/mocks/chat';
+  CHAT_GREETING,
+  QUOTE_QUESTIONS,
+  SUGGESTED_QUESTIONS,
+} from '@/features/chat/lib/starter';
+import { useChapter } from '@/features/study/hooks/useLectureMaterial';
 import { Button } from '@/shared/ui/Button';
-import { FileInput } from '@/shared/ui/FileInput';
-import { Icon } from '@/shared/ui/Icon';
 import { IconButton } from '@/shared/ui/IconButton';
 import { Textarea } from '@/shared/ui/Textarea';
 import { ScrollArea } from '@/shared/ui/ScrollArea';
@@ -27,32 +26,35 @@ const COMPOSER_MAX_ROWS = 5;
 // 챗봇 패널 본문. 도크(열고 닫는 껍데기)는 ChatDock이 맡는다.
 export function ChatPanel({
   projectId,
+  chapterId,
   open,
 }: {
-  projectId: string;
+  projectId: number;
+  chapterId: number;
   open: boolean;
 }) {
   // 닫혀 있는 동안에는 조회하지 않는다. 도크는 닫혀도 DOM에 남아 있다.
-  const chatQuery = useChatMessages(projectId, open);
-  const sendMutation = useSendChatMessage(projectId);
+  const chatQuery = useChatThread(chapterId, open);
+  const sendMutation = useSendChatMessage(chapterId);
   const [draft, setDraft] = useState('');
-  // 질문에 붙일 파일 1개와 검증 실패 문구.
-  const [file, setFile] = useState<File | null>(null);
-  const [fileError, setFileError] = useState<string | null>(null);
-  const fileErrorId = useId();
-  const fileInputId = useId();
+  // 학습 뷰어에서 [AI에게 질문]으로 넘어온 글. 다음 질문 하나에만 붙는다.
+  const { quote, setQuote } = useChatDock();
+  const draftRef = useRef<HTMLTextAreaElement>(null);
 
-  // 이 대화가 어느 주차에서 열렸는지. 도크는 chapters/ 아래에서만 뜨므로 라우트가 안다 —
-  // 서버에 물을 것이 없다(ChatMessage에 chapterId 자체가 없다).
-  const params = useParams<{ chapterId?: string }>();
-  const chapterId = params?.chapterId;
-  const { data: chapter } = useChapter(projectId, chapterId ?? '');
+  // 인용이 붙으면 바로 질문을 쓸 수 있게 입력칸으로 간다.
+  useEffect(() => {
+    if (quote && open) draftRef.current?.focus();
+  }, [quote, open]);
+
+  const { data: chapter } = useChapter(projectId, chapterId);
   // 주차 제목이다. 이 대화가 어느 주차에 걸려 있는지 사람이 알아보는 건 번호가 아니라
   // 제목이라서 — 길면 상한에서 잘린다(아래 max-w + truncate).
   const scopeLabel = chapter?.title ?? null;
   const listRef = useRef<HTMLDivElement>(null);
 
-  const messages = chatQuery.data ?? [];
+  const messages = chatQuery.data?.messages ?? [];
+  // 대화를 불러오기 전에 보내면 기존 세션을 모른 채 새 세션을 만든다.
+  const ready = chatQuery.isSuccess;
   // 답을 기다리는 동안 추천 질문을 계속 눌러 질문이 겹치지 않게 막는다.
   const sending = sendMutation.isPending;
   // 추천 질문은 말문을 트라고 있는 것이다. 한 번이라도 질문했으면 할 일을 다 했고,
@@ -66,38 +68,32 @@ export function ChatPanel({
     const el = listRef.current;
     if (!el) return;
     el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-  }, [messages.length, sending]);
+    // 인용이 붙으면 인용용 추천 질문이 대화 맨 아래에 생긴다. 그것도 보이게 내린다.
+  }, [messages.length, sending, quote]);
 
-  // 파일만 올리고 "이거 봐줘" 하는 흐름이 자연스러워 본문 없이 보내는 것도 허용한다.
-  const send = (content: string) => {
+  // 추천 질문을 눌러 보낼 때는 쓰던 질문(draft)을 지우지 않는다.
+  const send = (content: string, fromDraft = true) => {
     const text = content.trim();
-    if ((!text && !file) || sending) return;
-    setDraft('');
-    setFile(null);
-    setFileError(null);
-    sendMutation.mutate({ content: text, file });
+    if (!text || sending || !ready) return;
+    if (fromDraft) setDraft('');
+    setQuote(null);
+    sendMutation.mutate(quote ? withQuote(quote, text) : text);
   };
+
+  // 인용이 붙어 있으면 그 글에 맞는 추천 질문을 다시 띄운다(이미 질문했어도).
+  const suggestions = quote ? QUOTE_QUESTIONS : SUGGESTED_QUESTIONS;
+  const showSuggestions = quote !== null || !hasAsked;
 
   // 실패한 전송 입력. mutation이 마지막 mutate 인자를 그대로 들고 있어
-  // 따로 보관하지 않아도 된다(File 객체까지 살아 있어 다시 고를 필요가 없다).
+  // 따로 보관하지 않아도 된다.
   const failed = sendMutation.isError ? sendMutation.variables : undefined;
-  const failedLabel = failed
-    ? [failed.file?.name, failed.content].filter(Boolean).join(' · ')
-    : '';
+  const noContext = isNoContextError(sendMutation.error);
 
-  // draft·file은 건드리지 않는다. 실패한 사이에 새 질문을 쓰고 있을 수 있고,
+  // draft는 건드리지 않는다. 실패한 사이에 새 질문을 쓰고 있을 수 있고,
   // 그걸 덮어쓰면 이번엔 방금 쓴 게 날아간다.
   const retry = () => {
-    if (!failed || sending) return;
+    if (failed === undefined || sending) return;
     sendMutation.mutate(failed);
-  };
-
-  // 고른 파일을 검증해 받아들이거나, 문구만 남기고 선택을 비운다.
-  const pickFile = (picked: File | undefined) => {
-    if (!picked) return;
-    const message = validateAttachment(picked);
-    setFileError(message);
-    setFile(message ? null : picked);
   };
 
   return (
@@ -121,17 +117,12 @@ export function ChatPanel({
                 다시 시도
               </Button>
             </div>
-          ) : messages.length === 0 ? (
-            // mock은 인사말을 항상 포함하지만, 백엔드가 빈 배열을 주면 아무 안내도 없이
-            // 빈 화면만 남는다. 로딩·에러와 마찬가지로 빈 상태도 말해 준다.
-            <p className="text-body-sm pt-10 text-center text-gray-500">
-              아직 주고받은 대화가 없어요. 궁금한 내용을 물어보세요.
-            </p>
           ) : (
             // gap-7(28)이었고 거기에 행마다 위 여백이 더 붙어 실제 간격이 52~60이었다.
             // 28은 §2 간격 목록에도 없다. 24 하나로 두면 AI 반짝임이 솟는 24가 이 안에
             // 정확히 들어가서, 행이 여백을 따로 갖지 않아도 된다.
             <ul className="flex flex-col gap-6">
+              <ChatBubble message={CHAT_GREETING} />
               {messages.map((message) => (
                 <ChatBubble key={message.messageId} message={message} />
               ))}
@@ -148,18 +139,18 @@ export function ChatPanel({
           )}
 
           {/* 추천 질문 (시안: 대화 영역 좌하단 흰 알약). 고정 바가 아니라 대화 흐름 안에 있어야
-            말풍선을 가리지 않는다. 첫 질문 전에만 둔다. */}
-          {!hasAsked && !chatQuery.isPending && !chatQuery.isError && (
+            말풍선을 가리지 않는다. 첫 질문 전, 또는 인용이 붙었을 때만 둔다. */}
+          {showSuggestions && !chatQuery.isPending && !chatQuery.isError && (
             <div className="mt-5 flex flex-col items-start gap-2">
               {/* 알약(rounded-full)에 죽은 border-white·bg-white를 얹고 있었다.
                   §4가 모서리로 둘을 가른다 — 알약은 상태를 들고, 6은 일을 한다.
                   추천 질문은 누르면 그 질문이 보내지는 «일»이라 2순위 버튼이다. */}
-              {mockSuggestedQuestions.map((question) => (
+              {suggestions.map((question) => (
                 <Button
                   key={question}
                   rank="secondary"
                   size="sm"
-                  onClick={() => send(question)}
+                  onClick={() => send(question, false)}
                   disabled={sending}
                 >
                   {question}
@@ -183,22 +174,26 @@ export function ChatPanel({
       >
         {/* 전송 실패 — 낙관적으로 넣었던 말풍선은 롤백돼 사라지므로, 여기서 말해주지 않으면
             보낸 게 조용히 없어진 것처럼 보인다. 입력은 지워진 뒤라 재시도는 여기서만 가능하다. */}
-        {failed && (
+        {failed !== undefined && (
           <div
             role="alert"
             className="bg-well flex items-center gap-2 rounded-md px-2 py-1.5"
           >
             <span className="min-w-0 flex-1">
               <span className="text-body-sm text-red-ink block break-keep">
-                질문을 보내지 못했어요.
+                {noContext
+                  ? '이 주차는 아직 요약본이 없어 답할 수 없어요.'
+                  : '질문을 보내지 못했어요.'}
               </span>
               <span className="text-label block truncate text-gray-500">
-                {failedLabel}
+                {splitQuote(failed).question}
               </span>
             </span>
-            <Button rank="secondary" onClick={retry} disabled={sending}>
-              {sending ? '보내는 중…' : '다시 보내기'}
-            </Button>
+            {!noContext && (
+              <Button rank="secondary" onClick={retry} disabled={sending}>
+                {sending ? '보내는 중…' : '다시 보내기'}
+              </Button>
+            )}
             <IconButton
               name="close"
               aria-label="전송 실패 알림 닫기"
@@ -208,42 +203,22 @@ export function ChatPanel({
           </div>
         )}
 
-        {/* 고른 파일 (시안 없음 — 미리보기 없이 이름·크기만 보여준다).
-            채움이 없다 — 파일 하나를 알려 주는 줄이지 누르는 것도 담는 것도 아니라
-            상자가 필요 없다. 채움을 걷으면서 그 채움을 위해 있던 radius·여백도 같이 지웠다.
-            글자는 14, 아이콘은 그 옆 4px 단계인 16이다(§3 아이콘 규칙). */}
-        {file && (
-          <div className="flex max-w-full items-center gap-2 self-start">
-            <span className="flex shrink-0 text-gray-400">
-              <Icon name="paperclip" size={16} />
+        {/* 다음 질문에 붙을 인용 (프리뷰 보드 H). 한 줄로 자르고, 빼면 그냥 질문이 된다. */}
+        {quote && (
+          <div className="flex max-w-full items-center gap-2">
+            <span className="text-label bg-well shrink-0 rounded-md px-2 py-0.5 font-medium text-gray-700">
+              인용
             </span>
-            <span className="text-label min-w-0 truncate text-gray-800">
-              {file.name}
-            </span>
-            <span className="text-label shrink-0 text-gray-500">
-              {formatFileSize(file.size)}
+            <span className="text-label min-w-0 flex-1 truncate text-gray-700">
+              {quote}
             </span>
             <IconButton
               name="close"
-              aria-label="첨부 파일 빼기"
+              aria-label="인용 빼기"
               rank="plain"
-              onClick={() => {
-                setFile(null);
-                setFileError(null);
-              }}
+              onClick={() => setQuote(null)}
             />
           </div>
-        )}
-
-        {/* 파일을 고른 직후 나타나는 문구라 보조기기가 바로 읽도록 alert로 둔다. */}
-        {fileError && (
-          <p
-            id={fileErrorId}
-            role="alert"
-            className="text-body-sm text-red-ink break-keep"
-          >
-            {fileError}
-          </p>
         )}
 
         {/* 합성 입력 — 위에 글, 아래 줄에 컨트롤. 상자 하나가 필드이고 그 안의
@@ -251,6 +226,7 @@ export function ChatPanel({
             그래서 포커스 테두리도 상자가 focus-within으로 받는다. */}
         <div className="bg-well focus-within:border-sky-ink flex flex-col gap-2 rounded-md border border-transparent px-4 py-3 transition-colors duration-150 ease-out">
           <Textarea
+            ref={draftRef}
             bare
             maxRows={COMPOSER_MAX_ROWS}
             value={draft}
@@ -268,31 +244,16 @@ export function ChatPanel({
               e.preventDefault();
               send(draft);
             }}
-            placeholder="질문 내용을 입력해 주세요."
+            placeholder={
+              quote
+                ? '이 부분에 대해 무엇이 궁금한가요?'
+                : '질문 내용을 입력해 주세요.'
+            }
             aria-label="질문 내용"
           />
 
           <div className="flex items-center gap-2">
-            {/* 파일 고르기. FileInput은 sr-only라 포커스를 자기가 갖고, 누르는 자리는
-                이 label이 만든다 — 클릭을 흉내 내는 버튼이 없다.
-                relative 필수 — sr-only가 position:absolute다 (CLAUDE.md 4-6). */}
-            <label
-              htmlFor={fileInputId}
-              className="focus-within:ring-sky-ink relative flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-gray-500 transition-colors focus-within:ring-2 hover:bg-gray-100 hover:text-gray-800"
-            >
-              <FileInput
-                id={fileInputId}
-                accept={ATTACHMENT_ACCEPT}
-                disabled={sending}
-                onPick={pickFile}
-                aria-label="파일 첨부"
-                aria-describedby={fileError ? fileErrorId : undefined}
-              />
-              <Icon name="plus" size={16} />
-            </label>
-
-            {/* 이 대화가 걸려 있는 자리. 지금은 주차 하나에 고정이라 읽기만 한다 —
-                고를 수 있게 하려면 전송 요청에 chapterId가 생겨야 한다(백엔드 대기).
+            {/* 이 대화가 걸려 있는 주차. 세션이 주차에 묶여 있어 읽기만 한다.
                 well 위라 한 단 올라간 surface를 쓴다. */}
             {scopeLabel && (
               <span className="text-label bg-surface max-w-40 truncate rounded-md px-2 py-0.5 text-gray-700">
@@ -306,7 +267,7 @@ export function ChatPanel({
                 type="submit"
                 aria-label="보내기"
                 rank="primary"
-                disabled={(!draft.trim() && !file) || sending}
+                disabled={!draft.trim() || sending || !ready}
               />
             </span>
           </div>

@@ -5,9 +5,9 @@ import type { CalendarCell as Cell } from '@/features/calendar/lib/month';
 
 // 칸에 뜨는 한 줄. 지금은 할 일만 온다 — 시험은 달력에 따로 표시할 방법을 정하는 중이다.
 export interface ScheduleItem {
-  id: string;
+  id: number;
   /** 과목(강의) id. 강의를 안 고른 TODO는 null이라 회색 막대로 떨어진다. */
-  subjectId: string | null;
+  subjectId: number | null;
   label: string;
 }
 
@@ -26,7 +26,7 @@ interface CalendarCellProps {
   isSelected: boolean;
   onSelect: () => void;
   /** 과목 id → 색 클래스. Calendar가 과목 생성 순서로 만들어 내려준다. */
-  subjectDots: Map<string, number>;
+  subjectDots: Map<number, number>;
 }
 
 // 하루 칸. 눌러서 그 날짜만 보게 거르고, 다시 누르면 푼다.

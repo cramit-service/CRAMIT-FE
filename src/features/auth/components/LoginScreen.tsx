@@ -1,49 +1,37 @@
 'use client';
 // src/features/auth/components/LoginScreen.tsx
-import { useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { Logo } from '@/shared/ui/Logo';
 import { GradientBackground } from '@/shared/ui/GradientBackground';
 import { SocialButton } from './SocialButton';
-import {
-  startSocialLogin,
-  saveAuthTokens,
-  type SocialProvider,
-} from '@/features/auth/api';
+import { socialLoginHref } from '@/features/auth/api';
 
-export function LoginScreen() {
-  const router = useRouter();
-  // 진행 중인 제공자. 응답을 기다리는 동안 두 버튼을 함께 잠근다.
-  const [pending, setPending] = useState<SocialProvider | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+export function LoginScreen({
+  oauthFailed = false,
+}: {
+  oauthFailed?: boolean;
+}) {
+  // 링크라 JS 전에도 이동한다. 붙은 뒤에는 이동하는 동안 두 버튼을 잠근다 —
+  // 연달아 누르면 인가 요청이 서로 덮어써 콜백이 실패할 수 있다.
+  const [pending, setPending] = useState(false);
+  const [showError, setShowError] = useState(oauthFailed);
 
-  // state는 동기로 갱신되지 않아 같은 tick에 연타하면 pending이 계속 null로 보인다.
-  // 리렌더 전에도 막으려면 ref로 검사해야 한다.
-  const isRunning = useRef(false);
+  // 카카오 화면에서 뒤로 오면 bfcache가 잠긴 버튼 그대로 되살린다
+  useEffect(() => {
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) setPending(false);
+    };
+    window.addEventListener('pageshow', onPageShow);
+    return () => window.removeEventListener('pageshow', onPageShow);
+  }, []);
 
-  const handleLogin = async (provider: SocialProvider) => {
-    if (isRunning.current) return;
-    isRunning.current = true;
-    setPending(provider);
-    setErrorMessage(null);
-
-    try {
-      const tokens = await startSocialLogin(provider);
-      saveAuthTokens(tokens);
-
-      // TODO: 지금은 모두 온보딩으로 보낸다. 기존 회원은 홈으로 가야 하므로 분기가 필요하다.
-      // 백엔드 담당에게 확인 필요: 소셜 로그인 응답에 신규/기존 회원을 구분하는 필드가 있는지,
-      // 있다면 필드명이 무엇인지. 확인되면 LoginResponse(shared/types/api.ts)에 추가하고
-      // 그 값으로 여기서 갈라야 한다(신규 → /onboarding, 기존 → 홈).
-      router.push('/onboarding');
-    } catch (error) {
-      // TODO: 공통 에러 토스트가 생기면 그쪽으로 옮긴다
-      console.error('소셜 로그인 실패', error);
-      setErrorMessage('로그인하지 못했어요. 잠시 후 다시 시도해 주세요.');
-    } finally {
-      isRunning.current = false;
-      setPending(null);
+  const start = (e: React.MouseEvent) => {
+    if (pending) {
+      e.preventDefault();
+      return;
     }
+    setPending(true);
+    setShowError(false);
   };
 
   return (
@@ -64,19 +52,21 @@ export function LoginScreen() {
         <div className="mt-32 flex w-full flex-col gap-4 md:mt-40">
           <SocialButton
             provider="KAKAO"
-            disabled={pending !== null}
-            onClick={() => handleLogin('KAKAO')}
+            href={socialLoginHref('KAKAO')}
+            pending={pending}
+            onClick={start}
           />
           <SocialButton
             provider="GOOGLE"
-            disabled={pending !== null}
-            onClick={() => handleLogin('GOOGLE')}
+            href={socialLoginHref('GOOGLE')}
+            pending={pending}
+            onClick={start}
           />
         </div>
 
-        {errorMessage && (
+        {showError && (
           <p role="alert" className="text-body-sm text-red-ink mt-6">
-            {errorMessage}
+            로그인하지 못했어요. 잠시 후 다시 시도해 주세요.
           </p>
         )}
       </div>

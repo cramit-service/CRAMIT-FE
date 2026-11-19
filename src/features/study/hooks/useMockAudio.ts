@@ -1,65 +1,119 @@
 'use client';
 // src/features/study/hooks/useMockAudio.ts
-import { useEffect, useState } from 'react';
-
-// TODO(오디오): 백엔드가 녹음 파일(audioUrl)을 내려주면 <audio> 엘리먼트를 붙이고
-// 이 훅을 실제 timeupdate/play/pause 이벤트 기반으로 교체한다.
-// 지금은 재생 상태 토글과 진행바 UI만 확인할 수 있게 흉내낸다.
-
-// Figma 시안 표기(12:05 / 61:02)와 맞추기 위한 mock 시작 위치(초)
-const MOCK_START_TIME = 725;
+import { useEffect, useRef, useState } from 'react';
 
 // 뷰어 화면이 쥐고 탭들에 내려주는 재생 상태.
+// 이름은 목 시절 그대로 둔다. 탭들이 이 인터페이스만 보므로 실제 재생으로 바꿔도 탭은 그대로다.
 export interface MockAudio {
   isPlaying: boolean;
   currentTime: number; // 초
+  duration: number; // 초
+  canPlay: boolean; // 녹음이 있고 불러오다 실패하지 않았다
+  failed: boolean; // 녹음 파일을 불러오지 못했다
   toggle: () => void;
   seek: (seconds: number) => void;
+  playFrom: (seconds: number) => void; // 스크립트 문장의 시각을 누르면 그 시각부터 재생
 }
 
-// duration은 강의자료 조회가 끝나기 전엔 0으로 들어온다.
-// 그동안 rawTime은 그대로 두고 읽는 시점에만 잘라내므로, 자료가 도착하면
-// 시작 위치(12:05)가 저절로 복원된다.
-export function useMockAudio(duration: number): MockAudio {
+// src는 R2 공개 URL. 녹음이 없는 주차는 null이라 재생할 것이 없다.
+// fallbackDuration은 서버가 준 녹음 길이다. 비어 있으면 0이라, 파일을 읽어 길이를 알게 되면 그쪽을 쓴다.
+// lookupFailed는 녹음 조회 자체가 실패한 경우다. 파일을 받다 실패한 경우와 함께 failed로 모은다.
+export function useMockAudio(
+  src: string | null,
+  fallbackDuration: number,
+  lookupFailed: boolean,
+): MockAudio {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [rawTime, setRawTime] = useState(MOCK_START_TIME);
+  const [rawTime, setRawTime] = useState(0);
+  const [fileDuration, setFileDuration] = useState<number | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
 
-  // duration이 MOCK_START_TIME보다 짧으면 "12:05 / 01:00"처럼 재생 위치가
-  // 길이를 넘어서고 진행바도 100%를 넘는다.
-  // 상태를 따로 보정하지 않고 읽는 시점에 0~duration으로 자른다.
-  // 이러면 자료가 바뀌어 duration이 줄어도 자동으로 따라간다.
-  const safeDuration = Math.max(0, duration);
-  const currentTime = Math.min(Math.max(0, rawTime), safeDuration);
-
-  // 재생 중일 때만 1초씩 흘려보낸다 (mock)
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!src) return;
+    const audio = new Audio(src);
+    audio.preload = 'metadata';
+    audioRef.current = audio;
 
-    const timer = setInterval(() => {
-      setRawTime((prev) => {
-        if (prev + 1 >= safeDuration) {
-          setIsPlaying(false);
-          return safeDuration;
-        }
-        return prev + 1;
-      });
-    }, 1000);
+    // timeupdate는 1초에 여러 번 온다. 초 단위로 내려 같은 값이면 다시 그리지 않게 한다.
+    const onTime = () => setRawTime(Math.floor(audio.currentTime));
+    const onPlay = () => setIsPlaying(true);
+    const onStop = () => setIsPlaying(false);
+    const onMeta = () => {
+      if (Number.isFinite(audio.duration)) {
+        setFileDuration(Math.floor(audio.duration));
+      }
+    };
+    const onError = () => {
+      setLoadFailed(true);
+      setIsPlaying(false);
+    };
+    audio.addEventListener('timeupdate', onTime);
+    audio.addEventListener('play', onPlay);
+    audio.addEventListener('pause', onStop);
+    audio.addEventListener('ended', onStop);
+    audio.addEventListener('loadedmetadata', onMeta);
+    audio.addEventListener('error', onError);
 
-    return () => clearInterval(timer);
-  }, [isPlaying, safeDuration]);
+    return () => {
+      // pause 이벤트는 리스너를 떼기 전에 받지만 비동기로 온다. 상태는 여기서 직접 되돌린다.
+      audio.pause();
+      audio.removeEventListener('timeupdate', onTime);
+      audio.removeEventListener('play', onPlay);
+      audio.removeEventListener('pause', onStop);
+      audio.removeEventListener('ended', onStop);
+      audio.removeEventListener('loadedmetadata', onMeta);
+      audio.removeEventListener('error', onError);
+      // src를 빼고 load()까지 불러야 받던 다운로드가 멈춘다
+      audio.removeAttribute('src');
+      audio.load();
+      audioRef.current = null;
+      setIsPlaying(false);
+      setRawTime(0);
+      setFileDuration(null);
+      setLoadFailed(false);
+    };
+  }, [src]);
+
+  const duration = Math.max(0, fileDuration ?? fallbackDuration);
+  const currentTime = Math.min(Math.max(0, rawTime), duration);
+  const failed = lookupFailed || loadFailed;
+  const canPlay = src !== null && !failed;
 
   // 끝까지 재생된 상태에서 다시 누르면 처음부터
   const toggle = () => {
-    setIsPlaying((prev) => {
-      if (!prev && currentTime >= safeDuration) setRawTime(0);
-      return !prev;
-    });
+    const audio = audioRef.current;
+    if (!audio || !canPlay) return;
+    if (!audio.paused) {
+      audio.pause();
+      return;
+    }
+    if (audio.ended || currentTime >= duration) audio.currentTime = 0;
+    audio.play().catch(() => setIsPlaying(false));
   };
 
   // 진행바 클릭으로 위치 이동 (0~duration으로 자른다)
   const seek = (seconds: number) => {
-    setRawTime(Math.min(safeDuration, Math.max(0, Math.round(seconds))));
+    const next = Math.min(duration, Math.max(0, Math.round(seconds)));
+    setRawTime(next);
+    if (audioRef.current) audioRef.current.currentTime = next;
   };
 
-  return { isPlaying, currentTime, toggle, seek };
+  const playFrom = (seconds: number) => {
+    const audio = audioRef.current;
+    if (!audio || !canPlay) return;
+    seek(seconds);
+    audio.play().catch(() => setIsPlaying(false));
+  };
+
+  return {
+    isPlaying,
+    currentTime,
+    duration,
+    canPlay,
+    failed,
+    toggle,
+    seek,
+    playFrom,
+  };
 }

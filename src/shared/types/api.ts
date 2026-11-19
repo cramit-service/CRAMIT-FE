@@ -11,17 +11,30 @@ export interface ApiError {
   };
 }
 
-// 비동기 처리 상태 (STT·요약·적용·TODO 생성)
-export type ProcessStatus = 'READY' | 'PROCESSING';
+// 비동기 처리 상태 (STT·요약·적용·TODO 생성). PROCESSING일 때만 폴링한다.
+export type ProcessStatus = 'NOT_STARTED' | 'PROCESSING' | 'READY' | 'FAILED';
+
+// 서버의 비동기 작업 상태. 화면은 ProcessStatus로 바꿔 쓴다.
+export type AsyncJobStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
 
 /* ===== User (기획서 7.3) ===== */
 
 export interface User {
-  userId: string;
+  userId: number;
   email: string;
   nickname: string;
   provider: 'EMAIL' | 'KAKAO' | 'GOOGLE';
   profileImage: string | null;
+}
+
+// 서버 응답 (GET·PATCH /users/me/profile). 이메일·요금제·알림 설정은 내려주지 않는다.
+export interface UserProfileResponse {
+  memberId: number;
+  nickname: string;
+  profileImageUrl: string | null;
+  socialProvider: string;
+  onboardingCompleted: boolean;
+  createdAt: string;
 }
 
 /* ===== 인증 (기획서 8.1) ===== */
@@ -37,23 +50,33 @@ export interface LoginRequest {
   password: string;
 }
 
+// refreshToken은 본문에 없다 — 백엔드가 HttpOnly 쿠키로 심는다.
 export interface LoginResponse {
   accessToken: string;
-  refreshToken: string;
+}
+
+export interface TokenRefreshResponse {
+  accessToken: string;
 }
 
 /* ===== 온보딩 (약관 → 닉네임 → 요금제) ===== */
 
-export type PlanId = 'FREE' | 'STANDARD' | 'PRO';
+export type PlanId = 'FREE' | 'BASIC' | 'PREMIUM';
 
 export interface NicknameCheckResponse {
   available: boolean;
 }
 
-// TODO: 백엔드 온보딩 등록 스펙 확정 시 필드명 재확인 필요
+export interface Term {
+  termId: number;
+  title: string;
+  content: string;
+  required: boolean;
+}
+
 export interface OnboardingProfileRequest {
   nickname: string;
-  agreedTermIds: string[];
+  agreedTermIds: number[]; // Term.termId
   plan: PlanId;
 }
 
@@ -77,17 +100,13 @@ export interface MyProfile extends User {
 /* ===== Project (기획서 7.3, 8.2) ===== */
 
 export interface Project {
-  projectId: string;
+  projectId: number;
   title: string;
-  createdAt: string; // ISO 날짜 문자열
-  // 과목 색 — 팔레트 번호(1부터). 없으면 화면이 생성 순으로 채운다.
-  // TODO: 백엔드 필드명 확정 시 맞춘다.
   colorIndex: number; // 과목 색 팔레트 번호(1부터). 서버가 늘 채워 준다
 }
 
 // 학습하기(강의 목록) 카드 한 장에 필요한 메타.
-// Project만으로는 시안의 태그(교수명·강의 수·D-DAY)를 채울 수 없어 목록 응답을 따로 둔다.
-// TODO: 백엔드 목록 응답 스펙 확정 시 필드명 재확인 필요
+// 시험은 강의 응답에 없어서 다가오는 시험 조회에서 붙인다.
 export interface ProjectSummary extends Project {
   professor: string | null; // 교수명 (선택) — 없으면 메타 줄에서 조각째 빠진다
   chapterCount: number; // 강의(챕터) 개수 (태그: "강의 N개")
@@ -100,8 +119,8 @@ export interface ProjectSummary extends Project {
 export type ChapterStatus = 'BEFORE' | 'IN_PROGRESS' | 'DONE';
 
 export interface Chapter {
-  chapterId: string;
-  projectId: string;
+  chapterId: number;
+  projectId: number;
   chapterNumber: number;
   title: string; // 카드 본문 한 줄 (예: "알고리즘 기초 알아보기")
   createdAt: string; // ISO 날짜 문자열
@@ -111,11 +130,8 @@ export interface Chapter {
   // 기록이 아니라 오기가 된다. 백엔드는 증가 전용이 아니라 값을 세팅하는 엔드포인트를
   // 내야 한다 (DESIGN.md §4 "A 회독 is raised by a stepper, and lowered by the same one").
   reviewCount: number;
-  // 아래 둘은 "주차 정보 수정하기" 모달이 기존 값을 채우는 데 쓴다.
-  // TODO(백엔드): 챕터 조회 응답에 lectureDate·professor를 포함해 달라고 요청해야 한다.
-  //   없으면 수정 모달이 빈 날짜를 저장해 기존 값을 덮어쓴다.
+  // 주차 수정은 날짜까지 통째로 보낸다. 제목만 고칠 때 기존 날짜를 그대로 돌려보내는 데 쓴다.
   lectureDate: string; // 주차 수강 날짜 (YYYY-MM-DD)
-  professor: string | null; // 교수명 (선택)
   // 이미 올려둔 파일의 이름. 수정 모달이 "이 주차에 무엇이 올라가 있는지"를 보여주는 데 쓴다.
   // 업로드 계약이 "새로 고르지 않으면 기존 파일 유지"라, 이 값이 없으면 화면에는 빈 칸만 보여
   // 사용자가 파일이 날아간 줄 알고 같은 파일을 다시 올리게 된다.
@@ -128,22 +144,40 @@ export interface Chapter {
 }
 
 // 새 주차(챕터) 업로드 요청.
-// 파일 2종은 선택이며, 실제 전송은 JSON이 아니라 multipart/form-data다.
-// TODO: 백엔드 업로드 스펙 확정 시 필드명/필수 여부 재확인 필요
+// 파일 2종은 선택이다. 파일은 저장소에 먼저 올리고, 주차 생성에는 그 주소만 보낸다.
 export interface CreateChapterRequest {
-  projectId: string; // 어느 강의(프로젝트)에 붙일 주차인지
+  projectId: number; // 어느 강의(프로젝트)에 붙일 주차인지
   title: string; // 주차 제목 (예: "알고리즘 기초 알아보기")
   lectureDate: string; // 주차 수강 날짜 (YYYY-MM-DD)
-  professor: string | null; // 교수명 (선택)
   materialFile: File | null; // 강의 자료 PDF (선택)
   audioFile: File | null; // 강의 녹음 파일 (선택)
 }
 
-// 주차(챕터) 수정 요청 — "주차 정보 수정하기" 모달.
-// 폼이 칸을 통째로 저장하므로 생성과 같은 필드를 모두 보낸다(부분 수정이 아니다).
-// 파일 2종은 새로 고른 것만 보낸다 — null이면 기존 파일을 그대로 둔다.
+// 주차(챕터) 수정 요청. 제목·날짜를 통째로 보낸다(부분 수정이 아니다).
+// 파일 교체는 아직 백엔드에 없어 파일 2종은 보내지 않는다.
 export interface UpdateChapterRequest extends CreateChapterRequest {
-  chapterId: string;
+  chapterId: number;
+}
+
+// 서버 응답 (GET /lectures/{lectureId}/weeks 한 줄). 화면과는 이름·상태 값이 다르다.
+export interface WeekResponse {
+  weekId: number;
+  title: string;
+  weekDate: string; // YYYY-MM-DD
+  status: 'BEFORE' | 'IN_PROCESS' | 'COMPLETED';
+  reviewCount: number;
+  createdAt: string;
+}
+
+// 서버 응답 (POST /lectures/{lectureId}/weeks). 화면은 만든 주차로 이동하는 데 id만 쓴다.
+export interface WeekCreateResponse {
+  weekId: number;
+}
+
+// 서버 응답 (POST /files/presigned-url). uploadUrl에 파일을 PUT하고 fileUrl을 주차 생성에 넘긴다.
+export interface UploadUrlResponse {
+  uploadUrl: string;
+  fileUrl: string;
 }
 
 // 프로젝트 상세 헤더에 필요한 메타. 공유가 빠지면서 목록 응답과 같은 모양이 됐지만,
@@ -151,36 +185,109 @@ export interface UpdateChapterRequest extends CreateChapterRequest {
 // TODO: 백엔드 프로젝트 상세 응답 스펙 확정 시 필드명 재확인 필요
 export type ProjectDetail = ProjectSummary;
 
+// 서버 응답 (GET /lectures/my 한 줄). 화면과는 강의 id·교수명 이름이 다르다.
+export interface MyLectureResponse {
+  lectureId: number;
+  title: string;
+  professorName: string | null;
+  weekCount: number;
+  colorIndex: number;
+}
+
+// 서버 응답 (GET /lectures/{lectureId}). 화면이 쓰는 필드만 적는다.
+export interface LectureDetailResponse {
+  lectureId: number;
+  title: string;
+  professorName: string | null;
+  colorIndex: number;
+}
+
 /* ===== 학습 뷰어 / 강의자료 (이슈 B) ===== */
 
 // 학습 뷰어 탭 4종. 이번 이슈에서 내용을 채우는 건 PDF뿐이고 나머지는 자리만 잡는다.
 export type ViewerTab = 'PDF' | 'SUMMARY' | 'SCRIPT' | 'TODO';
 
 // 챕터 하나에 딸린 강의자료(PDF + 녹음) 메타.
-// TODO: 백엔드 스펙 확정 후 필드명/타입 재확인 필요.
 export interface LectureMaterial {
-  chapterId: string;
+  chapterId: number;
   // 렌더할 PDF 위치. 아직 없는 자료(업로드 전)면 null.
   // 페이지 수는 문서를 열면 알 수 있으므로 pdfPageCount는 로딩 중 자리를 잡는 데만 쓴다.
   pdfUrl: string | null;
-  pdfPageCount: number; // PDF 총 페이지 수
+  pdfPageCount: number | null; // 서버가 아직 세지 않아 대개 null이다
   audioDuration: number; // 녹음 길이(초). 예: 3662 = 61:02
-  // TODO: audioUrl(실제 재생용)과 페이지↔오디오 구간 매핑은
-  //       백엔드에서 내려주는 형태가 확정되면 여기에 추가한다.
+  audioUrl: string | null; // 재생할 녹음. 녹음이 없는 주차면 null
+  audioFailed: boolean; // 녹음 조회가 실패했다(녹음 없음과 구분한다)
+}
+
+// 서버 응답 (GET /weeks/{weekId}/ppt). PDF가 없는 주차는 404다.
+export interface WeekPptResponse {
+  lecturePptId: number;
+  weekId: number;
+  fileName: string;
+  fileUrl: string;
+  fileSize: number | null;
+  pageCount: number | null;
+}
+
+// 서버 응답 (PATCH /weeks/{weekId}/review-count).
+export interface WeekReviewCountResponse {
+  weekId: number;
+  reviewCount: number;
 }
 
 /* ===== AI 강의 요약 (이슈 C) ===== */
 
 // AI가 생성한 Markdown 요약본.
-// TODO: 백엔드 스펙 확정 후 필드명/타입 재확인 필요.
 export interface LectureSummary {
-  chapterId: string;
-  fileName: string; // 상단 바에 노출 (예: "알고리즘_Chapter 4 - ..._요약.md")
+  chapterId: number;
+  summaryId: number; // 저장(PATCH /summaries/{summaryId})에 쓴다
   markdown: string; // Markdown 원문 (조회 시 렌더, 편집 시 textarea 내용)
   updatedAt: string; // ISO 날짜 문자열
 }
 
+// 서버 응답. 요약을 요청한 적 없는 주차는 NOT_STARTED에 id·시각이 null이다.
+export interface SummaryStatusResponse {
+  summaryId: number | null;
+  weekId: number;
+  status: AsyncJobStatus | 'NOT_STARTED';
+  updatedAt: string | null;
+}
+
+export interface SummaryResponse {
+  summaryId: number;
+  weekId: number;
+  status: AsyncJobStatus;
+  content: string;
+  updatedAt: string;
+}
+
 /* ===== 원문 스크립트 / STT (이슈 D) ===== */
+
+// 서버 응답 (GET /weeks/{weekId}/audio). 녹음이 없는 주차는 404다.
+export interface WeekAudioResponse {
+  lectureAudioId: number;
+  fileName: string;
+  fileUrl: string;
+  durationSec: number | null;
+  sttStatus: AsyncJobStatus;
+  uploadedAt: string;
+}
+
+// 서버 응답 (GET /weeks/{weekId}/scripts)의 한 구간. STT가 안 끝났으면 422다.
+export interface WeekScriptResponse {
+  scriptId: number;
+  pageNumber: number;
+  startSec: number;
+  endSec: number;
+  title: string | null;
+  sequence: number;
+  details: {
+    scriptDetailId: number;
+    timeSec: number;
+    content: string;
+    sequence: number;
+  }[];
+}
 
 // 스크립트 한 줄 — 발화가 시작된 시각(초)과 그 내용.
 export interface ScriptSegment {
@@ -189,8 +296,9 @@ export interface ScriptSegment {
 }
 
 // PDF 한 페이지에 대응하는 스크립트 구간.
-// 녹음을 PPT 페이지 단위로 끊어 묶은 것이라 페이지 번호가 곧 구간 식별자다.
+// 앞 슬라이드로 돌아가 설명하면 같은 페이지가 두 구간에 나와서, 구간은 id로 가린다.
 export interface ScriptSection {
+  id: number; // 서버 scriptId
   page: number; // PDF 페이지 번호 (배지 "PDF P.01")
   startSec: number; // 구간 시작(초)
   endSec: number; // 구간 끝(초)
@@ -199,9 +307,8 @@ export interface ScriptSection {
 }
 
 // 챕터 하나의 STT 원문 전체.
-// TODO: 백엔드 STT 응답 스펙 확정 시 필드명/타입 재확인 필요.
 export interface LectureScript {
-  chapterId: string;
+  chapterId: number;
   sections: ScriptSection[];
 }
 
@@ -210,44 +317,64 @@ export interface LectureScript {
 // 말한 쪽. 화면에선 내 말이 오른쪽 연두, AI가 왼쪽 흰 말풍선이다.
 export type ChatRole = 'USER' | 'AI';
 
-// 질문에 딸려 올라간 파일. 서버에 저장된 뒤로는 File 객체가 없으므로
-// 화면에 다시 그리는 데 필요한 최소 정보만 메시지와 함께 내려받는다.
-export interface ChatAttachment {
-  name: string;
-  size: number; // bytes
-  contentType: string;
-}
-
 // 대화 한 줄.
-// TODO: 백엔드 챗봇 응답 스펙 확정 시 필드명/타입 재확인 필요.
 export interface ChatMessage {
-  messageId: string;
-  projectId: string;
+  messageId: number;
   role: ChatRole;
   content: string;
   createdAt: string; // ISO 날짜 문자열
-  // 파일만 보낸 질문도 있어 content가 비고 attachment만 있는 메시지가 존재한다.
-  attachment?: ChatAttachment;
+}
+
+// 서버 응답. 화면 타입과는 필드 이름이 다르다.
+// referencedPage는 서버가 아직 늘 null로 줘서 화면이 쓰지 않는다.
+export interface ChatMessageResponse {
+  chatMessageId: number;
+  senderType: ChatRole;
+  message: string;
+  referencedPage: number | null;
+  createdAt: string;
+}
+
+// 챗봇 세션. 대화는 주차(week) 아래 세션 단위로 쌓인다.
+export interface ChatBotSessionResponse {
+  chatBotSessionId: number;
+  title: string;
+}
+
+export interface ChatBotSessionCreateResponse {
+  chatBotSessionId: number;
+  createdAt: string;
 }
 
 /* ===== Exam / 시험 일정 (기획서 7.3, 8.9) ===== */
 
 export interface Exam {
-  examId: string;
-  projectId: string;
+  examId: number;
+  projectId: number;
   title: string;
   lectureName: string | null;
   examDate: string; // YYYY-MM-DD
   memo: string | null;
   createdAt: string;
-  progress: number; // 학습 진행률 0~100 (홈 학습 배너 표시용, 시험 일정과 함께 내려옴)
+  // 학습 진행률 0~100. 서버가 아직 주지 않는다 — 없으면 배너가 진행 바를 접는다.
+  progress?: number;
+}
+
+// 서버 응답. 화면 타입과는 강의 필드 이름만 다르다 (lectureId ↔ projectId).
+export interface ExamResponse {
+  examId: number;
+  lectureId: number;
+  title: string;
+  lectureName: string | null;
+  examDate: string;
+  memo: string | null;
+  createdAt: string;
 }
 
 // 시험 일정 생성 요청 (홈 "다가오는 시험 일정" 추가하기 모달).
 // lectureName·progress는 보내지 않는다 — projectId만 있으면 서버가 아는 값이다.
-// TODO: 백엔드 엔드포인트·필드명 확정 시 재확인 필요
 export interface CreateExamRequest {
-  projectId: string; // 어느 강의(프로젝트)의 시험인지
+  projectId: number; // 어느 강의(프로젝트)의 시험인지
   title: string; // 시험 이름 (예: "중간고사")
   examDate: string; // 시험일 (YYYY-MM-DD)
   memo: string | null; // 메모 (선택)
@@ -256,37 +383,60 @@ export interface CreateExamRequest {
 // 시험 일정 수정 요청. 폼이 네 칸을 통째로 저장하므로 생성과 같은 필드를 모두 보낸다.
 // (일부만 보내는 부분 수정이 아니다)
 export interface UpdateExamRequest extends CreateExamRequest {
-  examId: string;
+  examId: number;
 }
 
 /* ===== Todo (기획서 7.3, 8.8) ===== */
 
 export interface Todo {
-  todoId: string;
+  todoId: number;
   // 시안의 TODO 모달에서 "강의 (선택)"이라 강의를 안 고른 할 일이 있을 수 있다.
-  projectId: string | null;
+  projectId: number | null;
   title: string;
   lectureName: string | null; // 강의명 — 표시 시 제목 앞에 붙인다 (시험 일정과 동일 규칙)
   dueDate: string; // YYYY-MM-DD
   dueTime: string | null;
-  lectureId: string | null; // 연결된 주차(챕터) id
+  chapterId: number | null; // 연결된 주차
   memo: string | null;
   isCompleted: boolean;
 }
 
 // TODO 추가 모달의 입력. 강의와 연결된 주차는 둘 다 선택이라 비어 있을 수 있다.
-// TODO: 백엔드 TODO 등록 스펙 확정 시 필드명 재확인 필요
+// 서버로 보낼 때는 toTodoBody가 TodoBody로 바꾼다.
 export interface CreateTodoRequest {
-  projectId: string | null;
+  projectId: number | null;
   title: string;
   dueDate: string; // YYYY-MM-DD
   dueTime: string | null; // HH:mm
-  lectureId: string | null;
+  chapterId: number | null;
   memo: string | null;
 }
 
 export interface UpdateTodoRequest extends CreateTodoRequest {
-  todoId: string;
+  todoId: number;
+}
+
+// 서버가 주는 TODO 모양. 화면은 이걸 직접 쓰지 않고 features/todo/api.ts의 toTodo를 거쳐
+// Todo로 받는다 — 서버 계약이 바뀌어도 변환 함수 안에서 끝나게.
+export interface TodoResponse {
+  todoId: number;
+  weekId: number | null; // 연결된 주차. 개인 할 일이면 null
+  lectureId: number | null; // 주차가 속한 강의. 주차가 없으면 null
+  lectureName: string | null;
+  content: string;
+  memo: string | null;
+  dueDate: string; // LocalDateTime "2026-07-10T13:30:00"
+  todoType: 'USER' | 'AI';
+  isCompleted: boolean;
+  sortOrder: number;
+}
+
+// TODO 생성·수정 요청 본문 (서버 모양).
+export interface TodoBody {
+  weekId: number | null;
+  content: string;
+  dueDate: string; // LocalDateTime
+  memo: string | null;
 }
 
 /* ===== 강의(프로젝트) 생성 ===== */
@@ -297,12 +447,11 @@ export interface UpdateTodoRequest extends CreateTodoRequest {
 // TODO: 백엔드 프로젝트 생성 스펙 확정 시 필드명 재확인 필요
 export interface CreateProjectRequest {
   title: string; // 강의명 (예: "운영체제")
-  examDate: string | null; // 시험 날짜 (YYYY-MM-DD)
   professor: string | null; // 교수명 (선택)
   colorIndex: number; // 과목 색 팔레트 번호(1부터)
 }
 
 // 강의 수정 (강의 상세 헤더의 연필 버튼). 시안에 전용 프레임이 없어 생성 모달의 수정 모드로 쓴다.
 export interface UpdateProjectRequest extends CreateProjectRequest {
-  projectId: string;
+  projectId: number;
 }

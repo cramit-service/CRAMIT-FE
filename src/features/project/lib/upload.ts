@@ -1,6 +1,12 @@
 // src/features/project/lib/upload.ts
 // 새 주차 업로드에서 받는 파일 2종의 제약과 검사. 시안 안내 문구와 값이 같아야 한다.
 
+import {
+  ApiRequestError,
+  UPLOAD_ABORTED,
+  type UploadOptions,
+} from '@/shared/lib/apiClient';
+
 export type UploadKind = 'material' | 'audio';
 
 interface UploadSpec {
@@ -59,4 +65,91 @@ export function validateUpload(file: File, kind: UploadKind): string | null {
     return '빈 파일이에요. 내용이 있는 파일을 골라주세요.';
   }
   return null;
+}
+
+// presigned URL로 저장소(R2)에 직접 올린다. apiClient를 거치지 않는 이유는 우리 서버가 아니라서다 —
+// 우리 토큰이 실려 가면 안 되고, 응답도 { data } 계약이 아니다.
+// fetch가 아니라 XHR인 이유는 apiClient의 업로드 경로와 같다(보내는 진행률은 XHR만 준다).
+export function putToStorage(
+  url: string,
+  file: File,
+  { onProgress, signal }: UploadOptions = {},
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const aborted = () =>
+      new ApiRequestError(UPLOAD_ABORTED, '업로드를 취소했어요.', 0);
+    if (signal?.aborted) {
+      reject(aborted());
+      return;
+    }
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', url);
+    xhr.setRequestHeader(
+      'Content-Type',
+      file.type || 'application/octet-stream',
+    );
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && e.total > 0) onProgress?.(e.loaded / e.total);
+    };
+
+    const onAbort = () => xhr.abort();
+    signal?.addEventListener('abort', onAbort);
+    const settle = (run: () => void) => {
+      signal?.removeEventListener('abort', onAbort);
+      run();
+    };
+
+    xhr.onload = () =>
+      settle(() =>
+        xhr.status >= 200 && xhr.status < 300
+          ? resolve()
+          : reject(
+              new ApiRequestError(
+                'UPLOAD_FAILED',
+                '파일을 올리지 못했어요. 잠시 후 다시 시도해 주세요.',
+                xhr.status,
+              ),
+            ),
+      );
+    xhr.onerror = () =>
+      settle(() =>
+        reject(
+          new ApiRequestError(
+            'NETWORK',
+            '네트워크 문제로 업로드하지 못했어요.',
+            0,
+          ),
+        ),
+      );
+    xhr.onabort = () => settle(() => reject(aborted()));
+    xhr.send(file);
+  });
+}
+
+const MEASURE_TIMEOUT_MS = 10_000;
+
+// 녹음 길이(초). 서버가 STT 전에 길이를 알 방법이 없어 브라우저가 재서 보낸다.
+// 못 재면 null — 서버도 비어 있는 값을 받는다. 브라우저가 메타데이터 이벤트를 끝내 안 주는
+// 형식이 있어 시간 제한을 둔다. 없으면 업로드가 시작도 못 하고 멈춘다.
+export function measureAudioDuration(file: File): Promise<number | null> {
+  return new Promise((resolve) => {
+    const src = URL.createObjectURL(file);
+    const audio = new Audio();
+    const timer = setTimeout(() => done(null), MEASURE_TIMEOUT_MS);
+    const done = (seconds: number | null) => {
+      clearTimeout(timer);
+      audio.onloadedmetadata = null;
+      audio.onerror = null;
+      audio.removeAttribute('src');
+      audio.load();
+      URL.revokeObjectURL(src);
+      resolve(seconds);
+    };
+    audio.preload = 'metadata';
+    audio.onloadedmetadata = () =>
+      done(Number.isFinite(audio.duration) ? Math.round(audio.duration) : null);
+    audio.onerror = () => done(null);
+    audio.src = src;
+  });
 }

@@ -14,8 +14,8 @@ export function ReviewStepper({
   chapterId,
   reviewCount,
 }: {
-  projectId: string;
-  chapterId: string;
+  projectId: number;
+  chapterId: number;
   reviewCount: number;
 }) {
   const setCount = useSetReviewCount(projectId, chapterId);

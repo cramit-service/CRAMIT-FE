@@ -1,24 +1,53 @@
 'use client';
 // src/features/study/components/viewer/SummaryTab.tsx
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   useLectureSummary,
   useUpdateLectureSummary,
 } from '@/features/study/hooks/useLectureSummary';
+import {
+  AskAboutSelection,
+  type SelectionAction,
+} from '@/features/study/components/viewer/AskAboutSelection';
+import { LearningPointMenu } from '@/features/study/components/viewer/LearningPointMenu';
+import { LearningPointRail } from '@/features/study/components/viewer/LearningPointRail';
 import { MarkdownContent } from '@/features/study/components/viewer/MarkdownContent';
+import {
+  addLearningPoint,
+  hasLearningPoints,
+  occurrenceBefore,
+  removeLearningPoint,
+} from '@/features/study/lib/learningPoints';
+import { useAskAI } from '@/shared/hooks/useChatDock';
 import { VIEWER_PANEL } from '@/features/study/components/viewer/panel';
+import { printSummary } from '@/features/study/lib/printSummary';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
 import { IconButton } from '@/shared/ui/IconButton';
 import { ScrollArea } from '@/shared/ui/ScrollArea';
 import { Textarea } from '@/shared/ui/Textarea';
 
+const ADD_FAILED = {
+  'not-found': '고른 글을 요약 원문에서 찾지 못했어요',
+  overlap: '이미 학습포인트인 글과 겹쳐요',
+  markup: '글자 모양이 섞인 곳은 한 번에 고를 수 없어요',
+} as const;
+
 // PDF 탭·placeholder와 같은 패널 높이. 탭을 바꿔도 화면이 출렁이지 않게 맞춘다.
 const PANEL = cn(VIEWER_PANEL, 'flex flex-col');
 
 // AI 강의 요약 탭. 조회(Markdown 렌더) ↔ 편집(textarea) 두 모드를 오간다.
 // 편집 모드에서는 취소·수정하기가 나란히 서고, 고친 것이 없으면 수정하기가 잠긴다.
-export function SummaryTab({ chapterId }: { chapterId: string }) {
+export function SummaryTab({
+  chapterId,
+  fileName,
+  heading,
+}: {
+  chapterId: number;
+  fileName: string;
+  /** PDF 첫 쪽 머리. 강의명 · 주차 제목 */
+  heading: string;
+}) {
   const summaryQuery = useLectureSummary(chapterId);
   const updateMutation = useUpdateLectureSummary(chapterId);
 
@@ -26,10 +55,19 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
   const [draft, setDraft] = useState('');
   // 복사·다운로드 결과를 알리는 짧은 안내문 (2초 뒤 사라짐)
   const [notice, setNotice] = useState<string | null>(null);
+  const [printing, setPrinting] = useState(false);
 
   // 조회는 div, 편집은 textarea가 각각 스크롤한다. "맨 위로"는 현재 보이는 쪽을 올린다.
   const viewRef = useRef<HTMLDivElement>(null);
   const editRef = useRef<HTMLTextAreaElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const ask = useAskAI();
+  const [pointMenu, setPointMenu] = useState<{
+    offset: number;
+    anchor: DOMRect;
+    text: string;
+  } | null>(null);
+  const closePointMenu = useCallback(() => setPointMenu(null), []);
 
   useEffect(() => {
     if (!notice) return;
@@ -56,6 +94,21 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
     }
   };
 
+  const handlePrint = async () => {
+    setPrinting(true);
+    try {
+      await printSummary({
+        title: fileName.replace(/\.md$/, ''),
+        heading,
+        markdown,
+      });
+    } catch {
+      setNotice('인쇄 창을 열지 못했어요');
+    } finally {
+      setPrinting(false);
+    }
+  };
+
   const handleScrollTop = () => {
     const target = mode === 'edit' ? editRef.current : viewRef.current;
     target?.scrollTo({ top: 0, behavior: 'smooth' });
@@ -70,6 +123,62 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
     });
   };
 
+  // 학습포인트는 요약 원문을 고쳐 저장하는 것이라 수정하기와 같은 저장 길을 쓴다.
+  const saveLearningPoints = (next: string, done: string) => {
+    // 저장 중에 또 고치면 두 요청이 같은 이전 원문에서 출발해서 먼저 넣은 학습포인트가 사라진다.
+    if (updateMutation.isPending) {
+      setNotice('저장 중이에요. 잠시 후 다시 시도해 주세요.');
+      return;
+    }
+    updateMutation.mutate(next, {
+      onSuccess: () => setNotice(done),
+      onError: () =>
+        setNotice('저장하지 못했어요. 잠시 후 다시 시도해 주세요.'),
+    });
+  };
+
+  const learningPointAction: SelectionAction = {
+    label: '학습포인트',
+    icon: 'plus',
+    onSelect: (text, range) => {
+      let occurrence: number | undefined;
+      if (range && contentRef.current) {
+        const before = document.createRange();
+        before.selectNodeContents(contentRef.current);
+        before.setEnd(range.startContainer, range.startOffset);
+        occurrence = occurrenceBefore(before.toString(), text);
+      }
+      const result = addLearningPoint(markdown, text, occurrence);
+      if (!result.ok) {
+        setNotice(ADD_FAILED[result.reason]);
+        return;
+      }
+      saveLearningPoints(result.markdown, '학습포인트로 저장했어요');
+    },
+  };
+
+  // 하이라이트를 누르면 해제 메뉴. 드래그로 글을 고른 끝에 오는 클릭은 고르기 메뉴에 맡긴다.
+  const openPointMenu = (target: EventTarget) => {
+    const mark = (target as Element).closest<HTMLElement>('mark[data-lp]');
+    if (!mark || !window.getSelection()?.isCollapsed) return;
+    setPointMenu({
+      offset: Number(mark.dataset.lp),
+      anchor: mark.getBoundingClientRect(),
+      text: mark.textContent ?? '',
+    });
+  };
+
+  const removePoint = () => {
+    if (!pointMenu) return;
+    const next = removeLearningPoint(markdown, pointMenu.offset);
+    setPointMenu(null);
+    if (next === null) {
+      setNotice('학습포인트를 찾지 못했어요');
+      return;
+    }
+    saveLearningPoints(next, '학습포인트를 해제했어요');
+  };
+
   // 요약 생성이 아직 진행 중인 경우 (빈 요약과 구분해서 안내한다)
   if (summaryQuery.isProcessing) {
     return (
@@ -81,7 +190,24 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
     );
   }
 
-  if (summaryQuery.isPending) {
+  // 만들 요약이 없거나 만들다 실패한 경우. 다시 만드는 일은 분석 시작(#112)이 맡는다.
+  if (
+    summaryQuery.processStatus === 'NOT_STARTED' ||
+    summaryQuery.processStatus === 'FAILED'
+  ) {
+    return (
+      <section className={cn(PANEL, 'items-center justify-center')}>
+        <p className="text-label text-gray-400">
+          {summaryQuery.processStatus === 'FAILED'
+            ? '요약을 만들지 못했어요.'
+            : '아직 요약이 없어요. 강의 분석을 마치면 볼 수 있어요.'}
+        </p>
+      </section>
+    );
+  }
+
+  // 상태 조회가 실패하면 본문 조회가 열리지 않아 isPending에 머문다. 먼저 걸러낸다.
+  if (!summaryQuery.statusError && summaryQuery.isPending) {
     return (
       <section className={cn(PANEL, 'items-center justify-center')}>
         <p className="text-label text-gray-500">요약을 불러오는 중…</p>
@@ -89,13 +215,14 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
     );
   }
 
+  // 상태 재조회만 실패했으면 이미 받아 둔 요약은 그대로 보여 준다.
   if (summaryQuery.isError || !summary) {
     return (
       <section className={cn(PANEL, 'items-center justify-center gap-4')}>
         <p className="text-label text-gray-400">
           요약을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
-        <Button rank="secondary" onClick={() => summaryQuery.refetch()}>
+        <Button rank="secondary" onClick={summaryQuery.retry}>
           다시 시도
         </Button>
       </section>
@@ -113,7 +240,7 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
             MD
           </span>
           <p className="text-label truncate font-medium text-gray-700">
-            {summary.fileName}
+            {fileName}
           </p>
           <p aria-live="polite" className="text-body-sm shrink-0 text-gray-400">
             {notice}
@@ -127,11 +254,12 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
 
           {mode === 'view' ? (
             <>
+              {/* 이름은 시안 그대로다. 누르면 인쇄 창이 뜨고 대상에서 PDF로 저장을 고른다. */}
               <Button
                 rank="secondary"
                 size="sm"
-                // TODO(백엔드/라이브러리): 실제 PDF 생성이 필요해 아직 동작하지 않는다.
-                onClick={() => setNotice('PDF 다운로드는 준비 중이에요')}
+                disabled={!markdown || printing}
+                onClick={handlePrint}
               >
                 PDF로 다운로드
               </Button>
@@ -146,6 +274,8 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
                 glyph={16}
                 rank="secondary"
                 aria-label="요약 수정하기"
+                // 학습포인트 저장 중에 열면 저장 전 원문이 초안이 되어, 수정하기가 방금 넣은 학습포인트를 지운다
+                disabled={updateMutation.isPending}
                 onClick={() => {
                   setDraft(markdown);
                   setMode('edit');
@@ -168,7 +298,8 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
               <Button
                 size="sm"
                 onClick={handleSave}
-                disabled={!isDirty || updateMutation.isPending}
+                // 서버가 빈 본문은 받지 않는다(400)
+                disabled={!isDirty || !draft.trim() || updateMutation.isPending}
               >
                 {updateMutation.isPending ? '수정 중…' : '수정하기'}
               </Button>
@@ -182,9 +313,21 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
       <div className="relative mt-5 flex min-h-0 flex-1 flex-col rounded-md">
         {mode === 'view' ? (
           <ScrollArea ref={viewRef}>
-            <div className="px-6 py-7">
+            <div
+              ref={contentRef}
+              className={cn(
+                'py-7 pl-6',
+                hasLearningPoints(markdown) ? 'pr-14' : 'pr-6',
+              )}
+              onClick={(e) => openPointMenu(e.target)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') openPointMenu(e.target);
+              }}
+            >
               {markdown ? (
-                <MarkdownContent markdown={markdown} />
+                <AskAboutSelection actions={[learningPointAction]}>
+                  <MarkdownContent markdown={markdown} />
+                </AskAboutSelection>
               ) : (
                 // 생성 중(PROCESSING)은 위에서 따로 걸러내므로 여기는 '생성됐지만 비어 있음'이다
                 <p className="text-label text-gray-500">
@@ -194,16 +337,43 @@ export function SummaryTab({ chapterId }: { chapterId: string }) {
             </div>
           </ScrollArea>
         ) : (
-          <Textarea
-            ref={editRef}
-            grow
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            // 저장 요청 뒤 입력한 내용은 성공과 함께 view로 넘어가며 조용히 사라진다
-            readOnly={updateMutation.isPending}
-            aria-busy={updateMutation.isPending}
-            spellCheck={false}
-            aria-label="요약 Markdown 원문 편집"
+          <>
+            {hasLearningPoints(draft) && (
+              <p className="text-label mb-3 text-gray-500">
+                학습포인트는 &lt;lp&gt; 태그로 표시돼요. 태그를 지우면
+                학습포인트도 사라져요.
+              </p>
+            )}
+            <Textarea
+              ref={editRef}
+              grow
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              // 저장 요청 뒤 입력한 내용은 성공과 함께 view로 넘어가며 조용히 사라진다
+              readOnly={updateMutation.isPending}
+              aria-busy={updateMutation.isPending}
+              spellCheck={false}
+              aria-label="요약 Markdown 원문 편집"
+            />
+          </>
+        )}
+
+        {mode === 'view' && (
+          <LearningPointRail markdown={markdown} scrollRef={viewRef} />
+        )}
+        {pointMenu && (
+          <LearningPointMenu
+            anchor={pointMenu.anchor}
+            onAsk={
+              ask
+                ? () => {
+                    ask(pointMenu.text);
+                    setPointMenu(null);
+                  }
+                : undefined
+            }
+            onRemove={removePoint}
+            onClose={closePointMenu}
           />
         )}
 

@@ -3,17 +3,28 @@ import type {
   LoginResponse,
   MyProfile,
   NotificationSettings,
+  Term,
   User,
 } from '@/shared/types/api';
 
 // 소셜 로그인 mock 응답 (백엔드 연동 전까지 사용)
 export const mockLoginResponse: LoginResponse = {
   accessToken: 'mock-access-token',
-  refreshToken: 'mock-refresh-token',
 };
 
+export const mockTerms: Term[] = [
+  { termId: 1, title: '서비스 이용약관', content: '', required: true },
+  {
+    termId: 2,
+    title: '개인정보 수집 및 이용 동의',
+    content: '',
+    required: true,
+  },
+  { termId: 3, title: '마케팅 정보 수신 동의', content: '', required: false },
+];
+
 export const mockUser: User = {
-  userId: '1',
+  userId: 1,
   email: 'test@cramit.com',
   nickname: '김진우',
   provider: 'EMAIL',
@@ -33,10 +44,6 @@ export const mockMyProfile: MyProfile = {
 
 // mock 전용 쓰기 헬퍼. 새로고침하면 사라진다(모듈 메모리라 세션 단위).
 // 조회는 복사본을 주므로(getMyProfile) 여기서 원본을 고쳐도 캐시 참조가 그대로 남지 않는다.
-
-export function updateMockNickname(nickname: string): void {
-  mockMyProfile.nickname = nickname;
-}
 
 export function updateMockNotifications(
   notifications: NotificationSettings,

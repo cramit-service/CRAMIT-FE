@@ -46,8 +46,8 @@ export function subjectDotClassOf(index: number | null | undefined): string {
  */
 export function buildSubjectColorMap(
   projects: readonly SubjectColorSource[] | undefined,
-): Map<string, number> {
-  const map = new Map<string, number>();
+): Map<number, number> {
+  const map = new Map<number, number>();
   for (const p of projects ?? []) {
     if (!map.has(p.projectId) && isColorIndex(p.colorIndex)) {
       map.set(p.projectId, p.colorIndex);
@@ -58,8 +58,8 @@ export function buildSubjectColorMap(
 
 /** 목록에 없는 과목(삭제됐거나 아직 안 불러온 것)도 회색으로 떨어뜨린다. */
 export function subjectDotClass(
-  map: ReadonlyMap<string, number>,
-  subjectId: string | null,
+  map: ReadonlyMap<number, number>,
+  subjectId: number | null,
 ): string {
   if (subjectId === null) return NO_SUBJECT_DOT_CLASS;
   return subjectDotClassOf(map.get(subjectId));

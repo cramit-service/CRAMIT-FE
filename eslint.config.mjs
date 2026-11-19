@@ -10,6 +10,7 @@ const UI = [
   'Combobox',
   'ConfirmModal',
   'DateField',
+  'DocumentModal',
   'EditableText',
   'FieldGroup',
   'FieldLabel',

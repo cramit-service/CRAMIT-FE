@@ -2,19 +2,20 @@
 import type {
   CreateTodoRequest,
   Todo,
+  TodoBody,
+  TodoResponse,
   UpdateTodoRequest,
 } from '@/shared/types/api';
-import { apiClient } from '@/shared/lib/apiClient';
+import { ApiRequestError, apiClient } from '@/shared/lib/apiClient';
 import {
   addMockTodo,
   mockTodos,
   removeMockTodo,
   updateMockTodo,
 } from '@/mocks/todo';
-import { mockProjectSummaries } from '@/mocks/project';
 
 // Mock 사용 여부 스위치 (백엔드 준비되면 false로)
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 // 쿼리가 취소되면 실제 fetch처럼 즉시 중단되도록 AbortSignal을 받는다. (study/api.ts와 동일 패턴)
 const delay = (ms: number, signal?: AbortSignal) =>
@@ -34,79 +35,129 @@ const delay = (ms: number, signal?: AbortSignal) =>
     );
   });
 
+// 서버의 dueDate(LocalDateTime)는 날짜와 시간을 한 필드에 담고, 화면은 둘을 따로 다룬다.
+// 쪼개고 합치는 일은 아래 toTodo·toTodoBody 두 곳에서만 한다.
+// 초와 소수 초는 화면이 쓰지 않으므로 있어도 없어도 받는다.
+const DUE_DATE = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})(?::\d{2}(?:\.\d+)?)?$/;
+// 마감 시간을 고르지 않은 할 일. 서버 필드 하나로는 "시간 없음"을 따로 표현할 수 없다.
+const NO_TIME = '00:00';
+
+const invalid = () =>
+  new ApiRequestError('INVALID_RESPONSE', '할 일 정보를 해석할 수 없어요.', 0);
+
+// 응답 → 화면. 화면이 쓰는 필드가 계약과 다르면 여기서 끊는다 — 그대로 넘기면
+// 엉뚱한 칸이 아니라 캘린더·체크리스트 전체가 깨진다.
+function toTodo(r: TodoResponse): Todo {
+  const due = typeof r?.dueDate === 'string' ? DUE_DATE.exec(r.dueDate) : null;
+  if (
+    !due ||
+    typeof r.todoId !== 'number' ||
+    (r.weekId !== null && typeof r.weekId !== 'number') ||
+    (r.lectureId !== null && typeof r.lectureId !== 'number') ||
+    (r.lectureName !== null && typeof r.lectureName !== 'string') ||
+    typeof r.content !== 'string' ||
+    (r.memo !== null && typeof r.memo !== 'string') ||
+    typeof r.isCompleted !== 'boolean'
+  ) {
+    throw invalid();
+  }
+  return {
+    todoId: r.todoId,
+    projectId: r.lectureId,
+    lectureName: r.lectureName,
+    title: r.content,
+    dueDate: due[1],
+    dueTime: due[2] === NO_TIME ? null : due[2],
+    chapterId: r.weekId,
+    memo: r.memo,
+    isCompleted: r.isCompleted,
+  };
+}
+
+// 화면 → 요청.
+function toTodoBody(req: CreateTodoRequest): TodoBody {
+  return {
+    weekId: req.chapterId,
+    content: req.title,
+    dueDate: `${req.dueDate}T${req.dueTime ?? NO_TIME}:00`,
+    memo: req.memo,
+  };
+}
+
+function toTodos(list: TodoResponse[]): Todo[] {
+  if (!Array.isArray(list)) throw invalid();
+  return list.map(toTodo);
+}
+
 // 내 전체 TODO 조회 — 홈 캘린더용.
 // 캘린더는 dueDate 기준으로 달력 칸에 뿌리므로 여기선 거르지 않고 전부 준다.
 export async function getTodos(signal?: AbortSignal): Promise<Todo[]> {
   if (USE_MOCK) {
     await delay(300, signal);
-    // 원본 배열을 그대로 주면 안 된다. 추가·삭제가 이 배열을 직접 고치는데,
-    // 캐시에 담긴 것도 같은 객체라 다시 조회해도 참조가 바뀌지 않는다.
-    // TanStack Query는 참조가 같으면 갱신이 없다고 보고 화면을 다시 그리지 않는다.
-    // 실제 서버도 매번 새 응답을 주므로 복사본이 맞는 흉내다.
-    return [...mockTodos];
+    // mock도 서버 모양이라 변환을 그대로 탄다. 변환이 매번 새 객체를 만들어서
+    // 다시 조회하면 참조가 바뀌고, TanStack Query가 갱신으로 알아본다.
+    return toTodos(mockTodos);
   }
-  return apiClient.get<Todo[]>('/todos', { signal });
-}
-
-// 강의명은 서버가 projectId로 채워 내려주는 값이다. mock도 같은 자리에서 채운다. (exam/api.ts와 동일)
-function mockLectureName(projectId: string | null): string | null {
-  if (!projectId) return null;
-  return (
-    mockProjectSummaries.find((p) => p.projectId === projectId)?.title ?? null
+  // status가 없으면 서버는 다가오는 미완료 할 일만 준다. 보기는 화면에서 거르므로 전부 받는다.
+  return toTodos(
+    await apiClient.get<TodoResponse[]>('/todos?status=ALL', { signal }),
   );
 }
 
 // TODO 추가 (Figma 1:1946)
-// TODO: 백엔드 엔드포인트 확정 시 경로 재확인 필요
-export async function createTodo(req: CreateTodoRequest): Promise<Todo> {
+// 서버는 만든 할 일 전체가 아니라 id만 돌려준다. 화면은 목록을 다시 불러 그린다.
+export async function createTodo(req: CreateTodoRequest): Promise<void> {
   if (USE_MOCK) {
     await delay(300);
-    const todo: Todo = {
-      todoId: `t${Date.now()}`,
-      projectId: req.projectId,
-      title: req.title,
-      lectureName: mockLectureName(req.projectId),
-      dueDate: req.dueDate,
-      dueTime: req.dueTime,
-      lectureId: req.lectureId,
-      memo: req.memo,
+    addMockTodo({
+      todoId: Date.now(),
+      ...toTodoBody(req),
+      lectureId: req.projectId,
+      lectureName: null,
+      todoType: 'USER',
       isCompleted: false,
-    };
-    addMockTodo(todo);
-    return todo;
+      sortOrder: mockTodos.length,
+    });
+    return;
   }
-  return apiClient.post<Todo>('/todos', req);
+  await apiClient.post<unknown>('/todos', toTodoBody(req));
 }
 
 // TODO 수정 (Figma 1:2137)
-export async function updateTodo(req: UpdateTodoRequest): Promise<Todo> {
+export async function updateTodo(req: UpdateTodoRequest): Promise<void> {
   if (USE_MOCK) {
     await delay(300);
     const current = mockTodos.find((t) => t.todoId === req.todoId);
     if (!current) throw new Error('수정할 할 일을 찾지 못했어요.');
     // 완료 여부는 모달이 건드리지 않는다(체크박스가 따로 다룬다).
-    const todo: Todo = {
+    updateMockTodo({
       ...current,
-      projectId: req.projectId,
-      title: req.title,
-      lectureName: mockLectureName(req.projectId),
-      dueDate: req.dueDate,
-      dueTime: req.dueTime,
-      lectureId: req.lectureId,
-      memo: req.memo,
-    };
-    updateMockTodo(todo);
-    return todo;
+      ...toTodoBody(req),
+      lectureId: req.projectId,
+    });
+    return;
   }
-  return apiClient.patch<Todo>(`/todos/${req.todoId}`, req);
+  await apiClient.patch<unknown>(`/todos/${req.todoId}`, toTodoBody(req));
 }
 
 // TODO 삭제
-export async function deleteTodo(todoId: string): Promise<void> {
+export async function deleteTodo(todoId: number): Promise<void> {
   if (USE_MOCK) {
     await delay(300);
     removeMockTodo(todoId);
     return;
   }
   await apiClient.delete<void>(`/todos/${todoId}`);
+}
+
+// TODO 완료 토글. 서버가 현재 값을 뒤집으므로 보낼 값이 없다.
+export async function toggleTodo(todoId: number): Promise<void> {
+  if (USE_MOCK) {
+    await delay(300);
+    const current = mockTodos.find((t) => t.todoId === todoId);
+    if (!current) throw new Error('완료 처리할 할 일을 찾지 못했어요.');
+    updateMockTodo({ ...current, isCompleted: !current.isCompleted });
+    return;
+  }
+  await apiClient.patch<unknown>(`/todos/${todoId}/toggle`);
 }

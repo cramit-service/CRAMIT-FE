@@ -10,17 +10,23 @@
     "postinstall": "node scripts/copy-pdfjs-assets.mjs",
     "predev": "node scripts/copy-pdfjs-assets.mjs",
     "prebuild": "node scripts/copy-pdfjs-assets.mjs",
-    "check:cn": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-cn.mjs"
+    "check:cn": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-cn.mjs",
+    "test": "node --import ./scripts/test-alias.mjs --test --experimental-transform-types \"src/**/*.test.ts\""
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",
+    "katex": "^0.16.47",
     "next": "16.2.10",
     "pdfjs-dist": "^6.3.289",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-markdown": "^10.1.0",
+    "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.1",
-    "tailwind-merge": "^3.6.0"
+    "remark-math": "^6.0.0",
+    "remark-parse": "^11.0.0",
+    "tailwind-merge": "^3.6.0",
+    "unified": "^11.0.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

@@ -30,7 +30,6 @@ export function EditableChapterTitle({ chapter }: { chapter: Chapter }) {
             projectId: chapter.projectId,
             title,
             lectureDate: chapter.lectureDate,
-            professor: chapter.professor,
             // 제목만 고친다 — 파일은 건드리지 않으므로 null이면 기존 파일이 유지된다
             materialFile: null,
             audioFile: null,

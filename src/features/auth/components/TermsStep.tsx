@@ -1,39 +1,65 @@
 'use client';
 // src/features/auth/components/TermsStep.tsx
+import type { Term } from '@/shared/types/api';
+import { Button } from '@/shared/ui/Button';
 import { Checkbox } from '@/shared/ui/Checkbox';
 
-export const TERMS = [
-  { id: 'optional1', label: '(선택) 약관 1', required: false },
-  { id: 'optional2', label: '(선택) 약관 2', required: false },
-  { id: 'required1', label: '(필수) 약관 3', required: true },
-] as const;
-
-export const REQUIRED_TERM_IDS = TERMS.filter((t) => t.required).map(
-  (t) => t.id,
-);
-
 interface TermsStepProps {
-  agreedIds: string[];
-  onChange: (ids: string[]) => void;
+  /** 불러오기 전에는 undefined. */
+  terms?: Term[];
+  isError: boolean;
+  onRetry: () => void;
+  agreedIds: number[];
+  onChange: (ids: number[]) => void;
 }
 
-export function TermsStep({ agreedIds, onChange }: TermsStepProps) {
+export function TermsStep({
+  terms,
+  isError,
+  onRetry,
+  agreedIds,
+  onChange,
+}: TermsStepProps) {
+  const title = (
+    <h1 className="text-heading-md font-semibold text-gray-800">
+      서비스 약관에 동의해 주세요.
+    </h1>
+  );
+
+  if (!terms) {
+    return (
+      <div className="read-col">
+        {title}
+        {isError ? (
+          <div className="mt-8 flex flex-col items-start gap-4">
+            <p role="alert" className="text-body-sm text-gray-700">
+              약관을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
+            </p>
+            <Button rank="secondary" onClick={onRetry}>
+              다시 시도
+            </Button>
+          </div>
+        ) : (
+          <p className="text-body-sm mt-8 text-gray-500">불러오는 중…</p>
+        )}
+      </div>
+    );
+  }
+
   // 하위가 모두 체크되면 전체 동의도 체크된 것으로 본다
-  const isAllAgreed = TERMS.every((t) => agreedIds.includes(t.id));
+  const isAllAgreed = terms.every((t) => agreedIds.includes(t.termId));
 
   const toggleAll = (checked: boolean) => {
-    onChange(checked ? TERMS.map((t) => t.id) : []);
+    onChange(checked ? terms.map((t) => t.termId) : []);
   };
 
-  const toggleOne = (id: string, checked: boolean) => {
+  const toggleOne = (id: number, checked: boolean) => {
     onChange(checked ? [...agreedIds, id] : agreedIds.filter((v) => v !== id));
   };
 
   return (
     <div className="read-col">
-      <h1 className="text-heading-md font-semibold text-gray-800">
-        서비스 약관에 동의해 주세요.
-      </h1>
+      {title}
 
       <div className="mt-8">
         <Checkbox
@@ -45,12 +71,16 @@ export function TermsStep({ agreedIds, onChange }: TermsStepProps) {
         />
 
         <div className="mt-5 flex flex-col items-start gap-3 pl-6">
-          {TERMS.map((term) => (
+          {terms.map((term) => (
             <Checkbox
-              key={term.id}
-              checked={agreedIds.includes(term.id)}
-              onChange={(checked) => toggleOne(term.id, checked)}
-              label={<span className="text-label">{term.label}</span>}
+              key={term.termId}
+              checked={agreedIds.includes(term.termId)}
+              onChange={(checked) => toggleOne(term.termId, checked)}
+              label={
+                <span className="text-label">
+                  ({term.required ? '필수' : '선택'}) {term.title}
+                </span>
+              }
             />
           ))}
         </div>

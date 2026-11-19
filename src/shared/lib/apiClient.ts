@@ -1,17 +1,83 @@
 // src/shared/lib/apiClient.ts
-import type { ApiError } from '@/shared/types/api';
+import type { ApiError, TokenRefreshResponse } from '@/shared/types/api';
+import {
+  clearAccessToken,
+  getAccessToken,
+  setAccessToken,
+} from '@/shared/lib/authToken';
 
 // 백엔드 base URL. 환경변수로 관리하고, 없으면 로컬 기본값 사용
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
+export const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 
-// 요청 옵션 (fetch 옵션 그대로). 우리 옵션을 더할 땐 교차 타입으로 확장한다.
-// (빈 interface extends는 supertype과 같아 lint에 걸린다)
-type RequestOptions = RequestInit;
+// API 경로는 모두 /api 아래에 있다. 환경변수는 서버 주소(origin)로 두고 여기서 붙인다 —
+// OAuth 리다이렉트처럼 /api 밖의 경로도 같은 변수를 쓰고, 이미 origin만 적어 둔
+// .env.local이 조용히 /api를 잃지 않게 하기 위해서다.
+const API_URL = `${BASE_URL}/api`;
 
-// 토큰을 가져오는 함수 (지금은 localStorage 기준, 나중에 교체 가능)
-function getAccessToken(): string | null {
-  if (typeof window === 'undefined') return null; // 서버에서는 없음
-  return localStorage.getItem('accessToken');
+// 일반 요청의 타임아웃. STT·요약 같은 긴 작업은 폴링이라 요청 하나는 짧다.
+// 응답이 영영 오지 않으면 mutation이 settle되지 않아 FormModal의 busy 잠금이 풀리지 않는다.
+const TIMEOUT_MS = 15_000;
+
+// 요청 옵션 (fetch 옵션 + 요청별 타임아웃). fetch에는 넘기지 않는다.
+// timeoutMs는 서버가 외부 API를 오래 기다리는 요청(챗봇 답변)만 늘린다.
+type RequestOptions = RequestInit & { timeoutMs?: number };
+
+// 동시에 여러 요청이 401을 받아도 재발급은 한 번만 보낸다.
+let refreshing: Promise<string | null> | null = null;
+
+// refreshToken은 HttpOnly 쿠키라 credentials: 'include'만 주면 브라우저가 싣는다.
+export function refreshAccessToken(): Promise<string | null> {
+  const tokenAtStart = getAccessToken();
+
+  refreshing ??= fetch(`${API_URL}/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  })
+    .then(async (res) => {
+      const { accessToken } = parseBody<TokenRefreshResponse>(
+        res.ok,
+        res.status,
+        await res.text(),
+      );
+      setAccessToken(accessToken);
+      return accessToken;
+    })
+    .catch((error) => {
+      // 재발급은 refreshToken도 교체해서, 다른 탭이 먼저 성공하면 이쪽은 401을 받는다.
+      const latestToken = getAccessToken();
+      if (latestToken && latestToken !== tokenAtStart) return latestToken;
+
+      // 서버가 세션을 거절했을 때만 끝낸다. 네트워크가 잠깐 끊긴 걸로 로그아웃시키지 않는다.
+      if (error instanceof ApiRequestError && error.status === 401) {
+        clearAccessToken();
+        // 새로고침으로 이동해야 이전 세션의 쿼리 캐시가 남지 않는다.
+        window.location.replace('/login');
+      }
+      return null;
+    })
+    .finally(() => {
+      refreshing = null;
+    });
+  return refreshing;
+}
+
+// AbortSignal.any 대신 쓴다. any는 Safari 17.4+라 Next 16 지원 범위(16.4+)에서 없는 기기가 있고,
+// 없으면 try 밖에서 TypeError가 나 모든 조회가 실패한다.
+// 브라우저마다 갈리지 않도록 지원 여부와 상관없이 이것 하나만 쓴다.
+function anySignal(...signals: AbortSignal[]): AbortSignal {
+  const controller = new AbortController();
+  for (const s of signals) {
+    if (s.aborted) {
+      controller.abort(s.reason);
+      break;
+    }
+    s.addEventListener('abort', () => controller.abort(s.reason), {
+      once: true,
+    });
+  }
+  return controller.signal;
 }
 
 async function request<T>(
@@ -19,8 +85,10 @@ async function request<T>(
   path: string,
   body?: unknown,
   options?: RequestOptions,
+  retried = false,
 ): Promise<T> {
   const token = getAccessToken();
+  const { timeoutMs = TIMEOUT_MS, ...init } = options ?? {};
 
   // 파일 업로드는 FormData로 보낸다. 이때 Content-Type을 우리가 지정하면
   // multipart 경계(boundary)가 빠져 서버가 본문을 파싱하지 못한다.
@@ -31,20 +99,52 @@ async function request<T>(
   const headers: HeadersInit = {
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...options?.headers,
+    ...init.headers,
   };
 
-  // options를 먼저 펼치고 method·headers·body를 뒤에 둔다.
-  // 반대로 두면 호출처가 options.headers를 넘겼을 때 위에서 합쳐둔 헤더
-  // (Authorization·Content-Type)가 통째로 교체된다. signal 같은 나머지 옵션은 그대로 살아난다.
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    method,
-    headers,
-    ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {}),
-  });
+  // 호출처의 signal(쿼리 취소)을 덮어쓰지 않고 타임아웃과 함께 건다.
+  const timeout = AbortSignal.timeout(timeoutMs);
+  const signal = init.signal ? anySignal(init.signal, timeout) : timeout;
 
-  return parseBody<T>(res.ok, res.status, await res.text());
+  let res: Response;
+  let text: string;
+  try {
+    // 호출처 옵션(init)을 먼저 펼치고 method·headers·body를 뒤에 둔다.
+    // 반대로 두면 호출처가 headers를 넘겼을 때 위에서 합쳐둔 헤더
+    // (Authorization·Content-Type)가 통째로 교체된다.
+    res = await fetch(`${API_URL}${path}`, {
+      ...init,
+      method,
+      headers,
+      signal,
+      ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {}),
+    });
+    // 헤더만 오고 본문이 끊기는 경우도 같은 타임아웃이 걸리도록 본문 읽기까지 감싼다.
+    text = await res.text();
+  } catch (error) {
+    // 호출처가 취소한 것은 실패가 아니다. TanStack Query가 취소로 알아보도록 그대로 던진다.
+    // 타임아웃보다 먼저 본다 — 둘이 함께 끊겨 있으면 호출처는 어차피 결과를 버린다.
+    if (init.signal?.aborted) throw error;
+    if (timeout.aborted) {
+      throw new ApiRequestError(
+        'TIMEOUT',
+        '서버 응답이 늦어요. 잠시 후 다시 시도해 주세요.',
+        0,
+      );
+    }
+    throw new ApiRequestError(
+      'NETWORK',
+      '네트워크 문제로 요청하지 못했어요.',
+      0,
+    );
+  }
+
+  // accessToken 만료 — 한 번만 재발급받아 같은 요청을 다시 보낸다.
+  if (res.status === 401 && !retried && (await refreshAccessToken())) {
+    return request<T>(method, path, body, options, true);
+  }
+
+  return parseBody<T>(res.ok, res.status, text);
 }
 
 // 응답 본문 파싱 + 에러 판정 (204 No Content 등 빈 응답 대비).
@@ -79,7 +179,18 @@ function parseBody<T>(ok: boolean, status: number, text: string): T {
     );
   }
 
-  return data as T;
+  // 빈 본문(204 No Content)은 꺼낼 것이 없다.
+  if (data === null) return data as T;
+
+  // 성공 응답은 { data: ... }로 감싸져 온다. 키가 없으면 계약과 다른 응답이다.
+  if (typeof data !== 'object' || !('data' in data)) {
+    throw new ApiRequestError(
+      'INVALID_RESPONSE',
+      '서버 응답을 해석할 수 없어요.',
+      status,
+    );
+  }
+  return data.data as T;
 }
 
 // 커스텀 에러 클래스 (에러 코드·메시지·상태를 담아 던짐)
@@ -109,6 +220,8 @@ export interface UploadOptions {
 // fetch를 쓰지 않는 이유: fetch는 "응답을 받는" 진행률만 관측할 수 있고 "보내는" 진행률을
 // 알려주지 않는다. 200MB짜리 녹음을 올리는 동안 화면에 아무것도 못 그리게 되므로
 // 이 경로만 XMLHttpRequest를 쓴다(upload.onprogress). 나머지 요청은 그대로 fetch를 탄다.
+// 타임아웃은 두지 않는다. 큰 녹음은 느린 회선에서 어떤 고정 시간도 넘길 수 있고,
+// 새 주차 업로드 화면에는 사용자가 직접 멈추는 버튼(signal)이 있다.
 function uploadRequest<T>(
   method: string,
   path: string,
@@ -126,7 +239,7 @@ function uploadRequest<T>(
     }
 
     const xhr = new XMLHttpRequest();
-    xhr.open(method, `${BASE_URL}${path}`);
+    xhr.open(method, `${API_URL}${path}`);
 
     // FormData의 multipart 경계(boundary)는 브라우저가 붙인다 — Content-Type을 직접 넣으면
     // 경계가 빠져 서버가 본문을 파싱하지 못한다 (fetch 경로와 같은 이유).
@@ -168,13 +281,6 @@ function uploadRequest<T>(
         ),
       );
     xhr.onabort = () => settle(() => reject(aborted()));
-    xhr.ontimeout = () =>
-      settle(() =>
-        reject(
-          new ApiRequestError('TIMEOUT', '업로드가 시간을 초과했어요.', 0),
-        ),
-      );
-
     xhr.send(form);
   });
 }

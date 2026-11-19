@@ -8,6 +8,7 @@ import {
   useMyProfile,
   useUpdateNickname,
 } from '@/features/settings/hooks/useMyProfile';
+import { ApiRequestError } from '@/shared/lib/apiClient';
 import { DEFAULT_AVATAR } from '@/shared/ui/avatar';
 import { Button } from '@/shared/ui/Button';
 import { IconButton } from '@/shared/ui/IconButton';
@@ -32,6 +33,8 @@ export function ProfileEditScreen() {
   const [formError, setFormError] = useState<string | null>(null);
   // 응답을 기다리는 동안 연타로 중복 호출되지 않게 막는다 (NicknameStep과 동일)
   const isChecking = useRef(false);
+  // 닉네임을 고치면 올라간다. 고치기 전에 보낸 확인의 응답이 새 닉네임에 붙지 않게 버린다 (NicknameStep과 동일)
+  const requestId = useRef(0);
 
   if (isPending) {
     return <div className={`${PAGE_SHELL} text-gray-500`}>불러오는 중…</div>;
@@ -55,13 +58,18 @@ export function ProfileEditScreen() {
   const handleCheck = async () => {
     if (!changed || isChecking.current) return;
     isChecking.current = true;
+    const id = ++requestId.current;
     setFormError(null);
     try {
       const { available } = await checkNickname(value);
-      setStatus(available ? 'available' : 'taken');
+      if (id === requestId.current) {
+        setStatus(available ? 'available' : 'taken');
+      }
     } catch {
-      setStatus('idle');
-      setFormError('중복을 확인하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      if (id === requestId.current) {
+        setStatus('idle');
+        setFormError('중복을 확인하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      }
     } finally {
       isChecking.current = false;
     }
@@ -73,10 +81,19 @@ export function ProfileEditScreen() {
     setFormError(null);
     updateMutation.mutate(value.trim(), {
       onSuccess: () => router.push('/settings/profile'),
-      onError: (error) =>
+      onError: (error) => {
+        // 중복확인과 저장 사이에 다른 사람이 먼저 쓴 경우. 온보딩처럼 칸의 "사용 중"으로 돌려 저장을 닫는다.
+        if (
+          error instanceof ApiRequestError &&
+          error.code === 'NICKNAME_DUPLICATED'
+        ) {
+          setStatus('taken');
+          return;
+        }
         setFormError(
           error.message || '저장하지 못했어요. 잠시 후 다시 시도해 주세요.',
-        ),
+        );
+      },
     });
   };
 
@@ -132,8 +149,11 @@ export function ProfileEditScreen() {
             id="profile-nickname"
             label="닉네임"
             required
+            // 서버 상한. 중복확인은 길이를 안 봐서 여기서 안 막으면 저장할 때야 실패한다.
+            maxLength={255}
             value={value}
             onChange={(e) => {
+              requestId.current += 1;
               setNickname(e.target.value);
               // 글자가 바뀌면 이전 확인 결과는 더 이상 이 닉네임의 것이 아니다.
               setStatus('idle');
