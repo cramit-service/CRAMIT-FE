@@ -62,7 +62,7 @@ PR 본문에 `close #이슈번호`를 적으면 병합 시 이슈가 자동으�
 
 ## PR 규칙
 
-- 대상 브랜치는 `develop`입니다.
+- 작업 브랜치의 대상은 `develop`입니다.
 - `develop` 대상은 리뷰 승인 1개 이상을 받은 뒤 병합합니다. `main` 대상은 승인이 필요 없습니다.
 - 병합은 merge 커밋으로 합니다. squash와 rebase는 꺼져 있습니다.
 - 병합은 PR 작성자가 직접 합니다.
@@ -72,7 +72,7 @@ PR 본문에 `close #이슈번호`를 적으면 병합 시 이슈가 자동으�
 
 - 배포는 `develop` → `main` PR을 merge 커밋으로 병합합니다. `main`에 병합되면 Vercel이 프로덕션으로 자동 배포합니다.
 - hotfix는 프로덕션 버그를 고칠 때만 씁니다. `main`에서 `hotfix/<설명>` 브랜치를 따서 `main`으로 PR을 올리고 바로 병합할 수 있습니다.
-- hotfix를 `main`에 병합한 뒤에는 같은 브랜치를 `develop`으로 PR 올려 사후 리뷰(승인 1개)를 받습니다.
+- hotfix를 `main`에 병합한 뒤에는 같은 브랜치를 `develop`으로 PR 올려 사후 리뷰(승인 1개)를 받습니다. hotfix 브랜치는 이 PR이 병합될 때까지 지우지 않습니다.
 - `main`으로 가는 PR은 `main-source-check`가 출발 브랜치를 검사합니다.
 
 ## 공통 UI와 디자인 토큰
