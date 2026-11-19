@@ -1,0 +1,26 @@
+name: main-source-check
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited]
+permissions: {}
+jobs:
+  source-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: develop 또는 hotfix/* 만 허용
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          [ "$HEAD_REPO" = "${{ github.repository }}" ] || { echo "::error::포크 PR은 main에 머지할 수 없습니다"; exit 1; }
+          case "$HEAD_REF" in
+            develop) echo "ok: develop" ;;
+            hotfix/*)
+              case "$AUTHOR" in
+                oofrog|nuyh-99) echo "ok: hotfix by $AUTHOR" ;;
+                *) echo "::error::hotfix PR은 FE 담당자만 올릴 수 있습니다"; exit 1 ;;
+              esac ;;
+            *) echo "::error::main에는 develop 또는 hotfix/* 만 머지할 수 있습니다 (현재: $HEAD_REF)"; exit 1 ;;
+          esac
