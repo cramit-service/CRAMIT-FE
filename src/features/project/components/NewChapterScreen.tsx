@@ -60,7 +60,8 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
 
   const isPending = createChapter.isPending;
   const canSubmit =
-    (materialFile !== null || audioFile !== null) &&
+    materialFile !== null &&
+    audioFile !== null &&
     !materialError &&
     !audioError &&
     !isPending;
@@ -200,16 +201,13 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
           <RecordingSlot />
         </div>
 
-        {/* STT가 PDF에서 전공 용어를 먼저 뽑고 그걸로 음성을 푼다.
-            자료 없이도 돌아가지만 정확도가 떨어지므로 올리기 전에 알려 준다. */}
+        {/* 올리는 순간 요약을 만들기 시작해서, 등록한 뒤에는 파일을 바꿀 수 없다. */}
         <div className="text-label space-y-1 text-center text-gray-500">
           <p>
-            강의 자료를 함께 올리면 전공 용어를 먼저 뽑아{' '}
-            <span className="text-gray-700">원문 스크립트가 정확해져요.</span>
+            강의 자료와 녹음 파일을{' '}
+            <span className="text-gray-700">모두 올려야</span> 등록할 수 있어요.
           </p>
-          <p>
-            강의 자료만 먼저 올려 두고, 수업 시간에 다시 들어와 붙여도 돼요.
-          </p>
+          <p>등록한 뒤에는 파일을 바꿀 수 없어요.</p>
         </div>
 
         {formError && <p className="text-label text-red-ink">{formError}</p>}
