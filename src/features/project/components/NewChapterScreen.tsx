@@ -188,6 +188,7 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
             error={materialError}
             onError={setMaterialError}
             disabled={isPending}
+            required
           />
           <FileDropzone
             kind="audio"
@@ -197,17 +198,19 @@ export function NewChapterScreen({ projectId }: NewChapterScreenProps) {
             error={audioError}
             onError={setAudioError}
             disabled={isPending}
+            required
           />
           <RecordingSlot />
         </div>
 
-        {/* 올리는 순간 요약을 만들기 시작해서, 등록한 뒤에는 파일을 바꿀 수 없다. */}
+        {/* 올리는 순간 요약을 만들기 시작해서, 업로드한 뒤에는 파일을 바꿀 수 없다. */}
         <div className="text-label space-y-1 text-center text-gray-500">
           <p>
-            강의 자료와 녹음 파일을{' '}
-            <span className="text-gray-700">모두 올려야</span> 등록할 수 있어요.
+            강의 자료와 녹음 파일이{' '}
+            <span className="text-gray-700">모두 있어야</span> 업로드할 수
+            있어요.
           </p>
-          <p>등록한 뒤에는 파일을 바꿀 수 없어요.</p>
+          <p>업로드한 뒤에는 파일을 바꿀 수 없어요.</p>
         </div>
 
         {formError && <p className="text-label text-red-ink">{formError}</p>}
