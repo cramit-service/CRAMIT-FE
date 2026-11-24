@@ -254,6 +254,7 @@ export function Sidebar({ expanded, onToggle, nav }: SidebarProps) {
                   width={32}
                   height={32}
                   unoptimized
+                  referrerPolicy="no-referrer"
                   className="size-full object-cover"
                 />
               </span>
