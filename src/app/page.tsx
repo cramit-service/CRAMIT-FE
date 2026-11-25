@@ -1,7 +1,8 @@
 // src/app/page.tsx
 import { LandingHeader } from '@/features/landing/components/LandingHeader';
 import { HeroSection } from '@/features/landing/components/HeroSection';
-import { StorySection } from '@/features/landing/components/StorySection';
+import { WhySection } from '@/features/landing/components/WhySection';
+import { Chapters } from '@/features/landing/components/Chapters';
 import { FinalCtaSection } from '@/features/landing/components/FinalCtaSection';
 import { Logo } from '@/shared/ui/Logo';
 
@@ -11,7 +12,8 @@ export default function LandingPage() {
       <LandingHeader />
       <main>
         <HeroSection />
-        <StorySection />
+        <WhySection />
+        <Chapters />
         <FinalCtaSection />
       </main>
       <footer className="text-label mx-auto flex max-w-[1200px] items-center justify-between border-t border-gray-100 px-4 py-8 text-gray-500">

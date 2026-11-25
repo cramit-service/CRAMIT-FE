@@ -21,7 +21,7 @@ export function HeroSection() {
             무료로 시작하기
           </Button>
           <Link
-            href="#story"
+            href="#why"
             className="text-body-md font-medium text-gray-800 hover:text-gray-700"
           >
             더 알아보기 ›

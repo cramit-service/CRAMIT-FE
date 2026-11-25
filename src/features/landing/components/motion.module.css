@@ -1,0 +1,191 @@
+/* src/features/landing/components/motion.module.css
+   랜딩 조각들의 움직임. Motion이 data-motion을 붙일 때만 돈다 — 없으면 아래 규칙이 하나도 안 걸려
+   조각이 끝 상태로 보인다. armed는 0%에서 기다리는 상태라 화면에 들어오기 전엔 처음 모습이다. */
+
+.root[data-motion='armed'] *,
+.root[data-motion='armed'] *::after,
+.root[data-motion='pause'] *,
+.root[data-motion='pause'] *::after {
+  animation-play-state: paused !important;
+}
+
+@keyframes up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes inLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes busy {
+  0% {
+    visibility: visible;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0.45;
+  }
+  48% {
+    opacity: 1;
+  }
+  66% {
+    opacity: 0.45;
+  }
+  88% {
+    visibility: visible;
+    opacity: 1;
+  }
+  100% {
+    visibility: hidden;
+    opacity: 0;
+  }
+}
+@keyframes bar {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+@keyframes line {
+  0%,
+  32% {
+    background-color: var(--color-lime-pale);
+    color: var(--color-gray-800);
+  }
+  33.4%,
+  100% {
+    background-color: transparent;
+    color: var(--color-gray-700);
+  }
+}
+@keyframes sweep {
+  from {
+    background-size: 0 100%;
+  }
+  to {
+    background-size: 100% 100%;
+  }
+}
+@keyframes check {
+  from {
+    background-color: var(--color-surface);
+    border-color: var(--color-gray-400);
+    color: transparent;
+  }
+  to {
+    background-color: var(--color-lime-action);
+    border-color: var(--color-lime-action);
+    color: var(--color-gray-800);
+  }
+}
+@keyframes strike {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+@keyframes fade {
+  from {
+    color: var(--color-gray-800);
+  }
+  to {
+    color: var(--color-gray-500);
+  }
+}
+/* 실제 화면 캡처의 전 → 후. 후 장면이 위에 겹쳐 있다가 나타났다 사라진다 */
+@keyframes swap {
+  0%,
+  30% {
+    opacity: 0;
+  }
+  40%,
+  85% {
+    opacity: 1;
+  }
+  95%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes click {
+  from {
+    opacity: 1;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
+/* 흩어진 창: 커서가 누를 때 퍼지는 고리. 누를 때마다 key가 바뀌어 다시 돈다 */
+.click {
+  animation: click 0.45s ease-out both;
+}
+
+/* 한 번 도는 것 — 지연은 요소에 style로 준다 */
+.root[data-motion] .up {
+  animation: up 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.root[data-motion] .inLeft {
+  animation: inLeft 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.root[data-motion] .pop {
+  animation: pop 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.root[data-motion] .busy {
+  animation: busy 2s linear 1.1s both;
+}
+.root[data-motion] .sweep {
+  animation: sweep 0.7s ease 0.2s both;
+}
+.root[data-motion] .check {
+  animation: check 0.25s ease 1.2s both;
+}
+.root[data-motion] .strike {
+  animation: fade 0.3s ease 1.35s both;
+}
+.root[data-motion] .strike::after {
+  animation: strike 0.4s ease 1.35s both;
+}
+
+/* 반복하는 것 */
+.root[data-motion] .bar {
+  animation: bar 6s linear infinite;
+}
+.root[data-motion] .line {
+  animation: line 6s steps(1, end) infinite;
+}
+.root[data-motion] .swap {
+  animation: swap 5s ease-in-out infinite;
+}
