@@ -4,7 +4,7 @@ import './globals.css';
 import { QueryProvider } from '@/shared/lib/QueryProvider';
 
 export const metadata: Metadata = {
-  title: 'Cramit',
+  title: 'CRAMIT',
   description: 'AI 기반 스마트 학습 어시스턴트',
 };
 
