@@ -107,6 +107,12 @@ export function updateMockChapter(chapter: Chapter): void {
   if (i !== -1) mockChapters[i] = chapter;
 }
 
+// mock 전용: 주차 하나를 목록에서 뺀다.
+export function removeMockChapter(chapterId: number): void {
+  const i = mockChapters.findIndex((c) => c.chapterId === chapterId);
+  if (i !== -1) mockChapters.splice(i, 1);
+}
+
 // 학습 뷰어(PDF 강의 자료 탭) mock — Figma 시안값 그대로 12페이지 / 61:02.
 export const mockLectureMaterial: LectureMaterial = {
   chapterId: 4,

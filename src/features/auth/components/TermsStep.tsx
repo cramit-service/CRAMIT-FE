@@ -1,8 +1,10 @@
 'use client';
 // src/features/auth/components/TermsStep.tsx
+import { useState } from 'react';
 import type { Term } from '@/shared/types/api';
 import { Button } from '@/shared/ui/Button';
 import { Checkbox } from '@/shared/ui/Checkbox';
+import { DocumentModal } from '@/shared/ui/DocumentModal';
 
 interface TermsStepProps {
   /** 불러오기 전에는 undefined. */
@@ -20,6 +22,8 @@ export function TermsStep({
   agreedIds,
   onChange,
 }: TermsStepProps) {
+  const [readingId, setReadingId] = useState<number | null>(null);
+
   const title = (
     <h1 className="text-heading-md font-semibold text-gray-800">
       서비스 약관에 동의해 주세요.
@@ -57,6 +61,8 @@ export function TermsStep({
     onChange(checked ? [...agreedIds, id] : agreedIds.filter((v) => v !== id));
   };
 
+  const reading = terms.find((t) => t.termId === readingId);
+
   return (
     <div className="read-col">
       {title}
@@ -70,21 +76,53 @@ export function TermsStep({
           }
         />
 
-        <div className="mt-5 flex flex-col items-start gap-3 pl-6">
+        <div className="mt-5 flex flex-col gap-3 pl-6">
           {terms.map((term) => (
-            <Checkbox
+            <div
               key={term.termId}
-              checked={agreedIds.includes(term.termId)}
-              onChange={(checked) => toggleOne(term.termId, checked)}
-              label={
-                <span className="text-label">
-                  ({term.required ? '필수' : '선택'}) {term.title}
-                </span>
-              }
-            />
+              className="flex items-center justify-between gap-3"
+            >
+              <Checkbox
+                checked={agreedIds.includes(term.termId)}
+                onChange={(checked) => toggleOne(term.termId, checked)}
+                label={
+                  <span className="text-label">
+                    ({term.required ? '필수' : '선택'}) {term.title}
+                  </span>
+                }
+              />
+              <Button
+                rank="secondary"
+                size="sm"
+                aria-label={`${term.title} 보기`}
+                onClick={() => setReadingId(term.termId)}
+              >
+                보기
+              </Button>
+            </div>
           ))}
         </div>
       </div>
+
+      <DocumentModal
+        open={!!reading}
+        title={reading?.title ?? ''}
+        action={
+          // 이미 동의한 약관이면 닫기만 남긴다
+          reading && !agreedIds.includes(reading.termId)
+            ? {
+                label: '동의하기',
+                onClick: () => {
+                  toggleOne(reading.termId, true);
+                  setReadingId(null);
+                },
+              }
+            : undefined
+        }
+        onClose={() => setReadingId(null)}
+      >
+        {reading?.content}
+      </DocumentModal>
     </div>
   );
 }

@@ -100,6 +100,7 @@ export function ProfileScreen() {
           width={110}
           height={110}
           unoptimized
+          referrerPolicy="no-referrer"
           priority
           className="size-full object-cover"
         />

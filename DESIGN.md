@@ -1369,8 +1369,10 @@ chapter is deleted and made again, and for a 200MB recording that is the whole
 upload a second time. It is accepted because all three are the same mistake,
 made and noticed in the same minute, on the screen that just did it. **Deleting
 a chapter becomes the only way back, so deleting one has to ask first** — which
-is what `ConfirmModal` is for, and it opens from the list, where no modal is in
-the way.
+is what `ConfirmModal` is for. It opens from a trash icon at the far end of the
+viewer's title row, past the 회독 stepper. The viewer is where a chapter's title
+is edited and where a wrong file is noticed, and the list keeps its one slot and
+no button.
 
 Three form modals are left: the exam, the todo and the lecture.
 

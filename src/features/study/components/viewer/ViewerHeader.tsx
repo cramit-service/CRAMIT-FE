@@ -3,6 +3,7 @@
 import { ViewerTabs } from '@/features/study/components/viewer/ViewerTabs';
 import { EditableChapterTitle } from '@/features/study/components/viewer/EditableChapterTitle';
 import { ReviewStepper } from '@/features/study/components/viewer/ReviewStepper';
+import { DeleteChapterButton } from '@/features/study/components/viewer/DeleteChapterButton';
 import { Toggle } from '@/shared/ui/Toggle';
 import { formatChapterDay } from '@/features/study/lib/format';
 import type { Chapter, ViewerTab } from '@/shared/types/api';
@@ -70,13 +71,15 @@ export function ViewerHeader({
           두면 사람이 가장 늦게 찾는 구석에 두 번째 출구가 생긴다. */}
         <div className="relative flex flex-wrap items-center gap-x-4 gap-y-3">
           <EditableChapterTitle chapter={chapter} />
-          {/* 회독. 제목 반대편 끝에 선다 — 제목은 무엇을 보는지고, 이건 몇 번 봤는지다. */}
-          <div className="ml-auto">
+          {/* 회독. 제목 반대편 끝에 선다 — 제목은 무엇을 보는지고, 이건 몇 번 봤는지다.
+              삭제 실패 문구는 이 줄(relative) 기준으로 아래에 뜬다. */}
+          <div className="ml-auto flex items-center gap-4">
             <ReviewStepper
               projectId={chapter.projectId}
               chapterId={chapter.chapterId}
               reviewCount={chapter.reviewCount}
             />
+            <DeleteChapterButton chapter={chapter} />
           </div>
         </div>
 

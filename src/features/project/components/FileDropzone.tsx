@@ -21,6 +21,7 @@ interface FileDropzoneProps {
   error: string | null;
   onError: (message: string | null) => void;
   disabled?: boolean;
+  required?: boolean;
 }
 
 // 강의 자료(PDF) / 음성 파일을 끌어다 놓거나 눌러서 고르는 칸. Figma 시안 387×270.
@@ -37,6 +38,7 @@ export function FileDropzone({
   error,
   onError,
   disabled,
+  required = false,
 }: FileDropzoneProps) {
   const inputId = useId();
   const errorId = useId();
@@ -65,8 +67,15 @@ export function FileDropzone({
     // 좁아야 라벨이 자기 상자에 붙는다 — 같으면 라벨이 옆 칸의 것으로도 읽힌다.
     // 22였는데 §2 간격 목록에 없는 값이다.
     <div className="flex min-w-0 flex-col gap-5">
-      {/* 라벨은 시안 20px. */}
-      <p className="text-body-md text-gray-700">{label}</p>
+      {/* 라벨은 시안 20px이라 FieldLabel(16px) 대신 직접 그린다. 별표 모양은 FieldLabel과 같다. */}
+      <p className="text-body-md text-gray-700">
+        {label}
+        {required && (
+          <span aria-hidden className="text-red-ink">
+            *
+          </span>
+        )}
+      </p>
 
       {/* relative — 안의 input이 sr-only(=absolute)라 기준이 필요하다 (CLAUDE.md 4-6).
           focus-within — 이름도 글자도 없는 input이라 포커스가 어디 있는지 칸이 말해 준다. */}

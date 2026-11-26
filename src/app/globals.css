@@ -175,25 +175,6 @@
       transform: translate3d(-8%, -10%, 0) scale(1.05);
     }
   }
-
-  /* ===== 랜딩 스플래시 =====
-     4.2초 중 65%(약 2.7초)를 그대로 머문 뒤 1.5초에 걸쳐 걷힌다.
-     세션당 한 번만 보이므로 조금 길어도 반복해서 기다릴 일은 없다.
-     움직임이 아니라 불투명도만 다루므로 prefers-reduced-motion에서도 그대로 둔다
-     (끄면 스플래시가 영영 안 사라진다). */
-  --animate-splash-out: splash-out 4.2s ease-in-out forwards;
-
-  @keyframes splash-out {
-    0%,
-    65% {
-      opacity: 1;
-      visibility: visible;
-    }
-    100% {
-      opacity: 0;
-      visibility: hidden;
-    }
-  }
 }
 
 /* ===== 쌓임 순서 =====
@@ -216,9 +197,6 @@
 }
 @utility z-tooltip {
   z-index: 70; /* 툴팁. 모달 안에서도 떠야 해서 모달 위다 */
-}
-@utility z-splash {
-  z-index: 100; /* 랜딩 스플래시 */
 }
 
 /* ===== 콘텐츠 열 =====
@@ -535,10 +513,4 @@
 body {
   background-color: var(--color-canvas);
   color: var(--color-gray-700);
-}
-
-/* 세션 안에서 스플래시를 이미 봤으면 아예 그리지 않는다.
-   판정은 LandingSplash의 인라인 스크립트가 첫 페인트 전에 끝낸다 */
-html[data-splash='seen'] [data-splash-overlay] {
-  display: none;
 }
