@@ -29,6 +29,7 @@ import {
   addMockChapter,
   findMockChapter,
   nextMockChapterNumber,
+  removeMockChapter,
   updateMockChapter,
 } from '@/mocks/study';
 
@@ -252,4 +253,17 @@ export async function updateChapter(
     { title: req.title, weekDate: req.lectureDate },
     { signal: options.signal },
   );
+}
+
+// 주차 삭제 — 학습 화면 헤더의 휴지통. 강의 삭제처럼 화면이 ConfirmModal로 먼저 묻는다.
+export async function deleteChapter(chapterId: number): Promise<void> {
+  if (USE_MOCK) {
+    await delay(300);
+    if (!findMockChapter(chapterId)) {
+      throw new Error('삭제할 주차를 찾지 못했어요.');
+    }
+    removeMockChapter(chapterId);
+    return;
+  }
+  await apiClient.delete<void>(`/weeks/${chapterId}`);
 }
