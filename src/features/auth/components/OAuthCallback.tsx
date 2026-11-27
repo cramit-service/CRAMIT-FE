@@ -9,9 +9,7 @@ export function OAuthCallback() {
   const router = useRouter();
 
   useEffect(() => {
-    const next = completeSocialLogin(
-      new URLSearchParams(window.location.search),
-    );
+    const next = completeSocialLogin(window.location);
     // replace — 토큰이 담긴 주소를 방문 기록에 남기지 않는다
     router.replace(next ?? '/login?error=oauth');
   }, [router]);

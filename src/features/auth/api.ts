@@ -18,23 +18,30 @@ const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 // 소셜 로그인 제공자. User.provider에서 이메일을 뺀 값과 항상 일치시킨다.
 export type SocialProvider = Exclude<User['provider'], 'EMAIL'>;
 
-// 소셜 로그인 시작 주소. 인가는 백엔드가 처리하고 /oauth/callback?accessToken=… 으로 돌려보낸다.
+// 소셜 로그인 시작 주소. 인가는 백엔드가 처리하고 /oauth/callback?isNewUser=…#accessToken=… 으로 돌려보낸다.
 // mock은 백엔드 대신 콜백으로 바로 돌아온다.
 export function socialLoginHref(provider: SocialProvider): string {
   if (USE_MOCK) {
-    return `/oauth/callback?accessToken=${mockLoginResponse.accessToken}&isNewUser=true`;
+    return `/oauth/callback?isNewUser=true#accessToken=${mockLoginResponse.accessToken}`;
   }
   return `${BASE_URL}/oauth2/authorization/${provider.toLowerCase()}`;
 }
 
-// 콜백 쿼리의 토큰을 저장하고 다음 경로를 돌려준다. 토큰이 없으면 실패로 보고 null.
-export function completeSocialLogin(params: URLSearchParams): string | null {
-  const accessToken = params.get('accessToken');
+// 콜백 주소의 토큰(fragment)을 저장하고 다음 경로를 돌려준다. 토큰이 없으면 실패로 보고 null.
+export function completeSocialLogin({
+  search,
+  hash,
+}: Pick<Location, 'search' | 'hash'>): string | null {
+  const query = new URLSearchParams(search);
+  // TODO: 백엔드 fragment 전달(BE #130)이 운영에 배포된 게 확인되면 쿼리 폴백을 지운다
+  const accessToken =
+    new URLSearchParams(hash.slice(1)).get('accessToken') ??
+    query.get('accessToken');
   if (!accessToken) return null;
 
   setAccessToken(accessToken);
   // isNewUser는 "온보딩 미완료"다. 가입만 하고 중간에 나간 회원도 true로 온다.
-  return params.get('isNewUser') === 'false' ? '/home' : '/onboarding';
+  return query.get('isNewUser') === 'false' ? '/home' : '/onboarding';
 }
 
 export async function checkNickname(
