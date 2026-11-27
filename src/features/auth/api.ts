@@ -32,13 +32,16 @@ export function completeSocialLogin({
   search,
   hash,
 }: Pick<Location, 'search' | 'hash'>): string | null {
-  const accessToken = new URLSearchParams(hash.slice(1)).get('accessToken');
+  const query = new URLSearchParams(search);
+  // TODO: 백엔드 fragment 전달(BE #130)이 운영에 배포된 게 확인되면 쿼리 폴백을 지운다
+  const accessToken =
+    new URLSearchParams(hash.slice(1)).get('accessToken') ??
+    query.get('accessToken');
   if (!accessToken) return null;
 
   setAccessToken(accessToken);
   // isNewUser는 "온보딩 미완료"다. 가입만 하고 중간에 나간 회원도 true로 온다.
-  const isNewUser = new URLSearchParams(search).get('isNewUser');
-  return isNewUser === 'false' ? '/home' : '/onboarding';
+  return query.get('isNewUser') === 'false' ? '/home' : '/onboarding';
 }
 
 export async function checkNickname(
